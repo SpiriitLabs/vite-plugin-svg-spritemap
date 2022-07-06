@@ -1,4 +1,4 @@
 export interface Options {
-  icons: string | string[]
+  icons: string
   //   svgo: boolean
 }
