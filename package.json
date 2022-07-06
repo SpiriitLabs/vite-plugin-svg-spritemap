@@ -1,0 +1,40 @@
+{
+  "name": "svg-spritemap-vitejs-plugin",
+  "version": "1.0.0",
+  "engines": {
+    "node": ">= 14"
+  },
+  "description": "Generates symbol-based SVG spritemap from all .svg files in a directory",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "svg",
+    "sprite",
+    "sprites",
+    "spritemap",
+    "symbols",
+    "icons",
+    "sass",
+    "scss",
+    "css",
+    "less",
+    "variables",
+    "vite-plugin"
+  ],
+  "author": "Spiriit",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "@types/svgo": "^2.6.3",
+    "rollup": "^2.75.7",
+    "typescript": "^4.7.4",
+    "vite": "^2.9.13",
+    "vitest": "^0.17.0"
+  },
+  "dependencies": {
+    "fast-glob": "^3.2.11",
+    "svg-mixer": "^2.3.14",
+    "svgo": "^2.8.0"
+  }
+}

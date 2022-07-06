@@ -1,0 +1,14 @@
+.github/
+.vscode/
+demo/
+docs/
+node_modules/
+src/
+test/
+.babelrc.json
+.eslintignore
+.eslintrc.json
+.prettierignore
+.prettierrc.json
+rollup.config.ts
+tsconfig.json
