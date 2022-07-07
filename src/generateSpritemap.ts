@@ -8,8 +8,8 @@ class Symbol extends SpriteSymbol {
   }
 }
 
-export const generateSpritemap = async (icons: string) => {
-  const result = await mixer(icons, {
+export const generateSpritemap = async (iconsPattern: string | string[]) => {
+  const result = await mixer(iconsPattern, {
     // @ts-ignore Old typing
     symbolClass: Symbol,
     // @ts-ignore Old typing

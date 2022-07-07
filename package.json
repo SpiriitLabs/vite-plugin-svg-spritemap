@@ -33,7 +33,9 @@
     "vitest": "^0.17.0"
   },
   "dependencies": {
+    "@types/hash-sum": "^1.0.0",
     "fast-glob": "^3.2.11",
+    "hash-sum": "^2.0.0",
     "svg-mixer": "^2.3.14",
     "svgo": "^2.8.0"
   }

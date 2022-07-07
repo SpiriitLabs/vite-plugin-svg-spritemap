@@ -1,17 +1,18 @@
-import { Options } from '../types'
+import { AdvancedOptions, Pattern } from '../types'
 import type { Plugin } from 'vite'
 import fg from 'fast-glob'
 import { generateSpritemap } from '../generateSpritemap'
+import hash_sum from 'hash-sum'
 
-export function DevPlugin(options: Options) {
+export function DevPlugin(iconsPattern: Pattern, options?: AdvancedOptions) {
   let spritemap: string | false = false
   let timeout: NodeJS.Timeout
-  let timestamp: string
+  let id: string
 
   return <Plugin>{
     name: 'vite-plugin-svg-spritemap:dev',
     async load() {
-      const icons = await fg(options.icons)
+      const icons = await fg(iconsPattern)
       for (const icon in icons) {
         this.addWatchFile(icon)
       }
@@ -19,7 +20,7 @@ export function DevPlugin(options: Options) {
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         if (!spritemap) {
-          spritemap = await generateSpritemap(options.icons)
+          spritemap = await generateSpritemap(iconsPattern)
         }
         if (req.url?.startsWith('/__spritemap') && spritemap) {
           res.statusCode = 200
@@ -34,23 +35,22 @@ export function DevPlugin(options: Options) {
     transformIndexHtml: {
       enforce: 'post',
       async transform(html) {
-        if (!timestamp) {
+        if (!id) {
           return html
         } else {
           return html.replace(
             /__spritemap-\d*|__spritemap/g,
-            `__spritemap-${timestamp}`
+            `__spritemap__${id}`
           )
         }
       }
     },
     handleHotUpdate(ctx) {
-      //generate new spritemap on icon changes
       if (ctx.file.endsWith('.svg')) {
         clearTimeout(timeout)
         timeout = setTimeout(async () => {
-          spritemap = await generateSpritemap(options.icons)
-          timestamp = Date.now().toString()
+          spritemap = await generateSpritemap(iconsPattern)
+          id = hash_sum(spritemap)
           ctx.server.ws.send({ type: 'full-reload' })
         })
       }
