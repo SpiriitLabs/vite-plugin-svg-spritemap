@@ -1,18 +1,32 @@
-import type { OptimizeOptions } from 'svgo'
+import type { OptimizeOptions as SvgoOptimizeOptions } from 'svgo'
 
 export type Pattern = string[] | string
 
-export type StyleLangs = 'less' | 'scss' | 'styl' | 'css'
+export type StylesLang = 'less' | 'scss' | 'styl' | 'css'
+export type StylesFormat = 'auto' | 'data' | 'fragment'
 
-export interface AdvancedOptions {
-  svgo?: boolean | OptimizeOptions
+export interface UserOptions {
+  svgo?: boolean | SvgoOptimizeOptions
   output?: {
     filename?: string
   }
   prefix?: string
   styles?:
     | {
-        format: 'data' | 'fragment'
+        format: StylesFormat
       }
     | boolean
+}
+
+export interface Options {
+  svgo: SvgoOptimizeOptions | false
+  output: {
+    filename: string
+  }
+  prefix: string
+  styles:
+    | {
+        format: StylesFormat
+      }
+    | false
 }

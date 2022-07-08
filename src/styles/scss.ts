@@ -1,11 +1,10 @@
-import { Pattern } from '../types'
-import { Style } from './style'
+import { Styles } from './styles'
 
-export class StyleScss extends Style {
+export class ScssStyles extends Styles {
   _generate() {
     let insert = '$sprites: (\n'
     insert += this.createSpriteMap((name, svg, isLast) => {
-      return `\t'${name}': "${svg.source}"${!isLast ? ',' : ''}\n`
+      return `\t'${name}': "${svg.svgDataUri}"${!isLast ? ',' : ''}\n`
     })
     insert += ');\n'
 

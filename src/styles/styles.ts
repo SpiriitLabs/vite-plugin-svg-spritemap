@@ -1,64 +1,68 @@
 import svgToMiniDataURI from 'mini-svg-data-uri'
 import fg from 'fast-glob'
-import { Pattern, StyleLangs } from '../types'
+import { Options, Pattern, StylesLang } from '../types'
 import { readFile } from 'fs'
 import { promisify } from 'util'
-import { optimize } from 'svgo'
+import { optimize, OptimizedError, OptimizedSvg } from 'svgo'
 import { DOMParser } from 'xmldom'
 import { join } from 'path'
 
 interface SvgMapObject {
   width: number
   height: number
-  source: string
+  svgDataUri?: string
 }
 
-export abstract class Style {
+export abstract class Styles {
   protected svgMap: Map<string, SvgMapObject>
   private parser: DOMParser
-  private prefix: string
+  private options: Options
   private iconsPattern: Pattern
 
-  constructor(iconsPattern: Pattern) {
+  constructor(iconsPattern: Pattern, options: Options) {
     this.svgMap = new Map()
     this.parser = new DOMParser()
-    this.prefix = 'sprite-'
+    this.options = options
     this.iconsPattern = iconsPattern
   }
 
   public async fillSvgMap() {
     const icons = await fg(this.iconsPattern)
+
     for (let index = 0; index < icons.length; index++) {
       const icon = icons[index]
-      const svg = await promisify(readFile)(icon, 'utf8')
+      let svg: string = await promisify(readFile)(icon, 'utf8')
       const name = icon.split('/').pop()?.replace('.svg', '')
-      const optimizedSvg = optimize(svg)
-      if (name && 'data' in optimizedSvg) {
-        const svgDataUri = svgToMiniDataURI(optimizedSvg.data)
-        const document = this.parser.parseFromString(
-          optimizedSvg.data,
-          'image/svg+xml'
-        )
-        const documentElement = document.documentElement
-        let width = documentElement.getAttribute('width')
-        let height = documentElement.getAttribute('height')
-        const viewBox = documentElement.getAttribute('viewBox')
-
-        if (viewBox) {
-          if (!width) {
-            width = viewBox.split(' ')[2]
-          }
-          if (!height) {
-            height = viewBox.split(' ')[3]
-          }
+      if (!name) continue
+      if (this.options.svgo) {
+        const optimizedSvg = optimize(svg, this.options.svgo)
+        if (name && 'data' in optimizedSvg) {
+          svg = optimizedSvg.data
         }
-
-        this.svgMap.set(name, {
-          width: Number(width),
-          height: Number(height),
-          source: svgDataUri
-        })
       }
+
+      const document = this.parser.parseFromString(svg, 'image/svg+xml')
+      const documentElement = document.documentElement
+      let width = documentElement.getAttribute('width')
+      let height = documentElement.getAttribute('height')
+      const viewBox = documentElement.getAttribute('viewBox')
+
+      if (viewBox) {
+        if (!width) {
+          width = viewBox.split(' ')[2]
+        }
+        if (!height) {
+          height = viewBox.split(' ')[3]
+        }
+      }
+
+      const svgDataUri = svgToMiniDataURI(svg)
+
+      this.svgMap.set(name, {
+        width: Number(width),
+        height: Number(height),
+        svgDataUri
+      })
     }
   }
 
@@ -69,7 +73,7 @@ export abstract class Style {
     let index = 1
     this.svgMap.forEach((svg, name) => {
       spriteMap += `${generator(
-        this.prefix + name,
+        this.options.prefix + name,
         svg,
         index === this.svgMap.size
       )}\n`
@@ -78,7 +82,7 @@ export abstract class Style {
     return spriteMap
   }
 
-  private async insert(lang: StyleLangs, insert: string): Promise<string> {
+  private async insert(lang: StylesLang, insert: string): Promise<string> {
     const file = await promisify(readFile)(
       join(__dirname, `/template.${lang}`),
       'utf8'
@@ -88,7 +92,7 @@ export abstract class Style {
 
   protected abstract _generate(): string
 
-  public async generate(lang: StyleLangs) {
+  public async generate(lang: StylesLang): Promise<string> {
     await this.fillSvgMap()
     const insert = this._generate()
     return await this.insert(lang, insert)
