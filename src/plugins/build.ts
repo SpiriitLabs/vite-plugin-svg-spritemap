@@ -3,7 +3,6 @@ import type { Plugin, ResolvedConfig } from 'vite'
 import { generateSpritemap } from '../generateSpritemap'
 import { join } from 'path'
 import hash_sum from 'hash-sum'
-// import { Style } from '../styles/style'
 
 export function BuildPlugin(iconsPattern: Pattern, options?: AdvancedOptions) {
   let spritemap: string | false = false
@@ -20,8 +19,6 @@ export function BuildPlugin(iconsPattern: Pattern, options?: AdvancedOptions) {
     async load() {
       spritemap = await generateSpritemap(iconsPattern)
       fileName = `spritemap.${hash_sum(spritemap)}.svg`
-
-      // new Style(iconsPattern)
     },
     transformIndexHtml: {
       enforce: 'post',
