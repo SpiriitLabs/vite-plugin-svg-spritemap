@@ -1,17 +1,33 @@
 import { Options, Pattern } from '../types'
-import type { Plugin } from 'vite'
 import fg from 'fast-glob'
-import { generateSpritemap } from '../generateSpritemap'
+import { generateSpritemap } from '../spritemap'
 import hash_sum from 'hash-sum'
+import type { Plugin } from 'vite'
+import { createFilter } from 'rollup-pluginutils'
+
+const event = 'vite-plugin-svg-spritemap:update'
 
 export function DevPlugin(iconsPattern: Pattern, options: Options) {
   let spritemap: string | false = false
   let timeout: NodeJS.Timeout
   let id: string
+  const filter = createFilter(/\.svg$/)
+  const virtualModuleId = '/@vite-plugin-svg-spritemap/client'
 
   return <Plugin>{
     name: 'vite-plugin-svg-spritemap:dev',
-    async load() {
+    apply: 'serve',
+    resolveId(id) {
+      if (id === virtualModuleId) {
+        return id
+      }
+    },
+    load(id) {
+      if (id === virtualModuleId) {
+        return generateHMR()
+      }
+    },
+    async buildStart() {
       const icons = await fg(iconsPattern)
       const directories: Set<string> = new Set()
       icons.forEach(icon => {
@@ -39,25 +55,58 @@ export function DevPlugin(iconsPattern: Pattern, options: Options) {
     transformIndexHtml: {
       enforce: 'post',
       async transform(html) {
-        if (!id) {
-          return html
-        } else {
-          return html.replace(
-            /__spritemap-\d*|__spritemap/g,
-            `__spritemap__${id}`
-          )
+        if (id) {
+          html.replace(/__spritemap-\d*|__spritemap/g, `__spritemap__${id}`)
         }
+
+        return html.replace(
+          '</body>',
+          `<script type="module" src="${virtualModuleId}"></script></body>`
+        )
       }
     },
     handleHotUpdate(ctx) {
-      if (ctx.file.endsWith('.svg')) {
-        clearTimeout(timeout)
-        timeout = setTimeout(async () => {
-          spritemap = await generateSpritemap(iconsPattern, options)
-          id = hash_sum(spritemap)
-          ctx.server.ws.send({ type: 'full-reload' })
-        })
+      if (!filter(ctx.file)) {
+        return
       }
+
+      clearTimeout(timeout)
+      timeout = setTimeout(async () => {
+        spritemap = await generateSpritemap(iconsPattern, options)
+        id = hash_sum(spritemap)
+        ctx.server.ws.send({
+          type: 'custom',
+          event,
+          data: {
+            id
+          }
+        })
+      })
     }
   }
+}
+
+function generateHMR() {
+  return `import.meta.hot.on('${event}', data => {
+    console.log('[vite-plugin-svg-spritemap]', 'update')
+    const uses = document.getElementsByTagName('use')
+    for (let i = 0; i < uses.length; i++) {
+      const use = uses[i]
+      const xlinkHrefAttr = use.getAttribute('xlink:href')
+      const hrefAttr = use.getAttribute('href')
+      if (hrefAttr !== null && xlinkHrefAttr !== null) continue
+      const href = hrefAttr || xlinkHrefAttr
+      const newHref = href.replace(
+        /__spritemap.*#/g,
+        '__spritemap__' + data.id + '#'
+      )
+
+      if (use.hasAttribute('xlink:href')) {
+        use.setAttribute('xlink:href', newHref)
+      } else if (use.hasAttribute('href')) {
+        use.setAttribute('href', newHref)
+      }
+    }
+  })
+  `
 }

@@ -7,9 +7,11 @@ export type StylesFormat = 'auto' | 'data' | 'fragment'
 
 export interface UserOptions {
   svgo?: boolean | SvgoOptimizeOptions
-  output?: {
-    filename?: string
-  }
+  output?:
+    | {
+        filename?: string
+      }
+    | boolean
   prefix?: string
   styles?:
     | {
@@ -20,9 +22,11 @@ export interface UserOptions {
 
 export interface Options {
   svgo: SvgoOptimizeOptions | false
-  output: {
-    filename: string
-  }
+  output:
+    | {
+        filename: string
+      }
+    | false
   prefix: string
   styles:
     | {

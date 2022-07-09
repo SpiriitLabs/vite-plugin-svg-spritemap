@@ -35,11 +35,11 @@
   },
   "dependencies": {
     "@types/hash-sum": "^1.0.0",
+    "@xmldom/xmldom": "^0.8.2",
     "fast-glob": "^3.2.11",
     "hash-sum": "^2.0.0",
     "mini-svg-data-uri": "^1.4.4",
-    "svg-mixer": "^2.3.14",
-    "svgo": "^2.8.0",
-    "xmldom": "^0.6.0"
+    "rollup-pluginutils": "^2.8.2",
+    "svgo": "^2.8.0"
   }
 }

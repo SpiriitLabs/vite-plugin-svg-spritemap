@@ -1,6 +1,6 @@
 import type { Options, Pattern } from '../types'
 import type { Plugin, ResolvedConfig } from 'vite'
-import { generateSpritemap } from '../generateSpritemap'
+import { generateSpritemap } from '../spritemap'
 import { join } from 'path'
 import hash_sum from 'hash-sum'
 
@@ -16,7 +16,7 @@ export function BuildPlugin(iconsPattern: Pattern, options: Options) {
     configResolved(_config) {
       config = _config
     },
-    async load() {
+    async buildStart() {
       spritemap = await generateSpritemap(iconsPattern, options)
       fileName = `spritemap.${hash_sum(spritemap)}.svg`
       filePath = join(config.build.assetsDir, fileName)
