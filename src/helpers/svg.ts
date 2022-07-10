@@ -38,7 +38,10 @@ export const loadSvgs = async (iconsPattern: Pattern, options: Options) => {
     }
 
     if (options.svgo !== false) {
-      const optimizedSvg = optimize(svg, options.svgo)
+      const optimizedSvg = optimize(
+        svg,
+        options.svgo(options.prefix + name + '-')
+      )
       if (name && 'data' in optimizedSvg) {
         svg = optimizedSvg.data
       }

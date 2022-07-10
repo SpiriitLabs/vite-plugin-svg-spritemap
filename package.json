@@ -28,10 +28,10 @@
   "devDependencies": {
     "@types/svgo": "^2.6.3",
     "@types/xmldom": "^0.1.31",
-    "rollup": "^2.75.7",
+    "rollup": "^2.76.0",
     "typescript": "^4.7.4",
-    "vite": "^2.9.13",
-    "vitest": "^0.17.0"
+    "vite": "^2.9.14",
+    "vitest": "^0.18.0"
   },
   "dependencies": {
     "@types/hash-sum": "^1.0.0",

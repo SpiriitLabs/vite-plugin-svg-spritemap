@@ -21,7 +21,7 @@ export interface UserOptions {
 }
 
 export interface Options {
-  svgo: SvgoOptimizeOptions | false
+  svgo: ((prefix: string) => SvgoOptimizeOptions) | false
   output:
     | {
         filename: string

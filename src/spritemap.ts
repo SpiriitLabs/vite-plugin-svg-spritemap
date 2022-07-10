@@ -1,6 +1,5 @@
 import { loadSvgs } from './helpers/svg'
 import type { Options, Pattern } from './types'
-// replace xmldom by jsdom
 import { DOMParser, DOMImplementation, XMLSerializer } from '@xmldom/xmldom'
 
 //https://bugs.chromium.org/p/chromium/issues/detail?id=109212 and https://bugs.webkit.org/show_bug.cgi?id=105904

@@ -6,7 +6,7 @@ import { createOptions } from './helpers/options'
 
 export default function VitePluginSvgSpritemap(
   iconsPattern: Pattern,
-  options: UserOptions = {}
+  options?: UserOptions
 ): Plugin[] {
   const _options = createOptions(options)
 

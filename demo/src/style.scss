@@ -1,3 +1,37 @@
 body {
   background-color: #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+//color rainbow gradient animation keyframes
+@keyframes rainbow {
+  0% {
+    color: #ff0000;
+  }
+  33% {
+    color: #ff7f00;
+  }
+  66% {
+    color: #ffff00;
+  }
+  100% {
+    color: #ff0000;
+  }
+}
+
+.icon {
+  margin: 0.5rem;
+
+  &-spiriit {
+    width: 118px;
+    height: 38px;
+  }
+  &-vite {
+    animation: rainbow infinite 1.6s alternate;
+    width: 2rem;
+    height: 2rem;
+  }
 }
