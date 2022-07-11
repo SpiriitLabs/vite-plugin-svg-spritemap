@@ -48,7 +48,7 @@ export const createOptions = (options: UserOptions = {}): Options => {
     output = options.output
   } else {
     output = {
-      filename: 'spritemap.[hash].svg'
+      filename: 'spritemap.[hash][extname]'
     }
   }
 

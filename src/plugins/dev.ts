@@ -1,8 +1,8 @@
-import { Options, Pattern } from '../types'
+import type { Plugin } from 'vite'
+import type { Options, Pattern } from '../types'
 import fg from 'fast-glob'
 import { generateSpritemap } from '../spritemap'
 import hash_sum from 'hash-sum'
-import type { Plugin } from 'vite'
 import { createFilter } from 'rollup-pluginutils'
 
 const event = 'vite-plugin-svg-spritemap:update'

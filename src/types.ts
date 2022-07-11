@@ -7,15 +7,13 @@ export type StylesFormat = 'auto' | 'data' | 'fragment'
 
 export interface UserOptions {
   svgo?: boolean | SvgoOptimizeOptions
-  output?:
-    | {
-        filename?: string
-      }
-    | boolean
+  output?: { filename?: string } | boolean
   prefix?: string
   styles?:
     | {
-        format: StylesFormat
+        filename: string
+        lang: StylesLang
+        format?: StylesFormat
       }
     | boolean
 }

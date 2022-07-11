@@ -1,8 +1,8 @@
-import type { Options, Pattern } from '../types'
 import type { Plugin, ResolvedConfig } from 'vite'
+import type { Options, Pattern } from '../types'
 import { generateSpritemap } from '../spritemap'
 import { join } from 'path'
-import hash_sum from 'hash-sum'
+import { getFileName } from '../helpers/filename'
 
 export function BuildPlugin(iconsPattern: Pattern, options: Options): Plugin {
   let spritemap: string | false = false
@@ -18,8 +18,15 @@ export function BuildPlugin(iconsPattern: Pattern, options: Options): Plugin {
     },
     async buildStart() {
       spritemap = await generateSpritemap(iconsPattern, options)
-      fileName = `spritemap.${hash_sum(spritemap)}.svg`
-      filePath = join(config.build.assetsDir, fileName)
+      if (typeof options.output === 'object') {
+        fileName = getFileName(
+          options.output.filename,
+          'spritemap',
+          spritemap,
+          'svg'
+        )
+        filePath = join(config.build.assetsDir, fileName)
+      }
     },
     transformIndexHtml: {
       enforce: 'post',
@@ -28,7 +35,7 @@ export function BuildPlugin(iconsPattern: Pattern, options: Options): Plugin {
       }
     },
     generateBundle(_, bundle) {
-      if (spritemap) {
+      if (typeof options.output === 'object' && spritemap) {
         bundle[fileName] = {
           isAsset: true,
           name: fileName,
