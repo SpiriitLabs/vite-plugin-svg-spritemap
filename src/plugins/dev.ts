@@ -7,7 +7,7 @@ import { createFilter } from 'rollup-pluginutils'
 
 const event = 'vite-plugin-svg-spritemap:update'
 
-export function DevPlugin(iconsPattern: Pattern, options: Options) {
+export function DevPlugin(iconsPattern: Pattern, options: Options): Plugin {
   let spritemap: string | false = false
   let timeout: NodeJS.Timeout
   let id: string

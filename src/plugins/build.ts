@@ -4,7 +4,7 @@ import { generateSpritemap } from '../spritemap'
 import { join } from 'path'
 import hash_sum from 'hash-sum'
 
-export function BuildPlugin(iconsPattern: Pattern, options: Options) {
+export function BuildPlugin(iconsPattern: Pattern, options: Options): Plugin {
   let spritemap: string | false = false
   let config: ResolvedConfig
   let fileName: string
