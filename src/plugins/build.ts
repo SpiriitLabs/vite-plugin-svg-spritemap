@@ -1,14 +1,14 @@
 import type { Plugin, ResolvedConfig } from 'vite'
 import type { Options, Pattern } from '../types'
-import { generateSpritemap } from '../spritemap'
 import { join } from 'path'
 import { getFileName } from '../helpers/filename'
+import { SVGManager } from '../svgManager'
 
 export function BuildPlugin(iconsPattern: Pattern, options: Options): Plugin {
-  let spritemap: string | false = false
   let config: ResolvedConfig
   let fileName: string
   let filePath: string
+  const svgManager = new SVGManager(iconsPattern, options)
 
   return <Plugin>{
     name: 'vite-plugin-svg-spritemap:build',
@@ -17,12 +17,13 @@ export function BuildPlugin(iconsPattern: Pattern, options: Options): Plugin {
       config = _config
     },
     async buildStart() {
-      spritemap = await generateSpritemap(iconsPattern, options)
+      await svgManager.updateAll()
+
       if (typeof options.output === 'object') {
         fileName = getFileName(
           options.output.filename,
           'spritemap',
-          spritemap,
+          svgManager.spritemap,
           'svg'
         )
         filePath = join(config.build.assetsDir, fileName)
@@ -35,11 +36,11 @@ export function BuildPlugin(iconsPattern: Pattern, options: Options): Plugin {
       }
     },
     generateBundle(_, bundle) {
-      if (typeof options.output === 'object' && spritemap) {
+      if (typeof options.output === 'object') {
         bundle[fileName] = {
           isAsset: true,
           name: fileName,
-          source: spritemap,
+          source: svgManager.spritemap,
           type: 'asset',
           fileName: filePath
         }

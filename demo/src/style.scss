@@ -8,17 +8,11 @@ body {
 
 //color rainbow gradient animation keyframes
 @keyframes rainbow {
-  0% {
+  from {
     color: #ff0000;
   }
-  33% {
-    color: #ff7f00;
-  }
-  66% {
-    color: #ffff00;
-  }
-  100% {
-    color: #ff0000;
+  to {
+    color: #ff9500;
   }
 }
 
@@ -30,7 +24,7 @@ body {
     height: 38px;
   }
   &-vite {
-    animation: rainbow infinite 1.6s alternate;
+    animation: rainbow infinite 1s alternate;
     width: 2rem;
     height: 2rem;
   }

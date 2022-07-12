@@ -20,15 +20,21 @@ export interface UserOptions {
 
 export interface Options {
   svgo: ((prefix: string) => SvgoOptimizeOptions) | false
+  styles:
+    | {
+        format: StylesFormat
+      }
+    | false
   output:
     | {
         filename: string
       }
     | false
   prefix: string
-  styles:
-    | {
-        format: StylesFormat
-      }
-    | false
+}
+
+export interface SvgMapObject {
+  width: number
+  height: number
+  source: string
 }

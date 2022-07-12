@@ -1,18 +1,18 @@
 import type { Plugin } from 'vite'
 import type { Options, Pattern } from '../types'
 import fg from 'fast-glob'
-import { generateSpritemap } from '../spritemap'
 import hash_sum from 'hash-sum'
 import { createFilter } from 'rollup-pluginutils'
+import { SVGManager } from '../svgManager'
 
 const event = 'vite-plugin-svg-spritemap:update'
 
 export function DevPlugin(iconsPattern: Pattern, options: Options): Plugin {
-  let spritemap: string | false = false
   let timeout: NodeJS.Timeout
   let id: string
   const filter = createFilter(/\.svg$/)
   const virtualModuleId = '/@vite-plugin-svg-spritemap/client'
+  const svgManager = new SVGManager(iconsPattern, options)
 
   return <Plugin>{
     name: 'vite-plugin-svg-spritemap:dev',
@@ -28,6 +28,8 @@ export function DevPlugin(iconsPattern: Pattern, options: Options): Plugin {
       }
     },
     async buildStart() {
+      await svgManager.updateAll()
+
       const icons = await fg(iconsPattern)
       const directories: Set<string> = new Set()
       icons.forEach(icon => {
@@ -39,13 +41,10 @@ export function DevPlugin(iconsPattern: Pattern, options: Options): Plugin {
     },
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
-        if (!spritemap) {
-          spritemap = await generateSpritemap(iconsPattern, options)
-        }
-        if (req.url?.startsWith('/__spritemap') && spritemap) {
+        if (req.url?.startsWith('/__spritemap')) {
           res.statusCode = 200
           res.setHeader('Content-Type', 'image/svg+xml')
-          res.write(spritemap, 'utf-8')
+          res.write(svgManager.spritemap, 'utf-8')
           res.end()
         } else {
           next()
@@ -72,8 +71,8 @@ export function DevPlugin(iconsPattern: Pattern, options: Options): Plugin {
 
       clearTimeout(timeout)
       timeout = setTimeout(async () => {
-        spritemap = await generateSpritemap(iconsPattern, options)
-        id = hash_sum(spritemap)
+        svgManager.update(ctx.file)
+        id = hash_sum(svgManager.spritemap)
         ctx.server.ws.send({
           type: 'custom',
           event,
