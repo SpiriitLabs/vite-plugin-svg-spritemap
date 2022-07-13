@@ -1,9 +1,12 @@
+@import './spritemap.scss';
+
 body {
   background-color: #ddd;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  margin: 10vw;
   height: 100vh;
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 //color rainbow gradient animation keyframes
@@ -19,13 +22,32 @@ body {
 .icon {
   margin: 0.5rem;
 
-  &-spiriit {
-    width: 118px;
-    height: 38px;
+  @each $name, $size in $sizes {
+    &-#{$name} {
+      width: map-get($size, 'width');
+      height: map-get($size, 'height');
+    }
   }
+
   &-vite {
     animation: rainbow infinite 1s alternate;
-    width: 2rem;
-    height: 2rem;
+  }
+}
+
+h1 {
+  margin-bottom: 1rem;
+}
+
+.example {
+  margin-top: 4rem;
+  &__svgs {
+    display: flex;
+    align-items: center;
+  }
+
+  @each $name, $size in $sizes {
+    &--bg .icon-#{$name} {
+      @include sprite('#{$name}');
+    }
   }
 }

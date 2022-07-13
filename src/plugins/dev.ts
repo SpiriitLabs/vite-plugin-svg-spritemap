@@ -1,6 +1,8 @@
-import type { Plugin } from 'vite'
+import type { Plugin, ResolvedConfig } from 'vite'
 import type { Options, Pattern } from '../types'
 import fg from 'fast-glob'
+// import { resolve } from 'path'
+// import { promises as fs } from 'fs'
 import hash_sum from 'hash-sum'
 import { createFilter } from 'rollup-pluginutils'
 import { SVGManager } from '../svgManager'
@@ -12,11 +14,16 @@ export function DevPlugin(iconsPattern: Pattern, options: Options): Plugin {
   let id: string
   const filter = createFilter(/\.svg$/)
   const virtualModuleId = '/@vite-plugin-svg-spritemap/client'
-  const svgManager = new SVGManager(iconsPattern, options)
+  let svgManager: SVGManager
+  let config: ResolvedConfig
 
   return <Plugin>{
     name: 'vite-plugin-svg-spritemap:dev',
     apply: 'serve',
+    configResolved(_config) {
+      config = _config
+      svgManager = new SVGManager(iconsPattern, options, config)
+    },
     resolveId(id) {
       if (id === virtualModuleId) {
         return id
@@ -109,3 +116,9 @@ function generateHMR() {
   })
   `
 }
+
+// async function createStyle (style: string) {
+//   console.log(resolve(config.root, 'dev-dist')
+
+//   // await fs.writeFile( , style)
+// }

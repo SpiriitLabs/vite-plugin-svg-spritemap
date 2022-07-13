@@ -1,6 +1,7 @@
 import type { Options, Pattern, SvgMapObject } from './types'
-import { readFile } from 'fs'
-import { promisify } from 'util'
+import type { ResolvedConfig } from 'vite'
+import { promises as fs } from 'fs'
+import { basename, resolve } from 'path'
 import fg from 'fast-glob'
 import { optimize } from 'svgo'
 import { DOMParser, DOMImplementation, XMLSerializer } from '@xmldom/xmldom'
@@ -11,19 +12,21 @@ export class SVGManager {
   private _parser: DOMParser
   private _svgs: Map<string, SvgMapObject>
   private _iconsPattern: Pattern
+  private _config: ResolvedConfig
 
-  constructor(iconsPattern: Pattern, options: Options) {
+  constructor(iconsPattern: Pattern, options: Options, config: ResolvedConfig) {
     this._parser = new DOMParser()
     this._options = options
     this._svgs = new Map()
     this._iconsPattern = iconsPattern
+    this._config = config
   }
 
-  async update(filePath: string) {
-    const name = filePath.split('/').pop()?.replace('.svg', '')
+  async update(filePath: string, loop: boolean = false) {
+    const name = basename(filePath, '.svg')
     if (!name) return false
 
-    let svg: string = await promisify(readFile)(filePath, 'utf8')
+    let svg: string = await fs.readFile(filePath, 'utf8')
     const document = this._parser.parseFromString(svg, 'image/svg+xml')
     const documentElement = document.documentElement
     let width = documentElement.getAttribute('width')
@@ -54,6 +57,10 @@ export class SVGManager {
       height: Number(height),
       source: svg
     })
+
+    if (!loop) {
+      await this.createFileStyle()
+    }
   }
 
   async updateAll() {
@@ -61,8 +68,10 @@ export class SVGManager {
 
     for (let index = 0; index < iconsPath.length; index++) {
       const iconPath = iconsPath[index]
-      await this.update(iconPath)
+      await this.update(iconPath, true)
     }
+
+    await this.createFileStyle()
   }
 
   get spritemap() {
@@ -109,14 +118,17 @@ export class SVGManager {
     return Serializer.serializeToString(spritemap)
   }
 
-  get style() {
-    if (typeof this._options.styles !== 'object') return false
+  private async createFileStyle() {
+    if (typeof this._options.styles !== 'object') return
 
     const styleGen: Styles = new Styles(
       this._svgs,
       this._options.styles.lang,
       this._options
     )
-    return styleGen.generate
+    const content = await styleGen.generate()
+    const path = resolve(this._config.root, this._options.styles.filename)
+
+    fs.writeFile(path, content, 'utf8')
   }
 }

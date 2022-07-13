@@ -7,12 +7,32 @@
     <title>Vite Plugin SVG Spritemap Demo</title>
   </head>
   <body>
-    <svg class="icon icon-spiriit">
-      <use href="__spritemap#sprite-spiriit"></use>
-    </svg>
-    <svg class="icon icon-vite">
-      <use href="__spritemap#sprite-vite"></use>
-    </svg>
+    <h1>Vite Plugin SVG Spritemap Demo</h1>
+
+    <p>This is a demo of the Vite Plugin SVG Spritemap feature.</p>
+
+    <div class="example">
+      <h2>Spritemap with &lt;use></h2>
+
+      <div class="example__svgs">
+        <svg class="icon icon-spiriit">
+          <use href="__spritemap#sprite-spiriit"></use>
+        </svg>
+        <svg class="icon icon-vite">
+          <use href="__spritemap#sprite-vite"></use>
+        </svg>
+      </div>
+    </div>
+
+    <div class="example example--bg">
+      <h2>Spritemap with background-image</h2>
+
+      <div class="example__svgs">
+        <span class="icon icon-spiriit"></span>
+        <span class="icon icon-vite"> </span>
+      </div>
+    </div>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
