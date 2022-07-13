@@ -1,5 +1,5 @@
 import svgToMiniDataURI from 'mini-svg-data-uri'
-import { Options, Pattern, StylesLang, SvgMapObject } from '../types'
+import { Options, StylesLang, SvgMapObject } from '../types'
 import { readFile } from 'fs'
 import { promisify } from 'util'
 import { join } from 'path'
@@ -10,23 +10,30 @@ interface SvgDataUriMapObject {
   svgDataUri?: string
 }
 
-export abstract class Styles {
-  protected svgs: Map<string, SvgDataUriMapObject>
-  private options: Options
+export class Styles {
+  private _svgs: Map<string, SvgDataUriMapObject>
+  private _options: Options
+  private _lang: StylesLang
 
-  constructor(svgs: Map<string, SvgMapObject>, options: Options) {
-    this.svgs = new Map()
+  constructor(
+    svgs: Map<string, SvgMapObject>,
+    lang: StylesLang,
+    options: Options
+  ) {
+    this._svgs = new Map()
+    this._lang = lang
+
     svgs.forEach((svg, name) => {
       const svgDataUri = svgToMiniDataURI(svg.source)
 
-      this.svgs.set(name, {
+      this._svgs.set(name, {
         width: svg.width,
         height: svg.height,
         svgDataUri
       })
     })
-    this.options = options
-    this.options = options
+    this._options = options
+    this._options = options
   }
 
   protected createSpriteMap(
@@ -38,29 +45,58 @@ export abstract class Styles {
   ): string {
     let spriteMap = ''
     let index = 1
-    this.svgs.forEach((svg, name) => {
+    this._svgs.forEach((svg, name) => {
       spriteMap += `${generator(
-        this.options.prefix + name,
+        this._options.prefix + name,
         svg,
-        index === this.svgs.size
+        index === this._svgs.size
       )}\n`
       index++
     })
     return spriteMap
   }
 
-  private async insert(lang: StylesLang, insert: string): Promise<string> {
+  private async insert(insert: string): Promise<string> {
     const file = await promisify(readFile)(
-      join(__dirname, `/template.${lang}`),
+      join(__dirname, `/template.${this._lang}`),
       'utf8'
     )
     return file.replace('//', insert)
   }
 
-  protected abstract _generate(): string
+  // SCSS generation
+  private _generate_scss() {
+    let insert = '$sprites: (\n'
+    insert += this.createSpriteMap((name, svg, isLast) => {
+      return `\t'${name}': "${svg.svgDataUri}"${!isLast ? ',' : ''}\n`
+    })
+    insert += ');\n'
 
-  public async generate(lang: StylesLang): Promise<string> {
-    const insert = this._generate()
-    return await this.insert(lang, insert)
+    insert += '$sizes: (\n'
+    insert += this.createSpriteMap((name, svg, isLast) => {
+      return `\t'${name}': (
+                    \t\t'width': ${svg.width}px,\n
+                    \t\t'height': ${svg.height}px\n
+                \t${!isLast ? '),' : ')'}\n`
+    })
+    insert += ');\n'
+
+    return insert
+  }
+
+  public async generate(): Promise<string> {
+    let insert: string
+    switch (this._lang) {
+      case 'scss':
+        insert = this._generate_scss()
+        break
+      default:
+        insert = ''
+    }
+    return this._lang === 'css'
+      ? await new Promise(() => {
+          return insert
+        })
+      : await this.insert(insert)
   }
 }

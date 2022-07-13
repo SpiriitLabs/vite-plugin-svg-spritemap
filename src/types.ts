@@ -22,6 +22,8 @@ export interface Options {
   svgo: ((prefix: string) => SvgoOptimizeOptions) | false
   styles:
     | {
+        filename: string
+        lang: StylesLang
         format: StylesFormat
       }
     | false

@@ -11,7 +11,6 @@
   },
   "keywords": [
     "svg",
-    "sprite",
     "sprites",
     "spritemap",
     "symbols",
@@ -20,13 +19,16 @@
     "scss",
     "css",
     "less",
+    "stylus",
     "variables",
+    "vite",
     "vite-plugin"
   ],
   "author": "Spiriit",
   "license": "GPL-3.0",
   "devDependencies": {
     "@types/svgo": "^2.6.3",
+    "@types/hash-sum": "^1.0.0",
     "@types/xmldom": "^0.1.31",
     "rollup": "^2.76.0",
     "typescript": "^4.7.4",
@@ -34,7 +36,6 @@
     "vitest": "^0.18.0"
   },
   "dependencies": {
-    "@types/hash-sum": "^1.0.0",
     "@xmldom/xmldom": "^0.8.2",
     "fast-glob": "^3.2.11",
     "hash-sum": "^2.0.0",

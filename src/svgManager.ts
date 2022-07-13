@@ -4,20 +4,19 @@ import { promisify } from 'util'
 import fg from 'fast-glob'
 import { optimize } from 'svgo'
 import { DOMParser, DOMImplementation, XMLSerializer } from '@xmldom/xmldom'
-// import { ScssStyles } from './styles/scss'
-// import { Styles } from './styles/styles'
+import { Styles } from './styles/styles'
 
 export class SVGManager {
-  private options: Options
-  private parser: DOMParser
-  private svgs: Map<string, SvgMapObject>
-  private iconsPattern: Pattern
+  private _options: Options
+  private _parser: DOMParser
+  private _svgs: Map<string, SvgMapObject>
+  private _iconsPattern: Pattern
 
   constructor(iconsPattern: Pattern, options: Options) {
-    this.parser = new DOMParser()
-    this.options = options
-    this.svgs = new Map()
-    this.iconsPattern = iconsPattern
+    this._parser = new DOMParser()
+    this._options = options
+    this._svgs = new Map()
+    this._iconsPattern = iconsPattern
   }
 
   async update(filePath: string) {
@@ -25,7 +24,7 @@ export class SVGManager {
     if (!name) return false
 
     let svg: string = await promisify(readFile)(filePath, 'utf8')
-    const document = this.parser.parseFromString(svg, 'image/svg+xml')
+    const document = this._parser.parseFromString(svg, 'image/svg+xml')
     const documentElement = document.documentElement
     let width = documentElement.getAttribute('width')
     let height = documentElement.getAttribute('height')
@@ -40,17 +39,17 @@ export class SVGManager {
       }
     }
 
-    if (this.options.svgo !== false) {
+    if (this._options.svgo !== false) {
       const optimizedSvg = optimize(
         svg,
-        this.options.svgo(this.options.prefix + name + '-')
+        this._options.svgo(this._options.prefix + name + '-')
       )
       if ('data' in optimizedSvg) {
         svg = optimizedSvg.data
       }
     }
 
-    this.svgs.set(name, {
+    this._svgs.set(name, {
       width: Number(width),
       height: Number(height),
       source: svg
@@ -58,7 +57,7 @@ export class SVGManager {
   }
 
   async updateAll() {
-    const iconsPath = await fg(this.iconsPattern)
+    const iconsPath = await fg(this._iconsPattern)
 
     for (let index = 0; index < iconsPath.length; index++) {
       const iconPath = iconsPath[index]
@@ -75,10 +74,10 @@ export class SVGManager {
     // use mode
     // spritemap.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink')
 
-    if (this.svgs.size) {
+    if (this._svgs.size) {
       const parser = new DOMParser()
 
-      this.svgs.forEach((svg, name) => {
+      this._svgs.forEach((svg, name) => {
         const symbol = DOM.createElement('symbol')
         const document = parser.parseFromString(svg.source, 'image/svg+xml')
         const documentElement = document.documentElement
@@ -90,7 +89,7 @@ export class SVGManager {
           .forEach(attr => {
             symbol.setAttribute(attr.name, attr.value)
           })
-        symbol.setAttribute('id', this.options.prefix + name)
+        symbol.setAttribute('id', this._options.prefix + name)
 
         Array.from(documentElement.childNodes).forEach(child => {
           symbol.appendChild(child)
@@ -110,14 +109,14 @@ export class SVGManager {
     return Serializer.serializeToString(spritemap)
   }
 
-  // get style() {
-  //   let styleGen: Styles
-  //   const lang = this.options.styles?.format || false
+  get style() {
+    if (typeof this._options.styles !== 'object') return false
 
-  //   if (this.options.styles) {
-  //     styleGen = new ScssStyles(this.svgs, this.options)
-  //   }
-
-  //   return styleGen.generate(lang);
-  // }
+    const styleGen: Styles = new Styles(
+      this._svgs,
+      this._options.styles.lang,
+      this._options
+    )
+    return styleGen.generate
+  }
 }
