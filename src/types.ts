@@ -38,6 +38,6 @@ export interface Options {
 export interface SvgMapObject {
   width: number
   height: number
-  viewbox: number[]
+  viewBox: number[]
   source: string
 }

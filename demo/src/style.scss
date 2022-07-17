@@ -3,7 +3,6 @@
 body {
   background-color: #ddd;
   margin: 10vw;
-  height: 100vh;
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -38,11 +37,16 @@ h1 {
   margin-bottom: 1rem;
 }
 
+h2 {
+  margin-top: 0;
+}
+
 .example {
   margin-top: 4rem;
   &__svgs {
     display: flex;
     align-items: center;
+    margin: -0.5rem;
   }
 
   @each $name, $size in $sizes {

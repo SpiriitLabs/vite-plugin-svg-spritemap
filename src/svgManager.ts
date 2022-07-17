@@ -31,7 +31,7 @@ export class SVGManager {
     let svg: string = await fs.readFile(filePath, 'utf8')
     const document = this._parser.parseFromString(svg, 'image/svg+xml')
     const documentElement = document.documentElement
-    let viewbox = (
+    let viewBox = (
       documentElement.getAttribute('viewBox') ||
       documentElement.getAttribute('viewbox')
     )
@@ -42,22 +42,22 @@ export class SVGManager {
     let width = widthAttr ? parseFloat(widthAttr) : undefined
     let height = heightAttr ? parseFloat(heightAttr) : undefined
 
-    if (viewbox && viewbox.length !== 4 && (!width || !height)) {
+    if (viewBox && viewBox.length !== 4 && (!width || !height)) {
       console.log(
         `Sprite '${filePath}}' is invalid, it's lacking both a viewBox and width/height attributes.`
       )
       return
     }
-    if (viewbox && viewbox.length !== 4 && width && height) {
-      viewbox = [0, 0, width, height]
+    if (viewBox && viewBox.length !== 4 && width && height) {
+      viewBox = [0, 0, width, height]
     }
-    if (!width && viewbox) {
-      width = viewbox[2]
+    if (!width && viewBox) {
+      width = viewBox[2]
     }
-    if (!height && viewbox) {
-      height = viewbox[3]
+    if (!height && viewBox) {
+      height = viewBox[3]
     }
-    if (!width || !height || !viewbox) {
+    if (!width || !height || !viewBox) {
       return
     }
 
@@ -74,7 +74,7 @@ export class SVGManager {
     this._svgs.set(name, {
       width,
       height,
-      viewbox,
+      viewBox,
       source: svg
     })
 
@@ -99,6 +99,7 @@ export class SVGManager {
     const Serializer = new XMLSerializer()
     const spritemap = DOM.createElement('svg')
     spritemap.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
+    spritemap.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink')
 
     // return empty spritemap
     if (!this._svgs.size) return Serializer.serializeToString(spritemap)
@@ -108,7 +109,6 @@ export class SVGManager {
       height: []
     }
     const gutter = 0
-    spritemap.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink')
 
     const parser = new DOMParser()
 
@@ -129,7 +129,7 @@ export class SVGManager {
         symbol.setAttribute(attr.name, attr.value)
       })
       symbol.setAttribute('id', this._options.prefix + name)
-      symbol.setAttribute('viewBox', svg.viewbox.join(' '))
+      symbol.setAttribute('viewBox', svg.viewBox.join(' '))
 
       Array.from(documentElement.childNodes).forEach(child => {
         symbol.appendChild(child)
@@ -168,18 +168,6 @@ export class SVGManager {
       sizes.width.push(svg.width)
       sizes.height.push(svg.height)
     })
-
-    spritemap.setAttribute(
-      'width',
-      Math.max.apply(null, sizes.width).toString()
-    )
-    spritemap.setAttribute(
-      'height',
-      (
-        sizes.height.reduce((a, b) => a + b, 0) +
-        (sizes.height.length - 1) * gutter
-      ).toString()
-    )
 
     return Serializer.serializeToString(spritemap)
   }

@@ -30,11 +30,10 @@ export class Styles {
       this._svgs.set(name, {
         width: svg.width,
         height: svg.height,
-        viewbox: svg.viewbox,
+        viewbox: svg.viewBox,
         svgDataUri
       })
     })
-    this._options = options
     this._options = options
   }
 
