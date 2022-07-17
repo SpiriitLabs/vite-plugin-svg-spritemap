@@ -3,7 +3,6 @@ import type { Options, Pattern } from '../types'
 import { join } from 'path'
 import { getFileName } from '../helpers/filename'
 import { SVGManager } from '../svgManager'
-import { resolve } from 'path'
 
 export function BuildPlugin(iconsPattern: Pattern, options: Options): Plugin {
   let config: ResolvedConfig

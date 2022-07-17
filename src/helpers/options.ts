@@ -16,6 +16,7 @@ export const createOptions = (options: UserOptions = {}): Options => {
             name: 'preset-default',
             params: {
               overrides: {
+                removeViewBox: false,
                 removeEmptyAttrs: false,
                 moveGroupAttrsToElems: false,
                 collapseGroups: false,

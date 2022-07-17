@@ -7,6 +7,7 @@ import { join } from 'path'
 interface SvgDataUriMapObject {
   width: number
   height: number
+  viewbox: number[]
   svgDataUri?: string
 }
 
@@ -29,6 +30,7 @@ export class Styles {
       this._svgs.set(name, {
         width: svg.width,
         height: svg.height,
+        viewbox: svg.viewbox,
         svgDataUri
       })
     })

@@ -46,8 +46,12 @@ h1 {
   }
 
   @each $name, $size in $sizes {
-    &--bg .icon-#{$name} {
-      @include sprite('#{$name}');
+    &--bg-frags .icon-#{$name} {
+      background: url('__spritemap#sprite-#{$name}-view') no-repeat;
+    }
+
+    &--bg-uri .icon-#{$name} {
+      @include sprite($name);
     }
   }
 }

@@ -1,8 +1,6 @@
 import type { Plugin, ResolvedConfig } from 'vite'
 import type { Options, Pattern } from '../types'
 import fg from 'fast-glob'
-// import { resolve } from 'path'
-// import { promises as fs } from 'fs'
 import hash_sum from 'hash-sum'
 import { createFilter } from 'rollup-pluginutils'
 import { SVGManager } from '../svgManager'
@@ -116,9 +114,3 @@ function generateHMR() {
   })
   `
 }
-
-// async function createStyle (style: string) {
-//   console.log(resolve(config.root, 'dev-dist')
-
-//   // await fs.writeFile( , style)
-// }
