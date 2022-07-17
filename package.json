@@ -1,5 +1,5 @@
 {
-  "name": "svg-spritemap-vitejs-plugin",
+  "name": "vite-plugin-svg-spritemap",
   "version": "1.0.0",
   "engines": {
     "node": ">= 14"
