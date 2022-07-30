@@ -8,6 +8,7 @@ import { DOMParser, DOMImplementation, XMLSerializer } from '@xmldom/xmldom'
 import { Styles } from './styles/styles'
 import { calculateY } from './helpers/calculateY'
 import { cleanAttributes } from './helpers/cleanAttributes'
+import hash_sum from 'hash-sum'
 
 export class SVGManager {
   private _options: Options
@@ -15,6 +16,7 @@ export class SVGManager {
   private _svgs: Map<string, SvgMapObject>
   private _iconsPattern: Pattern
   private _config: ResolvedConfig
+  public hash: string | null = null
 
   constructor(iconsPattern: Pattern, options: Options, config: ResolvedConfig) {
     this._parser = new DOMParser()
@@ -79,6 +81,7 @@ export class SVGManager {
     })
 
     if (!loop) {
+      this.hash = hash_sum(this.spritemap)
       await this.createFileStyle()
     }
   }
@@ -91,6 +94,7 @@ export class SVGManager {
       await this.update(iconPath, true)
     }
 
+    this.hash = hash_sum(this.spritemap)
     await this.createFileStyle()
   }
 
@@ -174,15 +178,14 @@ export class SVGManager {
 
   private async createFileStyle() {
     if (typeof this._options.styles !== 'object') return
-
     const styleGen: Styles = new Styles(
       this._svgs,
-      this._options.styles.lang,
-      this._options
+      this._options.styles.lang
+      // this._options
     )
     const content = await styleGen.generate()
     const path = resolve(this._config.root, this._options.styles.filename)
 
-    fs.writeFile(path, content, 'utf8')
+    await fs.writeFile(path, content, 'utf8')
   }
 }

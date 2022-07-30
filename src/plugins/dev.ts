@@ -1,16 +1,14 @@
 import type { Plugin, ResolvedConfig } from 'vite'
 import type { Options, Pattern } from '../types'
 import fg from 'fast-glob'
-import hash_sum from 'hash-sum'
 import { createFilter } from 'rollup-pluginutils'
 import { SVGManager } from '../svgManager'
 
 const event = 'vite-plugin-svg-spritemap:update'
 
 export function DevPlugin(iconsPattern: Pattern, options: Options): Plugin {
-  let timeout: NodeJS.Timeout
-  let id: string
-  const filter = createFilter(/\.svg$/)
+  const filterSVG = createFilter(/\.svg$/)
+  const filterCSS = createFilter(/\.(s?css|styl|less)$/)
   const virtualModuleId = '/@vite-plugin-svg-spritemap/client'
   let svgManager: SVGManager
   let config: ResolvedConfig
@@ -57,11 +55,12 @@ export function DevPlugin(iconsPattern: Pattern, options: Options): Plugin {
       })
     },
     transformIndexHtml: {
-      enforce: 'post',
-      async transform(html) {
-        if (id) {
-          html.replace(/__spritemap-\d*|__spritemap/g, `__spritemap__${id}`)
-        }
+      enforce: 'pre',
+      transform(html) {
+        html = html.replace(
+          /__spritemap-\d*|__spritemap/g,
+          `__spritemap__${svgManager.hash}`
+        )
 
         return html.replace(
           '</body>',
@@ -69,48 +68,57 @@ export function DevPlugin(iconsPattern: Pattern, options: Options): Plugin {
         )
       }
     },
-    handleHotUpdate(ctx) {
-      if (!filter(ctx.file)) {
+    async handleHotUpdate(ctx) {
+      if (!filterSVG(ctx.file)) {
         return
       }
 
-      clearTimeout(timeout)
-      timeout = setTimeout(async () => {
-        svgManager.update(ctx.file)
-        id = hash_sum(svgManager.spritemap)
-        ctx.server.ws.send({
-          type: 'custom',
-          event,
-          data: {
-            id
-          }
-        })
+      await svgManager.update(ctx.file)
+
+      ctx.server.ws.send({
+        type: 'custom',
+        event,
+        data: {
+          id: svgManager.hash
+        }
       })
+    },
+    transform(code, id) {
+      console.log(id)
+      if (!filterCSS(id)) {
+        return code
+      }
+
+      return code.replace(
+        /__spritemap-\d*|__spritemap/g,
+        `__spritemap__${svgManager.hash}`
+      )
     }
   }
 }
 
 function generateHMR() {
-  return `import.meta.hot.on('${event}', data => {
+  return `if (import.meta.hot) {
+  import.meta.hot.on('${event}', data => {
     console.log('[vite-plugin-svg-spritemap]', 'update')
-    const uses = document.getElementsByTagName('use')
-    for (let i = 0; i < uses.length; i++) {
-      const use = uses[i]
-      const xlinkHrefAttr = use.getAttribute('xlink:href')
-      const hrefAttr = use.getAttribute('href')
-      if (hrefAttr !== null && xlinkHrefAttr !== null) continue
-      const href = hrefAttr || xlinkHrefAttr
-      const newHref = href.replace(
-        /__spritemap.*#/g,
-        '__spritemap__' + data.id + '#'
-      )
+    const elements = document.querySelectorAll(
+      '[src^=__spritemap], [href^=__spritemap], [*|href^=__spritemap]'
+    )
 
-      if (use.hasAttribute('xlink:href')) {
-        use.setAttribute('xlink:href', newHref)
-      } else if (use.hasAttribute('href')) {
-        use.setAttribute('href', newHref)
+    for (let i = 0; i < elements.length; i++) {
+      const el = elements[i]
+      const attributes = ['xlink:href', 'href', 'src']
+      for (const attr of attributes) {
+        if (!el.hasAttribute(attr)) continue
+        const value = el.getAttribute(attr)
+        if (!value) continue
+        const newValue = value.replace(
+          /__spritemap.*#/g,
+          '__spritemap__' + data.id + '#'
+        )
+        el.setAttribute(attr, newValue)
       }
     }
   })
-  `
+}`
 }

@@ -34,6 +34,7 @@ body {
 }
 
 h1 {
+  font-size: 2.5rem;
   margin-bottom: 1rem;
 }
 
@@ -43,6 +44,7 @@ h2 {
 
 .example {
   margin-top: 4rem;
+
   &__svgs {
     display: flex;
     align-items: center;
@@ -51,7 +53,7 @@ h2 {
 
   @each $name, $size in $sizes {
     &--bg-frags .icon-#{$name} {
-      background: url('__spritemap#sprite-#{$name}-view') no-repeat;
+      @include sprite($name, $type: 'fragment');
     }
 
     &--bg-uri .icon-#{$name} {

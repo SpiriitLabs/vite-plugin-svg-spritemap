@@ -1,7 +1,15 @@
 //
 
-@mixin sprite($name, $include-size: false) {
-  $sprite: map-get($sprites, $name);
+@mixin sprite($name, $include-size: false, $type: 'uri') {
+  $sprite: '';
+
+  @if $type == 'fragment' {
+    $sprite: '/__spritemap#sprite-#{$name}-view';
+  } @else if $type == 'uri' {
+    $sprite: map-get($sprites, $name);
+  } @else {
+    @error 'sprite(): $type must be either "fragment" or "uri"';
+  }
 
   background: url($sprite) center no-repeat;
 

@@ -30,11 +30,8 @@ export function BuildPlugin(iconsPattern: Pattern, options: Options): Plugin {
         filePath = join(config.build.assetsDir, fileName)
       }
     },
-    transformIndexHtml: {
-      enforce: 'post',
-      transform(html) {
-        return html.replace(/__spritemap/g, filePath)
-      }
+    transform(code) {
+      return code.replace(/__spritemap/g, filePath)
     },
     generateBundle(_, bundle) {
       if (typeof options.output === 'object') {
