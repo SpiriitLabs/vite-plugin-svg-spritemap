@@ -1,5 +1,23 @@
-//
+.sprite(@name, @include-size: false, @type: 'uri') {
+	@sprite: @sprites[ @@name];
 
-.sprite(@sprite) {
-  background: url(@sprite) center no-repeat;
+	@fragment: if(@type = 'fragment', '/__spritemap#sprite-@{name}-view', false);
+	@uri: if(@type = 'uri', @sprite[uri], false);
+
+	& when (isstring(@fragment)) {
+		background: url(@fragment) center no-repeat;
+	}
+	& when (isstring(@uri)) {
+		background: url(@uri) center no-repeat;
+	}
+
+	& when (isstring(@fragment)), (isstring(@uri)) {
+		& when (@include-size) {
+			background-size: @sprite[width] @sprite[height];
+		}
+		& when (@include-size = 'box') {
+			width: @sprite[width];
+			height: @sprite[height];
+		}
+	}
 }

@@ -1,21 +1,20 @@
-//
-
 sprite($name, $include-size = false, $type = 'uri')
-  $sprite = '';
+	$sprite = $sprites[$name]
+	$url = false
 
-  if type == 'fragment'
-     $sprite = '/__spritemap#sprite-{name}-view'
-  else if type == 'uri'
-    $sprite = $sprites[$name]
-  else
-    error('sprite(): $type must be either "fragment" or "uri"')
+	if $type == 'fragment'
+		$url = '/__spritemap#sprite-' + $name + '-view'
+	else if $type == 'uri'
+		$url = $sprite[uri]
+	else
+		error('sprite(): $type must be either "fragment" or "uri"')
 
-   background: url({$sprite}) center no-repeat
+	if $url
+		background: url($url) center no-repeat
 
-  if include-size
-    $size = $sizes[$name];
-    if include-size == true
-      background-size: $size[width] $size[height]
-    else if $include-size == 'box'
-      width: $size[width]
-      height: $size[height]
+		if $include-size
+			if $include-size == true
+				background-size: $sprite[width] $sprite[height]
+			else if $include-size == 'box'
+				width: $sprite[width]
+				height: $sprite[height]

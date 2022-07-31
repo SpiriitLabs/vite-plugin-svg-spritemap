@@ -21,10 +21,10 @@ body {
 .icon {
   margin: 0.5rem;
 
-  @each $name, $size in $sizes {
+  @each $name, $sprite in $sprites {
     &-#{$name} {
-      width: map-get($size, 'width');
-      height: map-get($size, 'height');
+      width: map-get($sprite, 'width');
+      height: map-get($sprite, 'height');
     }
   }
 
@@ -51,7 +51,7 @@ h2 {
     margin: -0.5rem;
   }
 
-  @each $name, $size in $sizes {
+  @each $name, $sprite in $sprites {
     &--bg-frags .icon-#{$name} {
       @include sprite($name, $type: 'fragment');
     }
