@@ -14,7 +14,7 @@
 };
 
 .sprite(@name, @include-size: false, @type: 'uri') {
-	@sprite: @sprites[@@name];
+	@sprite: @sprites[ @@name];
 
 	@fragment: if(@type = 'fragment', '/__spritemap#sprite-@{name}-view', false);
 	@uri: if(@type = 'uri', @sprite[uri], false);

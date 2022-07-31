@@ -5,13 +5,13 @@ import { DevPlugin } from './plugins/dev'
 import { createOptions } from './helpers/options'
 
 export default function VitePluginSvgSpritemap(
-  iconsPattern: Pattern,
-  options?: UserOptions
+	iconsPattern: Pattern,
+	options?: UserOptions
 ): Plugin[] {
-  const _options = createOptions(options)
+	const _options = createOptions(options)
 
-  return [
-    BuildPlugin(iconsPattern, _options),
-    DevPlugin(iconsPattern, _options)
-  ]
+	return [
+		BuildPlugin(iconsPattern, _options),
+		DevPlugin(iconsPattern, _options)
+	]
 }

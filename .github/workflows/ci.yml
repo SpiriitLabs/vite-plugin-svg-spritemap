@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # test:
+  #   runs-on: ${{ matrix.os }}
+
+  #   strategy:
+  #     matrix:
+  #       node-version: [14.x, 16.x]
+  #       os: [ubuntu-latest, windows-latest, macos-latest]
+  #     fail-fast: false
+
+  #   steps:
+  #     - uses: actions/checkout@v3
+
+  #     - name: Use Node.js ${{ matrix.node-version }}
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: ${{ matrix.node-version }}
+  #         cache: yarn
+
+  #     - name: Install yarn
+  #       run: npm i -g yarn
+
+  #     - name: Install
+  #       run: yarn install --frozen-lockfile
+
+  #     - name: Build
+  #       run: yarn build
+
+  #     - name: Test
+  #       run: yarn test
+
+  lint:
+    runs-on: ubuntu-latest
+    name: 'Lint: node-16, ubuntu-latest'
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Install yarn
+        run: npm i -g yarn
+
+      - name: Set node version to 16
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+
+      - name: Install
+        run: yarn install --frozen-lockfile
+
+      - name: Build
+        run: yarn build
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Check formatting
+        run: yarn prettier --check .
+
+      - name: Typecheck
+        run: yarn typecheck

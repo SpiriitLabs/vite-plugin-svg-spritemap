@@ -1,8 +1,8 @@
-import svgToMiniDataURI from 'mini-svg-data-uri'
-import { Options, StylesLang, SvgMapObject } from '../types'
 import { readFile } from 'fs'
 import { promisify } from 'util'
 import { join } from 'path'
+import svgToMiniDataURI from 'mini-svg-data-uri'
+import { StylesLang, SvgMapObject } from '../types'
 
 interface SvgDataUriMapObject {
 	width: number
@@ -13,14 +13,9 @@ interface SvgDataUriMapObject {
 
 export class Styles {
 	private _svgs: Map<string, SvgDataUriMapObject>
-	// private _options: Options
 	private _lang: StylesLang
 
-	constructor(
-		svgs: Map<string, SvgMapObject>,
-		lang: StylesLang
-		// options: Options
-	) {
+	constructor(svgs: Map<string, SvgMapObject>, lang: StylesLang) {
 		this._svgs = new Map()
 		this._lang = lang
 
@@ -34,7 +29,6 @@ export class Styles {
 				svgDataUri
 			})
 		})
-		// this._options = options
 	}
 
 	protected createSpriteMap(
