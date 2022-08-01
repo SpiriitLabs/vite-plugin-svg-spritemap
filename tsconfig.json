@@ -21,5 +21,5 @@
     "declaration": true,
     "suppressImplicitAnyIndexErrors": true
   },
-  "exclude": ["node_modules", "test", "dist", "demo"]
+  "exclude": ["node_modules", "test", "dist", "demo", "tsup.config.ts"]
 }
