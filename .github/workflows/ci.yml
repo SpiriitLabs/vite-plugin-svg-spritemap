@@ -10,35 +10,35 @@ on:
       - main
 
 jobs:
-  # test:
-  #   runs-on: ${{ matrix.os }}
+  test:
+    runs-on: ${{ matrix.os }}
 
-  #   strategy:
-  #     matrix:
-  #       node-version: [14.x, 16.x]
-  #       os: [ubuntu-latest, windows-latest, macos-latest]
-  #     fail-fast: false
+    strategy:
+      matrix:
+        node-version: [14.x, 16.x]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+      fail-fast: false
 
-  #   steps:
-  #     - uses: actions/checkout@v3
+    steps:
+      - uses: actions/checkout@v3
 
-  #     - name: Use Node.js ${{ matrix.node-version }}
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: ${{ matrix.node-version }}
-  #         cache: yarn
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: yarn
 
-  #     - name: Install yarn
-  #       run: npm i -g yarn
+      - name: Install yarn
+        run: npm i -g yarn
 
-  #     - name: Install
-  #       run: yarn install --frozen-lockfile
+      - name: Install
+        run: yarn install --frozen-lockfile
 
-  #     - name: Build
-  #       run: yarn build
+      - name: Build
+        run: yarn build
 
-  #     - name: Test
-  #       run: yarn test
+      - name: Test
+        run: yarn test
 
   lint:
     runs-on: ubuntu-latest
@@ -60,8 +60,8 @@ jobs:
       - name: Install
         run: yarn install --frozen-lockfile
 
-      # - name: Build
-      #   run: yarn build
+      - name: Build
+        run: yarn build
 
       - name: Lint
         run: yarn lint
