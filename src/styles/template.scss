@@ -1,25 +1,25 @@
 @mixin sprite($name, $include-size: false, $type: 'uri') {
-	$sprite: map-get($sprites, $name);
-	$url: false;
+  $sprite: map-get($sprites, $name);
+  $url: false;
 
-	@if $type == 'fragment' {
-		$url: '/__spritemap#sprite-#{$name}-view';
-	} @else if $type == 'uri' {
-		$url: map-get($sprite, uri);
-	} @else {
-		@error 'sprite(): $type must be either "fragment" or "uri"';
-	}
+  @if $type == 'fragment' {
+    $url: '/__spritemap#sprite-#{$name}-view';
+  } @else if $type == 'uri' {
+    $url: map-get($sprite, uri);
+  } @else {
+    @error 'sprite(): $type must be either "fragment" or "uri"';
+  }
 
-	@if $url {
-		background: url($url) center no-repeat;
+  @if $url {
+    background: url($url) center no-repeat;
 
-		@if $include-size {
-			@if $include-size == true {
-				background-size: map-get($sprite, width) map-get($sprite, height);
-			} @else if $include-size == 'box' {
-				width: map-get($sprite, width);
-				height: map-get($sprite, height);
-			}
-		}
-	}
+    @if $include-size {
+      @if $include-size == true {
+        background-size: map-get($sprite, width) map-get($sprite, height);
+      } @else if $include-size == 'box' {
+        width: map-get($sprite, width);
+        height: map-get($sprite, height);
+      }
+    }
+  }
 }

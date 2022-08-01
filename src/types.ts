@@ -6,38 +6,38 @@ export type StylesLang = 'less' | 'scss' | 'styl' | 'css'
 export type StylesFormat = 'auto' | 'data' | 'fragment'
 
 export interface UserOptions {
-	svgo?: boolean | SvgoOptimizeOptions
-	output?: { filename?: string } | boolean
-	prefix?: string
-	styles?:
-		| {
-				filename: string
-				lang: StylesLang
-				format?: StylesFormat
-		  }
-		| boolean
+  svgo?: boolean | SvgoOptimizeOptions
+  output?: { filename?: string } | boolean
+  prefix?: string
+  styles?:
+    | {
+        filename: string
+        lang: StylesLang
+        format?: StylesFormat
+      }
+    | boolean
 }
 
 export interface Options {
-	svgo: ((prefix: string) => SvgoOptimizeOptions) | false
-	styles:
-		| {
-				filename: string
-				lang: StylesLang
-				format: StylesFormat
-		  }
-		| false
-	output:
-		| {
-				filename: string
-		  }
-		| false
-	prefix: string
+  svgo: ((prefix: string) => SvgoOptimizeOptions) | false
+  styles:
+    | {
+        filename: string
+        lang: StylesLang
+        format: StylesFormat
+      }
+    | false
+  output:
+    | {
+        filename: string
+      }
+    | false
+  prefix: string
 }
 
 export interface SvgMapObject {
-	width: number
-	height: number
-	viewBox: number[]
-	source: string
+  width: number
+  height: number
+  viewBox: number[]
+  source: string
 }
