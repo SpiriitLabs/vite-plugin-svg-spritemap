@@ -48,7 +48,7 @@ export class Styles {
   }
 
   private async insert(insert: string): Promise<string> {
-    const file = await promisify(readFile)(
+    const template = await promisify(readFile)(
       join(__dirname, `/template.${this._lang}`),
       'utf8'
     )
@@ -57,7 +57,12 @@ export class Styles {
     const prettierIgnore = '/* prettier-ignore */\n'
 
     return (
-      doNotEditThisFile + prettierIgnore + insert + '\n' + prettierIgnore + file
+      doNotEditThisFile +
+      prettierIgnore +
+      insert +
+      '\n' +
+      prettierIgnore +
+      template
     )
   }
 

@@ -32,14 +32,16 @@ export const createOptions = (options: UserOptions = {}): Options => {
   }
 
   let styles
-  if (options.styles === true) {
-    styles = {
-      format: 'auto',
-      lang: 'css',
-      filename: 'spritemap.css'
+  if (typeof options.styles === 'object') {
+    if (typeof options.styles.lang === 'string') {
+      styles = options.styles
+    } else {
+      const lang = options.styles.filename.split('.').pop()
+      styles = {
+        filename: options.styles.filename,
+        lang
+      }
     }
-  } else if (typeof options.styles === 'object') {
-    styles = options.styles
   } else {
     styles = false
   }

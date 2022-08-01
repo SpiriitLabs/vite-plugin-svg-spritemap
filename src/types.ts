@@ -3,7 +3,6 @@ import type { OptimizeOptions as SvgoOptimizeOptions } from 'svgo'
 export type Pattern = string[] | string
 
 export type StylesLang = 'less' | 'scss' | 'styl' | 'css'
-export type StylesFormat = 'auto' | 'data' | 'fragment'
 
 export interface UserOptions {
   svgo?: boolean | SvgoOptimizeOptions
@@ -12,10 +11,9 @@ export interface UserOptions {
   styles?:
     | {
         filename: string
-        lang: StylesLang
-        format?: StylesFormat
+        lang?: StylesLang
       }
-    | boolean
+    | false
 }
 
 export interface Options {
@@ -24,7 +22,6 @@ export interface Options {
     | {
         filename: string
         lang: StylesLang
-        format: StylesFormat
       }
     | false
   output:
