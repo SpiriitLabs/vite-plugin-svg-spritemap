@@ -84,7 +84,6 @@ export function DevPlugin(iconsPattern: Pattern, options: Options): Plugin {
       })
     },
     transform(code, id) {
-      console.log(id)
       if (!filterCSS(id)) {
         return code
       }

@@ -45,7 +45,7 @@ export class SVGManager {
     let height = heightAttr ? parseFloat(heightAttr) : undefined
 
     if (viewBox && viewBox.length !== 4 && (!width || !height)) {
-      console.log(
+      console.warn(
         `Sprite '${filePath}}' is invalid, it's lacking both a viewBox and width/height attributes.`
       )
       return
@@ -143,32 +143,35 @@ export class SVGManager {
       const y = calculateY(sizes.height, gutter)
 
       //use
-      const use = DOM.createElement('use')
-      use.setAttribute('xlink:href', `#${this._options.prefix}${name}`)
-      use.setAttribute('width', svg.width.toString())
-      use.setAttribute('height', svg.height.toString())
-      use.setAttribute('y', y.toString())
-      spritemap.appendChild(use)
+      if (this._options.output && this._options.output.use) {
+        const use = DOM.createElement('use')
+        use.setAttribute('xlink:href', `#${this._options.prefix}${name}`)
+        use.setAttribute('width', svg.width.toString())
+        use.setAttribute('height', svg.height.toString())
+        use.setAttribute('y', y.toString())
+        spritemap.appendChild(use)
+      }
 
       //view
-      const view = DOM.createElement('view')
-      attributes = cleanAttributes(
-        Array.from(documentElement.attributes),
-        'view'
-      )
+      if (this._options.output && this._options.output.view) {
+        const view = DOM.createElement('view')
+        attributes = cleanAttributes(
+          Array.from(documentElement.attributes),
+          'view'
+        )
+        attributes.forEach(attr => {
+          view.setAttribute(attr.name, attr.value)
+        })
+        view.setAttribute('id', this._options.prefix + name + '-view')
+        view.setAttribute(
+          'viewBox',
+          `0 ${Math.max(0, y - gutter / 2)} ${svg.width + gutter / 2} ${
+            svg.height + gutter / 2
+          }`
+        )
+        spritemap.appendChild(view)
+      }
 
-      attributes.forEach(attr => {
-        view.setAttribute(attr.name, attr.value)
-      })
-      view.setAttribute('id', this._options.prefix + name + '-view')
-      view.setAttribute(
-        'viewBox',
-        `0 ${Math.max(0, y - gutter / 2)} ${svg.width + gutter / 2} ${
-          svg.height + gutter / 2
-        }`
-      )
-
-      spritemap.appendChild(view)
       sizes.width.push(svg.width)
       sizes.height.push(svg.height)
     })
@@ -178,11 +181,7 @@ export class SVGManager {
 
   private async createFileStyle() {
     if (typeof this._options.styles !== 'object') return
-    const styleGen: Styles = new Styles(
-      this._svgs,
-      this._options.styles.lang
-      // this._options
-    )
+    const styleGen: Styles = new Styles(this._svgs, this._options.styles.lang)
     const content = await styleGen.generate()
     const path = resolve(this._config.root, this._options.styles.filename)
 

@@ -1,12 +1,18 @@
 import type { OptimizeOptions } from 'svgo'
-import type { Options, UserOptions } from '../types'
+import type {
+  Options,
+  OptionsOutput,
+  UserOptions,
+  OptionsStyles,
+  StylesLang
+} from '../types'
 
 export const createOptions = (options: UserOptions = {}): Options => {
   //Default options
   let svgo
   if (typeof options.svgo === 'object') {
     svgo = options.svgo
-  } else if (svgo === false) {
+  } else if (options.svgo === false) {
     svgo = false
   } else {
     svgo = (prefix: string): OptimizeOptions => {
@@ -31,36 +37,49 @@ export const createOptions = (options: UserOptions = {}): Options => {
     }
   }
 
-  let styles
+  let styles: OptionsStyles | false = false
   if (typeof options.styles === 'object') {
     if (typeof options.styles.lang === 'string') {
-      styles = options.styles
-    } else {
-      const lang = options.styles.filename.split('.').pop()
       styles = {
         filename: options.styles.filename,
-        lang
+        lang: options.styles.lang
+      }
+    } else {
+      const lang = options.styles.filename.split('.').pop() as
+        | StylesLang
+        | undefined
+      styles = {
+        filename: options.styles.filename,
+        lang: lang ? lang : 'css'
       }
     }
-  } else {
-    styles = false
+  } else if (typeof options.styles === 'string') {
+    const lang = options.styles.split('.').pop() as StylesLang | undefined
+    styles = {
+      filename: options.styles,
+      lang: lang ? lang : 'css'
+    }
   }
 
-  let output
+  let output: OptionsOutput | false = {
+    filename: 'spritemap.[hash][extname]',
+    use: true,
+    view: true
+  }
   if (options.output === false) {
     output = false
   } else if (typeof options.output === 'object') {
-    output = options.output
-  } else {
     output = {
-      filename: 'spritemap.[hash][extname]'
+      filename: options.output.filename,
+      use: options.output.use || true,
+      view: options.output.view || true
     }
   }
 
-  return Object.assign(options, {
+  return {
     svgo,
     output,
-    prefix: 'sprite-',
+    prefix: options.prefix || '-prefix',
     styles
-  }) as Options
+  } as Options
 }
