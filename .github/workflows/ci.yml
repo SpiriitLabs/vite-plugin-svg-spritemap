@@ -40,8 +40,9 @@ jobs:
       - name: Test
         run: yarn test
 
-      - name: Upload Artifacts
+      - name: Upload artifacts on failure
         uses: actions/upload-artifact@v3
+        if: failure()
         with:
           name: test-project
           path: test/project/
