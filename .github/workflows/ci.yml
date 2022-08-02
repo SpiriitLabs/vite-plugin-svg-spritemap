@@ -40,6 +40,12 @@ jobs:
       - name: Test
         run: yarn test
 
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-project
+          path: test/project/
+
   lint:
     runs-on: ubuntu-latest
     name: 'Lint: node-16, ubuntu-latest'
