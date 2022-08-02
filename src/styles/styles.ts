@@ -112,7 +112,7 @@ export class Styles {
       sprites += `\n\t};`
       return sprites
     })
-    insert += '};\n'
+    insert += '}\n'
 
     return insert
   }
