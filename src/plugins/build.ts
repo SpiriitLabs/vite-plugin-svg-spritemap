@@ -28,6 +28,7 @@ export function BuildPlugin(iconsPattern: Pattern, options: Options): Plugin {
           'svg'
         )
         filePath = join(config.build.assetsDir, fileName)
+        console.log('BEFORE', fileName)
       }
     },
     transform(code) {
@@ -35,6 +36,7 @@ export function BuildPlugin(iconsPattern: Pattern, options: Options): Plugin {
     },
     generateBundle(_, bundle) {
       if (typeof options.output === 'object') {
+        console.log('After', fileName)
         bundle[fileName] = {
           isAsset: true,
           name: fileName,
