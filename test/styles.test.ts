@@ -6,7 +6,7 @@ import VitePluginSvgSpritemap from '../src'
 
 const buildVite = async (style: string) => {
   const filename = resolve(__dirname, `./project/styles/spritemap.${style}`)
-  await fs.writeFile(filename, '')
+  await fs.unlink(filename)
   await build({
     root: resolve(__dirname, './project'),
     plugins: [
