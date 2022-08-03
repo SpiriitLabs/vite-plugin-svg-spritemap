@@ -1,18 +1,23 @@
 import { resolve } from 'path'
 import { promises as fs } from 'fs'
-import { build } from 'vite'
+import { build, normalizePath } from 'vite'
 import { it, describe, expect } from 'vitest'
 import VitePluginSvgSpritemap from '../src'
 
 const buildVite = async (style: string) => {
-  const filename = resolve(__dirname, `./project/styles/spritemap.${style}`)
+  const filename = normalizePath(
+    resolve(__dirname, `./project/styles/spritemap.${style}`)
+  )
   await fs.unlink(filename)
   await build({
-    root: resolve(__dirname, './project'),
+    root: normalizePath(resolve(__dirname, './project')),
     plugins: [
-      VitePluginSvgSpritemap(resolve(__dirname, './project/svg/*.svg'), {
-        styles: filename
-      })
+      VitePluginSvgSpritemap(
+        normalizePath(resolve(__dirname, './project/svg/*.svg')),
+        {
+          styles: filename
+        }
+      )
     ]
   })
   return fs.readFile(filename, 'utf8')
