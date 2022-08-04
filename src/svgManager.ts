@@ -103,7 +103,10 @@ export class SVGManager {
     const Serializer = new XMLSerializer()
     const spritemap = DOM.createElement('svg')
     spritemap.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
-    spritemap.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink')
+
+    if (this._options.output && this._options.output.use) {
+      spritemap.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink')
+    }
 
     // return empty spritemap
     if (!this._svgs.size) return Serializer.serializeToString(spritemap)

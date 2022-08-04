@@ -6,7 +6,10 @@ export type StylesLang = 'less' | 'scss' | 'styl' | 'css'
 
 export interface UserOptions {
   svgo?: boolean | SvgoOptimizeOptions
-  output?: { filename: string; use?: boolean; view?: boolean } | string | false
+  output?:
+    | { filename: string; use?: boolean; view?: boolean }
+    | string
+    | boolean
   prefix?: string
   styles?:
     | {

@@ -68,11 +68,19 @@ export const createOptions = (options: UserOptions = {}): Options => {
   }
   if (options.output === false) {
     output = false
+  } else if (typeof options.output === 'string') {
+    output = {
+      filename: options.output,
+      use: true,
+      view: true
+    }
   } else if (typeof options.output === 'object') {
     output = {
       filename: options.output.filename,
-      use: options.output.use || true,
-      view: options.output.view || true
+      use:
+        typeof options.output.use !== 'undefined' ? options.output.use : true,
+      view:
+        typeof options.output.view !== 'undefined' ? options.output.view : true
     }
   }
 
