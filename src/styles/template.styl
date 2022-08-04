@@ -3,7 +3,7 @@ sprite($name, $include-size = false, $type = 'uri')
 	$url = false
 
 	if $type == 'fragment'
-		$url = '/__spritemap#sprite-' + $name + '-view'
+		$url = '/__spritemap#' + $sprites-prefix + $name + '-view'
 	else if $type == 'uri'
 		$url = $sprite[uri]
 	else

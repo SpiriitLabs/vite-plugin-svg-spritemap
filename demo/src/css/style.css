@@ -1,0 +1,44 @@
+body {
+  background-color: #ddd;
+  margin: 10vw;
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+@keyframes rainbow {
+  0% {
+    color: red;
+  }
+  to {
+    color: #ff9500;
+  }
+}
+.icon {
+  margin: 0.5rem;
+}
+.icon-spiriit {
+  width: 118px;
+  height: 38px;
+}
+.icon-vite {
+  width: 31.88px;
+  height: 32px;
+}
+.icon-vite {
+  animation: rainbow infinite 1s alternate;
+}
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+h2 {
+  margin-top: 0;
+}
+.example {
+  margin-top: 4rem;
+}
+.example__svgs {
+  display: flex;
+  align-items: center;
+  margin: -0.5rem;
+}

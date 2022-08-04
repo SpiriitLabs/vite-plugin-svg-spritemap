@@ -87,7 +87,7 @@ export const createOptions = (options: UserOptions = {}): Options => {
   return {
     svgo,
     output,
-    prefix: options.prefix || '-prefix',
+    prefix: options.prefix || 'sprite-',
     styles
   } as Options
 }

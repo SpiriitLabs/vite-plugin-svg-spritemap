@@ -1,7 +1,11 @@
 .sprite(@name, @include-size: false, @type: 'uri') {
   @sprite: @sprites[ @@name];
 
-  @fragment: if(@type = 'fragment', '/__spritemap#sprite-@{name}-view', false);
+  @fragment: if(
+    @type = 'fragment',
+    '/__spritemap#@{sprites-prefix}@{name}-view',
+    false
+  );
   @uri: if(@type = 'uri', @sprite[uri], false);
 
   & when (isstring(@fragment)) {

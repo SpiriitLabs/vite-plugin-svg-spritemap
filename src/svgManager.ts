@@ -66,7 +66,7 @@ export class SVGManager {
     if (this._options.svgo !== false) {
       const optimizedSvg = optimize(
         svg,
-        this._options.svgo(this._options.prefix + name + '-')
+        this._options.svgo(this._options.prefix + name)
       )
       if ('data' in optimizedSvg) {
         svg = optimizedSvg.data
@@ -184,7 +184,7 @@ export class SVGManager {
 
   private async createFileStyle() {
     if (typeof this._options.styles !== 'object') return
-    const styleGen: Styles = new Styles(this._svgs, this._options.styles.lang)
+    const styleGen: Styles = new Styles(this._svgs, this._options)
     const content = await styleGen.generate()
     const path = resolve(this._config.root, this._options.styles.filename)
 
