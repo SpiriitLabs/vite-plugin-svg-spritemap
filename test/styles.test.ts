@@ -1,5 +1,5 @@
 import { promises as fs } from 'fs'
-import { it, describe, expect, afterEach } from 'vitest'
+import { it, describe, expect, beforeAll } from 'vitest'
 import { getPath } from './helper/path'
 import { buildVite } from './helper/build'
 
@@ -16,7 +16,7 @@ import { buildVite } from './helper/build'
 //   }
 // }
 
-afterEach(async () => {
+beforeAll(async () => {
   for (const style of ['scss', 'less', 'styl']) {
     const filename = getPath(`./project/styles/spritemap.${style}`)
     let exist = false
@@ -27,7 +27,7 @@ afterEach(async () => {
       exist = false
     }
     if (exist) {
-      await fs.unlink(filename)
+      await fs.writeFile(filename, '')
     }
   }
 })
