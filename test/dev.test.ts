@@ -23,17 +23,22 @@ beforeAll(async () => {
 })
 
 describe('dev server', () => {
-  it('HMR script is present', async () => {
+  it('has HMR script', async () => {
     const result = await fetch('http://localhost:5173').then(res => res.text())
     const test =
       '<script type="module" src="/@vite-plugin-svg-spritemap/client"></script>'
     expect(result.includes(test)).toBeTruthy()
   })
 
-  it('Get SVG spritemap', async () => {
+  it('has route with SVG spritemap', async () => {
     const result = await fetch('http://localhost:5173/__spritemap').then(res =>
       res.text()
     )
     expect(result).toMatchSnapshot()
+  })
+
+  it('transforms __spritemap declaration', async () => {
+    const result = await fetch('http://localhost:5173/').then(res => res.text())
+    expect(/<use href="__spritemap__.*#.*"><\/use>/.test(result)).toBeTruthy()
   })
 })

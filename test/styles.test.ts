@@ -48,7 +48,7 @@ describe('Styles generation', () => {
   it('test with warn', async () => {
     const spy = vi.spyOn(console, 'warn')
     await buildVite({
-      styles: 'cheese'
+      styles: getPath('./project/styles/spritemap')
     })
     const calls = spy.mock.calls[0]
     expect(calls).toStrictEqual([

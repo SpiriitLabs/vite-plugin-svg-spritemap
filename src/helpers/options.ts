@@ -54,8 +54,6 @@ export const createOptions = (options: UserOptions = {}): Options => {
       filename: options.styles.filename,
       lang: options.styles.lang
     }
-  } else if (options.styles !== false) {
-    console.error('[vite-plugin-spritemap]', 'Invalid styles option')
   }
 
   let output: Options['output'] = {
