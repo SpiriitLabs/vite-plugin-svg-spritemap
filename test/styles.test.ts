@@ -1,20 +1,8 @@
 import { promises as fs } from 'fs'
-import { it, describe, expect, beforeAll } from 'vitest'
+import { it, describe, expect, beforeAll, vi } from 'vitest'
+import type { StylesLang } from '../src/types'
 import { getPath } from './helper/path'
 import { buildVite } from './helper/build'
-
-// const stylesConfig = {
-//   default: false,
-//   string: 'spritemap.[hash][extname]',
-//   'object with default': {
-//     filename: 'spritemap.[hash][extname]',
-//     lang: 'css'
-//   },
-//   'object with only lang': {
-//     filename: 'spritemap.[hash][extname]',
-//     lang: 'css'
-//   }
-// }
 
 beforeAll(async () => {
   for (const style of ['scss', 'less', 'styl']) {
@@ -33,7 +21,7 @@ beforeAll(async () => {
 })
 
 describe('Styles generation', () => {
-  for (const style of ['scss', 'less', 'styl']) {
+  for (const style of ['css', 'scss', 'less', 'styl']) {
     it(style, async () => {
       const filename = getPath(`./project/styles/spritemap.${style}`)
 
@@ -41,8 +29,31 @@ describe('Styles generation', () => {
         styles: filename
       })
 
-      const result = await fs.readFile(filename, 'utf8')
-      expect(result).toMatchSnapshot()
+      const resultWithString = await fs.readFile(filename, 'utf8')
+      expect(resultWithString).toMatchSnapshot()
+
+      await buildVite({
+        styles: {
+          filename,
+          lang: style as StylesLang
+        }
+      })
+
+      const resultWithObject = await fs.readFile(filename, 'utf8')
+
+      expect(resultWithString).toBe(resultWithObject)
     })
   }
+
+  it('test with warn', async () => {
+    const spy = vi.spyOn(console, 'warn')
+    await buildVite({
+      styles: 'cheese'
+    })
+    const calls = spy.mock.calls[0]
+    expect(calls).toStrictEqual([
+      '[vite-plugin-spritemap]',
+      'Invalid styles lang, fallback to css'
+    ])
+  })
 })
