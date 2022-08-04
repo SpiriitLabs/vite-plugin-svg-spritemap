@@ -1,7 +1,8 @@
 import { it, describe, expect } from 'vitest'
+import type { UserOptions } from '../src/types'
 import { buildVite } from './helper/build'
 
-const outputConfigs = {
+const outputConfigs: Record<string, UserOptions['output']> = {
   default: true,
   false: false,
   string: 'spritemap.[hash][extname]',
@@ -43,8 +44,14 @@ describe('Output generation', () => {
         if (asset && 'source' in asset) {
           const source = asset.source.toString()
           const check = {
-            use: typeof output.use !== 'undefined' ? output.use : true,
-            view: typeof output.view !== 'undefined' ? output.view : true
+            use:
+              typeof output === 'object' && typeof output.use !== 'undefined'
+                ? output.use
+                : true,
+            view:
+              typeof output === 'object' && typeof output.view !== 'undefined'
+                ? output.view
+                : true
           }
 
           if (check.use) {

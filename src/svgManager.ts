@@ -63,11 +63,8 @@ export class SVGManager {
       return
     }
 
-    if (this._options.svgo !== false) {
-      const optimizedSvg = optimize(
-        svg,
-        this._options.svgo(this._options.prefix + name)
-      )
+    if (typeof this._options.svgo === 'object') {
+      const optimizedSvg = optimize(svg, this._options.svgo)
       if ('data' in optimizedSvg) {
         svg = optimizedSvg.data
       }

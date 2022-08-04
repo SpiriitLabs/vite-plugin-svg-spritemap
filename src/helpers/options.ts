@@ -1,43 +1,32 @@
-import type { OptimizeOptions } from 'svgo'
-import type {
-  Options,
-  OptionsOutput,
-  UserOptions,
-  OptionsStyles,
-  StylesLang
-} from '../types'
+import type { Options, UserOptions, StylesLang } from '../types'
 
 export const createOptions = (options: UserOptions = {}): Options => {
+  const prefix: Options['prefix'] = options.prefix || 'sprite-'
+
   //Default options
-  let svgo
-  if (typeof options.svgo === 'object') {
-    svgo = options.svgo
-  } else if (options.svgo === false) {
-    svgo = false
-  } else {
-    svgo = (prefix: string): OptimizeOptions => {
-      return {
-        plugins: [
-          {
-            name: 'preset-default',
-            params: {
-              overrides: {
-                removeViewBox: false,
-                removeEmptyAttrs: false,
-                moveGroupAttrsToElems: false,
-                collapseGroups: false,
-                cleanupIDs: {
-                  prefix
-                }
-              }
+  let svgo: Options['svgo'] = {
+    plugins: [
+      {
+        name: 'preset-default',
+        params: {
+          overrides: {
+            removeViewBox: false,
+            removeEmptyAttrs: false,
+            moveGroupAttrsToElems: false,
+            collapseGroups: false,
+            cleanupIDs: {
+              prefix
             }
           }
-        ]
+        }
       }
-    }
+    ]
+  }
+  if (typeof options.svgo === 'object' || options.svgo === false) {
+    svgo = options.svgo
   }
 
-  let styles: OptionsStyles | false = false
+  let styles: Options['styles'] = false
   const stylesLang = ['css', 'scss', 'less', 'styl']
   if (typeof options.styles === 'string') {
     let lang = options.styles.split('.').pop() as StylesLang | undefined
@@ -69,7 +58,7 @@ export const createOptions = (options: UserOptions = {}): Options => {
     console.error('[vite-plugin-spritemap]', 'Invalid styles option')
   }
 
-  let output: OptionsOutput | false = {
+  let output: Options['output'] = {
     filename: 'spritemap.[hash][extname]',
     use: true,
     view: true
@@ -95,7 +84,7 @@ export const createOptions = (options: UserOptions = {}): Options => {
   return {
     svgo,
     output,
-    prefix: options.prefix || 'sprite-',
+    prefix,
     styles
   } as Options
 }

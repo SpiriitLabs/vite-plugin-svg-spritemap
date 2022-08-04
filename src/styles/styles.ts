@@ -121,8 +121,7 @@ export class Styles {
 
   // CSS generation
   private _generate_css() {
-    let insert = ''
-    insert += this.createSpriteMap((name, svg) => {
+    let insert = this.createSpriteMap((name, svg) => {
       let sprites = ''
       sprites = `.${this._options.prefix + name} {`
       sprites += `\n\tbackground: url("${svg.svgDataUri}") center no-repeat;`
@@ -149,7 +148,6 @@ export class Styles {
     if (!this._options.styles) return ''
     let insert: string
 
-    console.log(this._options.styles.lang)
     switch (this._options.styles.lang) {
       case 'scss':
         insert = this._generate_scss()

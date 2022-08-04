@@ -75,7 +75,7 @@ jobs:
         run: yarn lint
 
       - name: Check formatting
-        run: yarn prettier --check .
+        run: yarn format:check
 
       - name: Typecheck
         run: yarn typecheck

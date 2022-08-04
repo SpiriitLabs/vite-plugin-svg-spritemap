@@ -32,7 +32,7 @@ export interface OptionsStyles {
 }
 
 export interface Options {
-  svgo: ((prefix: string) => SvgoOptimizeOptions) | false
+  svgo: SvgoOptimizeOptions | false
   styles: OptionsStyles | false
   output: OptionsOutput | false
   prefix: string
