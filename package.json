@@ -66,6 +66,7 @@
     "eslint-define-config": "^1.6.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-node": "^11.1.0",
+    "node-fetch": "^3.2.10",
     "prettier": "^2.7.1",
     "rollup": "^2.77.2",
     "tsup": "^6.2.1",
