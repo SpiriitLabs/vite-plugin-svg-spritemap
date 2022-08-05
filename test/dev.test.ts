@@ -1,8 +1,8 @@
-import { resolve } from 'path'
 import fetch from 'node-fetch'
 import { beforeAll, describe, expect, it } from 'vitest'
 import { createServer, ViteDevServer } from 'vite'
 import VitePluginSvgSpritemap from '../src/index'
+import { getPath } from './helper/path'
 
 let server: ViteDevServer
 
@@ -10,10 +10,8 @@ beforeAll(async () => {
   server = await createServer({
     // any valid user config options, plus `mode` and `configFile`
     configFile: false,
-    root: resolve(__dirname, './project'),
-    plugins: [
-      VitePluginSvgSpritemap(resolve(__dirname, './project/svg/*.svg'), {})
-    ]
+    root: getPath('./project'),
+    plugins: [VitePluginSvgSpritemap(getPath('./project/svg/*.svg'), {})]
   })
   await server.listen()
 
