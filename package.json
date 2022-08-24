@@ -67,6 +67,7 @@
     "eslint-define-config": "^1.6.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-node": "^11.1.0",
+    "jest-image-snapshot": "^5.1.0",
     "playwright": "^1.25.0",
     "prettier": "^2.7.1",
     "rollup": "^2.78.1",
