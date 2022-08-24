@@ -45,7 +45,7 @@ jobs:
         uses: actions/upload-artifact@v3
         if: failure()
         with:
-          name: test-project
+          name: test-project-${{ matrix.node-version }}
           path: test/project/
 
   lint:

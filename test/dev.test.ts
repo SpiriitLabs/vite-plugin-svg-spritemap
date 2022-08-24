@@ -1,14 +1,11 @@
-import { writeFile, readFile } from 'fs/promises'
+/* eslint-disable @typescript-eslint/no-namespace */
+import { writeFile } from 'fs/promises'
+import { toMatchImageSnapshot } from 'jest-image-snapshot'
 import { Browser, chromium, Page } from 'playwright'
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { createServer, ViteDevServer } from 'vite'
 import VitePluginSvgSpritemap from '../src/index'
-import { toMatchImageSnapshot } from 'jest-image-snapshot'
 import { getPath } from './helper/path'
-
-let server: ViteDevServer
-let browser: Browser
-let page: Page
 
 declare global {
   namespace jest {
@@ -17,6 +14,10 @@ declare global {
     }
   }
 }
+
+let server: ViteDevServer
+let browser: Browser
+let page: Page
 
 expect.extend({ toMatchImageSnapshot })
 
