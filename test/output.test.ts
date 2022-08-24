@@ -82,3 +82,18 @@ describe('Output generation', () => {
     }
   }
 })
+
+it('Empty output generation', async () => {
+  const result = await buildVite({}, './project/svg_empty/*.svg')
+  const asset = result.output.find(
+    asset => asset.name?.startsWith('spritemap.') && asset.name.endsWith('.svg')
+  )
+
+  expect(asset).toBeDefined()
+
+  if (asset && 'source' in asset) {
+    expect(asset.source).toBe(
+      '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"/>'
+    )
+  }
+})
