@@ -2,7 +2,7 @@
 
 This ViteJS plugin generates a single SVG [spritemap](https://css-tricks.com/svg-sprites-use-better-icon-fonts/) with `<symbol>`/`<view>`/`<use>` for each SVG files. It can also generate a stylesheet (CSS/SCSS/Stylus/Less) containing the sprites to be used directly (via a Data URI or SVG fragments).
 
-The plugin outputs can be fully configurable through options (see the [Options](#🛠-options)).
+The plugin outputs can be fully configurable through [options](#🛠-options).
 
 This plugin is inspired by [svg-spritemap-webpack-plugin](https://github.com/cascornelissen/svg-spritemap-webpack-plugin) for Webpack.
 
@@ -16,18 +16,18 @@ This plugin is inspired by [svg-spritemap-webpack-plugin](https://github.com/cas
 ## 📦 Install
 
 ```shell
-npm i -D vite-plugin-browser-sync
+npm i -D vite-plugin-svg-spritemap
 
 # yarn
-yarn add -D vite-plugin-browser-sync
+yarn add -D vite-plugin-svg-spritemap
 
 # pnpm
-pnpm add -D vite-plugin-browser-sync
+pnpm add -D vite-plugin-svg-spritemap
 ```
 
 ## 👨‍💻 Usage
 
-By default, the plugin will generate a spritemap to support all methods described below (files populated with `<view>` for fragments and `<use>` for sprite.
+By default, the plugin will generate a spritemap to support all methods described below (files populated with `<view>` for fragments and `<use>` for sprite).
 
 ```ts
 // vite.config.js / vite.config.ts
@@ -75,23 +75,32 @@ export default {
 }
 ```
 
-After that, you needs to import the file in your current styles. Don't forget to [load the CSS](https://vitejs.dev/guide/features.html#css) via ViteJS.
-
 ```scss
 // main.scss
 @import './spritemap.scss';
 ```
 
+After that, you needs to import the file in your current styles. Don't forget to [load the CSS](https://vitejs.dev/guide/features.html#css) via ViteJS.
+
 If you use a CSS preprocessing language, you can use the mixin `sprite` and access to a map with all sprites infos. If not, you will only access to classes.
 
 You can see the usage in the demo folder :
 
-- [CSS](/tree/main/demo/src/css/)
-- [SCSS](/tree/main/demo/src/scss)
-- [Less](/tree/main/demo/src/less/)
-- [Stylus](/tree/main/demo/src/stylus/)
+- [CSS](/demo/src/css/)
+- [SCSS](/demo/src/scss)
+- [Less](/demo/src/less/)
+- [Stylus](/demo/src/stylus/)
 
 ## 🛠 Options
+
+The first argument is a glob path (using `fast-glob`) and the second is an object with the following options :
+
+| Options | Type                              | Default   | Description                                                                                                                                                              |
+| ------- | --------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| output  | `boolean` or `object`             | `true`    |                                                                                                                                                                          |
+| styles  | `boolean` or `object` or `string` | `false`   |                                                                                                                                                                          |
+| prefix  | `string`                          | `sprite-` | Define the prefix uses for sprite id in `<symbol>`/`<use>`/`<view>`                                                                                                      |
+| svgo    | `boolean` or `object`             | `true`    | Take an SVGO Options object. If `true`, it will use the [default SVGO preset](https://github.com/svg/svgo#default-preset), if `false`, it will disable SVGO optimization |
 
 ## 🏃 What's next
 
