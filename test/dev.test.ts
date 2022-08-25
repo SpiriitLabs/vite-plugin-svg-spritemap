@@ -22,7 +22,7 @@ beforeAll(async () => {
       }
     },
     plugins: [
-      VitePluginSvgSpritemap(getPath('./project/svg-dev/*.svg'), {
+      VitePluginSvgSpritemap(getPath('./project/svg/*.svg'), {
         styles: getPath('./project/styles/spritemap.css')
       })
     ]
