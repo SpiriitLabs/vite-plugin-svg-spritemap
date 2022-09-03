@@ -95,16 +95,31 @@ You can see the usage in the demo folder :
 
 The first argument is a glob path (using `fast-glob`) and the second is an object with the following options :
 
-| Options | Type                              | Default   | Description                                                                                                                                                              |
-| ------- | --------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| output  | `boolean` or `object`             | `true`    |                                                                                                                                                                          |
-| styles  | `boolean` or `object` or `string` | `false`   |                                                                                                                                                                          |
-| prefix  | `string`                          | `sprite-` | Define the prefix uses for sprite id in `<symbol>`/`<use>`/`<view>`                                                                                                      |
-| svgo    | `boolean` or `object`             | `true`    | Take an SVGO Options object. If `true`, it will use the [default SVGO preset](https://github.com/svg/svgo#default-preset), if `false`, it will disable SVGO optimization |
+| Options | Type                            | Default   | Description                                                                                                                                                              |
+| ------- | ------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| output  | `boolean` or `object`           | `true`    | See [output](#output)                                                                                                                                                    |
+| styles  | `false` or `object` or `string` | `false`   | File destination like `src/css/spritemap.css` or [styles object](#styles)                                                                                                |
+| prefix  | `string`                        | `sprite-` | Define the prefix uses for sprite id in `<symbol>`/`<use>`/`<view>`                                                                                                      |
+| svgo    | `boolean` or `object`           | `true`    | Take an SVGO Options object. If `true`, it will use the [default SVGO preset](https://github.com/svg/svgo#default-preset), if `false`, it will disable SVGO optimization |
+
+### output
+
+| Options  | Type      | Default                  | Description                                                                                                                     |
+| -------- | --------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| filename | `string`  | `[name].[hash][extname]` | The destination of the file. You can use [output filename like Rollup](https://www.rollupjs.org/guide/en/#outputassetfilenames) |
+| use      | `boolean` | true                     | Insert `use` element in the spritemap                                                                                           |
+| view     | `boolean` | true                     | Insert `view` element in the spritemap                                                                                          |
+
+### styles
+
+| Options  | Type                                      | Description                                                    |
+| -------- | ----------------------------------------- | -------------------------------------------------------------- |
+| filename | string                                    | The destination of the stylesheet file like your source folder |
+| lang     | `less`/`scss`/`styl`/`css` or `undefined` |                                                                |
 
 ## 🏃 What's next
 
-- Add variable supports like [svg-spritemap-webpack-plugin](https://github.com/cascornelissen/svg-spritemap-webpack-plugin/blob/master/docs/variables.md)
+- Add variable supports inspired by [svg-spritemap-webpack-plugin](https://github.com/cascornelissen/svg-spritemap-webpack-plugin/blob/master/docs/variables.md)
 
 ## 👨‍💼 Licence
 

@@ -57,7 +57,7 @@ export const createOptions = (options: UserOptions = {}): Options => {
   }
 
   let output: Options['output'] = {
-    filename: 'spritemap.[hash][extname]',
+    filename: '[name].[hash][extname]',
     use: true,
     view: true
   }
