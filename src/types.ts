@@ -1,11 +1,11 @@
-import type { OptimizeOptions as SvgoOptimizeOptions } from 'svgo'
+import type { Config } from 'svgo'
 
 export type Pattern = string[] | string
 
 export type StylesLang = 'less' | 'scss' | 'styl' | 'css'
 
 export interface UserOptions {
-  svgo?: boolean | SvgoOptimizeOptions
+  svgo?: boolean | Config
   output?:
     | { filename: string; use?: boolean; view?: boolean }
     | string
@@ -32,7 +32,7 @@ export interface OptionsStyles {
 }
 
 export interface Options {
-  svgo: SvgoOptimizeOptions | false
+  svgo: Config | false
   styles: OptionsStyles | false
   output: OptionsOutput | false
   prefix: string
