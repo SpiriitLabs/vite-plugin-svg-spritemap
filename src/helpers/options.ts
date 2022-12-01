@@ -14,7 +14,7 @@ export const createOptions = (options: UserOptions = {}): Options => {
             removeEmptyAttrs: false,
             moveGroupAttrsToElems: false,
             collapseGroups: false,
-            cleanupIDs: {
+            cleanupIds: {
               prefix
             }
           }

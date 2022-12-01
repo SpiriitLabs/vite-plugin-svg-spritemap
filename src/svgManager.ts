@@ -46,7 +46,7 @@ export class SVGManager {
 
     if (viewBox && viewBox.length !== 4 && (!width || !height)) {
       console.warn(
-        `Sprite '${filePath}}' is invalid, it's lacking both a viewBox and width/height attributes.`
+        `Sprite '${filePath}' is invalid, it's lacking both a viewBox and width/height attributes.`
       )
       return
     }
