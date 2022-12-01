@@ -25,11 +25,11 @@
     "test": "vitest",
     "coverage": "vitest run --coverage",
     "format": "prettier --write --cache .",
-    "format:check": "yarn prettier --check .",
+    "format:check": "prettier --check .",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "pnpm build"
   },
   "keywords": [
     "svg",
