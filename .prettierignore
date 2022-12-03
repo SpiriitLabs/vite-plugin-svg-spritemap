@@ -3,3 +3,4 @@ dist
 coverage
 demo/src/**/spritemap.*
 test/project/styles/spritemap.*
+pnpm-lock.yaml
