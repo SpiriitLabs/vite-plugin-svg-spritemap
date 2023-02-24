@@ -1,5 +1,4 @@
 import { build } from 'vite'
-import { RollupOutput } from 'rollup'
 import VitePluginSvgSpritemap from '../../src'
 import type { UserOptions } from '../../src/types'
 import { getPath } from './path'
@@ -17,5 +16,5 @@ export const buildVite = async (
       )
     ]
   })
-  return result as RollupOutput
+  return result
 }

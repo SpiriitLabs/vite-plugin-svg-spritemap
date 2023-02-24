@@ -56,6 +56,7 @@
   "bugs": "https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues",
   "devDependencies": {
     "@types/hash-sum": "^1.0.0",
+    "@types/node": "^18.14.1",
     "@types/svgo": "^3.0.0",
     "@types/xmldom": "^0.1.31",
     "@typescript-eslint/eslint-plugin": "^5.53.0",
