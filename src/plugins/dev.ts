@@ -1,6 +1,5 @@
-import type { Plugin, ResolvedConfig } from 'vite'
+import { createFilter, type Plugin, type ResolvedConfig } from 'vite'
 import fg from 'fast-glob'
-import { createFilter } from 'rollup-pluginutils'
 import { SVGManager } from '../svgManager'
 import type { Options, Pattern } from '../types'
 

@@ -1,15 +1,17 @@
+[![npm](https://img.shields.io/npm/v/vite-plugin-svg-spritemap)](https://www.npmjs.com/package/vite-plugin-svg-spritemap) [![node-current](https://img.shields.io/node/v/vite-plugin-svg-spritemap)](https://nodejs.org/)
+
 # vite-plugin-svg-spritemap
 
 This ViteJS plugin generates a single SVG [spritemap](https://css-tricks.com/svg-sprites-use-better-icon-fonts/) with `<symbol>`/`<view>`/`<use>` for each SVG files. It can also generate a stylesheet (CSS/SCSS/Stylus/Less) containing the sprites to be used directly (via a Data URI or SVG fragments).
 
 The plugin outputs can be fully configurable through [options](#🛠-options).
 
-This plugin is inspired by [svg-spritemap-webpack-plugin](https://github.com/cascornelissen/svg-spritemap-webpack-plugin) for Webpack.
+> This plugin is inspired by [svg-spritemap-webpack-plugin](https://github.com/cascornelissen/svg-spritemap-webpack-plugin) for Webpack.
 
 ## 🚀 Features
 
 - ⚡ Fully integrated in your ViteJS environment
-- 📦 Pack your SVG files in one file ([spritemap](https://css-tricks.com/svg-sprites-use-better-icon-fonts/))
+- 📦 Pack your SVG files in one ([spritemap](https://css-tricks.com/svg-sprites-use-better-icon-fonts/)) file
 - ✨ Use your SVG in an `<svg>` or `<img>` tags and also directly in your CSS
 - 🔥 HMR support
 
@@ -93,7 +95,7 @@ You can see the usage in the demo folder :
 
 ## 🛠 Options
 
-The first argument is a glob path (using `fast-glob`) and the second is an object with the following options :
+The first argument is a glob path (using [fast-glob](https://github.com/mrmlnc/fast-glob)) and the second is an object with the following options :
 
 | Options | Type                            | Default   | Description                                                                                                                                                              |
 | ------- | ------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -120,6 +122,7 @@ The first argument is a glob path (using `fast-glob`) and the second is an objec
 ## 🏃 What's next
 
 - Add variable supports inspired by [svg-spritemap-webpack-plugin](https://github.com/cascornelissen/svg-spritemap-webpack-plugin/blob/master/docs/variables.md)
+- Add support for SVG import as Vue Component
 
 ## 👨‍💼 Licence
 

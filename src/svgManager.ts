@@ -112,8 +112,6 @@ export class SVGManager {
       width: [],
       height: []
     }
-    const gutter = 0
-
     const parser = new DOMParser()
 
     this._svgs.forEach((svg, name) => {
@@ -140,7 +138,7 @@ export class SVGManager {
       })
 
       spritemap.appendChild(symbol)
-      const y = calculateY(sizes.height, gutter)
+      const y = calculateY(sizes.height)
 
       //use
       if (this._options.output && this._options.output.use) {
@@ -165,9 +163,7 @@ export class SVGManager {
         view.setAttribute('id', this._options.prefix + name + '-view')
         view.setAttribute(
           'viewBox',
-          `0 ${Math.max(0, y - gutter / 2)} ${svg.width + gutter / 2} ${
-            svg.height + gutter / 2
-          }`
+          `0 ${Math.max(0, y)} ${svg.width} ${svg.height}`
         )
         spritemap.appendChild(view)
       }
