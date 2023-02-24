@@ -36,7 +36,7 @@ export function BuildPlugin(iconsPattern: Pattern, options: Options): Plugin {
     generateBundle(_, bundle) {
       if (typeof options.output === 'object') {
         bundle[fileName] = {
-          isAsset: true,
+          needsCodeReference: false,
           name: fileName,
           source: svgManager.spritemap,
           type: 'asset',
