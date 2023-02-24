@@ -126,4 +126,4 @@ The first argument is a glob path (using [fast-glob](https://github.com/mrmlnc/f
 
 ## 👨‍💼 Licence
 
-GPL-3.0
+MIT
