@@ -1,4 +1,4 @@
-[![npm](https://img.shields.io/npm/v/vite-plugin-svg-spritemap)](https://www.npmjs.com/package/vite-plugin-svg-spritemap) [![node-current](https://img.shields.io/node/v/vite-plugin-svg-spritemap)](https://nodejs.org/)
+[![npm](https://img.shields.io/npm/v/@spiriit/vite-plugin-svg-spritemap)](https://www.npmjs.com/package/@spiriit/vite-plugin-svg-spritemap) [![node-current](https://img.shields.io/node/v/@spiriit/vite-plugin-svg-spritemap)](https://nodejs.org/)
 
 # vite-plugin-svg-spritemap
 
@@ -18,13 +18,13 @@ The plugin outputs can be fully configurable through [options](#🛠-options).
 ## 📦 Install
 
 ```shell
-npm i -D vite-plugin-svg-spritemap
+npm i -D @spiriit/vite-plugin-svg-spritemap
 
 # yarn
-yarn add -D vite-plugin-svg-spritemap
+yarn add -D @spiriit/vite-plugin-svg-spritemap
 
 # pnpm
-pnpm add -D vite-plugin-svg-spritemap
+pnpm add -D @spiriit/vite-plugin-svg-spritemap
 ```
 
 ## 👨‍💻 Usage
@@ -33,7 +33,7 @@ By default, the plugin will generate a spritemap to support all methods describe
 
 ```ts
 // vite.config.js / vite.config.ts
-import VitePluginSVGSpritemap from 'vite-plugin-svg-spritemap'
+import VitePluginSVGSpritemap from '@spiriit/vite-plugin-svg-spritemap'
 
 export default {
   plugins: [VitePluginSVGSpritemap('./src/icons/*.svg')]
@@ -66,7 +66,7 @@ First you need to adjust the plugin options to set the output styles. For full s
 
 ```ts
 // vite.config.js / vite.config.ts
-import VitePluginSVGSpritemap from 'vite-plugin-svg-spritemap'
+import VitePluginSVGSpritemap from '@spiriit/vite-plugin-svg-spritemap'
 
 export default {
   plugins: [
