@@ -52,38 +52,38 @@ jobs:
           name: test-project-${{ matrix.os }}-${{ matrix.node-version }}
           path: test/project/
 
-  # coverage:
-  #   runs-on: ubuntu-latest
-  #   name: 'Coverage'
+  coverage:
+    runs-on: ubuntu-latest
+    name: 'Coverage'
 
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #       with:
-  #         fetch-depth: 0
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-  #     - uses: pnpm/action-setup@v2.2.4
-  #       with:
-  #         version: 7
+      - uses: pnpm/action-setup@v2.2.4
+        with:
+          version: 7
 
-  #     - name: Set node version to 16
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 16
-  #         cache: pnpm
+      - name: Set node version to 16
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: pnpm
 
-  #     - name: Install
-  #       run: pnpm install
+      - name: Install
+        run: pnpm install
 
-  #     - name: Build
-  #       run: pnpm build
+      - name: Build
+        run: pnpm build
 
-  #     - name: Test
-  #       run: pnpm coverage
+      - name: Test
+        run: pnpm coverage
 
-  #     - name: Coveralls
-  #       uses: coverallsapp/github-action@master
-  #       with:
-  #         github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   lint:
     runs-on: ubuntu-latest
