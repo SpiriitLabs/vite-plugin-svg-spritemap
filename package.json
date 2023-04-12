@@ -1,6 +1,6 @@
 {
   "name": "@spiriit/vite-plugin-svg-spritemap",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "engines": {
     "node": ">=14.18.0"
   },
