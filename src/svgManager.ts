@@ -122,17 +122,23 @@ export class SVGManager {
         Array.from(documentElement.attributes),
         'symbol'
       )
+
+      // spritemap attributes
       attributes.forEach(attr => {
+        // console.log(attr.name, attr.value)
         if (attr.name.toLowerCase().startsWith('xmlns:')) {
           spritemap.setAttribute(attr.name, attr.value)
         }
       })
+
+      // symbol attributes
       attributes.forEach(attr => {
         symbol.setAttribute(attr.name, attr.value)
       })
       symbol.setAttribute('id', this._options.prefix + name)
       symbol.setAttribute('viewBox', svg.viewBox.join(' '))
 
+      // add childs
       Array.from(documentElement.childNodes).forEach(child => {
         symbol.appendChild(child)
       })

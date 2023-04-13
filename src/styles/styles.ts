@@ -2,7 +2,7 @@ import { readFile } from 'fs'
 import { promisify } from 'util'
 import { join } from 'path'
 import svgToMiniDataURI from 'mini-svg-data-uri'
-import { Options, SvgMapObject } from '../types'
+import type { Options, SvgMapObject } from '../types'
 
 interface SvgDataUriMapObject {
   width: number
