@@ -1,7 +1,9 @@
-import { writeFile } from 'fs/promises'
-import { Browser, chromium, Page } from 'playwright'
+import { writeFile } from 'node:fs/promises'
+import type { Browser, Page } from 'playwright'
+import { chromium } from 'playwright'
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { createServer, ViteDevServer } from 'vite'
+import type { ViteDevServer } from 'vite'
+import { createServer } from 'vite'
 import VitePluginSvgSpritemap from '../src/index'
 import { getPath } from './helper/path'
 
@@ -18,14 +20,14 @@ beforeAll(async () => {
     root: getPath('./project'),
     server: {
       watch: {
-        ignored: [getPath('./project/dist')] //ignore dist change because of parallized test
-      }
+        ignored: [getPath('./project/dist')], // ignore dist change because of parallized test
+      },
     },
     plugins: [
       VitePluginSvgSpritemap(getPath('./project/svg/*.svg'), {
-        styles: getPath('./project/styles/spritemap.css')
-      })
-    ]
+        styles: getPath('./project/styles/spritemap.css'),
+      }),
+    ],
   })
   await server.listen()
 
@@ -46,8 +48,8 @@ afterEach(async () => {
 describe('dev server', () => {
   it('has HMR script', async () => {
     await page.goto('http://localhost:5173')
-    const test =
-      '<script type="module" src="/@vite-plugin-svg-spritemap/client"></script>'
+    const test
+      = '<script type="module" src="/@vite-plugin-svg-spritemap/client"></script>'
     const result = await page.content()
     expect(result.includes(test)).toBeTruthy()
   })
@@ -56,7 +58,7 @@ describe('dev server', () => {
     await page.goto('http://localhost:5173')
     const result = await page.content()
     expect(
-      /<use xlink:href="__spritemap__.*#.*"><\/use>/.test(result)
+      /<use xlink:href="__spritemap__.*#.*"><\/use>/.test(result),
     ).toBeTruthy()
   })
 
@@ -74,14 +76,14 @@ describe('dev server', () => {
 
     await writeFile(getPath('./project/svg/vite.svg'), viteLogo('red'))
     const response = await page.waitForResponse(response =>
-      response.url().includes('/spritemap.css')
+      response.url().includes('/spritemap.css'),
     )
     const text = await response.text()
     expect(text).toMatchSnapshot()
 
     await writeFile(getPath('./project/svg/vite.svg'), viteLogo('#000'))
     await page.waitForResponse(response =>
-      response.url().includes('/spritemap.css')
+      response.url().includes('/spritemap.css'),
     )
   })
 })

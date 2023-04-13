@@ -1,4 +1,4 @@
-import { join } from 'path'
+import { join } from 'node:path'
 import type { Plugin, ResolvedConfig } from 'vite'
 import type { Options, Pattern } from '../types'
 import { getFileName } from '../helpers/filename'
@@ -25,7 +25,7 @@ export function BuildPlugin(iconsPattern: Pattern, options: Options): Plugin {
           options.output.filename,
           'spritemap',
           svgManager.spritemap,
-          'svg'
+          'svg',
         )
         filePath = join(config.build.assetsDir, fileName)
       }
@@ -40,9 +40,9 @@ export function BuildPlugin(iconsPattern: Pattern, options: Options): Plugin {
           name: fileName,
           source: svgManager.spritemap,
           type: 'asset',
-          fileName: filePath
+          fileName: filePath,
         }
       }
-    }
+    },
   }
 }

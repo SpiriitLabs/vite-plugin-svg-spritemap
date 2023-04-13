@@ -7,17 +7,17 @@ export type StylesLang = 'less' | 'scss' | 'styl' | 'css'
 export interface UserOptions {
   svgo?: boolean | Config
   output?:
-    | { filename: string; use?: boolean; view?: boolean }
-    | string
-    | boolean
+  | { filename: string; use?: boolean; view?: boolean }
+  | string
+  | boolean
   prefix?: string
   styles?:
-    | {
-        filename: string
-        lang?: StylesLang
-      }
-    | string
-    | false
+  | {
+    filename: string
+    lang?: StylesLang
+  }
+  | string
+  | false
 }
 
 export interface OptionsOutput {

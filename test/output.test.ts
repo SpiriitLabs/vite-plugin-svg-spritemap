@@ -1,31 +1,31 @@
-import { it, describe, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import type { UserOptions } from '../src/types'
 import { buildVite } from './helper/build'
 
 const outputConfigs: Record<string, UserOptions['output']> = {
-  default: true,
-  false: false,
-  string: 'spritemap.[hash][extname]',
+  'default': true,
+  'false': false,
+  'string': 'spritemap.[hash][extname]',
   'object with default': {
     filename: 'spritemap.[hash][extname]',
     use: true,
-    view: true
+    view: true,
   },
   'object with only view': {
     filename: 'spritemap.[hash][extname]',
     view: true,
-    use: false
+    use: false,
   },
   'object with only use': {
     filename: 'spritemap.[hash][extname]',
     use: true,
-    view: false
+    view: false,
   },
   'object with only symbol': {
     filename: 'spritemap.[hash][extname]',
     use: false,
-    view: false
-  }
+    view: false,
+  },
 }
 
 describe('Output generation', () => {
@@ -34,10 +34,12 @@ describe('Output generation', () => {
       it(key, async () => {
         const output = outputConfigs[key]
         const result = await buildVite({ output })
-        const asset = result.output.find(
-          asset =>
-            asset.name?.startsWith('spritemap.') && asset.name.endsWith('.svg')
-        )
+        const asset = 'output' in result
+          ? result.output.find(
+            asset =>
+              asset.name?.startsWith('spritemap.') && asset.name.endsWith('.svg'),
+          )
+          : undefined
 
         expect(asset)[output === false ? 'toBeUndefined' : 'toBeDefined']()
 
@@ -45,38 +47,37 @@ describe('Output generation', () => {
           const source = asset.source.toString()
           const check = {
             use:
-              typeof output === 'object' && typeof output.use !== 'undefined'
+              (typeof output === 'object' && typeof output.use !== 'undefined')
                 ? output.use
                 : true,
             view:
-              typeof output === 'object' && typeof output.view !== 'undefined'
+              (typeof output === 'object' && typeof output.view !== 'undefined')
                 ? output.view
-                : true
+                : true,
           }
 
           if (check.use) {
             expect(
               /<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" xmlns:xlink="http:\/\/www\.w3\.org\/1999\/xlink">/gm.test(
-                source
-              )
+                source,
+              ),
             ).toBeTruthy()
-          } else {
+          }
+          else {
             expect(
-              /<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg">/gm.test(source)
+              /<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg">/gm.test(source),
             ).toBeTruthy()
           }
 
           expect(
-            /<symbol .* id=".*" .*>.*<\/symbol>/gm.test(source)
+            /<symbol .* id=".*" .*>.*<\/symbol>/gm.test(source),
           ).toBeTruthy()
 
-          if (check.use) {
+          if (check.use)
             expect(/<use .* xlink:href="#.*" .*\/>/gm.test(source)).toBeTruthy()
-          }
 
-          if (check.view) {
+          if (check.view)
             expect(/<view .* id=".*" .*\/>/gm.test(source)).toBeTruthy()
-          }
         }
       })
     }
@@ -85,15 +86,17 @@ describe('Output generation', () => {
 
 it('Empty output generation', async () => {
   const result = await buildVite({}, './project/svg_empty/*.svg')
-  const asset = result.output.find(
-    asset => asset.name?.startsWith('spritemap.') && asset.name.endsWith('.svg')
-  )
+  const asset = 'output' in result
+    ? result.output.find(
+      asset => asset.name?.startsWith('spritemap.') && asset.name.endsWith('.svg'),
+    )
+    : undefined
 
   expect(asset).toBeDefined()
 
   if (asset && 'source' in asset) {
     expect(asset.source).toBe(
-      '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"/>'
+      '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"/>',
     )
   }
 })

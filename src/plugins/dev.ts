@@ -1,4 +1,4 @@
-import { createFilter, type Plugin, type ResolvedConfig } from 'vite'
+import { type Plugin, type ResolvedConfig, createFilter } from 'vite'
 import fg from 'fast-glob'
 import { SVGManager } from '../svgManager'
 import type { Options, Pattern } from '../types'
@@ -20,21 +20,19 @@ export function DevPlugin(iconsPattern: Pattern, options: Options): Plugin {
       svgManager = new SVGManager(iconsPattern, options, config)
     },
     resolveId(id) {
-      if (id === virtualModuleId) {
+      if (id === virtualModuleId)
         return id
-      }
     },
     load(id) {
-      if (id === virtualModuleId) {
+      if (id === virtualModuleId)
         return generateHMR()
-      }
     },
     async buildStart() {
       await svgManager.updateAll()
 
       const icons = await fg(iconsPattern)
       const directories: Set<string> = new Set()
-      icons.forEach(icon => {
+      icons.forEach((icon) => {
         const directory = icon.split('/').slice(0, -1).join('/')
         directories.add(directory)
       })
@@ -48,7 +46,8 @@ export function DevPlugin(iconsPattern: Pattern, options: Options): Plugin {
           res.setHeader('Content-Type', 'image/svg+xml')
           res.write(svgManager.spritemap, 'utf-8')
           res.end()
-        } else {
+        }
+        else {
           next()
         }
       })
@@ -58,19 +57,18 @@ export function DevPlugin(iconsPattern: Pattern, options: Options): Plugin {
       transform(html) {
         html = html.replace(
           /__spritemap-\d*|__spritemap/g,
-          `__spritemap__${svgManager.hash}`
+          `__spritemap__${svgManager.hash}`,
         )
 
         return html.replace(
           '</body>',
-          `<script type="module" src="${virtualModuleId}"></script></body>`
+          `<script type="module" src="${virtualModuleId}"></script></body>`,
         )
-      }
+      },
     },
     async handleHotUpdate(ctx) {
-      if (!filterSVG(ctx.file)) {
+      if (!filterSVG(ctx.file))
         return
-      }
 
       await svgManager.update(ctx.file)
 
@@ -78,20 +76,19 @@ export function DevPlugin(iconsPattern: Pattern, options: Options): Plugin {
         type: 'custom',
         event,
         data: {
-          id: svgManager.hash
-        }
+          id: svgManager.hash,
+        },
       })
     },
     transform(code, id) {
-      if (!filterCSS(id)) {
+      if (!filterCSS(id))
         return code
-      }
 
       return code.replace(
         /__spritemap-\d*|__spritemap/g,
-        `__spritemap__${svgManager.hash}`
+        `__spritemap__${svgManager.hash}`,
       )
-    }
+    },
   }
 }
 
