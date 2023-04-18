@@ -1,9 +1,9 @@
-import type { Options, UserOptions, StylesLang } from '../types'
+import type { Options, StylesLang, UserOptions } from '../types'
 
-export const createOptions = (options: UserOptions = {}): Options => {
+export function createOptions(options: UserOptions = {}): Options {
   const prefix: Options['prefix'] = options.prefix || 'sprite-'
 
-  //Default options
+  // Default options
   let svgo: Options['svgo'] = {
     plugins: [
       {
@@ -15,16 +15,15 @@ export const createOptions = (options: UserOptions = {}): Options => {
             moveGroupAttrsToElems: false,
             collapseGroups: false,
             cleanupIds: {
-              preservePrefixes: [prefix]
-            }
-          }
-        }
-      }
-    ]
+              preservePrefixes: [prefix],
+            },
+          },
+        },
+      },
+    ],
   }
-  if (typeof options.svgo === 'object' || options.svgo === false) {
+  if (typeof options.svgo === 'object' || options.svgo === false)
     svgo = options.svgo
-  }
 
   let styles: Options['styles'] = false
   const stylesLang = ['css', 'scss', 'less', 'styl']
@@ -36,46 +35,49 @@ export const createOptions = (options: UserOptions = {}): Options => {
       lang = 'css'
       console.warn(
         '[vite-plugin-spritemap]',
-        'Invalid styles lang, fallback to css'
+        'Invalid styles lang, fallback to css',
       )
     }
 
     styles = {
       filename: options.styles,
-      lang
+      lang,
     }
-  } else if (
-    typeof options.styles === 'object' &&
-    typeof options.styles.filename === 'string' &&
-    typeof options.styles.lang === 'string' &&
-    stylesLang.includes(options.styles.lang)
+  }
+  else if (
+    typeof options.styles === 'object'
+    && typeof options.styles.filename === 'string'
+    && typeof options.styles.lang === 'string'
+    && stylesLang.includes(options.styles.lang)
   ) {
     styles = {
       filename: options.styles.filename,
-      lang: options.styles.lang
+      lang: options.styles.lang,
     }
   }
 
   let output: Options['output'] = {
     filename: '[name].[hash][extname]',
     use: true,
-    view: true
+    view: true,
   }
   if (options.output === false) {
     output = false
-  } else if (typeof options.output === 'string') {
+  }
+  else if (typeof options.output === 'string') {
     output = {
       filename: options.output,
       use: true,
-      view: true
+      view: true,
     }
-  } else if (typeof options.output === 'object') {
+  }
+  else if (typeof options.output === 'object') {
     output = {
       filename: options.output.filename,
       use:
         typeof options.output.use !== 'undefined' ? options.output.use : true,
       view:
-        typeof options.output.view !== 'undefined' ? options.output.view : true
+        typeof options.output.view !== 'undefined' ? options.output.view : true,
     }
   }
 
@@ -83,6 +85,6 @@ export const createOptions = (options: UserOptions = {}): Options => {
     svgo,
     output,
     prefix,
-    styles
+    styles,
   } as Options
 }

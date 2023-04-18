@@ -1,36 +1,16 @@
 {
   "name": "@spiriit/vite-plugin-svg-spritemap",
-  "version": "1.0.0",
-  "engines": {
-    "node": ">=14.18.0"
-  },
-  "exports": {
-    ".": {
-      "require": "./dist/index.js",
-      "import": "./dist/index.mjs"
-    }
-  },
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "peerDependencies": {
-    "vite": "^3.0.0 || ^4.0.0"
-  },
+  "version": "1.0.1",
+  "packageManager": "pnpm@7.32.0",
   "description": "Generates symbol-based SVG spritemap from all .svg files in a directory",
-  "scripts": {
-    "build": "tsup",
-    "test": "vitest",
-    "coverage": "vitest run --coverage",
-    "format": "prettier --write --cache .",
-    "format:check": "prettier --check .",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "typecheck": "tsc --noEmit",
-    "prepublishOnly": "pnpm build"
+  "author": "Spiriit",
+  "license": "MIT",
+  "homepage": "https://github.com/SpiriitLabs/vite-plugin-svg-spritemap",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SpiriitLabs/vite-plugin-svg-spritemap"
   },
+  "bugs": "https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues",
   "keywords": [
     "svg",
     "sprites",
@@ -46,42 +26,54 @@
     "vite",
     "vite-plugin"
   ],
-  "author": "Spiriit",
-  "license": "MIT",
-  "homepage": "https://github.com/SpiriitLabs/vite-plugin-svg-spritemap",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/SpiriitLabs/vite-plugin-svg-spritemap"
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    }
   },
-  "bugs": "https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues",
-  "devDependencies": {
-    "@types/hash-sum": "^1.0.0",
-    "@types/node": "^18.14.1",
-    "@types/svgo": "^3.0.0",
-    "@types/xmldom": "^0.1.31",
-    "@typescript-eslint/eslint-plugin": "^5.53.0",
-    "@typescript-eslint/parser": "^5.53.0",
-    "@vitest/coverage-c8": "^0.28.5",
-    "c8": "^7.13.0",
-    "eslint": "^8.34.0",
-    "eslint-config-prettier": "^8.6.0",
-    "eslint-define-config": "^1.15.0",
-    "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-node": "^11.1.0",
-    "playwright": "^1.31.1",
-    "prettier": "^2.8.4",
-    "tsup": "^6.6.3",
-    "typescript": "^4.9.5",
-    "vite": "^4.1.4",
-    "vitest": "^0.28.5"
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=14.18.0"
+  },
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm build"
+  },
+  "peerDependencies": {
+    "vite": "^3.0.0 || ^4.0.0"
   },
   "dependencies": {
-    "@xmldom/xmldom": "^0.8.6",
+    "@xmldom/xmldom": "^0.8.7",
     "fast-glob": "^3.2.12",
     "hash-sum": "^2.0.0",
     "mini-svg-data-uri": "^1.4.4",
-    "svg-element-attributes": "^1.3.1",
     "svgo": "^3.0.2"
   },
-  "packageManager": "pnpm@7.3.0"
+  "devDependencies": {
+    "@antfu/eslint-config": "^0.38.5",
+    "@types/hash-sum": "^1.0.0",
+    "@types/node": "^14.18.42",
+    "@types/xmldom": "^0.1.31",
+    "@typescript-eslint/parser": "^5.59.0",
+    "@vitest/coverage-c8": "^0.30.1",
+    "c8": "^7.13.0",
+    "eslint": "^8.38.0",
+    "playwright": "^1.32.3",
+    "svg-element-attributes": "^1.3.1",
+    "tsup": "^6.7.0",
+    "typescript": "^4.9.5",
+    "vite": "^4.2.2",
+    "vitest": "^0.30.1"
+  }
 }

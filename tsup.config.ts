@@ -1,4 +1,4 @@
-import { promises as fs } from 'fs'
+import { promises as fs } from 'node:fs'
 import { defineConfig } from 'tsup'
 import fg from 'fast-glob'
 
@@ -8,8 +8,7 @@ export default defineConfig({
   format: ['cjs', 'esm'],
   async onSuccess() {
     const files = await fg('src/styles/*.(scss|styl|less)')
-    for (const file of files) {
+    for (const file of files)
       await fs.copyFile(file, file.replace('src/styles', 'dist/'))
-    }
-  }
+  },
 })

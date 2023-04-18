@@ -1,5 +1,5 @@
-import { promises as fs } from 'fs'
-import { it, describe, expect, beforeAll, vi } from 'vitest'
+import { promises as fs } from 'node:fs'
+import { beforeAll, describe, expect, it, vi } from 'vitest'
 import type { StylesLang } from '../src/types'
 import { getPath } from './helper/path'
 import { buildVite } from './helper/build'
@@ -11,12 +11,12 @@ beforeAll(async () => {
     try {
       await fs.access(filename)
       exist = true
-    } catch {
+    }
+    catch {
       exist = false
     }
-    if (exist) {
+    if (exist)
       await fs.writeFile(filename, '')
-    }
   }
 })
 
@@ -26,7 +26,7 @@ describe('Styles generation', () => {
       const filename = getPath(`./project/styles/spritemap.${style}`)
 
       await buildVite({
-        styles: filename
+        styles: filename,
       })
 
       const resultWithString = await fs.readFile(filename, 'utf8')
@@ -35,8 +35,8 @@ describe('Styles generation', () => {
       await buildVite({
         styles: {
           filename,
-          lang: style as StylesLang
-        }
+          lang: style as StylesLang,
+        },
       })
 
       const resultWithObject = await fs.readFile(filename, 'utf8')
@@ -48,12 +48,12 @@ describe('Styles generation', () => {
   it('test with warn', async () => {
     const spy = vi.spyOn(console, 'warn')
     await buildVite({
-      styles: getPath('./project/styles/spritemap')
+      styles: getPath('./project/styles/spritemap'),
     })
     const calls = spy.mock.calls[0]
     expect(calls).toStrictEqual([
       '[vite-plugin-spritemap]',
-      'Invalid styles lang, fallback to css'
+      'Invalid styles lang, fallback to css',
     ])
   })
 })

@@ -1,8 +1,8 @@
-import { promises as fs } from 'fs'
-import { basename, resolve } from 'path'
+import { promises as fs } from 'node:fs'
+import { basename, resolve } from 'node:path'
 import fg from 'fast-glob'
 import { optimize } from 'svgo'
-import { DOMParser, DOMImplementation, XMLSerializer } from '@xmldom/xmldom'
+import { DOMImplementation, DOMParser, XMLSerializer } from '@xmldom/xmldom'
 import hash_sum from 'hash-sum'
 import type { ResolvedConfig } from 'vite'
 import { Styles } from './styles/styles'
@@ -28,14 +28,15 @@ export class SVGManager {
 
   async update(filePath: string, loop = false) {
     const name = basename(filePath, '.svg')
-    if (!name) return false
+    if (!name)
+      return false
 
     let svg: string = await fs.readFile(filePath, 'utf8')
     const document = this._parser.parseFromString(svg, 'image/svg+xml')
     const documentElement = document.documentElement
     let viewBox = (
-      documentElement.getAttribute('viewBox') ||
-      documentElement.getAttribute('viewbox')
+      documentElement.getAttribute('viewBox')
+      || documentElement.getAttribute('viewbox')
     )
       ?.split(' ')
       .map(a => parseFloat(a))
@@ -46,35 +47,33 @@ export class SVGManager {
 
     if (viewBox && viewBox.length !== 4 && (!width || !height)) {
       console.warn(
-        `Sprite '${filePath}' is invalid, it's lacking both a viewBox and width/height attributes.`
+        `Sprite '${filePath}' is invalid, it's lacking both a viewBox and width/height attributes.`,
       )
       return
     }
-    if (viewBox && viewBox.length !== 4 && width && height) {
+    if (viewBox && viewBox.length !== 4 && width && height)
       viewBox = [0, 0, width, height]
-    }
-    if (!width && viewBox) {
+
+    if (!width && viewBox)
       width = viewBox[2]
-    }
-    if (!height && viewBox) {
+
+    if (!height && viewBox)
       height = viewBox[3]
-    }
-    if (!width || !height || !viewBox) {
+
+    if (!width || !height || !viewBox)
       return
-    }
 
     if (typeof this._options.svgo === 'object') {
       const optimizedSvg = optimize(svg, this._options.svgo)
-      if ('data' in optimizedSvg) {
+      if ('data' in optimizedSvg)
         svg = optimizedSvg.data
-      }
     }
 
     this._svgs.set(name, {
       width,
       height,
       viewBox,
-      source: svg
+      source: svg,
     })
 
     if (!loop) {
@@ -101,16 +100,16 @@ export class SVGManager {
     const spritemap = DOM.createElement('svg')
     spritemap.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
 
-    if (this._options.output && this._options.output.use) {
+    if (this._options.output && this._options.output.use)
       spritemap.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink')
-    }
 
     // return empty spritemap
-    if (!this._svgs.size) return Serializer.serializeToString(spritemap)
+    if (!this._svgs.size)
+      return Serializer.serializeToString(spritemap)
 
     const sizes: { width: number[]; height: number[] } = {
       width: [],
-      height: []
+      height: [],
     }
     const parser = new DOMParser()
 
@@ -120,27 +119,32 @@ export class SVGManager {
       const documentElement = document.documentElement
       let attributes = cleanAttributes(
         Array.from(documentElement.attributes),
-        'symbol'
+        'symbol',
       )
-      attributes.forEach(attr => {
-        if (attr.name.toLowerCase().startsWith('xmlns:')) {
+
+      // spritemap attributes
+      attributes.forEach((attr) => {
+        // console.log(attr.name, attr.value)
+        if (attr.name.toLowerCase().startsWith('xmlns:'))
           spritemap.setAttribute(attr.name, attr.value)
-        }
       })
-      attributes.forEach(attr => {
+
+      // symbol attributes
+      attributes.forEach((attr) => {
         symbol.setAttribute(attr.name, attr.value)
       })
       symbol.setAttribute('id', this._options.prefix + name)
       symbol.setAttribute('viewBox', svg.viewBox.join(' '))
 
-      Array.from(documentElement.childNodes).forEach(child => {
+      // add childs
+      Array.from(documentElement.childNodes).forEach((child) => {
         symbol.appendChild(child)
       })
 
       spritemap.appendChild(symbol)
       const y = calculateY(sizes.height)
 
-      //use
+      // use
       if (this._options.output && this._options.output.use) {
         const use = DOM.createElement('use')
         use.setAttribute('xlink:href', `#${this._options.prefix}${name}`)
@@ -150,20 +154,20 @@ export class SVGManager {
         spritemap.appendChild(use)
       }
 
-      //view
+      // view
       if (this._options.output && this._options.output.view) {
         const view = DOM.createElement('view')
         attributes = cleanAttributes(
           Array.from(documentElement.attributes),
-          'view'
+          'view',
         )
-        attributes.forEach(attr => {
+        attributes.forEach((attr) => {
           view.setAttribute(attr.name, attr.value)
         })
-        view.setAttribute('id', this._options.prefix + name + '-view')
+        view.setAttribute('id', `${this._options.prefix + name}-view`)
         view.setAttribute(
           'viewBox',
-          `0 ${Math.max(0, y)} ${svg.width} ${svg.height}`
+          `0 ${Math.max(0, y)} ${svg.width} ${svg.height}`,
         )
         spritemap.appendChild(view)
       }
@@ -176,7 +180,8 @@ export class SVGManager {
   }
 
   private async createFileStyle() {
-    if (typeof this._options.styles !== 'object') return
+    if (typeof this._options.styles !== 'object')
+      return
     const styleGen: Styles = new Styles(this._svgs, this._options)
     const content = await styleGen.generate()
     const path = resolve(this._config.root, this._options.styles.filename)

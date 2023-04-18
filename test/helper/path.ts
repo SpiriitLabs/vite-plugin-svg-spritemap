@@ -1,6 +1,6 @@
-import { resolve } from 'path'
+import { resolve } from 'node:path'
 import { normalizePath } from 'vite'
 
-export const getPath = (...pathSegments: string[]) => {
+export function getPath(...pathSegments: string[]) {
   return normalizePath(resolve(__dirname, './../', ...pathSegments))
 }
