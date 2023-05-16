@@ -25,7 +25,7 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 7
+          version: 8
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
@@ -61,9 +61,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@v2.2.4
+      - uses: pnpm/action-setup@v2
         with:
-          version: 7
+          version: 8
 
       - name: Set node version to 16
         uses: actions/setup-node@v3
@@ -90,7 +90,7 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
-    name: 'Lint: node-16, ubuntu-latest'
+    name: "Lint: node-16, ubuntu-latest"
 
     steps:
       - uses: actions/checkout@v3
@@ -99,7 +99,7 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 7
+          version: 8
 
       - name: Set node version to 16
         uses: actions/setup-node@v3
