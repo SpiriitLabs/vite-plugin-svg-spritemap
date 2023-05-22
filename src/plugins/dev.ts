@@ -82,12 +82,15 @@ export function DevPlugin(iconsPattern: Pattern, options: Options): Plugin {
     },
     transform(code, id) {
       if (!filterCSS(id))
-        return code
+        return { code, map: null }
 
-      return code.replace(
-        /__spritemap-\d*|__spritemap/g,
+      return {
+        code: code.replace(
+          /__spritemap-\d*|__spritemap/g,
         `__spritemap__${svgManager.hash}`,
-      )
+        ),
+        map: null,
+      }
     },
   }
 }

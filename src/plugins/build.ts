@@ -1,5 +1,5 @@
 import { join } from 'node:path'
-import type { Plugin, ResolvedConfig } from 'vite'
+import { type Plugin, type ResolvedConfig, createFilter } from 'vite'
 import type { Options, Pattern } from '../types'
 import { getFileName } from '../helpers/filename'
 import { SVGManager } from '../svgManager'
@@ -9,6 +9,7 @@ export function BuildPlugin(iconsPattern: Pattern, options: Options): Plugin {
   let fileName: string
   let filePath: string
   let svgManager: SVGManager
+  const filterCSS = createFilter(/\.(s?css|styl|less)$/)
 
   return <Plugin>{
     name: 'vite-plugin-svg-spritemap:build',
@@ -30,8 +31,14 @@ export function BuildPlugin(iconsPattern: Pattern, options: Options): Plugin {
         filePath = join(config.build.assetsDir, fileName)
       }
     },
-    transform(code) {
-      return code.replace(/__spritemap/g, filePath)
+    transform(code, id) {
+      if (!filterCSS(id))
+        return { code, map: null }
+
+      return {
+        code: code.replace(/__spritemap/g, filePath),
+        map: null,
+      }
     },
     generateBundle(_, bundle) {
       if (typeof options.output === 'object') {
