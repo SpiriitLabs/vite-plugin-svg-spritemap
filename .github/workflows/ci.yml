@@ -16,7 +16,7 @@ on:
 
 jobs:
   test:
-    name: "Build&Test: node-${{ matrix.node_version }}, ${{ matrix.os }}"
+    name: 'Build&Test: node-${{ matrix.node_version }}, ${{ matrix.os }}'
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -71,7 +71,7 @@ jobs:
 
   coverage:
     runs-on: ubuntu-latest
-    name: "Coverage: node-18, ubuntu-latest"
+    name: 'Coverage: node-18, ubuntu-latest'
 
     steps:
       - uses: actions/checkout@v3
@@ -107,7 +107,7 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
-    name: "Lint: node-18, ubuntu-latest"
+    name: 'Lint: node-18, ubuntu-latest'
 
     steps:
       - uses: actions/checkout@v3
