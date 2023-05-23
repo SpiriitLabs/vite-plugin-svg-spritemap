@@ -121,6 +121,7 @@ The first argument is a glob path (using [fast-glob](https://github.com/mrmlnc/f
 
 ## 🏃 What's next
 
+- Add support for [vite serving assets](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/5)
 - Add variable supports inspired by [svg-spritemap-webpack-plugin](https://github.com/cascornelissen/svg-spritemap-webpack-plugin/blob/master/docs/variables.md)
 - Add support for SVG import as Vue Component
 

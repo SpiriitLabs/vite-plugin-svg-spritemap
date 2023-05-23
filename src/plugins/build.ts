@@ -1,5 +1,5 @@
 import { join } from 'node:path'
-import type { Plugin, ResolvedConfig } from 'vite'
+import { type Plugin, type ResolvedConfig } from 'vite'
 import type { Options, Pattern } from '../types'
 import { getFileName } from '../helpers/filename'
 import { SVGManager } from '../svgManager'
@@ -31,7 +31,10 @@ export function BuildPlugin(iconsPattern: Pattern, options: Options): Plugin {
       }
     },
     transform(code) {
-      return code.replace(/__spritemap/g, filePath)
+      return {
+        code: code.replace(/__spritemap/g, filePath),
+        map: null,
+      }
     },
     generateBundle(_, bundle) {
       if (typeof options.output === 'object') {
