@@ -14,10 +14,19 @@ body
   to
     color #ff9500
 
+// color rainbow bg gradient animation keyframes
+@keyframes rainbow-bg
+  from
+    background-color #ff0000
+  to
+    background-color #ff9500
+
+
 .icon
   margin 0.5rem
 
   for $name, $sprite in $sprites
+    &-{$name}-mask,
     &-{$name}
       width: $sprite[width];
       height: $sprite[height];
@@ -45,4 +54,8 @@ h2
 
     &--bg-uri .icon-{$name}
       sprite($name)
+
+    &--mask-uri .icon-{$name}-mask
+      animation: rainbow-bg infinite 1s alternate
+      sprite($name, $mode: 'mask')
 

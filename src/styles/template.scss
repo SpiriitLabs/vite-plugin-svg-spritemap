@@ -1,4 +1,4 @@
-@mixin sprite($name, $include-size: false, $type: 'uri') {
+@mixin sprite($name, $include-size: false, $type: 'uri', $mode: 'background') {
   $sprite: map-get($sprites, $name);
   $url: false;
 
@@ -11,11 +11,11 @@
   }
 
   @if $url {
-    background: url($url) center no-repeat;
+    #{$mode}: url($url) center no-repeat;
 
     @if $include-size {
       @if $include-size == true {
-        background-size: map-get($sprite, width) map-get($sprite, height);
+        #{$mode}-size: map-get($sprite, width) map-get($sprite, height);
       } @else if $include-size == 'box' {
         width: map-get($sprite, width);
         height: map-get($sprite, height);
