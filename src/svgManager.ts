@@ -39,11 +39,11 @@ export class SVGManager {
       || documentElement.getAttribute('viewbox')
     )
       ?.split(' ')
-      .map(a => parseFloat(a))
+      .map(a => Number.parseFloat(a))
     const widthAttr = documentElement.getAttribute('width')
     const heightAttr = documentElement.getAttribute('height')
-    let width = widthAttr ? parseFloat(widthAttr) : undefined
-    let height = heightAttr ? parseFloat(heightAttr) : undefined
+    let width = widthAttr ? Number.parseFloat(widthAttr) : undefined
+    let height = heightAttr ? Number.parseFloat(heightAttr) : undefined
 
     if (viewBox && viewBox.length !== 4 && (!width || !height)) {
       console.warn(
