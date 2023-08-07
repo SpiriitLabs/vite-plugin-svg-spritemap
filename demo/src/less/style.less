@@ -18,12 +18,23 @@ body {
   }
 }
 
+//color rainbow bg gradient animation keyframes
+@keyframes rainbow-bg {
+  from {
+    background-color: #ff0000;
+  }
+  to {
+    background-color: #ff9500;
+  }
+}
+
 .icon {
   margin: 0.5rem;
 
   each(@sprites, {
     @name: replace(@key, '^@', '');
-    &-@{name} {
+    &-@{name},
+    &-@{name}-mask {
       width: @value[width];
       height: @value[height];
     }
@@ -62,8 +73,18 @@ h2 {
   &--bg-uri .icon-vite {
     .sprite('vite');
   }
-
   &--bg-uri .icon-spiriit {
     .sprite('spiriit');
+  }
+
+  &--mask-uri .icon-spiriit-mask,
+  &--mask-uri .icon-vite-mask {
+    animation: rainbow-bg infinite 1s alternate;
+  }
+  &--mask-uri .icon-vite-mask {
+    .sprite('vite', @mode: mask);
+  }
+  &--mask-uri .icon-spiriit-mask {
+    .sprite('spiriit', @mode: mask);
   }
 }

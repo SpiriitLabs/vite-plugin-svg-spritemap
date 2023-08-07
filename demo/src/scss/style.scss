@@ -18,11 +18,22 @@ body {
   }
 }
 
+//color rainbow gradient animation keyframes
+@keyframes rainbow-bg {
+  from {
+    background-color: #ff0000;
+  }
+  to {
+    background-color: #ff9500;
+  }
+}
+
 .icon {
   margin: 0.5rem;
 
   @each $name, $sprite in $sprites {
-    &-#{$name} {
+    &-#{$name},
+    &-#{$name}-mask {
       width: map-get($sprite, 'width');
       height: map-get($sprite, 'height');
     }
@@ -58,6 +69,11 @@ h2 {
 
     &--bg-uri .icon-#{$name} {
       @include sprite($name);
+    }
+
+    &--mask-uri .icon-#{$name}-mask {
+      animation: rainbow-bg infinite 1s alternate;
+      @include sprite($name, $mode: 'mask');
     }
   }
 }

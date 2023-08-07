@@ -123,17 +123,28 @@ export class Styles {
   // CSS generation
   private _generate_css() {
     let insert = this.createSpriteMap((name, svg) => {
+      const selector = `.${this._options.prefix}${name}`
       let sprites = ''
-      sprites = `.${this._options.prefix + name} {`
+      sprites = `${selector} {`
       sprites += `\n\tbackground: url("${svg.svgDataUri}") center no-repeat;`
+      sprites += '\n}'
+      return sprites
+    })
+
+    insert += this.createSpriteMap((name, svg) => {
+      const selector = `.${this._options.prefix}${name}-mask`
+      let sprites = ''
+      sprites = `${selector} {`
+      sprites += `\n\tmask: url("${svg.svgDataUri}") center no-repeat;`
       sprites += '\n}'
       return sprites
     })
 
     if (this._options.output && this._options.output.view) {
       insert += this.createSpriteMap((name) => {
+        const selector = `.${this._options.prefix}${name}-frag`
         let sprites = ''
-        sprites = `.${this._options.prefix + name}-frag {`
+        sprites = `${selector} {`
         sprites += `\n\tbackground: url('/__spritemap#${
           this._options.prefix + name
         }-view') center no-repeat;`

@@ -13,14 +13,24 @@ body {
     color: #ff9500;
   }
 }
+@keyframes rainbow-bg {
+  from {
+    background-color: #ff0000;
+  }
+  to {
+    background-color: #ff9500;
+  }
+}
 .icon {
   margin: 0.5rem;
 }
-.icon-spiriit {
+.icon-spiriit,
+.icon-spiriit-mask {
   width: 118px;
   height: 38px;
 }
-.icon-vite {
+.icon-vite,
+.icon-vite-mask {
   width: 31.88px;
   height: 32px;
 }
@@ -41,4 +51,9 @@ h2 {
   display: flex;
   align-items: center;
   margin: -0.5rem;
+}
+
+.icon-vite-mask,
+.icon-spiriit-mask {
+  animation: rainbow-bg infinite 1s alternate;
 }

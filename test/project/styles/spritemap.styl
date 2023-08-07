@@ -24,7 +24,7 @@ $sprites = {
 	}
 }
 
-sprite($name, $include-size = false, $type = 'uri')
+sprite($name, $include-size = false, $type = 'uri', $mode = 'background')
 	$sprite = $sprites[$name]
 	$url = false
 
@@ -36,11 +36,11 @@ sprite($name, $include-size = false, $type = 'uri')
 		error('sprite(): $type must be either "fragment" or "uri"')
 
 	if $url
-		background: url($url) center no-repeat
+		{$mode}: url($url) center no-repeat
 
 		if $include-size
 			if $include-size == true
-				background-size: $sprite[width] $sprite[height]
+				{$mode}-size: $sprite[width] $sprite[height]
 			else if $include-size == 'box'
 				width: $sprite[width]
 				height: $sprite[height]
