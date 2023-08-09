@@ -99,7 +99,7 @@ ViteJS allows to be use to [serve assets](https://vitejs.dev/guide/backend-integ
 
 To make `vite-plugin-svg-spritemap` works with this kind of environnment, you will need to handle the right url inside your backend if you are on dev or build.
 
-For example, on dev:
+For example, with `<use>` on dev:
 ```html
 <svg>
   <use href="#sprite-spiriit"></use>
@@ -113,7 +113,7 @@ and in prod:
 </svg>
 ```
 
-To prevent CORS issue with SVG, you can use the `injectSVGOnDev` option. Don't forget to add the HMR script directly above you close body.
+To prevent CORS issue with SVG and `<use>`, you can use the `injectSVGOnDev` option. Don't forget to add the HMR script directly above you close body.
 
 ```html
 <script type="module" src="http://localhost:5173/@vite-plugin-svg-spritemap/client"></script>
@@ -146,11 +146,42 @@ The first argument is a glob path (using [fast-glob](https://github.com/mrmlnc/f
 | filename | string                                    | The destination of the stylesheet file like your source folder |
 | lang     | `less`/`scss`/`styl`/`css` or `undefined` |                                                                |
 
+**Example with full options :**
+
+```ts
+// vite.config.js / vite.config.ts
+import VitePluginSVGSpritemap from '@spiriit/vite-plugin-svg-spritemap'
+
+export default {
+  plugins: [
+    VitePluginSVGSpritemap('./src/icons/*.svg', {
+      prefix: 'icon-',
+      output: {
+        filename: '[name].[hash][extname]',
+        view: false,
+        use: true,
+      },
+      svgo: {
+        plugins: [
+          {
+            name: 'removeStyleElement',
+          },
+        ],
+      },
+      injectSVGOnDev: true,
+      styles: {
+        lang: 'scss',
+        filename: 'src/scss/spritemap.scss'
+      }
+    })
+  ]
+}
+```
+
 ## 🏃 What's next
 
-- Add support for [vite serving assets](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/5)
-- Add variable supports inspired by [svg-spritemap-webpack-plugin](https://github.com/cascornelissen/svg-spritemap-webpack-plugin/blob/master/docs/variables.md)
 - Add support for SVG import as Vue Component
+- Add variable supports inspired by [svg-spritemap-webpack-plugin](https://github.com/cascornelissen/svg-spritemap-webpack-plugin/blob/master/docs/variables.md)
 
 ## 👨‍💼 Licence
 
