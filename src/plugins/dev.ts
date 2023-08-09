@@ -97,18 +97,18 @@ export function DevPlugin(iconsPattern: Pattern, options: Options): Plugin {
   }
 
   function generateHMR(spritemap?: string) {
-    const injectSvg = (spritemap?: string) => `
-    ${spritemap ? `const data = ${JSON.stringify({ spritemap })}` : ''}
-    const oldWrapper = document.getElementById('vite-plugin-svg-spritemap')
-    if (oldWrapper)
-      oldWrapper.remove()
+    const injectSvg = `
+    const injectSvg = (data) => {
+      const oldWrapper = document.getElementById('vite-plugin-svg-spritemap')
+      if (oldWrapper)
+        oldWrapper.remove()
 
-    const wrapper = document.createElement('div')
-    wrapper.innerHTML =data.spritemap
-    wrapper.id = 'vite-plugin-svg-spritemap'
-    wrapper.style.display = 'none'
-    document.body.append(wrapper)
-  `
+      const wrapper = document.createElement('div')
+      wrapper.innerHTML = data.spritemap
+      wrapper.id = 'vite-plugin-svg-spritemap'
+      wrapper.style.display = 'none'
+      document.body.append(wrapper)
+    }`
 
     const updateElements = `
     const elements = document.querySelectorAll(
@@ -131,13 +131,14 @@ export function DevPlugin(iconsPattern: Pattern, options: Options): Plugin {
     }`
 
     return `console.debug('[vite-plugin-svg-spritemap]', 'connected.')
-      ${options.injectSVGOnDev ? injectSvg(spritemap) : ''}
+      ${options.injectSVGOnDev ? injectSvg : ''}
+      ${options.injectSVGOnDev ? `injectSvg(${JSON.stringify({ spritemap })})` : ''}
       if (import.meta.hot) {
-      import.meta.hot.on('${event}', data => {
-        console.debug('[vite-plugin-svg-spritemap]', 'update')
-        ${updateElements}
-        ${options.injectSVGOnDev ? injectSvg() : ''}
-      })
-    }`
+        import.meta.hot.on('${event}', data => {
+          console.debug('[vite-plugin-svg-spritemap]', 'update')
+          ${updateElements}
+          injectSvg(data)
+        })
+      }`
   }
 }
