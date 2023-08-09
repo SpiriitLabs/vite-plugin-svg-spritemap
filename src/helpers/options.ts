@@ -81,10 +81,13 @@ export function createOptions(options: UserOptions = {}): Options {
     }
   }
 
+  const injectSVGOnDev = options.injectSVGOnDev || false
+
   return {
     svgo,
     output,
     prefix,
     styles,
-  } as Options
+    injectSVGOnDev,
+  } satisfies Options
 }

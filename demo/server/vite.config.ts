@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [
     VitePluginSvgSpritemap('src/icons/*.svg', {
       prefix: 'icon-',
+      injectSVGOnDev: true,
     }),
     Inspect(),
   ],

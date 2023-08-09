@@ -88,10 +88,36 @@ If you use a CSS preprocessing language, you can use the mixin `sprite` and acce
 
 You can see the usage in the demo folder :
 
-- [CSS](/demo/src/css/)
-- [SCSS](/demo/src/scss)
-- [Less](/demo/src/less/)
-- [Stylus](/demo/src/stylus/)
+- [CSS](/demo/basic/src/css/)
+- [SCSS](/demo/basic/src/scss)
+- [Less](/demo/basic/src/less/)
+- [Stylus](/demo/basic/src/stylus/)
+
+### Use for backend integration
+
+ViteJS allows to be use to [serve assets](https://vitejs.dev/guide/backend-integration.html). So, you can connect ViteJS with Wordpress, Drupal or any kind of backend.
+
+To make `vite-plugin-svg-spritemap` works with this kind of environnment, you will need to handle the right url inside your backend if you are on dev or build.
+
+For example, on dev:
+```html
+<svg>
+  <use href="#sprite-spiriit"></use>
+</svg>
+```
+
+and in prod:
+```html
+<svg>
+  <use href="https://my-cool-website.com/dist/assets/spritemap.95b4c41a.svg#sprite-spiriit"></use>
+</svg>
+```
+
+To prevent CORS issue with SVG, you can use the `injectSVGOnDev` option. Don't forget to add the HMR script directly above you close body.
+
+```html
+<script type="module" src="http://localhost:5173/@vite-plugin-svg-spritemap/client"></script>
+```
 
 ## 🛠 Options
 
@@ -103,6 +129,7 @@ The first argument is a glob path (using [fast-glob](https://github.com/mrmlnc/f
 | styles  | `false` or `object` or `string` | `false`   | File destination like `src/css/spritemap.css` or [styles object](#styles)                                                                                                |
 | prefix  | `string`                        | `sprite-` | Define the prefix uses for sprite id in `<symbol>`/`<use>`/`<view>`                                                                                                      |
 | svgo    | `boolean` or `object`           | `true`    | Take an SVGO Options object. If `true`, it will use the [default SVGO preset](https://github.com/svg/svgo#default-preset), if `false`, it will disable SVGO optimization |
+| injectSVGOnDev    | `boolean`           | `false`    | Inject the SVG Spritemap inside the body on dev  |
 
 ### output
 

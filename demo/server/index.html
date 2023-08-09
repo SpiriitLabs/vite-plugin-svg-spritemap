@@ -15,11 +15,12 @@
       <h2>Spritemap with &lt;use></h2>
 
       <div class="example__svgs">
-        <svg class="icon icon-spiriit">
-          <use href="__spritemap#icon-spiriit"></use>
+        <svg class="icon icon-spiriit" width="118" height="38">
+          <!-- You will need to handle yourself the svg path if vite running dev or not -->
+          <use href="#icon-spiriit"></use>
         </svg>
-        <svg class="icon icon-vite">
-          <use href="__spritemap#icon-vite"></use>
+        <svg class="icon icon-vite" width="32" height="32">
+          <use href="#icon-vite"></use>
         </svg>
       </div>
     </div>
@@ -28,12 +29,14 @@
       <h2>Spritemap with &lt;img> (fragments)</h2>
 
       <div class="example__svgs">
-        <img class="icon icon-spiriit" width="118" height="38" src="__spritemap#icon-spiriit-view" />
-        <img class="icon icon-vite" width="32" height="32" src="__spritemap#icon-vite-view" />
+        <img class="icon icon-spiriit" width="118" height="38" src="http://localhost:5173/__spritemap#icon-spiriit-view" />
+        <img class="icon icon-vite" width="32" height="32" src="http://localhost:5173/__spritemap#icon-vite-view" />
       </div>
     </div>
 
     <script type="module" src="http://localhost:5173/@vite/client"></script>
+    <!-- Add this line to inject and add HMR support -->
+    <script type="module" src="http://localhost:5173/@vite-plugin-svg-spritemap/client"></script>
     <script type="module" src="http://localhost:5173/src/main.ts"></script>
   </body>
 </html>

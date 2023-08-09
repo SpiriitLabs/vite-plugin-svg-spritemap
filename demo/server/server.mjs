@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import http from 'node:http'
 
 const host = 'localhost'
-const port = 8000
+const port = 3000
 const html = readFileSync('./index.html', { encoding: 'utf-8' })
 
 const requestListener = function (req, res) {
