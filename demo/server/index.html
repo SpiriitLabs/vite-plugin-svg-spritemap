@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite Plugin SVG Spritemap Demo</title>
+  </head>
+  <body>
+    <h1>Vite Plugin SVG Spritemap Demo with different server</h1>
+
+    <p>This is a demo of the Vite Plugin SVG Spritemap with a different server to prevent CORS issue on dev.</p>
+
+    <div class="example">
+      <h2>Spritemap with &lt;use></h2>
+
+      <div class="example__svgs">
+        <svg class="icon icon-spiriit">
+          <use href="__spritemap#icon-spiriit"></use>
+        </svg>
+        <svg class="icon icon-vite">
+          <use href="__spritemap#icon-vite"></use>
+        </svg>
+      </div>
+    </div>
+
+    <div class="example">
+      <h2>Spritemap with &lt;img> (fragments)</h2>
+
+      <div class="example__svgs">
+        <img class="icon icon-spiriit" width="118" height="38" src="__spritemap#icon-spiriit-view" />
+        <img class="icon icon-vite" width="32" height="32" src="__spritemap#icon-vite-view" />
+      </div>
+    </div>
+
+    <script type="module" src="http://localhost:5173/@vite/client"></script>
+    <script type="module" src="http://localhost:5173/src/main.ts"></script>
+  </body>
+</html>
