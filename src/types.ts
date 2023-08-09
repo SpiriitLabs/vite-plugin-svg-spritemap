@@ -1,11 +1,12 @@
-import type { Config } from 'svgo'
+import type { Config as SvgoConfig } from 'svgo'
 
 export type Pattern = string[] | string
 
 export type StylesLang = 'less' | 'scss' | 'styl' | 'css'
 
 export interface UserOptions {
-  svgo?: boolean | Config
+
+  svgo?: boolean | SvgoConfig
   output?:
   | { filename: string; use?: boolean; view?: boolean }
   | string
@@ -18,6 +19,7 @@ export interface UserOptions {
   }
   | string
   | false
+  injectSVGOnDev?: boolean
 }
 
 export interface OptionsOutput {
@@ -32,10 +34,11 @@ export interface OptionsStyles {
 }
 
 export interface Options {
-  svgo: Config | false
+  svgo: SvgoConfig | false
   styles: OptionsStyles | false
   output: OptionsOutput | false
   prefix: string
+  injectSVGOnDev: boolean
 }
 
 export interface SvgMapObject {

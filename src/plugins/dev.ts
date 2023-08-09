@@ -25,7 +25,7 @@ export function DevPlugin(iconsPattern: Pattern, options: Options): Plugin {
     },
     load(id) {
       if (id === virtualModuleId)
-        return generateHMR()
+        return generateHMR(svgManager.spritemap)
     },
     async buildStart() {
       await svgManager.updateAll()
@@ -44,6 +44,7 @@ export function DevPlugin(iconsPattern: Pattern, options: Options): Plugin {
         if (req.url?.startsWith('/__spritemap')) {
           res.statusCode = 200
           res.setHeader('Content-Type', 'image/svg+xml')
+          res.setHeader('Access-Control-Allow-Origin', '*')
           res.write(svgManager.spritemap, 'utf-8')
           res.end()
         }
@@ -77,6 +78,7 @@ export function DevPlugin(iconsPattern: Pattern, options: Options): Plugin {
         event,
         data: {
           id: svgManager.hash,
+          spritemap: options.injectSVGOnDev ? svgManager.spritemap : '',
         },
       })
     },
@@ -93,14 +95,24 @@ export function DevPlugin(iconsPattern: Pattern, options: Options): Plugin {
       }
     },
   }
-}
 
-function generateHMR() {
-  return `if (import.meta.hot) {
-  import.meta.hot.on('${event}', data => {
-    console.log('[vite-plugin-svg-spritemap]', 'update')
+  function generateHMR(spritemap?: string) {
+    const injectSvg = `
+    const injectSvg = (data) => {
+      const oldWrapper = document.getElementById('vite-plugin-svg-spritemap')
+      if (oldWrapper)
+        oldWrapper.remove()
+
+      const wrapper = document.createElement('div')
+      wrapper.innerHTML = data.spritemap
+      wrapper.id = 'vite-plugin-svg-spritemap'
+      wrapper.style.display = 'none'
+      document.body.append(wrapper)
+    }`
+
+    const updateElements = `
     const elements = document.querySelectorAll(
-      '[src^=__spritemap], [href^=__spritemap], [*|href^=__spritemap]'
+      '[src*=__spritemap], [href*=__spritemap], [*|href*=__spritemap]'
     )
 
     for (let i = 0; i < elements.length; i++) {
@@ -116,7 +128,17 @@ function generateHMR() {
         )
         el.setAttribute(attr, newValue)
       }
-    }
-  })
-}`
+    }`
+
+    return `console.debug('[vite-plugin-svg-spritemap]', 'connected.')
+      ${options.injectSVGOnDev ? injectSvg : ''}
+      ${options.injectSVGOnDev ? `injectSvg(${JSON.stringify({ spritemap })})` : ''}
+      if (import.meta.hot) {
+        import.meta.hot.on('${event}', data => {
+          console.debug('[vite-plugin-svg-spritemap]', 'update')
+          ${updateElements}
+          injectSvg(data)
+        })
+      }`
+  }
 }
