@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
 import Inspect from 'vite-plugin-inspect'
-import VitePluginSvgSpritemap from './../src/index'
+import VitePluginSvgSpritemap from './../../src/index'
 
 export default defineConfig({
   // build: {
