@@ -112,7 +112,7 @@ export function DevPlugin(iconsPattern: Pattern, options: Options): Plugin {
 
     const updateElements = `
     const elements = document.querySelectorAll(
-      '[src^=__spritemap], [href^=__spritemap], [*|href^=__spritemap]'
+      '[src*=__spritemap], [href*=__spritemap], [*|href*=__spritemap]'
     )
 
     for (let i = 0; i < elements.length; i++) {
