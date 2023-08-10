@@ -7,6 +7,7 @@
     "dev": "concurrently \"node ./server.mjs\" \"vite\""
   },
   "devDependencies": {
+    "@spiriit/vite-plugin-svg-spritemap": "./../",
     "autoprefixer": "^10.4.14",
     "concurrently": "^8.2.0",
     "postcss": "^8.4.27",

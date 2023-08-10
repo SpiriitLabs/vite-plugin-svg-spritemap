@@ -1,11 +1,11 @@
-declare module '*.svguse' {
+declare module '*.svg?use' {
   import type { FunctionalComponent, SVGAttributes } from 'vue'
 
   const src: FunctionalComponent<SVGAttributes>
   export default src
 }
 
-declare module '*.svgview' {
+declare module '*.svg?view' {
   import type { FunctionalComponent, ImgHTMLAttributes } from 'vue'
 
   const src: FunctionalComponent<ImgHTMLAttributes>

@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@spiriit/vite-plugin-svg-spritemap": "./../",
     "autoprefixer": "^10.4.14",
     "less": "^4.2.0",
     "postcss": "^8.4.27",

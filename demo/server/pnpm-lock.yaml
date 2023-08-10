@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 devDependencies:
+  '@spiriit/vite-plugin-svg-spritemap':
+    specifier: ./../
+    version: link:..
   autoprefixer:
     specifier: ^10.4.14
     version: 10.4.14(postcss@8.4.27)
