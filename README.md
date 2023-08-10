@@ -13,6 +13,7 @@ The plugin outputs can be fully configurable through [options](#🛠-options).
 - ⚡ Fully integrated in your ViteJS environment
 - 📦 Pack your SVG files in one ([spritemap](https://css-tricks.com/svg-sprites-use-better-icon-fonts/)) file
 - ✨ Use your SVG in an `<svg>` or `<img>` tags and also directly in your CSS
+- 🍕 Import SVG fragment as VueJS component
 - 🔥 HMR support
 
 ## 📦 Install
@@ -33,10 +34,10 @@ By default, the plugin will generate a spritemap to support all methods describe
 
 ```ts
 // vite.config.js / vite.config.ts
-import VitePluginSVGSpritemap from '@spiriit/vite-plugin-svg-spritemap'
+import VitePluginSvgSpritemap from '@spiriit/vite-plugin-svg-spritemap'
 
 export default {
-  plugins: [VitePluginSVGSpritemap('./src/icons/*.svg')]
+  plugins: [VitePluginSvgSpritemap('./src/icons/*.svg')]
 }
 ```
 
@@ -66,11 +67,11 @@ First you need to adjust the plugin options to set the output styles. For full s
 
 ```ts
 // vite.config.js / vite.config.ts
-import VitePluginSVGSpritemap from '@spiriit/vite-plugin-svg-spritemap'
+import VitePluginSvgSpritemap from '@spiriit/vite-plugin-svg-spritemap'
 
 export default {
   plugins: [
-    VitePluginSVGSpritemap('./src/icons/*.svg', {
+    VitePluginSvgSpritemap('./src/icons/*.svg', {
       styles: 'src/scss/spritemap.scss'
     })
   ]
@@ -180,7 +181,6 @@ export default {
 
 ## 🏃 What's next
 
-- Add support for SVG import as Vue Component
 - Add variable supports inspired by [svg-spritemap-webpack-plugin](https://github.com/cascornelissen/svg-spritemap-webpack-plugin/blob/master/docs/variables.md)
 
 ## 👨‍💼 Licence

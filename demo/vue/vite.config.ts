@@ -1,13 +1,12 @@
 import { defineConfig } from 'vite'
-import Inspect from 'vite-plugin-inspect'
-import VitePluginSvgSpritemap from './../../dist'
+import vue from '@vitejs/plugin-vue'
+import VitePluginSvgSpritemap from './../../src'
 
+// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
+    vue(),
     VitePluginSvgSpritemap('src/icons/*.svg', {
       prefix: 'icon-',
-      injectSVGOnDev: true,
-    }),
-    Inspect(),
-  ],
+    })],
 })

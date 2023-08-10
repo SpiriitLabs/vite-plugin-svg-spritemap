@@ -4,7 +4,7 @@ import type { Options, Pattern } from '../types'
 import { getFileName } from '../helpers/filename'
 import { SVGManager } from '../svgManager'
 
-export function BuildPlugin(iconsPattern: Pattern, options: Options): Plugin {
+export default function BuildPlugin(iconsPattern: Pattern, options: Options): Plugin {
   let config: ResolvedConfig
   let fileName: string
   let filePath: string

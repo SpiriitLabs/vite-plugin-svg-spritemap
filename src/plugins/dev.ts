@@ -5,7 +5,7 @@ import type { Options, Pattern } from '../types'
 
 const event = 'vite-plugin-svg-spritemap:update'
 
-export function DevPlugin(iconsPattern: Pattern, options: Options): Plugin {
+export default function DevPlugin(iconsPattern: Pattern, options: Options): Plugin {
   const filterSVG = createFilter(/\.svg$/)
   const filterCSS = createFilter(/\.(s?css|styl|less)$/)
   const virtualModuleId = '/@vite-plugin-svg-spritemap/client'
@@ -137,7 +137,7 @@ export function DevPlugin(iconsPattern: Pattern, options: Options): Plugin {
         import.meta.hot.on('${event}', data => {
           console.debug('[vite-plugin-svg-spritemap]', 'update')
           ${updateElements}
-          injectSvg(data)
+          ${options.injectSVGOnDev ? 'injectSvg(data)' : ''}
         })
       }`
   }

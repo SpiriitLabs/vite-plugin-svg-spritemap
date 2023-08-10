@@ -1,4 +1,4 @@
-import svgElementAttributes from 'svg-element-attributes'
+import { svgElementAttributes } from 'svg-element-attributes'
 
 export function cleanAttributes(attributes: Attr[], tag: string): Attr[] {
   const cleanAttributes = ['viewbox', 'width', 'height', 'id', 'xmlns']

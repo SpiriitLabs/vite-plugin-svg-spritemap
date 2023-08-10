@@ -1,0 +1,54 @@
+body {
+  background-color: #ddd;
+  margin: 10vw;
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+//color rainbow gradient animation keyframes
+@keyframes rainbow {
+  from {
+    color: #ff0000;
+  }
+  to {
+    color: #ff9500;
+  }
+}
+
+//color rainbow gradient animation keyframes
+@keyframes rainbow-bg {
+  from {
+    background-color: #ff0000;
+  }
+  to {
+    background-color: #ff9500;
+  }
+}
+
+.icon {
+  margin: 0.5rem;
+
+  &-vite {
+    animation: rainbow infinite 1s alternate;
+  }
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+h2 {
+  margin-top: 0;
+}
+
+.example {
+  margin-top: 4rem;
+
+  &__svgs {
+    display: flex;
+    align-items: center;
+    margin: -0.5rem;
+  }
+}

@@ -188,4 +188,8 @@ export class SVGManager {
 
     await fs.writeFile(path, content, 'utf8')
   }
+
+  public get svgs() {
+    return this._svgs
+  }
 }
