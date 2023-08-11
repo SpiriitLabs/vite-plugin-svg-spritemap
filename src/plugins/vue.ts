@@ -13,13 +13,13 @@ export default function VuePlugin(iconsPattern: Pattern, options: Options): Plug
     enforce: 'pre',
     configResolved(_config) {
       config = _config
-      if (config.plugins.findIndex(plugin => plugin.name === 'vite:vue') === -1)
+      if (config.plugins.findIndex(plugin => plugin.name === 'vite:vue') === -1 || !options.output)
         return
       svgManager = new SVGManager(iconsPattern, options, config)
       svgManager.updateAll()
     },
     async load(id) {
-      if (config.plugins.findIndex(plugin => plugin.name === 'vite:vue') === -1)
+      if (config.plugins.findIndex(plugin => plugin.name === 'vite:vue') === -1 || !options.output)
         return
       if (!filterVueComponent(id))
         return
@@ -29,6 +29,9 @@ export default function VuePlugin(iconsPattern: Pattern, options: Options): Plug
       const svg = svgManager.svgs.get(name)
 
       let source = ''
+
+      if (options.output[query as 'use' | 'view'] === false)
+        return config.logger.warn(`[vite-plugin-svg-spritemap] You need to enable the ${query} option to load ${id} as component.`)
 
       if (query === 'view')
         source = `<img src="__spritemap#${options.prefix}${name}-view" width="${svg?.width || ''}" height="${svg?.height || ''}" />`

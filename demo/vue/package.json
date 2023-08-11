@@ -13,7 +13,7 @@
     "vue": "^3.3.4"
   },
   "devDependencies": {
-    "@spiriit/vite-plugin-svg-spritemap": "./../",
+    "@spiriit/vite-plugin-svg-spritemap": "./../../",
     "@vitejs/plugin-vue": "^4.2.3",
     "sass": "^1.65.1",
     "typescript": "^5.1.6",
