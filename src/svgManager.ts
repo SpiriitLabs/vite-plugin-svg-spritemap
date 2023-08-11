@@ -46,9 +46,8 @@ export class SVGManager {
     let height = heightAttr ? Number.parseFloat(heightAttr) : undefined
 
     if (viewBox && viewBox.length !== 4 && (!width || !height)) {
-      console.warn(
-        `Sprite '${filePath}' is invalid, it's lacking both a viewBox and width/height attributes.`,
-      )
+      this._config.logger.warn(`[vite-plugin-svg-spritemap] Sprite '${filePath}' is invalid, it's lacking both a viewBox and width/height attributes.`)
+
       return
     }
     if (viewBox && viewBox.length !== 4 && width && height)
@@ -187,5 +186,9 @@ export class SVGManager {
     const path = resolve(this._config.root, this._options.styles.filename)
 
     await fs.writeFile(path, content, 'utf8')
+  }
+
+  public get svgs() {
+    return this._svgs
   }
 }

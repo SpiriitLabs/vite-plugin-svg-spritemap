@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 devDependencies:
+  '@spiriit/vite-plugin-svg-spritemap':
+    specifier: ./../../
+    version: link:../..
   autoprefixer:
     specifier: ^10.4.14
     version: 10.4.14(postcss@8.4.27)
@@ -15,14 +18,14 @@ devDependencies:
     specifier: ^8.4.27
     version: 8.4.27
   sass:
-    specifier: ^1.64.2
-    version: 1.64.2
+    specifier: ^1.65.1
+    version: 1.65.1
   typescript:
     specifier: ^5.1.6
     version: 5.1.6
   vite:
     specifier: ^4.4.9
-    version: 4.4.9(sass@1.64.2)
+    version: 4.4.9(sass@1.65.1)
   vite-plugin-inspect:
     specifier: ^0.7.35
     version: 0.7.35(vite@4.4.9)
@@ -326,7 +329,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001519
-      electron-to-chromium: 1.4.488
+      electron-to-chromium: 1.4.490
       node-releases: 2.0.13
       update-browserslist-db: 1.0.11(browserslist@4.21.10)
     dev: true
@@ -452,8 +455,8 @@ packages:
     engines: {node: '>=12'}
     dev: true
 
-  /electron-to-chromium@1.4.488:
-    resolution: {integrity: sha512-Dv4sTjiW7t/UWGL+H8ZkgIjtUAVZDgb/PwGWvMsCT7jipzUV/u5skbLXPFKb6iV0tiddVi/bcS2/kUrczeWgIQ==}
+  /electron-to-chromium@1.4.490:
+    resolution: {integrity: sha512-6s7NVJz+sATdYnIwhdshx/N/9O6rvMxmhVoDSDFdj6iA45gHR8EQje70+RYsF4GeB+k0IeNSBnP7yG9ZXJFr7A==}
     dev: true
 
   /emoji-regex@8.0.0:
@@ -829,8 +832,8 @@ packages:
       tslib: 2.6.1
     dev: true
 
-  /sass@1.64.2:
-    resolution: {integrity: sha512-TnDlfc+CRnUAgLO9D8cQLFu/GIjJIzJCGkE7o4ekIGQOH7T3GetiRR/PsTWJUHhkzcSPrARkPI+gNWn5alCzDg==}
+  /sass@1.65.1:
+    resolution: {integrity: sha512-9DINwtHmA41SEd36eVPQ9BJKpn7eKDQmUHmpI0y5Zv2Rcorrh0zS+cFrt050hdNbmmCNKTW3hV5mWfuegNRsEA==}
     engines: {node: '>=14.0.0'}
     hasBin: true
     dependencies:
@@ -987,13 +990,13 @@ packages:
       open: 9.1.0
       picocolors: 1.0.0
       sirv: 2.0.3
-      vite: 4.4.9(sass@1.64.2)
+      vite: 4.4.9(sass@1.65.1)
     transitivePeerDependencies:
       - rollup
       - supports-color
     dev: true
 
-  /vite@4.4.9(sass@1.64.2):
+  /vite@4.4.9(sass@1.65.1):
     resolution: {integrity: sha512-2mbUn2LlUmNASWwSCNSJ/EG2HuSRTnVNaydp6vMCm5VIqJsjMfbIWtbH2kDuwUVW5mMUKKZvGPX/rqeqVvv1XA==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -1024,7 +1027,7 @@ packages:
       esbuild: 0.18.20
       postcss: 8.4.27
       rollup: 3.28.0
-      sass: 1.64.2
+      sass: 1.65.1
     optionalDependencies:
       fsevents: 2.3.2
     dev: true

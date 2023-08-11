@@ -13,6 +13,7 @@ The plugin outputs can be fully configurable through [options](#🛠-options).
 - ⚡ Fully integrated in your ViteJS environment
 - 📦 Pack your SVG files in one ([spritemap](https://css-tricks.com/svg-sprites-use-better-icon-fonts/)) file
 - ✨ Use your SVG in an `<svg>` or `<img>` tags and also directly in your CSS
+- 🍕 Import SVG fragment as VueJS component
 - 🔥 HMR support
 
 ## 📦 Install
@@ -33,10 +34,10 @@ By default, the plugin will generate a spritemap to support all methods describe
 
 ```ts
 // vite.config.js / vite.config.ts
-import VitePluginSVGSpritemap from '@spiriit/vite-plugin-svg-spritemap'
+import VitePluginSvgSpritemap from '@spiriit/vite-plugin-svg-spritemap'
 
 export default {
-  plugins: [VitePluginSVGSpritemap('./src/icons/*.svg')]
+  plugins: [VitePluginSvgSpritemap('./src/icons/*.svg')]
 }
 ```
 
@@ -66,11 +67,11 @@ First you need to adjust the plugin options to set the output styles. For full s
 
 ```ts
 // vite.config.js / vite.config.ts
-import VitePluginSVGSpritemap from '@spiriit/vite-plugin-svg-spritemap'
+import VitePluginSvgSpritemap from '@spiriit/vite-plugin-svg-spritemap'
 
 export default {
   plugins: [
-    VitePluginSVGSpritemap('./src/icons/*.svg', {
+    VitePluginSvgSpritemap('./src/icons/*.svg', {
       styles: 'src/scss/spritemap.scss'
     })
   ]
@@ -92,6 +93,50 @@ You can see the usage in the demo folder :
 - [SCSS](/demo/basic/src/scss)
 - [Less](/demo/basic/src/less/)
 - [Stylus](/demo/basic/src/stylus/)
+
+### Use Vue components
+
+`vite-plugin-svg-spritemap` allows you to load icons and create `<use>` as `<svg>` and `<view>` as `<img>` tags like Vue components.
+
+To do that, import the icons loaded by `vite-svg-spritemap` and add the `?use` or `?view` query. The plugin will transform the component.
+
+```vue
+<script setup lang="ts">
+import SpiriitView from './icons/spiriit.svg?view'
+import SpiriitUse from './icons/spiriit.svg?use'
+import ViteView from './icons/vite.svg?view'
+import ViteUse from './icons/vite.svg?use'
+</script>
+
+<template>
+  <SpiriitUse>
+    <!-- You can use the slot to pass a title before the use tag generation -->
+    <title>My superb logo</title>
+  </SpiriitUse>
+  <ViteUse />
+
+  <SpiriitView />
+  <ViteView />
+</template>
+```
+
+will generate
+
+```html
+<svg>
+  <title>My superb logo</title>
+  <use href="__spritemap#sprite-spiriit"></use>
+</svg>
+<svg>
+  <use href="__spritemap#sprite-vite"></use>
+</svg>
+<img src="__spritemap#sprite-spiriit-view" width="118" height="38">
+<img src="__spritemap#sprite-vite-view" width="31" height="32">
+```
+
+> For typescript, you need to load `/// <reference types="@spiriit/vite-plugin-svg-spritemap/client" />` to fix errors with `?use`/`?view` query.
+
+You can see the usage in the [corresponding demo folder](/demo/vue/src/App.vue).
 
 ### Use for backend integration
 
@@ -180,7 +225,6 @@ export default {
 
 ## 🏃 What's next
 
-- Add support for SVG import as Vue Component
 - Add variable supports inspired by [svg-spritemap-webpack-plugin](https://github.com/cascornelissen/svg-spritemap-webpack-plugin/blob/master/docs/variables.md)
 
 ## 👨‍💼 Licence

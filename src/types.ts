@@ -1,4 +1,5 @@
 import type { Config as SvgoConfig } from 'svgo'
+import './types.d.ts'
 
 export type Pattern = string[] | string
 

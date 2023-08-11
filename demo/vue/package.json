@@ -1,22 +1,23 @@
 {
-  "name": "demo",
+  "name": "vue",
+  "type": "module",
   "version": "0.0.0",
   "private": true,
   "packageManager": "pnpm@8.6.12",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vue-tsc && vite build",
     "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.3.4"
   },
   "devDependencies": {
     "@spiriit/vite-plugin-svg-spritemap": "./../../",
-    "autoprefixer": "^10.4.14",
-    "less": "^4.2.0",
-    "postcss": "^8.4.27",
+    "@vitejs/plugin-vue": "^4.2.3",
     "sass": "^1.65.1",
-    "stylus": "^0.59.0",
     "typescript": "^5.1.6",
     "vite": "^4.4.9",
-    "vite-plugin-inspect": "^0.7.35"
+    "vue-tsc": "^1.8.8"
   }
 }
