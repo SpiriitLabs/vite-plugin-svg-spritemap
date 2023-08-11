@@ -16,15 +16,16 @@ beforeAll(async () => {
   server = await createServer({
     // any valid user config options, plus `mode` and `configFile`
     configFile: false,
-    root: getPath('./project'),
+    root: getPath('./fixtures/basic'),
     server: {
+      port: 3000,
       watch: {
-        ignored: [getPath('./project/dist')], // ignore dist change because of parallized test
+        ignored: [getPath('./fixtures/basic/dist')], // ignore dist change because of parallized test
       },
     },
     plugins: [
-      VitePluginSvgSpritemap(getPath('./project/svg/*.svg'), {
-        styles: getPath('./project/styles/spritemap.css'),
+      VitePluginSvgSpritemap(getPath('./fixtures/basic/svg/*.svg'), {
+        styles: getPath('./fixtures/basic/styles/spritemap.css'),
         injectSVGOnDev: true,
       }),
     ],
@@ -47,10 +48,13 @@ afterEach(async () => {
 
 describe('injectSVGOnDev', () => {
   it('has SVG injected', async () => {
-    await page.goto('http://localhost:5173')
-    const wrapper = page.locator('#vite-plugin-svg-spritemap svg')
+    await page.goto('http://localhost:3000')
+    const wrapper = page.locator('#vite-plugin-svg-spritemap')
     await wrapper.waitFor({ state: 'attached' })
     const content = await wrapper.innerHTML()
     expect(content).toMatchSnapshot()
   })
+
+  // TODO: Fix HMR verification
+  it.skip('has HMR', async () => {})
 })

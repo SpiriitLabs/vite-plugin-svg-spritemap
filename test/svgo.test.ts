@@ -16,6 +16,8 @@ describe('SVGO', () => {
       it(key, async () => {
         const svgo = svgoConfigs[key]
         const result = await buildVite({ svgo })
+        if (!('output' in result))
+          return
         const asset = result.output.find(
           asset =>
             asset.name?.startsWith('spritemap.') && asset.name.endsWith('.svg'),

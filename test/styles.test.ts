@@ -6,7 +6,7 @@ import { buildVite } from './helper/build'
 
 beforeAll(async () => {
   for (const style of ['scss', 'less', 'styl']) {
-    const filename = getPath(`./project/styles/spritemap.${style}`)
+    const filename = getPath(`./fixtures/basic/styles/spritemap.${style}`)
     let exist = false
     try {
       await fs.access(filename)
@@ -23,7 +23,7 @@ beforeAll(async () => {
 describe('Styles generation', () => {
   for (const style of ['css', 'scss', 'less', 'styl']) {
     it(style, async () => {
-      const filename = getPath(`./project/styles/spritemap.${style}`)
+      const filename = getPath(`./fixtures/basic/styles/spritemap.${style}`)
 
       await buildVite({
         styles: filename,
@@ -48,7 +48,7 @@ describe('Styles generation', () => {
   it('test with warn', async () => {
     const spy = vi.spyOn(console, 'warn')
     await buildVite({
-      styles: getPath('./project/styles/spritemap'),
+      styles: getPath('./fixtures/basic/styles/spritemap'),
     })
     const calls = spy.mock.calls[0]
     expect(calls).toStrictEqual([
