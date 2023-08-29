@@ -1,5 +1,5 @@
 import { writeFile } from 'node:fs/promises'
-import type { Browser, Page } from 'playwright'
+import type { Browser } from 'playwright'
 import { chromium } from 'playwright'
 import { beforeAll, describe, expect, it } from 'vitest'
 import type { ViteDevServer } from 'vite'
