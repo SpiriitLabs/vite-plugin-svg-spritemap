@@ -11,7 +11,7 @@
     "concurrently": "^8.2.1",
     "postcss": "^8.4.28",
     "sass": "^1.66.1",
-    "typescript": "^5.1.6",
+    "typescript": "^5.2.2",
     "vite": "^4.4.9",
     "vite-plugin-inspect": "^0.7.38"
   }
