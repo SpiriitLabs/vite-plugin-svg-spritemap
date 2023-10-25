@@ -8,5 +8,6 @@ export default defineConfig({
     vue(),
     VitePluginSvgSpritemap('src/icons/*.svg', {
       prefix: 'icon-',
-    })],
+    }),
+  ],
 })

@@ -10,7 +10,7 @@ const svgoConfigs: Record<string, UserOptions['svgo']> = {
   },
 }
 
-describe('SVGO', () => {
+describe('svgo', () => {
   for (const key in svgoConfigs) {
     if (Object.prototype.hasOwnProperty.call(svgoConfigs, key)) {
       it(key, async () => {

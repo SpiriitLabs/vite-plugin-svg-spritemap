@@ -1,5 +1,5 @@
 import { join } from 'node:path'
-import { type Plugin, type ResolvedConfig } from 'vite'
+import type { Plugin, ResolvedConfig } from 'vite'
 import type { Options, Pattern } from '../types'
 import { getFileName } from '../helpers/filename'
 import { SVGManager } from '../svgManager'

@@ -28,7 +28,7 @@ const outputConfigs: Record<string, UserOptions['output']> = {
   },
 }
 
-describe('Output generation', () => {
+describe('output generation', () => {
   for (const key in outputConfigs) {
     if (Object.prototype.hasOwnProperty.call(outputConfigs, key)) {
       it(key, async () => {
@@ -84,7 +84,7 @@ describe('Output generation', () => {
   }
 })
 
-it('Empty output generation', async () => {
+it('empty output generation', async () => {
   const result = await buildVite({}, './project/svg_empty/*.svg')
   const asset = 'output' in result
     ? result.output.find(
