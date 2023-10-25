@@ -15,8 +15,33 @@ on:
       - main
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: 'Build: node-20, ubuntu-latest'
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Set node version to 20
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install
+
+      - name: Build
+        run: pnpm build
+
   test:
-    name: 'Build&Test: node-${{ matrix.node_version }}, ${{ matrix.os }}'
+    name: 'Test: node-${{ matrix.node_version }}, ${{ matrix.os }}'
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -71,7 +96,7 @@ jobs:
 
   coverage:
     runs-on: ubuntu-latest
-    name: 'Coverage: node-18, ubuntu-latest'
+    name: 'Coverage: node-20, ubuntu-latest'
 
     steps:
       - uses: actions/checkout@v3
@@ -82,17 +107,14 @@ jobs:
         with:
           version: 8
 
-      - name: Set node version to 18
+      - name: Set node version to 20
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
           cache: pnpm
 
       - name: Install
         run: pnpm install
-
-      - name: Build
-        run: pnpm build
 
       - name: Install Playwright
         run: npx playwright install
@@ -118,17 +140,14 @@ jobs:
         with:
           version: 8
 
-      - name: Set node version to 18
+      - name: Set node version to 20
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
           cache: pnpm
 
       - name: Install
         run: pnpm install
-
-      - name: Build
-        run: pnpm build
 
       - name: Lint
         run: pnpm lint
