@@ -1,13 +1,13 @@
 import { join } from 'node:path'
 import type { Plugin, ResolvedConfig } from 'vite'
 import type { Options, Pattern } from '../types'
-import { getFileName } from '../helpers/filename'
 import { SVGManager } from '../svgManager'
+import { getFileName } from '../helpers/filename'
 
 export default function BuildPlugin(iconsPattern: Pattern, options: Options): Plugin {
   let config: ResolvedConfig
+  let fileRef: string
   let fileName: string
-  let filePath: string
   let svgManager: SVGManager
 
   return <Plugin>{
@@ -27,23 +27,21 @@ export default function BuildPlugin(iconsPattern: Pattern, options: Options): Pl
           svgManager.spritemap,
           'svg',
         )
-        filePath = join(config.build.assetsDir, fileName)
-      }
-    },
-    transform(code) {
-      return {
-        code: code.replace(/__spritemap/g, filePath),
-        map: null,
-      }
-    },
-    generateBundle(_, bundle) {
-      if (typeof options.output === 'object') {
-        bundle[fileName] = {
+        const filePath = join(config.build.assetsDir, fileName)
+        fileRef = this.emitFile({
           needsCodeReference: false,
-          name: fileName,
+          name: 'spritemap.svg',
           source: svgManager.spritemap,
           type: 'asset',
           fileName: filePath,
+        })
+      }
+    },
+    transform(code) {
+      if (typeof options.output === 'object') {
+        return {
+          code: code.replace(/__spritemap/g, this.getFileName(fileRef)),
+          map: null,
         }
       }
     },

@@ -5,7 +5,7 @@ import VitePluginSvgSpritemap from '@spiriit/vite-plugin-svg-spritemap'
 export default defineConfig({
   build: {
     sourcemap: true,
-    // manifest: true,
+    manifest: true,
   },
   plugins: [
     VitePluginSvgSpritemap('src/icons/*.svg', {
