@@ -1,6 +1,6 @@
 {
   "name": "@spiriit/vite-plugin-svg-spritemap",
-  "version": "1.4.0",
+  "version": "2.0.0",
   "packageManager": "pnpm@8.9.0",
   "description": "Generates symbol-based SVG spritemap from all .svg files in a directory",
   "author": "Spiriit",
@@ -51,7 +51,7 @@
     "coverage": "vitest run --coverage",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit --skipLibCheck",
     "prepublishOnly": "pnpm build"
   },
   "peerDependencies": {
