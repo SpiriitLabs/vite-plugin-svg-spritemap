@@ -41,7 +41,7 @@ export default {
 }
 ```
 
-You can access to the spritemap via the route `__spritemap`. It will be process in build. By default, you will need to use the prefix `sprite-`.
+You can access to the spritemap via the route `__spritemap`. All files process by ViteJS will transform the path of the file on build. By default, you will need to use the prefix `sprite-`.
 
 **SVG**
 
@@ -158,7 +158,7 @@ and in prod:
 </svg>
 ```
 
-To prevent CORS issue with SVG and `<use>`, you can use the `injectSVGOnDev` option. Don't forget to add the HMR script directly above you close body.
+To prevent [CORS issue with SVG](https://oreillymedia.github.io/Using_SVG/extras/ch10-cors.html) and `<use>`, you can use the `injectSVGOnDev` option. Don't forget to add the HMR script directly above you close body.
 
 ```html
 <script type="module" src="http://localhost:5173/@vite-plugin-svg-spritemap/client"></script>
