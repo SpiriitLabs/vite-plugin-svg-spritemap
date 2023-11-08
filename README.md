@@ -204,6 +204,7 @@ export default {
       prefix: 'icon-',
       output: {
         filename: '[name].[hash][extname]',
+        name: 'spritemap.svg',
         view: false,
         use: true,
       },

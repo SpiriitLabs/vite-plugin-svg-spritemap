@@ -30,7 +30,7 @@ export default function BuildPlugin(iconsPattern: Pattern, options: Options): Pl
         const filePath = join(config.build.assetsDir, fileName)
         fileRef = this.emitFile({
           needsCodeReference: false,
-          name: 'spritemap.svg',
+          name: options.output.name,
           source: svgManager.spritemap,
           type: 'asset',
           fileName: filePath,
