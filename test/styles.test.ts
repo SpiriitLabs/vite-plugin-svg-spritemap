@@ -20,7 +20,7 @@ beforeAll(async () => {
   }
 })
 
-describe('Styles generation', () => {
+describe('styles generation', () => {
   for (const style of ['css', 'scss', 'less', 'styl']) {
     it(style, async () => {
       const filename = getPath(`./fixtures/basic/styles/spritemap.${style}`)

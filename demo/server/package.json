@@ -2,18 +2,17 @@
   "name": "demo",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "pnpm@8.6.12",
   "scripts": {
     "dev": "concurrently \"node ./server.mjs\" \"vite\""
   },
   "devDependencies": {
-    "@spiriit/vite-plugin-svg-spritemap": "./../../",
-    "autoprefixer": "^10.4.14",
-    "concurrently": "^8.2.0",
-    "postcss": "^8.4.27",
-    "sass": "^1.65.1",
-    "typescript": "^5.1.6",
-    "vite": "^4.4.9",
-    "vite-plugin-inspect": "^0.7.35"
+    "@spiriit/vite-plugin-svg-spritemap": "workspace:*",
+    "autoprefixer": "^10.4.16",
+    "concurrently": "^8.2.2",
+    "postcss": "^8.4.31",
+    "sass": "^1.69.5",
+    "typescript": "^5.2.2",
+    "vite": "^4.5.0",
+    "vite-plugin-inspect": "^0.7.41"
   }
 }

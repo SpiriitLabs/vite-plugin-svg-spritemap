@@ -3,21 +3,20 @@
   "type": "module",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "pnpm@8.6.12",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.3.4"
+    "vue": "^3.3.8"
   },
   "devDependencies": {
-    "@spiriit/vite-plugin-svg-spritemap": "./../../",
-    "@vitejs/plugin-vue": "^4.2.3",
-    "sass": "^1.65.1",
-    "typescript": "^5.1.6",
-    "vite": "^4.4.9",
-    "vue-tsc": "^1.8.8"
+    "@spiriit/vite-plugin-svg-spritemap": "workspace:*",
+    "@vitejs/plugin-vue": "^4.4.0",
+    "sass": "^1.69.5",
+    "typescript": "^5.2.2",
+    "vite": "^4.5.0",
+    "vue-tsc": "^1.8.22"
   }
 }

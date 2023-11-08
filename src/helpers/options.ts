@@ -58,6 +58,7 @@ export function createOptions(options: UserOptions = {}): Options {
 
   let output: Options['output'] = {
     filename: '[name].[hash][extname]',
+    name: 'spritemap.svg',
     use: true,
     view: true,
   }
@@ -65,15 +66,12 @@ export function createOptions(options: UserOptions = {}): Options {
     output = false
   }
   else if (typeof options.output === 'string') {
-    output = {
-      filename: options.output,
-      use: true,
-      view: true,
-    }
+    output.filename = options.output
   }
   else if (typeof options.output === 'object') {
     output = {
       filename: options.output.filename,
+      name: options.output.name || 'spritemap.svg',
       use:
         typeof options.output.use !== 'undefined' ? options.output.use : true,
       view:

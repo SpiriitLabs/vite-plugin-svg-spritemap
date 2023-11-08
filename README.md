@@ -41,13 +41,13 @@ export default {
 }
 ```
 
-You can access to the spritemap via the route `__spritemap`. It will be process in build. By default, you will need to use the prefix `sprite-`.
+You can access to the spritemap via the route `__spritemap`. All files process by ViteJS will transform the path of the file on build. By default, you will need to use the prefix `sprite-`.
 
 **SVG**
 
 ```html
 <svg>
-  <use href="__spritemap#sprite-spiriit"></use>
+  <use xlink:href="__spritemap#sprite-spiriit"></use>
 </svg>
 ```
 
@@ -125,10 +125,10 @@ will generate
 ```html
 <svg>
   <title>My superb logo</title>
-  <use href="__spritemap#sprite-spiriit"></use>
+  <use xlink:href="__spritemap#sprite-spiriit"></use>
 </svg>
 <svg>
-  <use href="__spritemap#sprite-vite"></use>
+  <use xlink:href="__spritemap#sprite-vite"></use>
 </svg>
 <img src="__spritemap#sprite-spiriit-view" width="118" height="38">
 <img src="__spritemap#sprite-vite-view" width="31" height="32">
@@ -147,18 +147,18 @@ To make `vite-plugin-svg-spritemap` works with this kind of environnment, you wi
 For example, with `<use>` on dev:
 ```html
 <svg>
-  <use href="#sprite-spiriit"></use>
+  <use xlink:href="#sprite-spiriit"></use>
 </svg>
 ```
 
 and in prod:
 ```html
 <svg>
-  <use href="https://my-cool-website.com/dist/assets/spritemap.95b4c41a.svg#sprite-spiriit"></use>
+  <use xlink:href="https://my-cool-website.com/dist/assets/spritemap.95b4c41a.svg#sprite-spiriit"></use>
 </svg>
 ```
 
-To prevent CORS issue with SVG and `<use>`, you can use the `injectSVGOnDev` option. Don't forget to add the HMR script directly above you close body.
+To prevent [CORS issue with SVG](https://oreillymedia.github.io/Using_SVG/extras/ch10-cors.html) and `<use>`, you can use the `injectSVGOnDev` option. Don't forget to add the HMR script directly above you close body.
 
 ```html
 <script type="module" src="http://localhost:5173/@vite-plugin-svg-spritemap/client"></script>
@@ -180,7 +180,8 @@ The first argument is a glob path (using [fast-glob](https://github.com/mrmlnc/f
 
 | Options  | Type      | Default                  | Description                                                                                                                     |
 | -------- | --------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
-| filename | `string`  | `[name].[hash][extname]` | The destination of the file. You can use [output filename like Rollup](https://www.rollupjs.org/guide/en/#outputassetfilenames) |
+| filename | `string`  | `[name].[hash][extname]` | The destination of the file. You can use [output filename like Rollup](https://www.rollupjs.org/guide/en/#outputassetfilenames). Note: Doesn't support hash number. |
+| name | `string`  | `spritemap.svg` | The name of file, appear on the manifest key |
 | use      | `boolean` | true                     | Insert `use` element in the spritemap                                                                                           |
 | view     | `boolean` | true                     | Insert `view` element in the spritemap                                                                                          |
 
@@ -203,6 +204,7 @@ export default {
       prefix: 'icon-',
       output: {
         filename: '[name].[hash][extname]',
+        name: 'spritemap.svg',
         view: false,
         use: true,
       },

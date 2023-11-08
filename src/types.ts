@@ -9,7 +9,7 @@ export interface UserOptions {
 
   svgo?: boolean | SvgoConfig
   output?:
-  | { filename: string; use?: boolean; view?: boolean }
+  | { filename: string; name?: string; use?: boolean; view?: boolean }
   | string
   | boolean
   prefix?: string
@@ -25,6 +25,7 @@ export interface UserOptions {
 
 export interface OptionsOutput {
   filename: string
+  name: string
   use: boolean
   view: boolean
 }
