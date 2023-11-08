@@ -3,6 +3,7 @@ import Inspect from 'vite-plugin-inspect'
 import VitePluginSvgSpritemap from '@spiriit/vite-plugin-svg-spritemap'
 
 export default defineConfig({
+  // base: '/public/dist',
   build: {
     sourcemap: true,
     manifest: true,

@@ -40,7 +40,7 @@ export default function BuildPlugin(iconsPattern: Pattern, options: Options): Pl
     transform(code) {
       if (typeof options.output === 'object') {
         return {
-          code: code.replace(/__spritemap/g, this.getFileName(fileRef)),
+          code: code.replace(/\/__spritemap/g, join(config.base, this.getFileName(fileRef))),
           map: null,
         }
       }
