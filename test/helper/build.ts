@@ -7,7 +7,7 @@ import { getPath } from './path'
 export async function buildVite(
   options: UserOptions,
   path: string | null = null,
-  viteOpts: InlineConfig = {}
+  viteOpts: InlineConfig = {},
 ) {
   const result = await build({
     root: getPath('./fixtures/basic'),
