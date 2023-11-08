@@ -9,14 +9,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.3.7"
+    "vue": "^3.3.8"
   },
   "devDependencies": {
     "@spiriit/vite-plugin-svg-spritemap": "workspace:*",
     "@vitejs/plugin-vue": "^4.4.0",
-    "sass": "^1.69.4",
+    "sass": "^1.69.5",
     "typescript": "^5.2.2",
-    "vite": "^4.4.9",
-    "vue-tsc": "^1.8.8"
+    "vite": "^4.5.0",
+    "vue-tsc": "^1.8.22"
   }
 }
