@@ -1,7 +1,7 @@
 import type { Options, StylesLang, UserOptions } from '../types'
 
 export function createOptions(options: UserOptions = {}): Options {
-  const prefix: Options['prefix'] = options.prefix || 'sprite-'
+const prefix: Options['prefix'] = ((options.hasOwnProperty('prefix')) ? options.prefix : 'sprite-')
 
   // Default options
   let svgo: Options['svgo'] = {
