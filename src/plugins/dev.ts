@@ -54,8 +54,8 @@ export default function DevPlugin(iconsPattern: Pattern, options: Options): Plug
       })
     },
     transformIndexHtml: {
-      enforce: 'pre',
-      transform(html) {
+      order: 'pre',
+      handler(html) {
         html = html.replace(
           /__spritemap-\d*|__spritemap/g,
           `__spritemap__${svgManager.hash}`,

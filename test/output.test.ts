@@ -134,7 +134,7 @@ describe('output manifest generation', () => {
         )
         const manifestBundle = 'output' in result
           ? result.output.find(
-            asset => asset.fileName === 'manifest.json',
+            asset => asset.fileName.endsWith('manifest.json'),
           )
           : undefined
 
