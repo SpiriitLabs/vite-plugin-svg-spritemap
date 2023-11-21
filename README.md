@@ -170,29 +170,29 @@ To prevent [CORS issue with SVG](https://oreillymedia.github.io/Using_SVG/extras
 
 The first argument is a glob path (using [fast-glob](https://github.com/mrmlnc/fast-glob)) and the second is an object with the following options :
 
-| Options | Type                            | Default   | Description                                                                                                                                                              |
-| ------- | ------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| output  | `boolean` or `object`           | `true`    | See [output](#output)                                                                                                                                                    |
-| styles  | `false` or `object` or `string` | `false`   | File destination like `src/css/spritemap.css` or [styles object](#styles)                                                                                                |
-| prefix  | `string`                        | `sprite-` | Define the prefix uses for sprite id in `<symbol>`/`<use>`/`<view>`                                                                                                      |
-| svgo    | `boolean` or `object`           | `true`    | Take an SVGO Options object. If `true`, it will use the [default SVGO preset](https://github.com/svg/svgo#default-preset), if `false`, it will disable SVGO optimization |
-| injectSVGOnDev    | `boolean`           | `false`    | Inject the SVG Spritemap inside the body on dev  |
+| Options        | Type                            | Default   | Description                                                                                                                                                              |
+| -------------- | ------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| output         | `boolean` or `object`           | `true`    | See [output](#output)                                                                                                                                                    |
+| styles         | `false` or `object` or `string` | `false`   | File destination like `src/css/spritemap.css` or [styles object](#styles)                                                                                                |
+| prefix         | `string` or `false`             | `sprite-` | Define the prefix uses for sprite id in `<symbol>`/`<use>`/`<view>`. Set to false to disable the prefix                                                                  |
+| svgo           | `boolean` or `object`           | `true`    | Take an SVGO Options object. If `true`, it will use the [default SVGO preset](https://github.com/svg/svgo#default-preset), if `false`, it will disable SVGO optimization |
+| injectSVGOnDev | `boolean`                       | `false`   | Inject the SVG Spritemap inside the body on dev                                                                                                                          |
 
 ### output
 
-| Options  | Type      | Default                  | Description                                                                                                                     |
-| -------- | --------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| Options  | Type      | Default                  | Description                                                                                                                                                         |
+| -------- | --------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | filename | `string`  | `[name].[hash][extname]` | The destination of the file. You can use [output filename like Rollup](https://www.rollupjs.org/guide/en/#outputassetfilenames). Note: Doesn't support hash number. |
-| name | `string`  | `spritemap.svg` | The name of file, appear on the manifest key |
-| use      | `boolean` | true                     | Insert `use` element in the spritemap                                                                                           |
-| view     | `boolean` | true                     | Insert `view` element in the spritemap                                                                                          |
+| name     | `string`  | `spritemap.svg`          | The name of file, appear on the manifest key                                                                                                                        |
+| use      | `boolean` | true                     | Insert `use` element in the spritemap                                                                                                                               |
+| view     | `boolean` | true                     | Insert `view` element in the spritemap                                                                                                                              |
 
 ### styles
 
 | Options  | Type                                      | Description                                                    |
 | -------- | ----------------------------------------- | -------------------------------------------------------------- |
 | filename | string                                    | The destination of the stylesheet file like your source folder |
-| lang     | `less`/`scss`/`styl`/`css` or `undefined` |                                                                |
+| lang     | `less`/`scss`/`styl`/`css` or `undefined` |
 
 **Example with full options :**
 
