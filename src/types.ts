@@ -9,17 +9,17 @@ export interface UserOptions {
 
   svgo?: boolean | SvgoConfig
   output?:
-  | { filename: string; name?: string; use?: boolean; view?: boolean }
-  | string
-  | boolean
+    | { filename: string, name?: string, use?: boolean, view?: boolean }
+    | string
+    | boolean
   prefix?: string
   styles?:
-  | {
-    filename: string
-    lang?: StylesLang
-  }
-  | string
-  | false
+    | {
+      filename: string
+      lang?: StylesLang
+    }
+    | string
+    | false
   injectSVGOnDev?: boolean
 }
 
