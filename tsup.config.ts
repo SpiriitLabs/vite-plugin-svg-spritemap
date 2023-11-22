@@ -6,6 +6,7 @@ import fg from 'fast-glob'
 export default defineConfig({
   entry: ['src/index.ts'],
   format: ['cjs', 'esm'],
+  shims: true,
   async onSuccess() {
     // Add styles templates for css generation
     const styles = async () => {

@@ -1,4 +1,4 @@
-import { join } from 'node:path'
+import path from 'node:path'
 import type { Plugin, ResolvedConfig } from 'vite'
 import type { Options, Pattern } from '../types'
 import { SVGManager } from '../svgManager'
@@ -27,7 +27,7 @@ export default function BuildPlugin(iconsPattern: Pattern, options: Options): Pl
           svgManager.spritemap,
           'svg',
         )
-        const filePath = join(config.build.assetsDir, fileName)
+        const filePath = path.join(config.build.assetsDir, fileName)
         fileRef = this.emitFile({
           needsCodeReference: false,
           name: options.output.name,
@@ -40,7 +40,7 @@ export default function BuildPlugin(iconsPattern: Pattern, options: Options): Pl
     transform(code) {
       if (typeof options.output === 'object') {
         return {
-          code: code.replace(/\/__spritemap/g, join(config.base, this.getFileName(fileRef))),
+          code: code.replace(/\/__spritemap/g, path.join(config.base, this.getFileName(fileRef))),
           map: null,
         }
       }
