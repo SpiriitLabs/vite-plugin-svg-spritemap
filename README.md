@@ -2,9 +2,9 @@
 
 # vite-plugin-svg-spritemap
 
-This ViteJS plugin generates a single SVG [spritemap](https://css-tricks.com/svg-sprites-use-better-icon-fonts/) with `<symbol>`/`<view>`/`<use>` for each SVG files. It can also generate a stylesheet (CSS/SCSS/Stylus/Less) containing the sprites to be used directly (via a Data URI or SVG fragments).
-
 > This plugin supports Vite 4 and 5.
+
+This ViteJS plugin generates a single SVG [spritemap](https://css-tricks.com/svg-sprites-use-better-icon-fonts/) with `<symbol>`/`<view>`/`<use>` for each SVG files. It can also generate a stylesheet (CSS/SCSS/Stylus/Less) containing the sprites to be used directly (via a Data URI or SVG fragments).
 
 The plugin outputs can be fully configurable through [options](#🛠-options).
 
@@ -14,7 +14,7 @@ The plugin outputs can be fully configurable through [options](#🛠-options).
 
 - ⚡ Fully integrated in your ViteJS environment
 - 📦 Pack your SVG files in one ([spritemap](https://css-tricks.com/svg-sprites-use-better-icon-fonts/)) file
-- ✨ Use your SVG in an `<svg>` or `<img>` tags and also directly in your CSS
+- ✨ Use your SVG in an `<svg>` or `<img>` tags and also directly in your CSS/SCSS/Stylus/Less
 - 🍕 Import SVG fragment as VueJS component
 - 🔥 HMR support
 
@@ -85,7 +85,7 @@ export default {
 @import './spritemap.scss';
 ```
 
-After that, you needs to import the file in your current styles. Don't forget to [load the CSS](https://vitejs.dev/guide/features.html#css) via ViteJS.
+After that, you need to import the file in your current styles. Don't forget to [load the CSS](https://vitejs.dev/guide/features.html#css) via ViteJS.
 
 If you use a CSS preprocessing language, you can use the mixin `sprite` and access to a map with all sprites infos. If not, you will only access to classes.
 
@@ -229,6 +229,8 @@ export default {
 
 ## 🏃 What's next
 
+- [Idefy spritemap option](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/27)
+- [CSS generation callback](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/16)
 - Add variable supports inspired by [svg-spritemap-webpack-plugin](https://github.com/cascornelissen/svg-spritemap-webpack-plugin/blob/master/docs/variables.md)
 
 ## 👨‍💼 Licence
