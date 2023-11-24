@@ -1,5 +1,6 @@
 import path from 'node:path'
-import type { Plugin, ResolvedConfig } from 'vite'
+import type { ExternalOption } from 'rollup'
+import {  Plugin, ResolvedConfig, UserConfig, mergeConfig } from 'vite'
 import type { Options, Pattern } from '../types'
 import { SVGManager } from '../svgManager'
 import { getFileName } from '../helpers/filename'
@@ -13,6 +14,35 @@ export default function BuildPlugin(iconsPattern: Pattern, options: Options): Pl
   return <Plugin>{
     name: 'vite-plugin-svg-spritemap:build',
     apply: 'build',
+    config(config) {
+      const configExternal = config.build?.rollupOptions?.external
+      let pluginExternal: ExternalOption = /\/__spritemap/
+
+      if (Array.isArray(configExternal)) {
+        configExternal.push(pluginExternal)
+        pluginExternal = configExternal
+      } else if (typeof configExternal === 'string' || typeof configExternal === 'object') {
+        pluginExternal = [configExternal, pluginExternal]
+      } else if (typeof configExternal === 'function') {
+        pluginExternal = (source, importer, isResolved) => {
+          if (source.match(/\/__spritemap/))
+            return true
+
+          const res = configExternal(source, importer, isResolved)
+          return res
+        }
+      }
+
+      const pluginConfig:UserConfig = {
+        build: {
+          rollupOptions: {
+            external: pluginExternal
+          }
+        }
+      }
+
+      return mergeConfig(config, pluginConfig)
+    },
     configResolved(_config) {
       config = _config
       svgManager = new SVGManager(iconsPattern, options, config)
