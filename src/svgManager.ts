@@ -106,7 +106,7 @@ export class SVGManager {
     if (!this._svgs.size)
       return Serializer.serializeToString(spritemap)
 
-    const sizes: { width: number[]; height: number[] } = {
+    const sizes: { width: number[], height: number[] } = {
       width: [],
       height: [],
     }

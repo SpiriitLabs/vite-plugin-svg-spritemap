@@ -1,9 +1,13 @@
 import type { Options, StylesLang, UserOptions } from '../types'
 
 export function createOptions(options: UserOptions = {}): Options {
-  const prefix: Options['prefix'] = options.prefix || 'sprite-'
+  let prefix: Options['prefix'] = 'sprite-'
+  if (options.prefix === false)
+    prefix = ''
+  else if (typeof options.prefix === 'string')
+    prefix = options.prefix
 
-  // Default options
+  // Default svgo options
   let svgo: Options['svgo'] = {
     plugins: [
       {
@@ -46,9 +50,9 @@ export function createOptions(options: UserOptions = {}): Options {
   }
   else if (
     typeof options.styles === 'object'
-    && typeof options.styles.filename === 'string'
-    && typeof options.styles.lang === 'string'
-    && stylesLang.includes(options.styles.lang)
+      && typeof options.styles.filename === 'string'
+      && typeof options.styles.lang === 'string'
+      && stylesLang.includes(options.styles.lang)
   ) {
     styles = {
       filename: options.styles.filename,

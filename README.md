@@ -2,6 +2,8 @@
 
 # vite-plugin-svg-spritemap
 
+> This plugin supports Vite 4 and 5.
+
 This ViteJS plugin generates a single SVG [spritemap](https://css-tricks.com/svg-sprites-use-better-icon-fonts/) with `<symbol>`/`<view>`/`<use>` for each SVG files. It can also generate a stylesheet (CSS/SCSS/Stylus/Less) containing the sprites to be used directly (via a Data URI or SVG fragments).
 
 The plugin outputs can be fully configurable through [options](#🛠-options).
@@ -12,7 +14,7 @@ The plugin outputs can be fully configurable through [options](#🛠-options).
 
 - ⚡ Fully integrated in your ViteJS environment
 - 📦 Pack your SVG files in one ([spritemap](https://css-tricks.com/svg-sprites-use-better-icon-fonts/)) file
-- ✨ Use your SVG in an `<svg>` or `<img>` tags and also directly in your CSS
+- ✨ Use your SVG in an `<svg>` or `<img>` tags and also directly in your CSS/SCSS/Stylus/Less
 - 🍕 Import SVG fragment as VueJS component
 - 🔥 HMR support
 
@@ -83,7 +85,7 @@ export default {
 @import './spritemap.scss';
 ```
 
-After that, you needs to import the file in your current styles. Don't forget to [load the CSS](https://vitejs.dev/guide/features.html#css) via ViteJS.
+After that, you need to import the file in your current styles. Don't forget to [load the CSS](https://vitejs.dev/guide/features.html#css) via ViteJS.
 
 If you use a CSS preprocessing language, you can use the mixin `sprite` and access to a map with all sprites infos. If not, you will only access to classes.
 
@@ -168,29 +170,29 @@ To prevent [CORS issue with SVG](https://oreillymedia.github.io/Using_SVG/extras
 
 The first argument is a glob path (using [fast-glob](https://github.com/mrmlnc/fast-glob)) and the second is an object with the following options :
 
-| Options | Type                            | Default   | Description                                                                                                                                                              |
-| ------- | ------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| output  | `boolean` or `object`           | `true`    | See [output](#output)                                                                                                                                                    |
-| styles  | `false` or `object` or `string` | `false`   | File destination like `src/css/spritemap.css` or [styles object](#styles)                                                                                                |
-| prefix  | `string`                        | `sprite-` | Define the prefix uses for sprite id in `<symbol>`/`<use>`/`<view>`                                                                                                      |
-| svgo    | `boolean` or `object`           | `true`    | Take an SVGO Options object. If `true`, it will use the [default SVGO preset](https://github.com/svg/svgo#default-preset), if `false`, it will disable SVGO optimization |
-| injectSVGOnDev    | `boolean`           | `false`    | Inject the SVG Spritemap inside the body on dev  |
+| Options        | Type                            | Default   | Description                                                                                                                                                              |
+| -------------- | ------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| output         | `boolean` or `object`           | `true`    | See [output](#output)                                                                                                                                                    |
+| styles         | `false` or `object` or `string` | `false`   | File destination like `src/css/spritemap.css` or [styles object](#styles)                                                                                                |
+| prefix         | `string` or `false`             | `sprite-` | Define the prefix uses for sprite id in `<symbol>`/`<use>`/`<view>`. Set to false to disable the prefix                                                                  |
+| svgo           | `boolean` or `object`           | `true`    | Take an SVGO Options object. If `true`, it will use the [default SVGO preset](https://github.com/svg/svgo#default-preset), if `false`, it will disable SVGO optimization |
+| injectSVGOnDev | `boolean`                       | `false`   | Inject the SVG Spritemap inside the body on dev                                                                                                                          |
 
 ### output
 
-| Options  | Type      | Default                  | Description                                                                                                                     |
-| -------- | --------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| Options  | Type      | Default                  | Description                                                                                                                                                         |
+| -------- | --------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | filename | `string`  | `[name].[hash][extname]` | The destination of the file. You can use [output filename like Rollup](https://www.rollupjs.org/guide/en/#outputassetfilenames). Note: Doesn't support hash number. |
-| name | `string`  | `spritemap.svg` | The name of file, appear on the manifest key |
-| use      | `boolean` | true                     | Insert `use` element in the spritemap                                                                                           |
-| view     | `boolean` | true                     | Insert `view` element in the spritemap                                                                                          |
+| name     | `string`  | `spritemap.svg`          | The name of file, appear on the manifest key                                                                                                                        |
+| use      | `boolean` | true                     | Insert `use` element in the spritemap                                                                                                                               |
+| view     | `boolean` | true                     | Insert `view` element in the spritemap                                                                                                                              |
 
 ### styles
 
 | Options  | Type                                      | Description                                                    |
 | -------- | ----------------------------------------- | -------------------------------------------------------------- |
 | filename | string                                    | The destination of the stylesheet file like your source folder |
-| lang     | `less`/`scss`/`styl`/`css` or `undefined` |                                                                |
+| lang     | `less`/`scss`/`styl`/`css` or `undefined` |
 
 **Example with full options :**
 
@@ -227,6 +229,8 @@ export default {
 
 ## 🏃 What's next
 
+- [Idefy spritemap option](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/27)
+- [CSS generation callback](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/16)
 - Add variable supports inspired by [svg-spritemap-webpack-plugin](https://github.com/cascornelissen/svg-spritemap-webpack-plugin/blob/master/docs/variables.md)
 
 ## 👨‍💼 Licence

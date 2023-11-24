@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs'
 import { promisify } from 'node:util'
-import { join } from 'node:path'
+import path from 'node:path'
 import svgToMiniDataURI from 'mini-svg-data-uri'
 import type { Options, SvgMapObject } from '../types'
 
@@ -54,7 +54,7 @@ export class Styles {
       = this._options.styles.lang === 'css'
         ? ''
         : await promisify(readFile)(
-          join(__dirname, `/template.${this._options.styles.lang}`),
+          path.join(__dirname, `/template.${this._options.styles.lang}`),
           'utf8',
         )
 
