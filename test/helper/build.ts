@@ -1,5 +1,5 @@
 import type { InlineConfig } from 'vite'
-import { build } from 'vite'
+import { build, mergeConfig } from 'vite'
 import VitePluginSvgSpritemap from '../../src'
 import type { UserOptions } from '../../src/types'
 import { getPath } from './path'
@@ -7,9 +7,9 @@ import { getPath } from './path'
 export async function buildVite(
   options: UserOptions,
   path: string | null = null,
-  viteOpts: InlineConfig = {},
+  config: InlineConfig = {},
 ) {
-  const result = await build({
+  const defaultConfig: InlineConfig = {
     root: getPath('./fixtures/basic'),
     plugins: [
       VitePluginSvgSpritemap(
@@ -17,7 +17,7 @@ export async function buildVite(
         options,
       ),
     ],
-    ...viteOpts,
-  })
-  return result
+  }
+
+  return await build(mergeConfig(defaultConfig, config))
 }
