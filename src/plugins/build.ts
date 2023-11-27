@@ -1,7 +1,6 @@
 import path from 'node:path'
 import type { ExternalOption } from 'rollup'
-import type { Plugin, ResolvedConfig, UserConfig } from 'vite'
-import { mergeConfig } from 'vite'
+import type { Plugin, ResolvedConfig } from 'vite'
 import type { Options, Pattern } from '../types'
 import { SVGManager } from '../svgManager'
 import { getFileName } from '../helpers/filename'
@@ -23,7 +22,8 @@ export default function BuildPlugin(iconsPattern: Pattern, options: Options): Pl
       if (Array.isArray(configExternal)) {
         configExternal.push(pluginExternal)
         finalExternal = configExternal
-      } else if (typeof configExternal === 'string' || typeof configExternal === 'object') {
+      }
+      else if (typeof configExternal === 'string' || typeof configExternal === 'object') {
         finalExternal = [configExternal, pluginExternal]
       }
       else if (typeof configExternal === 'function') {
@@ -37,11 +37,11 @@ export default function BuildPlugin(iconsPattern: Pattern, options: Options): Pl
       }
 
       return {
-        build : {
+        build: {
           rollupOptions: {
             external: finalExternal,
           },
-        }
+        },
       }
     },
     configResolved(_config) {
