@@ -144,16 +144,18 @@ You can see the usage in the [corresponding demo folder](/demo/vue/src/App.vue).
 
 ViteJS allows to be use to [serve assets](https://vitejs.dev/guide/backend-integration.html). So, you can connect ViteJS with Wordpress, Drupal or any kind of backend.
 
-To make `vite-plugin-svg-spritemap` works with this kind of environnment, you will need to handle the right url inside your backend if you are on dev or build.
+> [!IMPORTANT]
+> To make `vite-plugin-svg-spritemap` works with this kind of environnment, you will need to handle the right url inside your backend if you are on dev or build.
 
-For example, with `<use>` on dev:
+For example, with `<use>` on dev, using direcly the id of the svg (with the `injectSVGOnDev` option).
+
 ```html
 <svg>
   <use xlink:href="#sprite-spiriit"></use>
 </svg>
 ```
 
-and in prod:
+And in prod, by putting the correct URL manually thanks to [the manifest.json file](https://vitejs.dev/guide/backend-integration.html) information :
 ```html
 <svg>
   <use xlink:href="https://my-cool-website.com/dist/assets/spritemap.95b4c41a.svg#sprite-spiriit"></use>
