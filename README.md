@@ -233,7 +233,6 @@ export default {
 
 ## 🏃 What's next
 
-- [Idefy spritemap option](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/27)
 - [CSS generation callback](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/16)
 - Add variable supports inspired by [svg-spritemap-webpack-plugin](https://github.com/cascornelissen/svg-spritemap-webpack-plugin/blob/master/docs/variables.md)
 
