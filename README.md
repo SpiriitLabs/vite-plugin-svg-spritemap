@@ -172,19 +172,20 @@ To prevent [CORS issue with SVG](https://oreillymedia.github.io/Using_SVG/extras
 
 The first argument is a glob path (using [fast-glob](https://github.com/mrmlnc/fast-glob)) and the second is an object with the following options :
 
-| Options        | Type                            | Default   | Description                                                                                                                                                              |
-| -------------- | ------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| output         | `boolean` or `object`           | `true`    | See [output](#output)                                                                                                                                                    |
-| styles         | `false` or `object` or `string` | `false`   | File destination like `src/css/spritemap.css` or [styles object](#styles)                                                                                                |
-| prefix         | `string` or `false`             | `sprite-` | Define the prefix uses for sprite id in `<symbol>`/`<use>`/`<view>`. Set to false to disable the prefix                                                                  |
-| svgo           | `boolean` or `object`           | `true`    | Take an SVGO Options object. If `true`, it will use the [default SVGO preset](https://github.com/svg/svgo#default-preset), if `false`, it will disable SVGO optimization |
-| injectSVGOnDev | `boolean`                       | `false`   | Inject the SVG Spritemap inside the body on dev                                                                                                                          |
+| Options        | Type                                | Default   | Description   |
+| -------------- | ----------------------------------- | --------- | ------------- |
+| output         | `boolean` or `object` or `string`   | `true`  | As a string, set the destination of the file (see [output.filename](#output)).<br> For more control, see [output](#output).<br> Set to false to disable output. |
+| styles         | `false` or `object` or `string`     | `false` | File destination like `src/css/spritemap.css` or [styles object](#styles) |
+| prefix         | `string` or `false`  | `sprite-`    | Define the prefix uses for sprite id in `<symbol>`/`<use>`/`<view>`.<br> Set to false to disable the prefix |
+| svgo           | `boolean` or `object`     | `true`  | Take an SVGO Options object.<br> If `true`, it will use the [default SVGO preset](https://github.com/svg/svgo#default-preset), if `false`, it will disable SVGO optimization |
+| injectSVGOnDev | `boolean`  | `false`   | Inject the SVG Spritemap inside the body on dev |
+| idify          | `(name:string, svg:object) => string`   | `name => options.prefix + name` | Function allowing to customize the id of each symbol of the spritemap svg. |
 
 ### output
 
 | Options  | Type      | Default                  | Description                                                                                                                                                         |
 | -------- | --------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| filename | `string`  | `[name].[hash][extname]` | The destination of the file. You can use [output filename like Rollup](https://www.rollupjs.org/guide/en/#outputassetfilenames). Note: Doesn't support hash number. |
+| filename | `string`  | `[name].[hash][extname]` | The destination of the file. You can use [output filename like Rollup](https://www.rollupjs.org/guide/en/#outputassetfilenames).<br> *Note: Doesn't support hash number.* |
 | name     | `string`  | `spritemap.svg`          | The name of file, appear on the manifest key                                                                                                                        |
 | use      | `boolean` | true                     | Insert `use` element in the spritemap                                                                                                                               |
 | view     | `boolean` | true                     | Insert `view` element in the spritemap                                                                                                                              |
@@ -220,6 +221,7 @@ export default {
         ],
       },
       injectSVGOnDev: true,
+      idefy: (name, svg) => `icon-${name}-cheese`,
       styles: {
         lang: 'scss',
         filename: 'src/scss/spritemap.scss'
