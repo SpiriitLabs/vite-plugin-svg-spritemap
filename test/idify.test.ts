@@ -3,7 +3,6 @@ import type { UserOptions } from '../src/types'
 import { buildVite } from './helper/build'
 
 const idifyConfigs: Record<string, UserOptions['idify']> = {
-  default: undefined,
   custom: name => `prefix-${name}`,
 }
 
