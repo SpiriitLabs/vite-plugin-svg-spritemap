@@ -7,6 +7,7 @@ export default defineConfig({
   entry: ['src/index.ts'],
   format: ['cjs', 'esm'],
   shims: true,
+  dts: true,
   async onSuccess() {
     // Add styles templates for css generation
     const styles = async () => {

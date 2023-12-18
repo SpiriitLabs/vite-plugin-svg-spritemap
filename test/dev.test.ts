@@ -38,7 +38,7 @@ beforeAll(async () => {
 })
 
 describe('dev server', () => {
-  it.concurrent('has HMR script', async () => {
+  it('has HMR script', async () => {
     const page = await browser.newPage()
     await page.goto('http://localhost:5173')
     const test
@@ -48,7 +48,7 @@ describe('dev server', () => {
     expect(result.includes(test)).toBeTruthy()
   })
 
-  it.concurrent('transforms __spritemap declaration', async () => {
+  it('transforms __spritemap declaration', async () => {
     const page = await browser.newPage()
     await page.goto('http://localhost:5173')
     const result = await page.content()
@@ -58,7 +58,7 @@ describe('dev server', () => {
     ).toBeTruthy()
   })
 
-  it.concurrent('has route with SVG spritemap', async () => {
+  it('has route with SVG spritemap', async () => {
     const page = await browser.newPage()
     await page.goto('http://localhost:5173/__spritemap')
     const result = await page.content()

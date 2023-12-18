@@ -55,6 +55,6 @@ describe('injectSVGOnDev', () => {
     expect(content).toMatchSnapshot()
   })
 
-  // TODO: Fix HMR verification
+  // TODO: Do HMR verification
   it.skip('has HMR', async () => {})
 })

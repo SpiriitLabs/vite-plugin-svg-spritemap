@@ -72,6 +72,7 @@ export class SVGManager {
       width,
       height,
       viewBox,
+      filePath,
       source: svg,
     })
 
@@ -132,7 +133,7 @@ export class SVGManager {
       attributes.forEach((attr) => {
         symbol.setAttribute(attr.name, attr.value)
       })
-      symbol.setAttribute('id', this._options.prefix + name)
+      symbol.setAttribute('id', this._options.idify(name, svg))
       symbol.setAttribute('viewBox', svg.viewBox.join(' '))
 
       // add childs

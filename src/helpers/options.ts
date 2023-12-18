@@ -85,11 +85,18 @@ export function createOptions(options: UserOptions = {}): Options {
 
   const injectSVGOnDev = options.injectSVGOnDev || false
 
+  // Idify
+  let idify: UserOptions['idify'] = name => prefix + name
+
+  if (typeof options.idify === 'function')
+    idify = options.idify
+
   return {
     svgo,
     output,
     prefix,
     styles,
     injectSVGOnDev,
+    idify,
   } satisfies Options
 }
