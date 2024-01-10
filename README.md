@@ -140,6 +140,26 @@ will generate
 
 You can see the usage in the [corresponding demo folder](/demo/vue/src/App.vue).
 
+### Usage with Nuxt 3
+
+> [!NOTE]
+> This plugin only works with Nuxt 3 and Vite as a bundler.
+
+You just need to install the plugin and set it in the right place for Nuxt 3.
+
+```ts
+// nuxt.config.ts
+import VitePluginSvgSpritemap from '@spiriit/vite-plugin-svg-spritemap'
+
+export default defineNuxtConfig({
+  vite: {
+    plugins: [
+      VitePluginSvgSpritemap('./assets/icons/*.svg'),
+    ]
+  }
+})
+```
+
 ### Use for backend integration
 
 ViteJS allows to be use to [serve assets](https://vitejs.dev/guide/backend-integration.html). So, you can connect ViteJS with Wordpress, Drupal or any kind of backend.
