@@ -34,9 +34,9 @@ export default function VuePlugin(iconsPattern: Pattern, options: Options): Plug
         return config.logger.warn(`[vite-plugin-svg-spritemap] You need to enable the ${query} option to load ${id} as component.`)
 
       if (query === 'view')
-        source = `<img src="__spritemap#${options.prefix}${name}-view" width="${svg?.width || ''}" height="${svg?.height || ''}" />`
+        source = `<img src="/__spritemap#${options.prefix}${name}-view" width="${svg?.width || ''}" height="${svg?.height || ''}" />`
       else
-        source = `<svg><slot/><use href="__spritemap#${options.prefix}${name}"></use></svg>`
+        source = `<svg><slot/><use href="/__spritemap#${options.prefix}${name}"></use></svg>`
 
       const { compileTemplate } = await import('vue/compiler-sfc')
       const { code } = compileTemplate({
