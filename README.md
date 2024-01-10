@@ -160,6 +160,8 @@ export default defineNuxtConfig({
 })
 ```
 
+For usage with TypeScript, you will need to invoke in a `.d.ts` file the reference type `/// <reference types="@spiriit/vite-plugin-svg-spritemap/dist/client" />` (see [issue #38](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/38)) to use `?use`/`?view` query.
+
 ### Use for backend integration
 
 ViteJS allows to be use to [serve assets](https://vitejs.dev/guide/backend-integration.html). So, you can connect ViteJS with Wordpress, Drupal or any kind of backend.
