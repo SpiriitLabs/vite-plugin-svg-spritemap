@@ -1,8 +1,8 @@
 {
   "name": "@spiriit/vite-plugin-svg-spritemap",
   "type": "module",
-  "version": "2.1.0",
-  "packageManager": "pnpm@8.12.1",
+  "version": "2.2.0",
+  "packageManager": "pnpm@8.14.0",
   "description": "Generates symbol-based SVG spritemap from all .svg files in a directory",
   "author": "Spiriit",
   "license": "MIT",
@@ -29,9 +29,14 @@
   ],
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     },
     "./client": {
       "types": "./dist/client.d.ts"
@@ -57,8 +62,8 @@
     "prepublishOnly": "pnpm build"
   },
   "peerDependencies": {
-    "vite": "^4.0.0 || ^5.0.0",
-    "vue": "^3.0.0"
+    "vite": "^5.0.11",
+    "vue": "^3.4.7"
   },
   "peerDependenciesMeta": {
     "vue": {
@@ -70,24 +75,24 @@
     "fast-glob": "^3.3.2",
     "hash-sum": "^2.0.0",
     "mini-svg-data-uri": "^1.4.4",
-    "svgo": "^3.1.0"
+    "svgo": "^3.2.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "2.4.6",
+    "@antfu/eslint-config": "2.6.2",
     "@types/hash-sum": "^1.0.2",
-    "@types/node": "^20.10.5",
+    "@types/node": "^20.10.8",
     "@types/xmldom": "^0.1.34",
-    "@vitejs/plugin-vue": "^4.5.2",
-    "@vitest/coverage-v8": "^1.0.4",
-    "c8": "^8.0.1",
+    "@vitejs/plugin-vue": "^4.6.2",
+    "@vitest/coverage-v8": "^1.1.3",
+    "c8": "^9.0.0",
     "eslint": "^8.56.0",
     "playwright": "^1.40.1",
-    "rollup": "^4.9.1",
+    "rollup": "^4.9.4",
     "svg-element-attributes": "^2.1.0",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3",
-    "vite": "^5.0.10",
-    "vitest": "^1.0.4",
-    "vue": "^3.3.12"
+    "vite": "^5.0.11",
+    "vitest": "^1.1.3",
+    "vue": "^3.4.7"
   }
 }

@@ -1,0 +1,18 @@
+{
+  "name": "nuxt-app",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview"
+  },
+  "devDependencies": {
+    "@spiriit/vite-plugin-svg-spritemap": "workspace:*",
+    "nuxt": "^3.9.1",
+    "sass": "^1.69.7",
+    "vue": "^3.4.7",
+    "vue-router": "^4.2.5"
+  }
+}

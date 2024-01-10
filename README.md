@@ -43,13 +43,13 @@ export default {
 }
 ```
 
-You can access to the spritemap via the route `__spritemap`. All files process by ViteJS will transform the path of the file on build. By default, you will need to use the prefix `sprite-`.
+You can access to the spritemap via the route `/__spritemap`. All files process by ViteJS will transform the path of the file on build. By default, you will need to use the prefix `sprite-`.
 
 **SVG**
 
 ```html
 <svg>
-  <use xlink:href="__spritemap#sprite-spiriit"></use>
+  <use xlink:href="/__spritemap#sprite-spiriit"></use>
 </svg>
 ```
 
@@ -58,7 +58,7 @@ You can access to the spritemap via the route `__spritemap`. All files process b
 You need to add the suffix `-view` to access to the fragment.
 
 ```html
-<img src="__spritemap#sprite-spiriit-view" />
+<img src="/__spritemap#sprite-spiriit-view" />
 ```
 
 **CSS**
@@ -127,18 +127,40 @@ will generate
 ```html
 <svg>
   <title>My superb logo</title>
-  <use xlink:href="__spritemap#sprite-spiriit"></use>
+  <use xlink:href="/__spritemap#sprite-spiriit"></use>
 </svg>
 <svg>
-  <use xlink:href="__spritemap#sprite-vite"></use>
+  <use xlink:href="/__spritemap#sprite-vite"></use>
 </svg>
-<img src="__spritemap#sprite-spiriit-view" width="118" height="38">
-<img src="__spritemap#sprite-vite-view" width="31" height="32">
+<img src="/__spritemap#sprite-spiriit-view" width="118" height="38">
+<img src="/__spritemap#sprite-vite-view" width="31" height="32">
 ```
 
 > For typescript, you need to load `/// <reference types="@spiriit/vite-plugin-svg-spritemap/client" />` to fix errors with `?use`/`?view` query.
 
 You can see the usage in the [corresponding demo folder](/demo/vue/src/App.vue).
+
+### Usage with Nuxt 3
+
+> [!NOTE]
+> This plugin only works with Nuxt 3 and Vite as a bundler.
+
+You just need to install the plugin and set it in the right place for Nuxt 3.
+
+```ts
+// nuxt.config.ts
+import VitePluginSvgSpritemap from '@spiriit/vite-plugin-svg-spritemap'
+
+export default defineNuxtConfig({
+  vite: {
+    plugins: [
+      VitePluginSvgSpritemap('./assets/icons/*.svg'),
+    ]
+  }
+})
+```
+
+For usage with TypeScript, you will need to invoke in a `.d.ts` file the reference type `/// <reference types="@spiriit/vite-plugin-svg-spritemap/dist/client" />` (see [issue #38](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/38)) to use `?use`/`?view` query.
 
 ### Use for backend integration
 
