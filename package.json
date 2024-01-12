@@ -79,6 +79,7 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "2.6.2",
+    "@rollup/pluginutils": "^5.1.0",
     "@types/hash-sum": "^1.0.2",
     "@types/node": "^20.11.0",
     "@types/xmldom": "^0.1.34",

@@ -27,6 +27,9 @@ importers:
       '@antfu/eslint-config':
         specifier: 2.6.2
         version: 2.6.2(@vue/compiler-sfc@3.4.11)(eslint@8.56.0)(typescript@5.3.3)(vitest@1.2.0)
+      '@rollup/pluginutils':
+        specifier: ^5.1.0
+        version: 5.1.0(rollup@4.9.5)
       '@types/hash-sum':
         specifier: ^1.0.2
         version: 1.0.2

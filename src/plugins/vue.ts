@@ -1,5 +1,6 @@
 import { parse } from 'node:path'
-import { type Plugin, type ResolvedConfig, createFilter } from 'vite'
+import type { Plugin, ResolvedConfig } from 'vite'
+import { createFilter } from '@rollup/pluginutils'
 import { SVGManager } from '../svgManager'
 import type { Options, Pattern } from '../types'
 
