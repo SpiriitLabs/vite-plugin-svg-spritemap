@@ -160,7 +160,13 @@ export default defineNuxtConfig({
 })
 ```
 
-For usage with TypeScript, you will need to invoke in a `.d.ts` file the reference type `/// <reference types="@spiriit/vite-plugin-svg-spritemap/dist/client" />` (see [issue #38](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/38)) to use `?use`/`?view` query.
+For usage with TypeScript, you will need to add in a `.d.ts` file the reference type `/// <reference types="@spiriit/vite-plugin-svg-spritemap/dist/client" />` (see [issue #38](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/38)) to use `?use`/`?view` query.
+
+```ts
+// types.d.ts
+
+/// <reference types="@spiriit/vite-plugin-svg-spritemap/dist/client" />
+```
 
 ### Use for backend integration
 
