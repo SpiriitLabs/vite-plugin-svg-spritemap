@@ -9,11 +9,11 @@ export default defineConfig({
     manifest: true,
   },
   plugins: [
-    VitePluginSvgSpritemap('src/icons/*.svg', {
-      // styles: 'src/css/spritemap.css',
-      styles: 'src/scss/spritemap.scss',
-      // styles: 'src/stylus/spritemap.styl',
-      // styles: 'src/less/spritemap.less',
+    VitePluginSvgSpritemap('./../_fixtures/icons/*.svg', {
+      // styles: './../_fixtures/icons/spritemap.css',
+      styles: './../_fixtures/scss/spritemap.scss',
+      // styles: './../_fixtures/icons/spritemap.styl',
+      // styles: './../_fixtures/icons/spritemap.less',
       prefix: 'icon-',
     }),
     Inspect(),

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import SpiriitView from './icons/spiriit.svg?view'
-import SpiriitUse from './icons/spiriit.svg?use'
-import ViteView from './icons/vite.svg?view'
-import ViteUse from './icons/vite.svg?use'
+import SpiriitView from './../../_fixtures/icons/spiriit.svg?use'
+import SpiriitUse from './../../_fixtures/icons/spiriit.svg?use'
+import ViteView from './../../_fixtures/icons/vite.svg?view'
+import ViteUse from './../../_fixtures/icons/vite.svg?use'
 </script>
 
 <template>
@@ -14,10 +14,10 @@ import ViteUse from './icons/vite.svg?use'
     <h2>Spritemap with &lt;use> via Vue component</h2>
 
     <div class="example__svgs">
-      <SpiriitUse>
+      <SpiriitUse class="icon icon-spiriit">
         <title>My superb logo</title>
       </SpiriitUse>
-      <ViteUse />
+      <ViteUse class="icon icon-vite" />
     </div>
   </div>
 
@@ -25,8 +25,8 @@ import ViteUse from './icons/vite.svg?use'
     <h2>Spritemap with &lt;img> (fragments) via Vue component</h2>
 
     <div class="example__svgs">
-      <SpiriitView />
-      <ViteView />
+      <SpiriitView alt="" class="icon icon-spiriit" />
+      <ViteView alt="" class="icon icon-vite"/>
     </div>
   </div>
 </template>

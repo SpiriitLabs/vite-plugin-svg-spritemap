@@ -1,5 +1,5 @@
 // SCSS
-import './scss/style.scss'
+import './../../_fixtures/scss/style.scss'
 
 // Stylus
 // import './stylus/style.styl'

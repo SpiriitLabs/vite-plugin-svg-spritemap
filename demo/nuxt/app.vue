@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import SpiriitView from 'assets/icons/spiriit.svg?view'
-import SpiriitUse from 'assets/icons/spiriit.svg?use'
-import ViteView from 'assets/icons/vite.svg?view'
-import ViteUse from 'assets/icons/vite.svg?use'
+import SpiriitView from './../_fixtures/icons/spiriit.svg?use'
+import SpiriitUse from './../_fixtures/icons/spiriit.svg?use'
+import ViteView from './../_fixtures/icons/vite.svg?view'
+import ViteUse from './../_fixtures/icons/vite.svg?use'
 </script>
 
 <template>
-  <h1>Vite Plugin SVG Spritemap Demo with VueJS</h1>
+  <h1>Vite Plugin SVG Spritemap Demo with Nuxt</h1>
 
   <p>This is a demo of the Vite Plugin SVG Spritemap working with VueJS component.</p>
 
@@ -14,10 +14,10 @@ import ViteUse from 'assets/icons/vite.svg?use'
     <h2>Spritemap with &lt;use> via Vue component</h2>
 
     <div class="example__svgs">
-      <SpiriitUse>
+      <SpiriitUse class="icon icon-spiriit">
         <title>My superb logo</title>
       </SpiriitUse>
-      <ViteUse />
+      <ViteUse class="icon icon-vite" />
     </div>
   </div>
 
@@ -25,8 +25,8 @@ import ViteUse from 'assets/icons/vite.svg?use'
     <h2>Spritemap with &lt;img> (fragments) via Vue component</h2>
 
     <div class="example__svgs">
-      <SpiriitView />
-      <ViteView />
+      <SpiriitView alt="" class="icon icon-spiriit" />
+      <ViteView alt="" class="icon icon-vite"/>
     </div>
   </div>
 </template>

@@ -1,13 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite Plugin SVG Spritemap Demo</title>
-  </head>
-  <body>
-    <h1>Vite Plugin SVG Spritemap Demo</h1>
+<script lang="ts">
+
+</script>
+
+<main>
+  <h1>Vite Plugin SVG Spritemap Demo with Svelte</h1>
 
     <p>This is a demo of the Vite Plugin SVG Spritemap feature.</p>
 
@@ -59,7 +55,4 @@
         <span class="icon icon-vite-mask"></span>
       </div>
     </div>
-
-    <script type="module" src="/src/main.ts"></script>
-  </body>
-</html>
+</main>
