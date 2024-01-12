@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import SpiriitView from './../_fixtures/icons/spiriit.svg?use'
+import SpiriitView from './../_fixtures/icons/spiriit.svg?view'
 import SpiriitUse from './../_fixtures/icons/spiriit.svg?use'
 import ViteView from './../_fixtures/icons/vite.svg?view'
 import ViteUse from './../_fixtures/icons/vite.svg?use'
@@ -26,7 +26,7 @@ import ViteUse from './../_fixtures/icons/vite.svg?use'
 
     <div class="example__svgs">
       <SpiriitView alt="" class="icon icon-spiriit" />
-      <ViteView alt="" class="icon icon-vite"/>
+      <ViteView alt="" class="icon icon-vite" />
     </div>
   </div>
 </template>
