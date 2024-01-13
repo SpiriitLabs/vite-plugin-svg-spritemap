@@ -12,7 +12,7 @@
     "@spiriit/vite-plugin-svg-spritemap": "workspace:*",
     "nuxt": "^3.9.1",
     "sass": "^1.69.7",
-    "vue": "^3.4.11",
+    "vue": "^3.4.13",
     "vue-router": "^4.2.5"
   }
 }

@@ -136,9 +136,17 @@ will generate
 <img src="/__spritemap#sprite-vite-view" width="31" height="32">
 ```
 
-> For typescript, you need to load `/// <reference types="@spiriit/vite-plugin-svg-spritemap/client" />` to fix errors with `?use`/`?view` query.
-
 You can see the usage in the [corresponding demo folder](/demo/vue/src/App.vue).
+
+#### Typescript
+
+For typescript, you need to load the type definitions inside `vite-env.d.ts` to fix errors with `?use`/`?view` query.
+
+```ts
+/// <reference types="vite/client" />
+/// <reference types="@spiriit/vite-plugin-svg-spritemap/client" />
+```
+
 
 ### Usage with Nuxt 3
 
@@ -160,11 +168,13 @@ export default defineNuxtConfig({
 })
 ```
 
+You can see the usage in the [corresponding demo folder](/demo/nuxt/app.vue).
+
+#### Typescript
+
 For usage with TypeScript, you will need to add in a `.d.ts` file the reference type `/// <reference types="@spiriit/vite-plugin-svg-spritemap/dist/client" />` (see [issue #38](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/38)) to use `?use`/`?view` query.
 
 ```ts
-// types.d.ts
-
 /// <reference types="@spiriit/vite-plugin-svg-spritemap/dist/client" />
 ```
 
@@ -261,6 +271,7 @@ export default {
 
 ## 🏃 What's next
 
+- [Support multiple instance of the plugin](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/39)
 - [CSS generation callback](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/16)
 - Add variable supports inspired by [svg-spritemap-webpack-plugin](https://github.com/cascornelissen/svg-spritemap-webpack-plugin/blob/master/docs/variables.md)
 
