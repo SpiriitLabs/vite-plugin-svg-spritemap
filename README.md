@@ -147,7 +147,6 @@ For typescript, you need to load the type definitions inside `vite-env.d.ts` to 
 /// <reference types="@spiriit/vite-plugin-svg-spritemap/client" />
 ```
 
-
 ### Usage with Nuxt 3
 
 > [!NOTE]
