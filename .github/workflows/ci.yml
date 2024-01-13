@@ -79,8 +79,7 @@ jobs:
         if: matrix.os == 'macos-latest'
         uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
-          cache: 'pip' # caching pip dependencies
+          python-version: '3.11'
       - run: pip install setuptools
 
       - name: Install
