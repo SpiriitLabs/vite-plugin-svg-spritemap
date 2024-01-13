@@ -5,9 +5,15 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   vite: {
     plugins: [
-      VitePluginSvgSpritemap('./assets/icons/*.svg'),
+      VitePluginSvgSpritemap('./../_fixtures/icons/*.svg', {
+        // styles: './../_fixtures/icons/spritemap.css',
+        styles: './../_fixtures/scss/spritemap.scss',
+        // styles: './../_fixtures/icons/spritemap.styl',
+        // styles: './../_fixtures/icons/spritemap.less',
+        prefix: 'icon-',
+      }),
     ],
   },
-  css: ['@/assets/style.scss'],
+  css: ['./../_fixtures/scss/style.scss'],
 
 })

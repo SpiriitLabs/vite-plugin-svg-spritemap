@@ -1,0 +1,40 @@
+mixin svgUse(name, width, height)
+  // You will need to handle yourself the svg path if vite running dev or not
+  - const url = mode === 'development' ? `#icon-${name}` : `${mSpritemap}#icon-${name}`
+  svg(class=`icon icon-${name}` width=width height=height)
+    use(href=url)
+
+mixin svgView(name, width, height)
+  // You will need to handle yourself the svg path if vite running dev or not
+  - const url = mode === 'development' ? `http://localhost:5173/__spritemap#icon-${name}-view` : `${mSpritemap}#icon-${name}-view`
+  img(class=`icon icon-${name}` width=width height=height src=url)
+
+
+doctype html
+html
+  head
+    title Vite Plugin SVG Spritemap Demo Server
+    if mode === 'production'
+      script(type="module" crossorigin src=mScript)
+      link(rel="stylesheet" crossorigin href=mStyle)
+  body
+    h1 Vite Plugin SVG Spritemap Demo with Vite as Backend
+    p This is a demo of the Vite Plugin SVG Spritemap with a different server to prevent CORS issue on dev.
+
+    .example
+      h2 Spritemap with &lt;use&gt;
+      .example__svgs
+        +svgUse('spiriit', 118, 38)
+        +svgUse('vite', 32, 32)
+    .example
+      h2 Spritemap with &lt;img&gt; (fragments)
+      .example__svgs
+        +svgView('spiriit', 118, 38)
+        +svgView('vite', 32, 32)
+
+    if mode === 'development'
+      script(type='module' src='http://localhost:5173/@vite/client')
+      // Add this line to inject and add HMR support
+      script(type='module' src='http://localhost:5173/@vite-plugin-svg-spritemap/client')
+      script(type='module' src='http://localhost:5173/src/main.ts')
+

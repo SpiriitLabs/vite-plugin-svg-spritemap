@@ -1,4 +1,4 @@
-import { type Plugin, type ResolvedConfig, createFilter } from 'vite'
+import type { Plugin, ResolvedConfig } from 'vite'
 import fg from 'fast-glob'
 import { SVGManager } from '../svgManager'
 import type { Options, Pattern } from '../types'
@@ -6,8 +6,8 @@ import type { Options, Pattern } from '../types'
 const event = 'vite-plugin-svg-spritemap:update'
 
 export default function DevPlugin(iconsPattern: Pattern, options: Options): Plugin {
-  const filterSVG = createFilter(/\.svg$/)
-  const filterCSS = createFilter(/\.(s?css|styl|less)$/)
+  const filterSVG = /\.svg$/
+  const filterCSS = /\.(s?css|styl|less)$/
   const virtualModuleId = '/@vite-plugin-svg-spritemap/client'
   let svgManager: SVGManager
   let config: ResolvedConfig
@@ -68,7 +68,7 @@ export default function DevPlugin(iconsPattern: Pattern, options: Options): Plug
       },
     },
     async handleHotUpdate(ctx) {
-      if (!filterSVG(ctx.file))
+      if (!ctx.file.match(filterSVG))
         return
 
       await svgManager.update(ctx.file)
@@ -83,7 +83,7 @@ export default function DevPlugin(iconsPattern: Pattern, options: Options): Plug
       })
     },
     transform(code, id) {
-      if (!filterCSS(id))
+      if (!id.match(filterCSS))
         return { code, map: null }
 
       return {

@@ -6,7 +6,11 @@ import VitePluginSvgSpritemap from '@spiriit/vite-plugin-svg-spritemap'
 export default defineConfig({
   plugins: [
     vue(),
-    VitePluginSvgSpritemap('src/icons/*.svg', {
+    VitePluginSvgSpritemap('./../_fixtures/icons/*.svg', {
+      // styles: './../_fixtures/icons/spritemap.css',
+      styles: './../_fixtures/scss/spritemap.scss',
+      // styles: './../_fixtures/icons/spritemap.styl',
+      // styles: './../_fixtures/icons/spritemap.less',
       prefix: 'icon-',
     }),
   ],

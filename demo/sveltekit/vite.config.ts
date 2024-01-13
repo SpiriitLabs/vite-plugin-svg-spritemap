@@ -1,25 +1,16 @@
+import { sveltekit } from '@sveltejs/kit/vite'
 import { defineConfig } from 'vite'
-import Inspect from 'vite-plugin-inspect'
 import VitePluginSvgSpritemap from '@spiriit/vite-plugin-svg-spritemap'
 
 export default defineConfig({
-  build: {
-    copyPublicDir: false,
-    outDir: 'public',
-    manifest: true,
-    rollupOptions: {
-      // overwrite default .html entry
-      input: './src/main.ts',
-    },
-  },
   plugins: [
+    sveltekit(),
     VitePluginSvgSpritemap(
       './../_fixtures/icons/*.svg',
       {
+        styles: './../_fixtures/scss/spritemap.scss',
         prefix: 'icon-',
-        injectSVGOnDev: true,
       },
     ),
-    Inspect(),
   ],
 })

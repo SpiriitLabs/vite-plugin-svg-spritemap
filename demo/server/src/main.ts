@@ -1,2 +1,2 @@
 import 'vite/modulepreload-polyfill'
-import './main.scss'
+import './../../_fixtures/scss/style.scss'

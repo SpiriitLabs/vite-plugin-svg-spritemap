@@ -1,10 +1,10 @@
 import { parse } from 'node:path'
-import { type Plugin, type ResolvedConfig, createFilter } from 'vite'
+import type { Plugin, ResolvedConfig } from 'vite'
 import { SVGManager } from '../svgManager'
 import type { Options, Pattern } from '../types'
 
 export default function VuePlugin(iconsPattern: Pattern, options: Options): Plugin {
-  const filterVueComponent = createFilter(/\.svg\?(use|view)?$/)
+  const filterVueComponent = /\.svg\?(use|view)?$/
   let svgManager: SVGManager
   let config: ResolvedConfig
 
@@ -21,7 +21,7 @@ export default function VuePlugin(iconsPattern: Pattern, options: Options): Plug
     async load(id) {
       if (config.plugins.findIndex(plugin => plugin.name === 'vite:vue') === -1 || !options.output)
         return
-      if (!filterVueComponent(id))
+      if (!id.match(filterVueComponent))
         return
 
       const [path, query] = id.split('?', 2)
@@ -33,10 +33,14 @@ export default function VuePlugin(iconsPattern: Pattern, options: Options): Plug
       if (options.output[query as 'use' | 'view'] === false)
         return config.logger.warn(`[vite-plugin-svg-spritemap] You need to enable the ${query} option to load ${id} as component.`)
 
-      if (query === 'view')
-        source = `<img src="/__spritemap#${options.prefix}${name}-view" width="${svg?.width || ''}" height="${svg?.height || ''}" />`
-      else
+      if (query === 'view') {
+        const width = svg?.width ? `width="${Math.ceil(svg.width)}"` : ''
+        const height = svg?.width ? `height="${Math.ceil(svg.height)}"` : ''
+        source = `<img src="/__spritemap#${options.prefix}${name}-view" ${[width, height].filter(item => item.length > 0).join(' ')}/>`
+      }
+      else {
         source = `<svg><slot/><use href="/__spritemap#${options.prefix}${name}"></use></svg>`
+      }
 
       const { compileTemplate } = await import('vue/compiler-sfc')
       const { code } = compileTemplate({

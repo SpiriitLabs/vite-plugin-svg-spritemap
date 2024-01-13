@@ -4,3 +4,6 @@ dist
 .idea
 .vscode
 coverage
+.svelte-kit
+demo/server/public
+.nitro
