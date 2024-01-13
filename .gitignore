@@ -5,3 +5,5 @@ dist
 .vscode
 coverage
 .svelte-kit
+demo/server/public
+.nitro

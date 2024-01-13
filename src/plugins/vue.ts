@@ -1,11 +1,10 @@
 import { parse } from 'node:path'
 import type { Plugin, ResolvedConfig } from 'vite'
-import { createFilter } from '@rollup/pluginutils'
 import { SVGManager } from '../svgManager'
 import type { Options, Pattern } from '../types'
 
 export default function VuePlugin(iconsPattern: Pattern, options: Options): Plugin {
-  const filterVueComponent = createFilter(/\.svg\?(use|view)?$/)
+  const filterVueComponent = /\.svg\?(use|view)?$/
   let svgManager: SVGManager
   let config: ResolvedConfig
 
@@ -22,7 +21,7 @@ export default function VuePlugin(iconsPattern: Pattern, options: Options): Plug
     async load(id) {
       if (config.plugins.findIndex(plugin => plugin.name === 'vite:vue') === -1 || !options.output)
         return
-      if (!filterVueComponent(id))
+      if (!id.match(filterVueComponent))
         return
 
       const [path, query] = id.split('?', 2)

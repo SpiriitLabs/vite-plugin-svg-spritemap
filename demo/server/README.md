@@ -1,18 +1,42 @@
-# Server example
+# Nitro Minimal Starter
 
-> This is a server example of how to use vite-plugin-svg-spritemap with a different server. This can be useful with Wordpress installation and dev mode.
+Look at the [Nitro documentation](https://nitro.unjs.io/) to learn more.
 
-## Usage
+## Setup
 
-```shell
-npm i
-npm run dev
+Make sure to install the dependencies:
+
+```bash
+# npm
+npm install
 
 # yarn
 yarn install
-yarn run dev
 
 # pnpm
 pnpm install
-pnpm dev
 ```
+
+## Development Server
+
+Start the development server on <http://localhost:3000>
+
+```bash
+npm run dev
+```
+
+## Production
+
+Build the application for production:
+
+```bash
+npm run build
+```
+
+Locally preview production build:
+
+```bash
+npm run preview
+```
+
+Check out the [deployment documentation](https://nitro.unjs.io/deploy) for more information.

@@ -1,10 +1,15 @@
 {
-  "name": "demo",
   "type": "module",
-  "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"node ./server.js\" \"vite\""
+    "prepare": "nitropack prepare",
+    "dev": "concurrently \"NODE_ENV=development nitropack dev\" \"vite\"",
+    "build": "vite build && NODE_ENV=production nitropack build",
+    "preview": "node .output/server/index.mjs"
+  },
+  "dependencies": {
+    "nitro": "^2.2.28",
+    "pug": "^3.0.2"
   },
   "devDependencies": {
     "@spiriit/vite-plugin-svg-spritemap": "workspace:*",
