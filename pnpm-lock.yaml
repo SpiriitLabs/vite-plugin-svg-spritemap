@@ -155,40 +155,6 @@ importers:
         specifier: ^0.8.1
         version: 0.8.1(@nuxt/kit@3.9.1)(rollup@4.9.5)(vite@5.0.11)
 
-  demo/server2:
-    dependencies:
-      nitro:
-        specifier: ^2.2.28
-        version: 2.2.28
-      pug:
-        specifier: ^3.0.2
-        version: 3.0.2
-    devDependencies:
-      '@spiriit/vite-plugin-svg-spritemap':
-        specifier: workspace:*
-        version: link:../..
-      autoprefixer:
-        specifier: ^10.4.16
-        version: 10.4.16(postcss@8.4.33)
-      concurrently:
-        specifier: ^8.2.2
-        version: 8.2.2
-      postcss:
-        specifier: ^8.4.33
-        version: 8.4.33
-      sass:
-        specifier: ^1.69.7
-        version: 1.69.7
-      typescript:
-        specifier: ^5.3.3
-        version: 5.3.3
-      vite:
-        specifier: ^5.0.11
-        version: 5.0.11(@types/node@20.11.0)(less@4.2.0)(sass@1.69.7)(stylus@0.62.0)
-      vite-plugin-inspect:
-        specifier: ^0.8.1
-        version: 0.8.1(@nuxt/kit@3.9.1)(rollup@4.9.5)(vite@5.0.11)
-
   demo/svelte:
     devDependencies:
       '@spiriit/vite-plugin-svg-spritemap':

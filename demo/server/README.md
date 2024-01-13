@@ -1,4 +1,4 @@
-# Nitro Minimal Starter
+# Nitro Server with ViteJS as backend
 
 Look at the [Nitro documentation](https://nitro.unjs.io/) to learn more.
 

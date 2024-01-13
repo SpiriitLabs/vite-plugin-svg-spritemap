@@ -205,6 +205,8 @@ To prevent [CORS issue with SVG](https://oreillymedia.github.io/Using_SVG/extras
 <script type="module" src="http://localhost:5173/@vite-plugin-svg-spritemap/client"></script>
 ```
 
+You can see an example of integration in the [corresponding demo folder](/demo/server/routes/index.pug).
+
 ## 🛠 Options
 
 The first argument is a glob path (using [fast-glob](https://github.com/mrmlnc/fast-glob)) and the second is an object with the following options :
