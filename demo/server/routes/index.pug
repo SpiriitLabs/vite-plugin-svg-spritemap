@@ -2,7 +2,7 @@ mixin svgUse(name, width, height)
   // You will need to handle yourself the svg path if vite running dev or not
   - const url = mode === 'development' ? `#icon-${name}` : `${mSpritemap}#icon-${name}`
   svg(class=`icon icon-${name}` width=width height=height)
-    use(href=url)
+    use(xlink:href=url)
 
 mixin svgView(name, width, height)
   // You will need to handle yourself the svg path if vite running dev or not

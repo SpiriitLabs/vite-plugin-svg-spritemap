@@ -12,10 +12,10 @@ import './../../../_fixtures/scss/style.scss'
 
       <div class="example__svgs">
         <svg class="icon icon-spiriit">
-          <use href="/__spritemap#icon-spiriit"></use>
+          <use xlink:href="/__spritemap#icon-spiriit"></use>
         </svg>
         <svg class="icon icon-vite">
-          <use href="/__spritemap#icon-vite"></use>
+          <use xlink:href="/__spritemap#icon-vite"></use>
         </svg>
       </div>
     </div>
