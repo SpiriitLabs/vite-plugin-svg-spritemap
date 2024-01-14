@@ -10,6 +10,7 @@ export default function BuildPlugin(iconsPattern: Pattern, options: Options): Pl
   let fileRef: string
   let fileName: string
   let svgManager: SVGManager
+  const spritemapFilter = /\/__spritemap/g
   const pluginExternal: ExternalOption = /\/__spritemap/
 
   return <Plugin>{
@@ -69,11 +70,22 @@ export default function BuildPlugin(iconsPattern: Pattern, options: Options): Pl
       }
     },
     transform(code) {
-      if (typeof options.output === 'object') {
-        return {
-          code: code.replace(/\/__spritemap/g, path.join(config.base, this.getFileName(fileRef))),
-          map: null,
-        }
+      if (typeof options.output !== 'object' || !spritemapFilter.test(code))
+        return
+
+      const { join } = path.posix
+
+      // prevent sveltekit rewrite
+      const base = config.base.startsWith('.')
+        ? config.base.substring(1)
+        : config.base
+
+      return {
+        code: code.replace(
+          spritemapFilter,
+          join(base, this.getFileName(fileRef)),
+        ),
+        map: null,
       }
     },
   }

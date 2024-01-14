@@ -39,7 +39,7 @@ export default function VuePlugin(iconsPattern: Pattern, options: Options): Plug
         source = `<img src="/__spritemap#${options.prefix}${name}-view" ${[width, height].filter(item => item.length > 0).join(' ')}/>`
       }
       else {
-        source = `<svg><slot/><use href="/__spritemap#${options.prefix}${name}"></use></svg>`
+        source = `<svg><slot/><use xlink:href="/__spritemap#${options.prefix}${name}"></use></svg>`
       }
 
       const { compileTemplate } = await import('vue/compiler-sfc')
