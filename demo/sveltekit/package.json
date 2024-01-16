@@ -13,7 +13,7 @@
   "devDependencies": {
     "@spiriit/vite-plugin-svg-spritemap": "workspace:*",
     "@sveltejs/adapter-auto": "^3.1.0",
-    "@sveltejs/kit": "^2.3.2",
+    "@sveltejs/kit": "^2.3.3",
     "@sveltejs/vite-plugin-svelte": "^3.0.1",
     "sass": "^1.69.7",
     "svelte": "^4.2.8",
