@@ -30,8 +30,8 @@ export default function VuePlugin(iconsPattern: Pattern, options: Options): Plug
 
       let source = ''
 
-      if (query === 'view' && options.output.view === false)
-        return config.logger.warn(`[vite-plugin-svg-spritemap] You need to enable the view option to load ${id} as component with the ?view query.`)
+      if (query === 'view' && (options.output.view === false || options.output.use === false))
+        return config.logger.warn(`[vite-plugin-svg-spritemap] You need to enable the output.view and the output.use option to load ${id} as component with the ?view query.`)
 
       if (query === 'view') {
         const width = svg?.width ? `width="${Math.ceil(svg.width)}"` : ''
