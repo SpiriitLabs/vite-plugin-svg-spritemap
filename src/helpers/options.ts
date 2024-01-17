@@ -74,12 +74,16 @@ export function createOptions(options: UserOptions = {}): Options {
   }
   else if (typeof options.output === 'object') {
     output = {
-      filename: options.output.filename,
-      name: options.output.name || 'spritemap.svg',
+      filename: options.output.filename || output.filename,
+      name: options.output.name || output.name,
       use:
-        typeof options.output.use !== 'undefined' ? options.output.use : true,
+        typeof options.output.use !== 'undefined'
+          ? options.output.use
+          : output.use,
       view:
-        typeof options.output.view !== 'undefined' ? options.output.view : true,
+        typeof options.output.view !== 'undefined'
+          ? options.output.view
+          : output.view,
     }
   }
 

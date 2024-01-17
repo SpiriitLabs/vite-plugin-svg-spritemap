@@ -21,7 +21,7 @@ export interface UserOptions {
    * @default true
    */
   output?:
-    | WithOptional<OptionsOutput, 'name' | 'use' | 'view'>
+    | Partial<OptionsOutput>
     | string
     | boolean
   /**
