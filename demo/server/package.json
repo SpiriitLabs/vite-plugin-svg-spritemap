@@ -12,12 +12,12 @@
   },
   "devDependencies": {
     "@spiriit/vite-plugin-svg-spritemap": "workspace:*",
-    "autoprefixer": "^10.4.16",
+    "autoprefixer": "^10.4.17",
     "concurrently": "^8.2.2",
     "postcss": "^8.4.33",
-    "sass": "^1.69.7",
+    "sass": "^1.70.0",
     "typescript": "^5.3.3",
-    "vite": "^5.0.11",
+    "vite": "^5.0.12",
     "vite-plugin-inspect": "^0.8.1"
   }
 }

@@ -4,6 +4,7 @@ import type { Plugin, ResolvedConfig } from 'vite'
 import type { Options, Pattern } from '../types'
 import { SVGManager } from '../svgManager'
 import { getFileName } from '../helpers/filename'
+import { joinUrlSegments } from '../helpers/utils'
 
 export default function BuildPlugin(iconsPattern: Pattern, options: Options): Plugin {
   let config: ResolvedConfig
@@ -73,8 +74,6 @@ export default function BuildPlugin(iconsPattern: Pattern, options: Options): Pl
       if (typeof options.output !== 'object' || !spritemapFilter.test(code))
         return
 
-      const { join } = path.posix
-
       // prevent sveltekit rewrite
       const base = config.base.startsWith('.')
         ? config.base.substring(1)
@@ -83,7 +82,7 @@ export default function BuildPlugin(iconsPattern: Pattern, options: Options): Pl
       return {
         code: code.replace(
           spritemapFilter,
-          join(base, this.getFileName(fileRef)),
+          joinUrlSegments(base, this.getFileName(fileRef)),
         ),
         map: null,
       }
