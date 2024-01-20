@@ -11,7 +11,7 @@ describe('idefy', () => {
     if (Object.prototype.hasOwnProperty.call(idifyConfigs, key)) {
       it(key, async () => {
         const idify = idifyConfigs[key]
-        const result = await buildVite({ idify })
+        const result = await buildVite({ name: `idify_${key}`, options: { idify } })
         if (!('output' in result))
           return
         const asset = result.output.find(

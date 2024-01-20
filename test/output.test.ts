@@ -3,25 +3,25 @@ import type { UserOptions } from '../src/types'
 import { buildVite } from './helper/build'
 
 const outputConfigs: Record<string, UserOptions['output']> = {
-  'default': true,
-  'false': false,
-  'string': 'spritemap.[hash][extname]',
-  'object with default': {
+  default: true,
+  false: false,
+  string: 'spritemap.[hash][extname]',
+  object_with_default: {
     filename: 'spritemap.[hash][extname]',
     use: true,
     view: true,
   },
-  'object with only view': {
+  object_with_only_view: {
     filename: 'spritemap.[hash][extname]',
     view: true,
     use: false,
   },
-  'object with only use': {
+  object_with_only_use: {
     filename: 'spritemap.[hash][extname]',
     use: true,
     view: false,
   },
-  'object with only symbol': {
+  object_with_only_symbol: {
     filename: 'spritemap.[hash][extname]',
     use: false,
     view: false,
@@ -47,7 +47,7 @@ describe('output generation', () => {
     if (Object.prototype.hasOwnProperty.call(outputConfigs, key)) {
       it(key, async () => {
         const output = outputConfigs[key]
-        const result = await buildVite({ output })
+        const result = await buildVite({ name: `output_${key}`, options: { output } })
         const asset = 'output' in result
           ? result.output.find(
             asset =>
@@ -99,7 +99,7 @@ describe('output generation', () => {
 })
 
 it('empty output generation', async () => {
-  const result = await buildVite({}, './project/svg_empty/*.svg')
+  const result = await buildVite({ name: 'output_empty', path: './project/svg_empty/*.svg' })
   const asset = 'output' in result
     ? result.output.find(
       asset => asset.name?.startsWith('spritemap.') && asset.name.endsWith('.svg'),
@@ -121,17 +121,18 @@ describe('output manifest generation', () => {
       it(key, async () => {
         const output = outputManifestConfigs[key]
         const manifestKey = (typeof output === 'object' ? output.name : null) || 'spritemap.svg'
-        const result = await buildVite(
-          {
+        const result = await buildVite({
+          name: `output_manifest_${key}`,
+          options: {
             output,
           },
-          null,
-          {
+          viteConfig: {
             build: {
               manifest: true,
             },
           },
-        )
+        })
+
         const manifestBundle = 'output' in result
           ? result.output.find(
             asset => asset.fileName.endsWith('manifest.json'),

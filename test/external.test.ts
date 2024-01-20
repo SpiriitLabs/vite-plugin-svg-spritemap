@@ -3,26 +3,27 @@ import type { ExternalOption } from 'rollup'
 import { buildVite } from './helper/build'
 
 const configs: Record<string, ExternalOption | undefined> = {
-  'no external': undefined,
-  'external string': 'jquery',
-  'external array': ['jquery'],
-  'external function': (source) => {
+  no_external: undefined,
+  external_string: 'jquery',
+  external_array: ['jquery'],
+  external_function: (source) => {
     if (source.includes('jquery'))
       return true
   },
 }
 
-describe('output manifest generation', () => {
+describe('external', () => {
   for (const key in configs) {
     if (Object.prototype.hasOwnProperty.call(configs, key)) {
       it(key, async () => {
         const config = configs[key]
-        await buildVite(
+        await buildVite({
+          name: `external_${key}`,
+          options:
           {
             output: true,
           },
-          null,
-          {
+          viteConfig: {
             build: {
               rollupOptions: {
                 external: config,
@@ -58,7 +59,7 @@ describe('output manifest generation', () => {
               },
             ],
           },
-        )
+        })
       })
     }
   }

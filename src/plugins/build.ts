@@ -1,10 +1,9 @@
-import path from 'node:path'
+import { posix as path } from 'node:path'
 import type { ExternalOption } from 'rollup'
 import type { Plugin, ResolvedConfig } from 'vite'
 import type { Options, Pattern } from '../types'
 import { SVGManager } from '../svgManager'
 import { getFileName } from '../helpers/filename'
-import { joinUrlSegments } from '../helpers/utils'
 
 export default function BuildPlugin(iconsPattern: Pattern, options: Options): Plugin {
   let config: ResolvedConfig
@@ -82,7 +81,7 @@ export default function BuildPlugin(iconsPattern: Pattern, options: Options): Pl
       return {
         code: code.replace(
           spritemapFilter,
-          joinUrlSegments(base, this.getFileName(fileRef)),
+          path.join(base, this.getFileName(fileRef)),
         ),
         map: null,
       }
