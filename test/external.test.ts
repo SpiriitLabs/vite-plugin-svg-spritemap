@@ -15,7 +15,7 @@ const configs: Record<string, ExternalOption | undefined> = {
 describe('external', () => {
   for (const key in configs) {
     if (Object.prototype.hasOwnProperty.call(configs, key)) {
-      it(key, async () => {
+      it.concurrent(key, async () => {
         const config = configs[key]
         await buildVite({
           name: `external_${key}`,
