@@ -13,7 +13,7 @@ describe('prefix', () => {
     if (Object.prototype.hasOwnProperty.call(prefixConfigs, key)) {
       it(key, async () => {
         const prefix = prefixConfigs[key]
-        const result = await buildVite({ prefix })
+        const result = await buildVite({ name: `prefix_${key}`, options: { prefix } })
         if (!('output' in result))
           return
         const asset = result.output.find(

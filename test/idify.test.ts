@@ -9,9 +9,9 @@ const idifyConfigs: Record<string, UserOptions['idify']> = {
 describe('idefy', () => {
   for (const key in idifyConfigs) {
     if (Object.prototype.hasOwnProperty.call(idifyConfigs, key)) {
-      it(key, async () => {
+      it.concurrent(key, async () => {
         const idify = idifyConfigs[key]
-        const result = await buildVite({ idify })
+        const result = await buildVite({ name: `idify_${key}`, options: { idify } })
         if (!('output' in result))
           return
         const asset = result.output.find(

@@ -11,8 +11,8 @@
   "devDependencies": {
     "@spiriit/vite-plugin-svg-spritemap": "workspace:*",
     "nuxt": "^3.9.3",
-    "sass": "^1.69.7",
-    "vue": "^3.4.14",
+    "sass": "^1.70.0",
+    "vue": "^3.4.15",
     "vue-router": "^4.2.5"
   }
 }

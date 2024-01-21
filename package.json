@@ -1,7 +1,7 @@
 {
   "name": "@spiriit/vite-plugin-svg-spritemap",
   "type": "module",
-  "version": "2.2.3",
+  "version": "2.2.4",
   "packageManager": "pnpm@8.14.1",
   "description": "Generates symbol-based SVG spritemap from all .svg files in a directory",
   "author": "Spiriit",
@@ -62,8 +62,8 @@
     "prepublishOnly": "pnpm build"
   },
   "peerDependencies": {
-    "vite": "^5.0.11",
-    "vue": "^3.4.14"
+    "vite": "^4.0.0 || ^5.0.0",
+    "vue": "^3.0.0"
   },
   "peerDependenciesMeta": {
     "vue": {
@@ -78,7 +78,7 @@
     "svgo": "^3.2.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "2.6.2",
+    "@antfu/eslint-config": "2.6.3",
     "@types/hash-sum": "^1.0.2",
     "@types/node": "^20.11.5",
     "@types/xmldom": "^0.1.34",
@@ -86,13 +86,13 @@
     "@vitest/coverage-v8": "^1.2.1",
     "c8": "^9.1.0",
     "eslint": "^8.56.0",
-    "playwright": "^1.41.0",
-    "rollup": "^4.9.5",
+    "playwright": "^1.41.1",
+    "rollup": "^4.9.6",
     "svg-element-attributes": "^2.1.0",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3",
-    "vite": "^5.0.11",
+    "vite": "^5.0.12",
     "vitest": "^1.2.1",
-    "vue": "^3.4.14"
+    "vue": "^3.4.15"
   }
 }

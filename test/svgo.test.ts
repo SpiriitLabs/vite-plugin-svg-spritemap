@@ -15,7 +15,10 @@ describe('svgo', () => {
     if (Object.prototype.hasOwnProperty.call(svgoConfigs, key)) {
       it(key, async () => {
         const svgo = svgoConfigs[key]
-        const result = await buildVite({ svgo })
+        const result = await buildVite({
+          name: `svgo_${key}`,
+          options: { svgo },
+        })
         if (!('output' in result))
           return
         const asset = result.output.find(

@@ -4,15 +4,9 @@
 
 ## Usage
 
+> You need to build the project before using the demo. To do that, run `pnpm build` at the root of the project and after run the following commands in the `demo/basic/` folder.
+
 ```shell
-npm i
-npm run dev
-
-# yarn
-yarn install
-yarn run dev
-
-# pnpm
 pnpm install
 pnpm dev
 ```

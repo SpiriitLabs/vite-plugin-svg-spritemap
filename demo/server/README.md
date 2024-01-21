@@ -4,16 +4,11 @@ Look at the [Nitro documentation](https://nitro.unjs.io/) to learn more.
 
 ## Setup
 
+> You need to build the project before using the demo. To do that, run `pnpm install` at the root of the project and after run the following commands in the `demo/server/` folder.
+
 Make sure to install the dependencies:
 
 ```bash
-# npm
-npm install
-
-# yarn
-yarn install
-
-# pnpm
 pnpm install
 ```
 
@@ -22,7 +17,7 @@ pnpm install
 Start the development server on <http://localhost:3000>
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 ## Production
@@ -30,13 +25,13 @@ npm run dev
 Build the application for production:
 
 ```bash
-npm run build
+pnpm build
 ```
 
 Locally preview production build:
 
 ```bash
-npm run preview
+pnpm preview
 ```
 
 Check out the [deployment documentation](https://nitro.unjs.io/deploy) for more information.

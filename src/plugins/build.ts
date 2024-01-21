@@ -1,4 +1,4 @@
-import path from 'node:path'
+import { posix as path } from 'node:path'
 import type { ExternalOption } from 'rollup'
 import type { Plugin, ResolvedConfig } from 'vite'
 import type { Options, Pattern } from '../types'
@@ -73,8 +73,6 @@ export default function BuildPlugin(iconsPattern: Pattern, options: Options): Pl
       if (typeof options.output !== 'object' || !spritemapFilter.test(code))
         return
 
-      const { join } = path.posix
-
       // prevent sveltekit rewrite
       const base = config.base.startsWith('.')
         ? config.base.substring(1)
@@ -83,7 +81,7 @@ export default function BuildPlugin(iconsPattern: Pattern, options: Options): Pl
       return {
         code: code.replace(
           spritemapFilter,
-          join(base, this.getFileName(fileRef)),
+          path.join(base, this.getFileName(fileRef)),
         ),
         map: null,
       }

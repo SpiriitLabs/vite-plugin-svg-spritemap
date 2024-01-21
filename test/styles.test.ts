@@ -26,21 +26,26 @@ describe('styles generation', () => {
       const filename = getPath(`./fixtures/basic/styles/spritemap.${style}`)
 
       await buildVite({
-        styles: filename,
+        name: `styles_gen_string_${style}`,
+        options: {
+          styles: filename,
+        },
       })
 
       const resultWithString = await fs.readFile(filename, 'utf8')
       expect(resultWithString).toMatchSnapshot()
 
       await buildVite({
-        styles: {
-          filename,
-          lang: style as StylesLang,
+        name: `styles_gen_obj_${style}`,
+        options: {
+          styles: {
+            filename,
+            lang: style as StylesLang,
+          },
         },
       })
 
       const resultWithObject = await fs.readFile(filename, 'utf8')
-
       expect(resultWithString).toBe(resultWithObject)
     })
   }
@@ -48,7 +53,10 @@ describe('styles generation', () => {
   it('test with warn', async () => {
     const spy = vi.spyOn(console, 'warn')
     await buildVite({
-      styles: getPath('./fixtures/basic/styles/spritemap'),
+      name: `styles_gen_warn`,
+      options: {
+        styles: getPath('./fixtures/basic/styles/spritemap'),
+      },
     })
     const calls = spy.mock.calls[0]
     expect(calls).toStrictEqual([
