@@ -16,10 +16,10 @@ export default defineConfig({
       // styles: './../_fixtures/icons/spritemap.less',
       prefix: 'icon-',
       svgo: false,
-      output: {
-        use: false,
-        view: false,
-      },
+      // output: {
+      //   use: false,
+      //   view: false,
+      // },
     }),
     Inspect(),
   ],

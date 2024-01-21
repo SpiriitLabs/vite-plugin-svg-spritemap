@@ -4,7 +4,7 @@ import VitePluginSvgSpritemap from '../../src'
 import type { UserOptions } from '../../src/types'
 import { getPath } from './path'
 
-export async function buildVite(obj: {
+export function buildVite(obj: {
   name: string
   options?: UserOptions
   path?: string
@@ -24,5 +24,5 @@ export async function buildVite(obj: {
     ],
   }
 
-  return await build(mergeConfig(defaultConfig, viteConfig || {}))
+  return build(mergeConfig(defaultConfig, viteConfig || {}))
 }
