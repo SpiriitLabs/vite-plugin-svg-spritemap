@@ -95,6 +95,10 @@ export function createOptions(options: UserOptions = {}): Options {
   if (typeof options.idify === 'function')
     idify = options.idify
 
+  let route = '__spritemap'
+  if (typeof options.route === 'string')
+    route = options.route
+
   return {
     svgo,
     output,
@@ -102,5 +106,6 @@ export function createOptions(options: UserOptions = {}): Options {
     styles,
     injectSVGOnDev,
     idify,
+    route,
   } satisfies Options
 }
