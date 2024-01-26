@@ -24,12 +24,12 @@ $sprites: (
 	)
 );
 
-@mixin sprite($name, $include-size: false, $type: 'uri', $mode: 'background') {
+@mixin sprite($name, $include-size: false, $type: 'uri', $mode: 'background', $route: '__spritemap') {
   $sprite: map-get($sprites, $name);
   $url: false;
 
   @if $type == 'fragment' {
-    $url: '/__spritemap##{$sprites-prefix}#{$name}-view';
+    $url: '/#{$route}##{$sprites-prefix}#{$name}-view';
   } @else if $type == 'uri' {
     $url: map-get($sprite, uri);
   } @else {

@@ -2,14 +2,7 @@ import { readFile } from 'node:fs'
 import { promisify } from 'node:util'
 import path from 'node:path'
 import svgToMiniDataURI from 'mini-svg-data-uri'
-import type { Options, SvgMapObject } from '../types'
-
-interface SvgDataUriMapObject {
-  width: number
-  height: number
-  viewbox: number[]
-  svgDataUri?: string
-}
+import type { Options, SvgDataUriMapObject, SvgMapObject } from '../types'
 
 export class Styles {
   private _svgs: Map<string, SvgDataUriMapObject>

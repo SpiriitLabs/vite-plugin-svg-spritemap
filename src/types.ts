@@ -7,6 +7,13 @@ export type Pattern = string[] | string
 
 export type StylesLang = 'less' | 'scss' | 'styl' | 'css'
 
+export interface SvgDataUriMapObject {
+  width: number
+  height: number
+  viewbox: number[]
+  svgDataUri?: string
+}
+
 export interface UserOptions {
   /**
    * Take an SVGO Options object. If true, it will use the default SVGO preset, if false, it will disable SVGO optimization
@@ -47,6 +54,11 @@ export interface UserOptions {
    * @default false
    */
   injectSVGOnDev?: boolean
+  /**
+   * Change the route allowing multiple instance of the plugin
+   * @default '__spritemap'
+   */
+  route?: string
 }
 
 export interface OptionsOutput {
@@ -92,6 +104,7 @@ export interface Options {
   prefix: string | false
   injectSVGOnDev: boolean
   idify: (name: string, svg: SvgMapObject) => string
+  route: string
 }
 
 export interface SvgMapObject {

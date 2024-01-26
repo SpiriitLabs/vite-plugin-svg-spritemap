@@ -41,7 +41,7 @@ export default function DevPlugin(iconsPattern: Pattern, options: Options): Plug
     },
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
-        if (req.url?.startsWith('/__spritemap')) {
+        if (req.url?.startsWith(`/${options.route}`)) {
           res.statusCode = 200
           res.setHeader('Content-Type', 'image/svg+xml')
           res.setHeader('Access-Control-Allow-Origin', '*')
@@ -56,9 +56,10 @@ export default function DevPlugin(iconsPattern: Pattern, options: Options): Plug
     transformIndexHtml: {
       order: 'pre',
       handler(html) {
+        const replaceRegExp = new RegExp(`${options.route}-\d*|${options.route}`, 'g')
         html = html.replace(
-          /__spritemap-\d*|__spritemap/g,
-          `__spritemap__${svgManager.hash}`,
+          replaceRegExp,
+          `${options.route}__${svgManager.hash}`,
         )
 
         return html.replace(
@@ -86,10 +87,11 @@ export default function DevPlugin(iconsPattern: Pattern, options: Options): Plug
       if (!id.match(filterCSS))
         return { code, map: null }
 
+      const replaceRegExp = new RegExp(`${options.route}-\d*|${options.route}`, 'g')
       return {
         code: code.replace(
-          /__spritemap-\d*|__spritemap/g,
-        `__spritemap__${svgManager.hash}`,
+          replaceRegExp,
+        `${options.route}__${svgManager.hash}`,
         ),
         map: null,
       }
@@ -112,7 +114,7 @@ export default function DevPlugin(iconsPattern: Pattern, options: Options): Plug
 
     const updateElements = `
     const elements = document.querySelectorAll(
-      '[src*=__spritemap], [href*=__spritemap], [*|href*=__spritemap]'
+      '[src*=${options.route}], [href*=${options.route}], [*|href*=${options.route}]'
     )
 
     for (let i = 0; i < elements.length; i++) {
@@ -123,8 +125,8 @@ export default function DevPlugin(iconsPattern: Pattern, options: Options): Plug
         const value = el.getAttribute(attr)
         if (!value) continue
         const newValue = value.replace(
-          /__spritemap.*#/g,
-          '__spritemap__' + data.id + '#'
+          /${options.route}.*#/g,
+          '${options.route}__' + data.id + '#'
         )
         el.setAttribute(attr, newValue)
       }

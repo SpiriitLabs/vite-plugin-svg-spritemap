@@ -10,8 +10,8 @@ export default function BuildPlugin(iconsPattern: Pattern, options: Options): Pl
   let fileRef: string
   let fileName: string
   let svgManager: SVGManager
-  const spritemapFilter = /\/__spritemap/g
-  const pluginExternal: ExternalOption = /\/__spritemap/
+  const spritemapFilter = new RegExp(`/${options?.route || '__spritemap'}`, 'g')
+  const pluginExternal: ExternalOption = new RegExp(`/${options?.route || '__spritemap'}`)
 
   return <Plugin>{
     name: 'vite-plugin-svg-spritemap:build',
