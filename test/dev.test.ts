@@ -54,7 +54,7 @@ describe('dev server', () => {
     const result = await page.content()
     page.close()
     expect(
-      /<use xlink:href="__spritemap__.*#.*"><\/use>/.test(result),
+      /<use xlink:href="__spritemap__[^\n\r#\u2028\u2029]*#.*"><\/use>/.test(result),
     ).toBeTruthy()
   })
 
