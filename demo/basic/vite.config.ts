@@ -9,6 +9,10 @@ export default defineConfig({
     manifest: true,
   },
   plugins: [
+    VitePluginSvgSpritemap('./../_fixtures/flags/*.svg', {
+      route: '__flags',
+      styles: './../_fixtures/scss/spritemap-flags.scss',
+    }),
     VitePluginSvgSpritemap('./../_fixtures/icons/*.svg', {
       // styles: './../_fixtures/icons/spritemap.css',
       styles: './../_fixtures/scss/spritemap.scss',

@@ -33,7 +33,6 @@ export function createOptions(options: UserOptions = {}): Options {
   const stylesLang = ['css', 'scss', 'less', 'styl']
   if (typeof options.styles === 'string') {
     let lang = options.styles.split('.').pop() as StylesLang | undefined
-    const stylesLang = ['css', 'scss', 'less', 'styl']
 
     if (typeof lang === 'undefined' || !stylesLang.includes(lang)) {
       lang = 'css'

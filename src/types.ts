@@ -95,6 +95,24 @@ export interface OptionsStyles {
    * The CSS processor language
    */
   lang: StylesLang
+  /**
+   * Names of variables/mixin inside the stylesheet
+   */
+  names: {
+    /**
+     * @default 'sprites-prefix'
+     */
+    prefix: string
+    /**
+     * @default 'sprites'
+     */
+    sprites: string
+    /**
+     * @default 'sprite'
+     */
+    mixin: string
+  }
+  callback: (content: string) => string
 }
 
 export interface Options {

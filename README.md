@@ -8,6 +8,7 @@ This ViteJS plugin generates a single SVG [spritemap](https://css-tricks.com/svg
 
 The plugin outputs can be fully configurable through [options](#🛠-options).
 
+> [!NOTE]
 > This plugin is inspired by [svg-spritemap-webpack-plugin](https://github.com/cascornelissen/svg-spritemap-webpack-plugin) for Webpack.
 
 ## 🚀 Features
