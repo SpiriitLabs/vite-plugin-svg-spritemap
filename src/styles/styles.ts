@@ -44,7 +44,7 @@ export class Styles {
     if (!this._options.styles)
       return ''
     let template
-      = this._options.styles.lang === 'css'
+      = this._options.styles.lang === 'css' || this._options.styles.includeMixin === false
         ? ''
         : await promisify(readFile)(
           path.join(__dirname, `/template.${this._options.styles.lang}`),

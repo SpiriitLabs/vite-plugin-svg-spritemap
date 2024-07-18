@@ -68,7 +68,7 @@ export function createOptions(options: UserOptions = {}): Options {
     styles = {
       filename: options.styles.filename,
       lang: options.styles.lang,
-      includeMixin: options.styles.includeMixin || false,
+      includeMixin: options.styles.includeMixin || true,
       names: stylesNames,
       callback: options.styles.callback,
     }
