@@ -1,4 +1,4 @@
-import type { Options, StylesLang, UserOptions } from '../types'
+import type { Options, OptionsStyles, StylesLang, UserOptions } from '../types'
 
 export function createOptions(options: UserOptions = {}): Options {
   let prefix: Options['prefix'] = 'sprite-'
@@ -45,6 +45,12 @@ export function createOptions(options: UserOptions = {}): Options {
     styles = {
       filename: options.styles,
       lang,
+      includeMixin: true,
+      names: {
+        prefix: 'sprites-prefix',
+        sprites: 'sprites',
+        mixin: 'sprite',
+      },
     }
   }
   else if (
@@ -53,9 +59,18 @@ export function createOptions(options: UserOptions = {}): Options {
     && typeof options.styles.lang === 'string'
     && stylesLang.includes(options.styles.lang)
   ) {
+    const stylesNames: OptionsStyles['names'] = {
+      prefix: options.styles.names?.prefix || 'sprites-prefix',
+      sprites: options.styles.names?.sprites || 'sprites',
+      mixin: options.styles.names?.mixin || 'sprite',
+    }
+
     styles = {
       filename: options.styles.filename,
       lang: options.styles.lang,
+      includeMixin: options.styles.includeMixin || false,
+      names: stylesNames,
+      callback: options.styles.callback,
     }
   }
 

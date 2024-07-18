@@ -41,7 +41,7 @@ export interface UserOptions {
    * @default false
    */
   styles?:
-    | WithOptional<OptionsStyles, 'lang'>
+    | WithOptional<OptionsStyles, 'lang' | 'includeMixin' | 'names'>
     | string
     | false
   /**
@@ -96,6 +96,11 @@ export interface OptionsStyles {
    */
   lang: StylesLang
   /**
+   * Include Sass/Less/Stylus Mixin
+   * @default true
+   */
+  includeMixin: boolean
+  /**
    * Names of variables/mixin inside the stylesheet
    */
   names: {
@@ -112,7 +117,7 @@ export interface OptionsStyles {
      */
     mixin: string
   }
-  callback: (content: string) => string
+  callback?: (content: string) => string
 }
 
 export interface Options {
