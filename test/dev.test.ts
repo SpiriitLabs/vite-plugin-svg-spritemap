@@ -1,7 +1,7 @@
 import { writeFile } from 'node:fs/promises'
 import type { Browser } from 'playwright'
 import { chromium } from 'playwright'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 import type { ViteDevServer } from 'vite'
 import { createServer } from 'vite'
 import VitePluginSvgSpritemap from '../src/index'
