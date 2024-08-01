@@ -1,9 +1,9 @@
-sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route = '%route%')
-	$sprite = $sprites[$name]
+__mixin__($name, $include-size = false, $type = 'uri', $mode = 'background', $route = '__route__')
+	$sprite = $__sprites__[$name]
 	$url = false
 
 	if $type == 'fragment'
-		$url = '/' + $route + '#' + $sprites-prefix + $name + '-view'
+		$url = '/' + $route + '#' + $__prefix__ + $name + '-view'
 	else if $type == 'uri'
 		$url = $sprite[uri]
 	else

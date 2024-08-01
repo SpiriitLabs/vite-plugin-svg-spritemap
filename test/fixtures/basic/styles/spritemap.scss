@@ -24,7 +24,13 @@ $sprites: (
 	)
 );
 
-@mixin sprite($name, $include-size: false, $type: 'uri', $mode: 'background', $route: '__spritemap') {
+@mixin sprite(
+  $name,
+  $include-size: false,
+  $type: 'uri',
+  $mode: 'background',
+  $route: '__spritemap'
+) {
   $sprite: map-get($sprites, $name);
   $url: false;
 

@@ -1,9 +1,9 @@
-.sprite(@name, @include-size: false, @type: 'uri', @route: '%route%') {
-  @sprite: @sprites[ @@name];
+.__mixin__(@name, @include-size: false, @type: 'uri', @route: '__route__') {
+  @sprite: @__sprites__[ @@name];
 
   @fragment: if(
     @type = 'fragment',
-    '/@{route}#@{sprites-prefix}@{name}-view',
+    '/@{route}#@{__prefix__}@{name}-view',
     false
   );
   @uri: if(@type = 'uri', @sprite[uri], false);
