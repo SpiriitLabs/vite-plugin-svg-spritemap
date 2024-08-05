@@ -24,7 +24,7 @@ export class Styles {
     })
   }
 
-  protected createSpriteMap(
+  private createSpriteMap(
     generator: (
       name: string,
       svg: SvgDataUriMapObject,
@@ -191,6 +191,14 @@ export class Styles {
       case 'css':
       default:
         insert = this._generate_css()
+    }
+
+    if (this._options.styles.callback) {
+      insert = this._options.styles.callback({
+        content: insert,
+        options: this._options,
+        createSpritemap: this.createSpriteMap,
+      })
     }
 
     return await this.insert(insert)

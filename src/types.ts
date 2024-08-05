@@ -117,7 +117,28 @@ export interface OptionsStyles {
      */
     mixin: string
   }
-  callback?: (content: string) => string
+  callback?: (
+    ctx: {
+      /**
+       * Content of the generated styles
+       */
+      content: string
+      /**
+       * Plugin options
+       */
+      options: Options
+      /**
+       * Spritemap helper looping inside svg data through a callback
+       */
+      createSpritemap: (
+        generator: (
+          name: string,
+          svg: SvgDataUriMapObject,
+          isLast: boolean
+        ) => string
+      ) => string
+    }
+  ) => string
 }
 
 export interface Options {
