@@ -1,9 +1,9 @@
-import { writeFile } from 'node:fs/promises'
 import type { Browser } from 'playwright'
-import { chromium } from 'playwright'
-import { beforeAll, describe, expect, it } from 'vitest'
 import type { ViteDevServer } from 'vite'
+import { writeFile } from 'node:fs/promises'
+import { chromium } from 'playwright'
 import { createServer } from 'vite'
+import { beforeAll, describe, expect, it } from 'vitest'
 import VitePluginSvgSpritemap from '../src/index'
 import { getPath } from './helper/path'
 

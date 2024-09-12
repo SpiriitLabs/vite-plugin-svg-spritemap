@@ -1,7 +1,7 @@
-import { parse } from 'node:path'
 import type { Plugin, ResolvedConfig } from 'vite'
-import { SVGManager } from '../svgManager'
 import type { Options, Pattern } from '../types'
+import { parse } from 'node:path'
+import { SVGManager } from '../svgManager'
 
 export default function VuePlugin(iconsPattern: Pattern, options: Options): Plugin {
   const filterVueComponent = /\.svg\?(use|view)?$/

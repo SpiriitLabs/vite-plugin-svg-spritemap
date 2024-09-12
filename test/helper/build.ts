@@ -1,7 +1,7 @@
 import type { InlineConfig } from 'vite'
+import type { UserOptions } from '../../src/types'
 import { build, mergeConfig } from 'vite'
 import VitePluginSvgSpritemap from '../../src'
-import type { UserOptions } from '../../src/types'
 import { getPath } from './path'
 
 export function buildVite(obj: {

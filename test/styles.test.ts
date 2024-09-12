@@ -1,8 +1,8 @@
+import type { StylesLang } from '../src/types'
 import { promises as fs } from 'node:fs'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
-import type { StylesLang } from '../src/types'
-import { getPath } from './helper/path'
 import { buildVite } from './helper/build'
+import { getPath } from './helper/path'
 
 beforeAll(async () => {
   for (const style of ['scss', 'less', 'styl']) {

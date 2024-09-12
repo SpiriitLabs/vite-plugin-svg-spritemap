@@ -1,7 +1,7 @@
 import type { Plugin, ResolvedConfig } from 'vite'
+import type { Options, Pattern } from '../types'
 import fg from 'fast-glob'
 import { SVGManager } from '../svgManager'
-import type { Options, Pattern } from '../types'
 
 const event = 'vite-plugin-svg-spritemap:update'
 
@@ -91,7 +91,7 @@ export default function DevPlugin(iconsPattern: Pattern, options: Options): Plug
       return {
         code: code.replace(
           replaceRegExp,
-        `${options.route}__${svgManager.hash}`,
+          `${options.route}__${svgManager.hash}`,
         ),
         map: null,
       }

@@ -1,8 +1,8 @@
 import type { Browser, Page } from 'playwright'
-import { chromium } from 'playwright'
-import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import type { ViteDevServer } from 'vite'
+import { chromium } from 'playwright'
 import { createServer } from 'vite'
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import VitePluginSvgSpritemap from '../src/index'
 import { getPath } from './helper/path'
 

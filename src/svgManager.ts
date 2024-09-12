@@ -1,14 +1,14 @@
+import type { ResolvedConfig } from 'vite'
+import type { Options, Pattern, SvgMapObject } from './types'
 import { promises as fs } from 'node:fs'
 import { basename, resolve } from 'node:path'
-import fg from 'fast-glob'
-import { optimize } from 'svgo'
 import { DOMImplementation, DOMParser, XMLSerializer } from '@xmldom/xmldom'
+import fg from 'fast-glob'
 import hash_sum from 'hash-sum'
-import type { ResolvedConfig } from 'vite'
-import { Styles } from './styles/styles'
+import { optimize } from 'svgo'
 import { calculateY } from './helpers/calculateY'
 import { cleanAttributes } from './helpers/cleanAttributes'
-import type { Options, Pattern, SvgMapObject } from './types'
+import { Styles } from './styles/styles'
 
 export class SVGManager {
   private _options: Options

@@ -1,9 +1,9 @@
-import { posix as path } from 'node:path'
 import type { ExternalOption } from 'rollup'
 import type { Plugin, ResolvedConfig } from 'vite'
 import type { Options, Pattern } from '../types'
-import { SVGManager } from '../svgManager'
+import { posix as path } from 'node:path'
 import { getFileName } from '../helpers/filename'
+import { SVGManager } from '../svgManager'
 
 export default function BuildPlugin(iconsPattern: Pattern, options: Options): Plugin {
   let config: ResolvedConfig

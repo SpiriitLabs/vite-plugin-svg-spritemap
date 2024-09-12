@@ -111,10 +111,10 @@ To do that, import the icons loaded by `vite-svg-spritemap` and add the `?use` o
 
 ```vue
 <script setup lang="ts">
-import SpiriitView from './icons/spiriit.svg?view'
 import SpiriitUse from './icons/spiriit.svg?use'
-import ViteView from './icons/vite.svg?view'
+import SpiriitView from './icons/spiriit.svg?view'
 import ViteUse from './icons/vite.svg?use'
+import ViteView from './icons/vite.svg?view'
 </script>
 
 <template>

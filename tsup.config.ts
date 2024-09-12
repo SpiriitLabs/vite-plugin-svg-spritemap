@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs'
 import { resolve } from 'node:path'
-import { defineConfig } from 'tsup'
 import fg from 'fast-glob'
+import { defineConfig } from 'tsup'
 
 export default defineConfig({
   entry: ['src/index.ts'],
