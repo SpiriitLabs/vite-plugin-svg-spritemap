@@ -67,6 +67,29 @@ describe('styles generation', () => {
     expect(resultWithString).toMatchSnapshot()
   })
 
+  for (const style of ['scss', 'less', 'styl']) {
+    it(`custom ${style} names`, async () => {
+      const filename = getPath(`./fixtures/basic/styles/spritemap_names.${style}`)
+
+      await buildVite({
+        name: `styles_names`,
+        options: {
+          styles: {
+            filename,
+            names: {
+              sprites: 'icons',
+              prefix: 'icon-prefix',
+              mixin: 'icon-sprite',
+            },
+          },
+        },
+      })
+
+      const resultWithString = await fs.readFile(filename, 'utf8')
+      expect(resultWithString).toMatchSnapshot()
+    })
+  }
+
   it('test with warn', async () => {
     const spy = vi.spyOn(console, 'warn')
     await buildVite({
