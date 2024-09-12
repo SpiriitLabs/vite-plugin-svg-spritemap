@@ -2,11 +2,6 @@
 
 $sprites-prefix: 'sprite-';
 $sprites: (
-	'no_viewbox': (
-		uri: "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3e%3cpath fill='red' d='M7 13a9 9 0 0 1 18 0v3.807l1.928 4.822A1 1 0 0 1 26 23H6a1 1 0 0 1-.928-1.371L7 16.807zm5.125 12A3.99 3.99 0 0 0 16 28a3.99 3.99 0 0 0 3.875-3z'/%3e%3c/svg%3e",
-		width: 32px,
-		height: 32px
-	),
 	'no_width_height': (
 		uri: "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3e%3cpath fill='red' d='M7 13a9 9 0 0 1 18 0v3.807l1.928 4.822A1 1 0 0 1 26 23H6a1 1 0 0 1-.928-1.371L7 16.807zm5.125 12A3.99 3.99 0 0 0 16 28a3.99 3.99 0 0 0 3.875-3z'/%3e%3c/svg%3e",
 		width: 32px,
