@@ -75,7 +75,7 @@ export function createOptions(options: UserOptions = {}): Options {
     styles = {
       filename: options.styles.filename,
       lang,
-      includeMixin: options.styles.includeMixin || true,
+      includeMixin: typeof options.styles.includeMixin === 'undefined' ? true : options.styles.includeMixin,
       names: stylesNames,
       callback: options.styles.callback,
     }

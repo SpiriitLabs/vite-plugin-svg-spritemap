@@ -41,7 +41,7 @@ export interface UserOptions {
    * @default false
    */
   styles?:
-    | Omit<WithOptional<OptionsStyles, 'lang' | 'includeMixin'>, 'names'> & { names: Partial<OptionsStylesNames> }
+    | Omit<WithOptional<OptionsStyles, 'lang' | 'includeMixin'>, 'names'> & { names?: Partial<OptionsStylesNames> }
     | string
     | false
   /**

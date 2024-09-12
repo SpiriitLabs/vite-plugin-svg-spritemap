@@ -50,6 +50,23 @@ describe('styles generation', () => {
     })
   }
 
+  it('includeMixin', async () => {
+    const filename = getPath(`./fixtures/basic/styles/spritemap_includeMixin.scss`)
+
+    await buildVite({
+      name: `styles_includeMixin`,
+      options: {
+        styles: {
+          filename,
+          includeMixin: false,
+        },
+      },
+    })
+
+    const resultWithString = await fs.readFile(filename, 'utf8')
+    expect(resultWithString).toMatchSnapshot()
+  })
+
   it('test with warn', async () => {
     const spy = vi.spyOn(console, 'warn')
     await buildVite({
