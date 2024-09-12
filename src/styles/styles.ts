@@ -1,8 +1,8 @@
-import { readFile } from 'node:fs'
-import { promisify } from 'node:util'
-import path from 'node:path'
-import svgToMiniDataURI from 'mini-svg-data-uri'
 import type { Options, SvgDataUriMapObject, SvgMapObject } from '../types'
+import { readFile } from 'node:fs'
+import path from 'node:path'
+import { promisify } from 'node:util'
+import svgToMiniDataURI from 'mini-svg-data-uri'
 
 export class Styles {
   private _svgs: Map<string, SvgDataUriMapObject>
@@ -53,10 +53,10 @@ export class Styles {
 
     // Apply names/mixins changes
     const findAndReplaceObject: Record<string, string> = {
-      mixin: this._options.styles.names.mixin,
+      mixin: this._options.styles.names.mixin || 'sprite',
       route: this._options.route,
-      prefix: this._options.styles.names.prefix,
-      sprites: this._options.styles.names.sprites,
+      prefix: this._options.styles.names.prefix || 'sprites-prefix',
+      sprites: this._options.styles.names.sprites || 'sprites',
     }
 
     for (const key in findAndReplaceObject) {

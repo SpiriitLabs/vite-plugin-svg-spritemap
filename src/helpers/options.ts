@@ -60,9 +60,9 @@ export function createOptions(options: UserOptions = {}): Options {
     && stylesLang.includes(options.styles.lang)
   ) {
     const stylesNames: OptionsStyles['names'] = {
-      prefix: options.styles.names?.prefix || 'sprites-prefix',
-      sprites: options.styles.names?.sprites || 'sprites',
-      mixin: options.styles.names?.mixin || 'sprite',
+      prefix: options.styles.names?.prefix,
+      sprites: options.styles.names?.sprites,
+      mixin: options.styles.names?.mixin,
     }
 
     styles = {

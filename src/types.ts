@@ -107,15 +107,15 @@ export interface OptionsStyles {
     /**
      * @default 'sprites-prefix'
      */
-    prefix: string
+    prefix?: string
     /**
      * @default 'sprites'
      */
-    sprites: string
+    sprites?: string
     /**
      * @default 'sprite'
      */
-    mixin: string
+    mixin?: string
   }
   callback?: (
     ctx: {
