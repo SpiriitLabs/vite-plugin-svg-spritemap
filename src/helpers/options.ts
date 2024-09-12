@@ -56,18 +56,25 @@ export function createOptions(options: UserOptions = {}): Options {
   else if (
     typeof options.styles === 'object'
     && typeof options.styles.filename === 'string'
-    && typeof options.styles.lang === 'string'
-    && stylesLang.includes(options.styles.lang)
   ) {
     const stylesNames: OptionsStyles['names'] = {
-      prefix: options.styles.names?.prefix,
-      sprites: options.styles.names?.sprites,
-      mixin: options.styles.names?.mixin,
+      prefix: options.styles.names?.prefix || 'sprites-prefix',
+      sprites: options.styles.names?.sprites || 'sprites',
+      mixin: options.styles.names?.mixin || 'sprite',
+    }
+
+    let lang = options.styles.filename.split('.').pop() as StylesLang | undefined
+    if (typeof lang === 'undefined' || !stylesLang.includes(lang)) {
+      lang = 'css'
+      console.warn(
+        '[vite-plugin-spritemap]',
+        'Invalid styles lang, fallback to css',
+      )
     }
 
     styles = {
       filename: options.styles.filename,
-      lang: options.styles.lang,
+      lang,
       includeMixin: options.styles.includeMixin || true,
       names: stylesNames,
       callback: options.styles.callback,

@@ -53,10 +53,10 @@ export class Styles {
 
     // Apply names/mixins changes
     const findAndReplaceObject: Record<string, string> = {
-      mixin: this._options.styles.names.mixin || 'sprite',
+      mixin: this._options.styles.names.mixin,
       route: this._options.route,
-      prefix: this._options.styles.names.prefix || 'sprites-prefix',
-      sprites: this._options.styles.names.sprites || 'sprites',
+      prefix: this._options.styles.names.prefix,
+      sprites: this._options.styles.names.sprites,
     }
 
     for (const key in findAndReplaceObject) {

@@ -41,7 +41,7 @@ export interface UserOptions {
    * @default false
    */
   styles?:
-    | WithOptional<OptionsStyles, 'lang' | 'includeMixin' | 'names'>
+    | Omit<WithOptional<OptionsStyles, 'lang' | 'includeMixin'>, 'names'> & { names: Partial<OptionsStylesNames> }
     | string
     | false
   /**
@@ -103,20 +103,7 @@ export interface OptionsStyles {
   /**
    * Names of variables/mixin inside the stylesheet
    */
-  names: {
-    /**
-     * @default 'sprites-prefix'
-     */
-    prefix?: string
-    /**
-     * @default 'sprites'
-     */
-    sprites?: string
-    /**
-     * @default 'sprite'
-     */
-    mixin?: string
-  }
+  names: OptionsStylesNames
   callback?: (
     ctx: {
       /**
@@ -139,6 +126,21 @@ export interface OptionsStyles {
       ) => string
     }
   ) => string
+}
+
+interface OptionsStylesNames {
+  /**
+   * @default 'sprites-prefix'
+   */
+  prefix: string
+  /**
+   * @default 'sprites'
+   */
+  sprites: string
+  /**
+   * @default 'sprite'
+   */
+  mixin: string
 }
 
 export interface Options {
