@@ -8,7 +8,7 @@ const event = 'vite-plugin-svg-spritemap:update'
 export default function DevPlugin(iconsPattern: Pattern, options: Options): Plugin {
   const filterSVG = /\.svg$/
   const filterCSS = /\.(s?css|styl|less)$/
-  const virtualModuleId = '/@vite-plugin-svg-spritemap/client'
+  const virtualModuleId = `/@vite-plugin-svg-spritemap/client${options.route}`
   let svgManager: SVGManager
   let config: ResolvedConfig
 
