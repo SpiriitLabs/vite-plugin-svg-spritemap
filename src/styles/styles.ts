@@ -197,7 +197,7 @@ export class Styles {
       insert = this._options.styles.callback({
         content: insert,
         options: this._options,
-        createSpritemap: this.createSpriteMap,
+        createSpritemap: this.createSpriteMap.bind(this),
       })
     }
 

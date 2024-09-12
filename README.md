@@ -118,7 +118,7 @@ export default {
         filename: 'src/scss/spritemap.css',
         callback: ({ content, options, createSpritemap }) => {
           let insert = ''
-          insert += createSpriteMap((name, svg) => {
+          insert += createSpritemap((name, svg) => {
             const selector = `.${options.prefix}${name}`
             let sprite = ''
             sprite = `${selector} {`

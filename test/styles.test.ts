@@ -90,6 +90,36 @@ describe('styles generation', () => {
     })
   }
 
+  it('styles callback', async () => {
+    const filename = getPath(`./fixtures/basic/styles/spritemap_callback.css`)
+
+    await buildVite({
+      name: `styles_callback`,
+      options: {
+        styles: {
+          filename,
+          callback: ({ content, options, createSpritemap }) => {
+            let insert = ''
+            insert += createSpritemap((name, svg) => {
+              const selector = `.${options.prefix}${name}`
+              let sprite = ''
+              sprite = `${selector} {`
+              sprite += `\n\tbackground: url("${svg.svgDataUri}") center no-repeat!important;`
+              sprite += '\n}'
+              return sprite
+            })
+
+            content = `/* Route with ${options.route}*/ \n${insert}`
+            return content
+          },
+        },
+      },
+    })
+
+    const resultWithString = await fs.readFile(filename, 'utf8')
+    expect(resultWithString).toMatchSnapshot()
+  })
+
   it('test with warn', async () => {
     const spy = vi.spyOn(console, 'warn')
     await buildVite({
