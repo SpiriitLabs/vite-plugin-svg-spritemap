@@ -42,7 +42,7 @@ describe('dev server', () => {
     const page = await browser.newPage()
     await page.goto('http://localhost:5173')
     const test
-      = '<script type="module" src="/@vite-plugin-svg-spritemap/client"></script>'
+      = '<script type="module" src="/@vite-plugin-svg-spritemap/client__spritemap"></script>'
     const result = await page.content()
     await page.close()
     expect(result.includes(test)).toBeTruthy()

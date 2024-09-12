@@ -12,7 +12,7 @@ exports[`vue components > has components 1`] = `
   <body>
     <div id="app" data-v-app=""><svg><title>My superb logo</title><use xlink:href="/__spritemap#sprite-spiriit"></use></svg><svg><use xlink:href="/__spritemap#sprite-vite"></use></svg><img src="/__spritemap#sprite-spiriit-view" width="118" height="38"><img src="/__spritemap#sprite-vite-view" width="32" height="32"></div>
     <script type="module" src="/main.ts"></script>
-  <script type="module" src="/@vite-plugin-svg-spritemap/client"></script>
+  <script type="module" src="/@vite-plugin-svg-spritemap/client__spritemap"></script>
 
 </body></html>"
 `;
