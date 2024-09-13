@@ -16,7 +16,7 @@
     "sass": "^1.78.0",
     "stylus": "^0.63.0",
     "typescript": "^5.5.4",
-    "vite": "^5.4.4",
+    "vite": "^5.4.5",
     "vite-plugin-inspect": "^0.8.7"
   }
 }
