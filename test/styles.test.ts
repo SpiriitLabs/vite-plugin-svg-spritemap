@@ -76,7 +76,8 @@ describe('styles generation', () => {
       const includes = styleIncludes[lang]
       for (const include of includes) {
         it(`include ${lang} ${JSON.stringify(include)}`, async () => {
-          const filename = getPath(`./fixtures/basic/styles/spritemap_include_${JSON.stringify(include)}.${lang}`)
+          const includePath = Array.isArray(include) ? include.join('_') : include
+          const filename = getPath(`./fixtures/basic/styles/spritemap_include_${includePath}.${lang}`)
 
           await buildVite({
             name: `styles_includeMixin`,
