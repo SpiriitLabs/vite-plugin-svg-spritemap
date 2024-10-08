@@ -1,4 +1,4 @@
-import type { OptionsStyles, StylesLang, UserOptions } from '../src/types'
+import type { OptionsStyles, StylesLang } from '../src/types'
 import { promises as fs } from 'node:fs'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 import { buildVite } from './helper/build'
