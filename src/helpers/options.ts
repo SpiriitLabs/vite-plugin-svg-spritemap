@@ -45,7 +45,7 @@ export function createOptions(options: UserOptions = {}): Options {
     styles = {
       filename: options.styles,
       lang,
-      includeMixin: true,
+      include: true,
       names: {
         prefix: 'sprites-prefix',
         sprites: 'sprites',
@@ -75,7 +75,7 @@ export function createOptions(options: UserOptions = {}): Options {
     styles = {
       filename: options.styles.filename,
       lang,
-      includeMixin: typeof options.styles.includeMixin === 'undefined' ? true : options.styles.includeMixin,
+      include: typeof options.styles.include === 'undefined' ? true : options.styles.include,
       names: stylesNames,
       callback: options.styles.callback,
     }

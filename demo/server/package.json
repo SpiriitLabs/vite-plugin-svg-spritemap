@@ -14,10 +14,10 @@
     "@spiriit/vite-plugin-svg-spritemap": "workspace:*",
     "autoprefixer": "^10.4.20",
     "concurrently": "^9.0.1",
-    "postcss": "^8.4.45",
-    "sass": "^1.78.0",
-    "typescript": "^5.5.4",
-    "vite": "^5.4.5",
+    "postcss": "^8.4.47",
+    "sass": "^1.79.4",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.8",
     "vite-plugin-inspect": "^0.8.7"
   }
 }

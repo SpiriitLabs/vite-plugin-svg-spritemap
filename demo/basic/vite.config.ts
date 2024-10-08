@@ -8,6 +8,13 @@ export default defineConfig({
     sourcemap: true,
     manifest: true,
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        api: 'modern-compiler',
+      },
+    },
+  },
   plugins: [
     VitePluginSvgSpritemap('./../_fixtures/icons/*.svg', {
       // styles: './../_fixtures/icons/spritemap.css',

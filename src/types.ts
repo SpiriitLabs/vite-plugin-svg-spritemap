@@ -41,7 +41,7 @@ export interface UserOptions {
    * @default false
    */
   styles?:
-    | Omit<WithOptional<OptionsStyles, 'lang' | 'includeMixin'>, 'names'> & { names?: Partial<OptionsStylesNames> }
+    | Omit<WithOptional<OptionsStyles, 'lang' | 'include'>, 'names'> & { names?: Partial<OptionsStylesNames> }
     | string
     | false
   /**
@@ -96,10 +96,10 @@ export interface OptionsStyles {
    */
   lang: StylesLang
   /**
-   * Include Sass/Less/Stylus Mixin
+   * Styles includes
    * @default true
    */
-  includeMixin: boolean
+  include: boolean | Array<'variables' | 'mixin' | 'bg' | 'mask' | 'bg-frag'>
   /**
    * Names of variables/mixin inside the stylesheet
    */

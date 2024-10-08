@@ -17,7 +17,7 @@ beforeAll(async () => {
     configFile: false,
     root: getPath('./fixtures/basic'),
     server: {
-      port: 5173,
+      port: 5174,
       watch: {
         ignored: [getPath('./fixtures/basic/dist')], // ignore dist change because of parallized test
       },
@@ -40,7 +40,7 @@ beforeAll(async () => {
 describe('dev server', () => {
   it('has HMR scripts', async () => {
     const page = await browser.newPage()
-    await page.goto('http://localhost:5173')
+    await page.goto('http://localhost:5174')
     const testSpritemap
       = '<script type="module" src="/@vite-plugin-svg-spritemap/client__spritemap"></script>'
     const testFlags
@@ -53,9 +53,9 @@ describe('dev server', () => {
 
   it('has routes with SVG spritemap', async () => {
     const page = await browser.newPage()
-    await page.goto('http://localhost:5173/__spritemap')
+    await page.goto('http://localhost:5174/__spritemap')
     const resultSpritemap = await page.content()
-    await page.goto('http://localhost:5173/__flags')
+    await page.goto('http://localhost:5174/__flags')
     const resultFlags = await page.content()
     await page.close()
     expect(resultSpritemap).toMatchSnapshot()

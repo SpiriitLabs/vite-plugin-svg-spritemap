@@ -1,7 +1,6 @@
 import type { Options, SvgDataUriMapObject, SvgMapObject } from '../types'
-import { readFile } from 'node:fs'
+import { promises } from 'node:fs'
 import path from 'node:path'
-import { promisify } from 'node:util'
 import svgToMiniDataURI from 'mini-svg-data-uri'
 
 export class Styles {
@@ -41,15 +40,19 @@ export class Styles {
   }
 
   private async insert(insert: string): Promise<string> {
-    if (!this._options.styles)
+    if (!this._options.styles || this._options.styles.include === false)
       return ''
-    let template
-      = this._options.styles.lang === 'css' || this._options.styles.includeMixin === false
-        ? ''
-        : await promisify(readFile)(
-          path.join(__dirname, `/template.${this._options.styles.lang}`),
-          'utf8',
-        )
+    let template = ''
+    if (
+      this._options.styles.lang !== 'css'
+      && (this._options.styles.include === true
+        || this._options.styles.include.includes('mixin'))
+    ) {
+      template = await promises.readFile(
+        path.join(__dirname, `/template.${this._options.styles.lang}`),
+        'utf8',
+      )
+    }
 
     // Apply names/mixins changes
     const findAndReplaceObject: Record<string, string> = {
@@ -73,8 +76,13 @@ export class Styles {
 
   // SCSS generation
   private _generate_scss() {
-    if (!this._options.styles)
+    if (
+      !this._options.styles
+      || this._options.styles.include === false
+      || (Array.isArray(this._options.styles.include) && !this._options.styles.include.includes('variables'))
+    ) {
       return ''
+    }
 
     let insert = `$${this._options.styles.names.prefix}: '${this._options.prefix}';\n`
 
@@ -95,8 +103,13 @@ export class Styles {
 
   // Styl generation
   private _generate_styl() {
-    if (!this._options.styles)
+    if (
+      !this._options.styles
+      || this._options.styles.include === false
+      || (Array.isArray(this._options.styles.include) && !this._options.styles.include.includes('variables'))
+    ) {
       return ''
+    }
 
     let insert = `$${this._options.styles.names.prefix} = '${this._options.prefix}'\n`
 
@@ -117,8 +130,13 @@ export class Styles {
 
   // Less generation
   private _generate_less() {
-    if (!this._options.styles)
+    if (
+      !this._options.styles
+      || this._options.styles.include === false
+      || (Array.isArray(this._options.styles.include) && !this._options.styles.include.includes('variables'))
+    ) {
       return ''
+    }
 
     let insert = `@${this._options.styles.names.prefix}: '${this._options.prefix}';\n`
 
@@ -139,35 +157,46 @@ export class Styles {
 
   // CSS generation
   private _generate_css() {
-    let insert = this.createSpriteMap((name, svg) => {
-      const selector = `.${this._options.prefix}${name}`
-      let sprite = ''
-      sprite = `${selector} {`
-      sprite += `\n\tbackground: url("${svg.svgDataUri}") center no-repeat;`
-      sprite += '\n}'
-      return sprite
-    })
+    let insert = ''
 
-    insert += this.createSpriteMap((name, svg) => {
-      const selector = `.${this._options.prefix}${name}-mask`
-      let sprite = ''
-      sprite = `${selector} {`
-      sprite += `\n\tmask: url("${svg.svgDataUri}") center no-repeat;`
-      sprite += '\n}'
-      return sprite
-    })
+    if (!this._options.styles || this._options.styles.include === false)
+      return insert
 
-    if (this._options.output && this._options.output.view) {
-      insert += this.createSpriteMap((name) => {
-        const selector = `.${this._options.prefix}${name}-frag`
+    if (this._options.styles.include === true || this._options.styles.include.includes('bg')) {
+      insert = this.createSpriteMap((name, svg) => {
+        const selector = `.${this._options.prefix}${name}`
         let sprite = ''
         sprite = `${selector} {`
-        sprite += `\n\tbackground: url('/${this._options.route}#${
-          this._options.prefix + name
-        }-view') center no-repeat;`
+        sprite += `\n\tbackground: url("${svg.svgDataUri}") center no-repeat;`
         sprite += '\n}'
         return sprite
       })
+    }
+
+    if (this._options.styles.include === true || this._options.styles.include.includes('mask')) {
+      insert += this.createSpriteMap((name, svg) => {
+        const selector = `.${this._options.prefix}${name}-mask`
+        let sprite = ''
+        sprite = `${selector} {`
+        sprite += `\n\tmask: url("${svg.svgDataUri}") center no-repeat;`
+        sprite += '\n}'
+        return sprite
+      })
+    }
+
+    if (this._options.styles.include === true || this._options.styles.include.includes('bg-frag')) {
+      if (this._options.output && this._options.output.view) {
+        insert += this.createSpriteMap((name) => {
+          const selector = `.${this._options.prefix}${name}-frag`
+          let sprite = ''
+          sprite = `${selector} {`
+          sprite += `\n\tbackground: url('/${this._options.route}#${
+            this._options.prefix + name
+          }-view') center no-repeat;`
+          sprite += '\n}'
+          return sprite
+        })
+      }
     }
 
     return insert
