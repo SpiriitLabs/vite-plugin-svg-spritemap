@@ -1,4 +1,4 @@
-import type { StylesLang } from '../src/types'
+import type { OptionsStyles, StylesLang, UserOptions } from '../src/types'
 import { promises as fs } from 'node:fs'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 import { buildVite } from './helper/build'
@@ -20,8 +20,29 @@ beforeAll(async () => {
   }
 })
 
+const styleLanguages: Array<OptionsStyles['lang']> = ['css', 'scss', 'less', 'styl']
+
+const otherStylesIncludes: Array<OptionsStyles['include']> = [
+  true,
+  false,
+  ['mixin'],
+  ['mixin', 'variables'],
+]
+
+const styleIncludes: Record<OptionsStyles['lang'], Array<OptionsStyles['include']>> = {
+  css: [
+    true,
+    false,
+    ['bg'],
+    ['bg', 'mask'],
+  ],
+  less: otherStylesIncludes,
+  scss: otherStylesIncludes,
+  styl: otherStylesIncludes,
+}
+
 describe('styles generation', () => {
-  for (const style of ['css', 'scss', 'less', 'styl']) {
+  for (const style of styleLanguages) {
     it(style, async () => {
       const filename = getPath(`./fixtures/basic/styles/spritemap.${style}`)
 
@@ -50,25 +71,31 @@ describe('styles generation', () => {
     })
   }
 
-  // TODO update this
-  it.skip('includeMixin', async () => {
-    const filename = getPath(`./fixtures/basic/styles/spritemap_includeMixin.scss`)
+  for (const lang in styleIncludes) {
+    if (Object.prototype.hasOwnProperty.call(styleIncludes, lang)) {
+      const includes = styleIncludes[lang]
+      for (const include of includes) {
+        it(`include ${lang} ${JSON.stringify(include)}`, async () => {
+          const filename = getPath(`./fixtures/basic/styles/spritemap_include_${JSON.stringify(include)}.${lang}`)
 
-    await buildVite({
-      name: `styles_includeMixin`,
-      options: {
-        styles: {
-          filename,
-          includeMixin: false,
-        },
-      },
-    })
+          await buildVite({
+            name: `styles_includeMixin`,
+            options: {
+              styles: {
+                filename,
+                include,
+              },
+            },
+          })
 
-    const resultWithString = await fs.readFile(filename, 'utf8')
-    expect(resultWithString).toMatchSnapshot()
-  })
+          const resultWithString = await fs.readFile(filename, 'utf8')
+          expect(resultWithString).toMatchSnapshot()
+        })
+      }
+    }
+  }
 
-  for (const style of ['scss', 'less', 'styl']) {
+  for (const style of styleLanguages.filter(style => style !== 'css')) {
     it(`custom ${style} names`, async () => {
       const filename = getPath(`./fixtures/basic/styles/spritemap_names.${style}`)
 
