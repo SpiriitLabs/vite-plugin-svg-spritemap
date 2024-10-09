@@ -7,6 +7,13 @@ export type Pattern = string[] | string
 
 export type StylesLang = 'less' | 'scss' | 'styl' | 'css'
 
+export interface SvgDataUriMapObject {
+  width: number
+  height: number
+  viewbox: number[]
+  svgDataUri?: string
+}
+
 export interface UserOptions {
   /**
    * Take an SVGO Options object. If true, it will use the default SVGO preset, if false, it will disable SVGO optimization
@@ -34,7 +41,7 @@ export interface UserOptions {
    * @default false
    */
   styles?:
-    | WithOptional<OptionsStyles, 'lang'>
+    | Omit<WithOptional<OptionsStyles, 'lang' | 'include'>, 'names'> & { names?: Partial<OptionsStylesNames> }
     | string
     | false
   /**
@@ -47,6 +54,11 @@ export interface UserOptions {
    * @default false
    */
   injectSVGOnDev?: boolean
+  /**
+   * Change the route allowing multiple instance of the plugin
+   * @default '__spritemap'
+   */
+  route?: string
 }
 
 export interface OptionsOutput {
@@ -83,6 +95,52 @@ export interface OptionsStyles {
    * The CSS processor language
    */
   lang: StylesLang
+  /**
+   * Styles includes
+   * @default true
+   */
+  include: boolean | Array<'variables' | 'mixin' | 'bg' | 'mask' | 'bg-frag'>
+  /**
+   * Names of variables/mixin inside the stylesheet
+   */
+  names: OptionsStylesNames
+  callback?: (
+    ctx: {
+      /**
+       * Content of the generated styles
+       */
+      content: string
+      /**
+       * Plugin options
+       */
+      options: Options
+      /**
+       * Spritemap helper looping inside svg data through a callback
+       */
+      createSpritemap: (
+        generator: (
+          name: string,
+          svg: SvgDataUriMapObject,
+          isLast: boolean
+        ) => string
+      ) => string
+    }
+  ) => string
+}
+
+interface OptionsStylesNames {
+  /**
+   * @default 'sprites-prefix'
+   */
+  prefix: string
+  /**
+   * @default 'sprites'
+   */
+  sprites: string
+  /**
+   * @default 'sprite'
+   */
+  mixin: string
 }
 
 export interface Options {
@@ -92,6 +150,7 @@ export interface Options {
   prefix: string | false
   injectSVGOnDev: boolean
   idify: (name: string, svg: SvgMapObject) => string
+  route: string
 }
 
 export interface SvgMapObject {

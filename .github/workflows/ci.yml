@@ -20,16 +20,14 @@ jobs:
     name: 'Build: node-20, ubuntu-latest'
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
+      - uses: pnpm/action-setup@v4
 
       - name: Set node version to 20
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
@@ -47,7 +45,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node_version: [14, 16, 18, 20]
+        node_version: [18, 20]
         include:
           # Active LTS + other OS
           - os: macos-latest
@@ -57,20 +55,15 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Install pnpm (node 14, pnpm 7)
-        if: matrix.node_version == 14
-        uses: pnpm/action-setup@v2.2.4
+      - uses: actions/checkout@v4
         with:
-          version: 7
+          fetch-depth: 0
 
       - name: Install pnpm
-        if: matrix.node_version != 14
-        uses: pnpm/action-setup@v2.2.4
+        uses: pnpm/action-setup@v4
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: pnpm
@@ -88,9 +81,6 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Install Playwright
-        run: npx playwright install
-
       - name: Test
         run: pnpm test
 
@@ -106,25 +96,20 @@ jobs:
     name: 'Coverage: node-20, ubuntu-latest'
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
+      - uses: pnpm/action-setup@v4
 
       - name: Set node version to 20
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
 
       - name: Install
         run: pnpm install
-
-      - name: Install Playwright
-        run: npx playwright install
 
       - name: Test
         run: pnpm coverage
@@ -139,16 +124,14 @@ jobs:
     name: 'Lint: node-20, ubuntu-latest'
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
+      - uses: pnpm/action-setup@v4
 
       - name: Set node version to 20
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm

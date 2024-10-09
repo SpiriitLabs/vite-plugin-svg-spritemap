@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
 import type { ExternalOption } from 'rollup'
+import { describe, expect, it } from 'vitest'
 import { buildVite } from './helper/build'
 
 const configs: Record<string, ExternalOption | undefined> = {

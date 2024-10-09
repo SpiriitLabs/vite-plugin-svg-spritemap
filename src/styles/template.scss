@@ -1,9 +1,15 @@
-@mixin sprite($name, $include-size: false, $type: 'uri', $mode: 'background') {
-  $sprite: map-get($sprites, $name);
+@mixin __mixin__(
+  $name,
+  $include-size: false,
+  $type: 'uri',
+  $mode: 'background',
+  $route: '__route__'
+) {
+  $sprite: map-get($__sprites__, $name);
   $url: false;
 
   @if $type == 'fragment' {
-    $url: '/__spritemap##{$sprites-prefix}#{$name}-view';
+    $url: '/#{$route}##{$__prefix__}#{$name}-view';
   } @else if $type == 'uri' {
     $url: map-get($sprite, uri);
   } @else {

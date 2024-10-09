@@ -1,14 +1,14 @@
+import type { ResolvedConfig } from 'vite'
+import type { Options, Pattern, SvgMapObject } from './types'
 import { promises as fs } from 'node:fs'
 import { basename, resolve } from 'node:path'
-import fg from 'fast-glob'
-import { optimize } from 'svgo'
 import { DOMImplementation, DOMParser, XMLSerializer } from '@xmldom/xmldom'
+import fg from 'fast-glob'
 import hash_sum from 'hash-sum'
-import type { ResolvedConfig } from 'vite'
-import { Styles } from './styles/styles'
+import { optimize } from 'svgo'
 import { calculateY } from './helpers/calculateY'
 import { cleanAttributes } from './helpers/cleanAttributes'
-import type { Options, Pattern, SvgMapObject } from './types'
+import { Styles } from './styles/styles'
 
 export class SVGManager {
   private _options: Options
@@ -35,13 +35,13 @@ export class SVGManager {
     const document = this._parser.parseFromString(svg, 'image/svg+xml')
     const documentElement = document.documentElement
     let viewBox = (
-      documentElement.getAttribute('viewBox')
-      || documentElement.getAttribute('viewbox')
+      documentElement?.getAttribute('viewBox')
+      || documentElement?.getAttribute('viewbox')
     )
       ?.split(' ')
       .map(a => Number.parseFloat(a))
-    const widthAttr = documentElement.getAttribute('width')
-    const heightAttr = documentElement.getAttribute('height')
+    const widthAttr = documentElement?.getAttribute('width')
+    const heightAttr = documentElement?.getAttribute('height')
     let width = widthAttr ? Number.parseFloat(widthAttr) : undefined
     let height = heightAttr ? Number.parseFloat(heightAttr) : undefined
 
@@ -50,7 +50,7 @@ export class SVGManager {
 
       return
     }
-    if (viewBox && viewBox.length !== 4 && width && height)
+    if ((!viewBox || viewBox.length !== 4) && width && height)
       viewBox = [0, 0, width, height]
 
     if (!width && viewBox)
@@ -95,7 +95,7 @@ export class SVGManager {
   }
 
   get spritemap() {
-    const DOM = new DOMImplementation().createDocument(null, null, null)
+    const DOM = new DOMImplementation().createDocument(null, '', null)
     const Serializer = new XMLSerializer()
     const spritemap = DOM.createElement('svg')
     spritemap.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
@@ -117,10 +117,12 @@ export class SVGManager {
       const symbol = DOM.createElement('symbol')
       const document = parser.parseFromString(svg.source, 'image/svg+xml')
       const documentElement = document.documentElement
-      let attributes = cleanAttributes(
-        Array.from(documentElement.attributes),
-        'symbol',
-      )
+      let attributes = documentElement
+        ? cleanAttributes(
+          Array.from(documentElement.attributes),
+          'symbol',
+        )
+        : []
 
       // spritemap attributes
       attributes.forEach((attr) => {
@@ -137,9 +139,12 @@ export class SVGManager {
       symbol.setAttribute('viewBox', svg.viewBox.join(' '))
 
       // add childs
-      Array.from(documentElement.childNodes).forEach((child) => {
-        symbol.appendChild(child)
-      })
+      if (documentElement) {
+        Array.from(documentElement.childNodes).forEach((child) => {
+          if (child)
+            symbol.appendChild(child)
+        })
+      }
 
       spritemap.appendChild(symbol)
       const y = calculateY(sizes.height)
@@ -157,10 +162,12 @@ export class SVGManager {
       // view
       if (this._options.output && this._options.output.view) {
         const view = DOM.createElement('view')
-        attributes = cleanAttributes(
-          Array.from(documentElement.attributes),
-          'view',
-        )
+        attributes = documentElement && documentElement.attributes
+          ? cleanAttributes(
+            Array.from(documentElement.attributes),
+            'view',
+          )
+          : []
         attributes.forEach((attr) => {
           view.setAttribute(attr.name, attr.value)
         })

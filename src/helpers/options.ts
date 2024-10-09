@@ -1,4 +1,4 @@
-import type { Options, StylesLang, UserOptions } from '../types'
+import type { Options, OptionsStyles, StylesLang, UserOptions } from '../types'
 
 export function createOptions(options: UserOptions = {}): Options {
   let prefix: Options['prefix'] = 'sprite-'
@@ -33,7 +33,6 @@ export function createOptions(options: UserOptions = {}): Options {
   const stylesLang = ['css', 'scss', 'less', 'styl']
   if (typeof options.styles === 'string') {
     let lang = options.styles.split('.').pop() as StylesLang | undefined
-    const stylesLang = ['css', 'scss', 'less', 'styl']
 
     if (typeof lang === 'undefined' || !stylesLang.includes(lang)) {
       lang = 'css'
@@ -46,17 +45,39 @@ export function createOptions(options: UserOptions = {}): Options {
     styles = {
       filename: options.styles,
       lang,
+      include: true,
+      names: {
+        prefix: 'sprites-prefix',
+        sprites: 'sprites',
+        mixin: 'sprite',
+      },
     }
   }
   else if (
     typeof options.styles === 'object'
     && typeof options.styles.filename === 'string'
-    && typeof options.styles.lang === 'string'
-    && stylesLang.includes(options.styles.lang)
   ) {
+    const stylesNames: OptionsStyles['names'] = {
+      prefix: options.styles.names?.prefix || 'sprites-prefix',
+      sprites: options.styles.names?.sprites || 'sprites',
+      mixin: options.styles.names?.mixin || 'sprite',
+    }
+
+    let lang = options.styles.filename.split('.').pop() as StylesLang | undefined
+    if (typeof lang === 'undefined' || !stylesLang.includes(lang)) {
+      lang = 'css'
+      console.warn(
+        '[vite-plugin-spritemap]',
+        'Invalid styles lang, fallback to css',
+      )
+    }
+
     styles = {
       filename: options.styles.filename,
-      lang: options.styles.lang,
+      lang,
+      include: typeof options.styles.include === 'undefined' ? true : options.styles.include,
+      names: stylesNames,
+      callback: options.styles.callback,
     }
   }
 
@@ -95,6 +116,10 @@ export function createOptions(options: UserOptions = {}): Options {
   if (typeof options.idify === 'function')
     idify = options.idify
 
+  let route = '__spritemap'
+  if (typeof options.route === 'string')
+    route = options.route
+
   return {
     svgo,
     output,
@@ -102,5 +127,6 @@ export function createOptions(options: UserOptions = {}): Options {
     styles,
     injectSVGOnDev,
     idify,
+    route,
   } satisfies Options
 }

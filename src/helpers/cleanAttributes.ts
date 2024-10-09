@@ -1,3 +1,4 @@
+import type { Attr } from '@xmldom/xmldom'
 import { svgElementAttributes } from 'svg-element-attributes'
 
 export function cleanAttributes(attributes: Attr[], tag: string): Attr[] {

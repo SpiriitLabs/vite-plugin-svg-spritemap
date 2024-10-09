@@ -1,9 +1,9 @@
-import { writeFile } from 'node:fs/promises'
 import type { Browser } from 'playwright'
-import { chromium } from 'playwright'
-import { beforeAll, describe, expect, it } from 'vitest'
 import type { ViteDevServer } from 'vite'
+import { writeFile } from 'node:fs/promises'
+import { chromium } from 'playwright'
 import { createServer } from 'vite'
+import { beforeAll, describe, expect, it } from 'vitest'
 import VitePluginSvgSpritemap from '../src/index'
 import { getPath } from './helper/path'
 
@@ -42,9 +42,9 @@ describe('dev server', () => {
     const page = await browser.newPage()
     await page.goto('http://localhost:5173')
     const test
-      = '<script type="module" src="/@vite-plugin-svg-spritemap/client"></script>'
+      = '<script type="module" src="/@vite-plugin-svg-spritemap/client__spritemap"></script>'
     const result = await page.content()
-    page.close()
+    await page.close()
     expect(result.includes(test)).toBeTruthy()
   })
 
@@ -52,9 +52,9 @@ describe('dev server', () => {
     const page = await browser.newPage()
     await page.goto('http://localhost:5173')
     const result = await page.content()
-    page.close()
+    await page.close()
     expect(
-      /<use xlink:href="__spritemap__.*#.*"><\/use>/.test(result),
+      /<use xlink:href="__spritemap__[^\n\r#\u2028\u2029]*#.*"><\/use>/.test(result),
     ).toBeTruthy()
   })
 
@@ -62,7 +62,7 @@ describe('dev server', () => {
     const page = await browser.newPage()
     await page.goto('http://localhost:5173/__spritemap')
     const result = await page.content()
-    page.close()
+    await page.close()
     expect(result).toMatchSnapshot()
   })
 
@@ -84,6 +84,6 @@ describe('dev server', () => {
     await page.waitForResponse(response =>
       response.url().includes('/spritemap.css'),
     )
-    page.close()
+    await page.close()
   })
 })

@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
 import type { UserOptions } from '../src/types'
+import { describe, expect, it } from 'vitest'
 import { buildVite } from './helper/build'
 
 const outputConfigs: Record<string, UserOptions['output']> = {
@@ -72,26 +72,26 @@ describe('output generation', () => {
 
           if (check.use) {
             expect(
-              /<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" xmlns:xlink="http:\/\/www\.w3\.org\/1999\/xlink">/gm.test(
+              /<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" xmlns:xlink="http:\/\/www\.w3\.org\/1999\/xlink">/.test(
                 source,
               ),
             ).toBeTruthy()
           }
           else {
             expect(
-              /<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg">/gm.test(source),
+              /<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg">/.test(source),
             ).toBeTruthy()
           }
 
           expect(
-            /<symbol .* id=".*" .*>.*<\/symbol>/gm.test(source),
+            /<symbol .* id=".*" [^\n\r>\u2028\u2029]*>.*<\/symbol>/.test(source),
           ).toBeTruthy()
 
           if (check.use)
-            expect(/<use .* xlink:href="#.*" .*\/>/gm.test(source)).toBeTruthy()
+            expect(/<use .* xlink:href="#.*" .*\/>/.test(source)).toBeTruthy()
 
           if (check.view)
-            expect(/<view .* id=".*" .*\/>/gm.test(source)).toBeTruthy()
+            expect(/<view .* id=".*" .*\/>/.test(source)).toBeTruthy()
         }
       })
     }

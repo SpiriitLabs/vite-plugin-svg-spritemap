@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import SpiriitView from './../../_fixtures/icons/spiriit.svg?view'
 import SpiriitUse from './../../_fixtures/icons/spiriit.svg?use'
-import ViteView from './../../_fixtures/icons/vite.svg?view'
+import SpiriitView from './../../_fixtures/icons/spiriit.svg?view'
 import ViteUse from './../../_fixtures/icons/vite.svg?use'
+import ViteView from './../../_fixtures/icons/vite.svg?view'
 </script>
 
 <template>

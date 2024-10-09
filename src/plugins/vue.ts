@@ -1,7 +1,7 @@
-import { parse } from 'node:path'
 import type { Plugin, ResolvedConfig } from 'vite'
-import { SVGManager } from '../svgManager'
 import type { Options, Pattern } from '../types'
+import { parse } from 'node:path'
+import { SVGManager } from '../svgManager'
 
 export default function VuePlugin(iconsPattern: Pattern, options: Options): Plugin {
   const filterVueComponent = /\.svg\?(use|view)?$/
@@ -36,10 +36,10 @@ export default function VuePlugin(iconsPattern: Pattern, options: Options): Plug
       else if (query === 'view') {
         const width = svg?.width ? `width="${Math.ceil(svg.width)}"` : ''
         const height = svg?.width ? `height="${Math.ceil(svg.height)}"` : ''
-        source = `<img src="/__spritemap#${options.prefix}${name}-view" ${[width, height].filter(item => item.length > 0).join(' ')}/>`
+        source = `<img src="/${options.route}#${options.prefix}${name}-view" ${[width, height].filter(item => item.length > 0).join(' ')}/>`
       }
       else {
-        source = `<svg><slot/><use xlink:href="/__spritemap#${options.prefix}${name}"></use></svg>`
+        source = `<svg><slot/><use xlink:href="/${options.route}#${options.prefix}${name}"></use></svg>`
       }
 
       const { compileTemplate } = await import('vue/compiler-sfc')

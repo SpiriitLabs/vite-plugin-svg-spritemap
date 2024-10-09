@@ -1,9 +1,9 @@
 import type { Plugin } from 'vite'
 import type { Pattern, UserOptions } from './types'
+import { createOptions } from './helpers/options'
 import BuildPlugin from './plugins/build'
 import DevPlugin from './plugins/dev'
 import VuePlugin from './plugins/vue'
-import { createOptions } from './helpers/options'
 
 export default function VitePluginSvgSpritemap(
   iconsPattern: Pattern,
