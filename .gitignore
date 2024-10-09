@@ -9,3 +9,5 @@ demo/server/public
 .nitro
 test/fixtures/basic/styles/*
 !test/fixtures/basic/styles/.gitkeep
+demo/_fixtures/scss/spritemap.scss
+demo/_fixtures/scss/spritemap-flags.scss
