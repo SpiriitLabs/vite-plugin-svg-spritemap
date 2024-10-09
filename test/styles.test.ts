@@ -161,7 +161,7 @@ describe('styles generation', () => {
       name: `styles_gen_warn`,
       options: {
         styles: {
-          filename: getPath('./fixtures/basic/styles/spritemap')
+          filename: getPath('./fixtures/basic/styles/spritemap'),
         },
       },
     })

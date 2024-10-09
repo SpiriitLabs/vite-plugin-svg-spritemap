@@ -21,7 +21,7 @@ const outputConfigs: Record<string, UserOptions['output']> = {
     filename: 'spritemap.[hash][extname]',
     use: true,
     view: false,
-  }
+  },
 }
 
 const outputManifestConfigs: Record<string, UserOptions['output']> = {
