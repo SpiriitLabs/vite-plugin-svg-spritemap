@@ -81,6 +81,9 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Install Playwright
+        run: npx playwright install
+
       - name: Test
         run: pnpm test
 
@@ -110,6 +113,9 @@ jobs:
 
       - name: Install
         run: pnpm install
+
+      - name: Install Playwright
+        run: npx playwright install
 
       - name: Test
         run: pnpm coverage
