@@ -157,10 +157,19 @@ describe('styles generation', () => {
         styles: getPath('./fixtures/basic/styles/spritemap'),
       },
     })
-    const calls = spy.mock.calls[0]
-    expect(calls).toStrictEqual([
-      '[vite-plugin-spritemap]',
-      'Invalid styles lang, fallback to css',
-    ])
+    await buildVite({
+      name: `styles_gen_warn`,
+      options: {
+        styles: {
+          filename: getPath('./fixtures/basic/styles/spritemap'),
+        },
+      },
+    })
+    for (const call of spy.mock.calls) {
+      expect(call).toStrictEqual([
+        '[vite-plugin-spritemap]',
+        'Invalid styles lang, fallback to css',
+      ])
+    }
   })
 })

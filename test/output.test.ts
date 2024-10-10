@@ -6,6 +6,7 @@ const outputConfigs: Record<string, UserOptions['output']> = {
   default: true,
   false: false,
   string: 'spritemap.[hash][extname]',
+  object: {},
   object_with_default: {
     filename: 'spritemap.[hash][extname]',
     use: true,
@@ -19,11 +20,6 @@ const outputConfigs: Record<string, UserOptions['output']> = {
   object_with_only_use: {
     filename: 'spritemap.[hash][extname]',
     use: true,
-    view: false,
-  },
-  object_with_only_symbol: {
-    filename: 'spritemap.[hash][extname]',
-    use: false,
     view: false,
   },
 }
