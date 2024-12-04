@@ -1,4 +1,5 @@
 import type { Options, OptionsStyles, StylesLang, UserOptions } from '../types'
+import { check } from './svgo'
 
 export function createOptions(options: UserOptions = {}): Options {
   let prefix: Options['prefix'] = 'sprite-'
@@ -26,8 +27,21 @@ export function createOptions(options: UserOptions = {}): Options {
       },
     ],
   }
-  if (typeof options.svgo === 'object' || options.svgo === false)
-    svgo = options.svgo
+
+  const checkSvgo = check()
+  options.svgo = typeof options.svgo === 'undefined' ? checkSvgo : options.svgo
+  if (typeof options.svgo === 'object' || options.svgo === false) {
+    if (!checkSvgo) {
+      console.warn(
+        '[vite-plugin-spritemap]',
+        'Please install the svgo package to use the svgo optimization.',
+      )
+      svgo = false
+    }
+    else {
+      svgo = options.svgo
+    }
+  }
 
   let styles: Options['styles'] = false
   const stylesLang = ['css', 'scss', 'less', 'styl']

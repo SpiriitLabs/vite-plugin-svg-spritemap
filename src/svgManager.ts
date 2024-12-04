@@ -5,9 +5,9 @@ import { basename, resolve } from 'node:path'
 import { DOMImplementation, DOMParser, XMLSerializer } from '@xmldom/xmldom'
 import fg from 'fast-glob'
 import hash_sum from 'hash-sum'
-import { optimize } from 'svgo'
 import { calculateY } from './helpers/calculateY'
 import { cleanAttributes } from './helpers/cleanAttributes'
+import { getOptimize } from './helpers/svgo'
 import { Styles } from './styles/styles'
 
 export class SVGManager {
@@ -63,9 +63,12 @@ export class SVGManager {
       return
 
     if (typeof this._options.svgo === 'object') {
-      const optimizedSvg = optimize(svg, this._options.svgo)
-      if ('data' in optimizedSvg)
-        svg = optimizedSvg.data
+      const optimize = await getOptimize()
+      if (optimize) {
+        const optimizedSvg = optimize(svg, this._options.svgo)
+        if ('data' in optimizedSvg)
+          svg = optimizedSvg.data
+      }
     }
 
     this._svgs.set(name, {

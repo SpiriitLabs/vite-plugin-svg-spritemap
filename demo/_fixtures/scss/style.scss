@@ -1,5 +1,7 @@
-@import './spritemap.scss';
-@import './spritemap-flags.scss';
+@use "sass:map";
+
+@use './spritemap.scss' as *;
+@use './spritemap-flags.scss';
 
 body {
   background-color: #ddd;
@@ -35,8 +37,8 @@ body {
   @each $name, $sprite in $sprites {
     &-#{$name},
     &-#{$name}-mask {
-      width: map-get($sprite, 'width');
-      height: map-get($sprite, 'height');
+      width: map.get($sprite, 'width');
+      height: map.get($sprite, 'height');
     }
   }
 

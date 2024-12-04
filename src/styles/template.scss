@@ -1,3 +1,5 @@
+@use "sass:map";
+
 @mixin __mixin__(
   $name,
   $include-size: false,
@@ -5,13 +7,13 @@
   $mode: 'background',
   $route: '__route__'
 ) {
-  $sprite: map-get($__sprites__, $name);
+  $sprite: map.get($__sprites__, $name);
   $url: false;
 
   @if $type == 'fragment' {
     $url: '/#{$route}##{$__prefix__}#{$name}-view';
   } @else if $type == 'uri' {
-    $url: map-get($sprite, uri);
+    $url: map.get($sprite, uri);
   } @else {
     @error 'sprite(): $type must be either "fragment" or "uri"';
   }
@@ -21,10 +23,10 @@
 
     @if $include-size {
       @if $include-size == true {
-        #{$mode}-size: map-get($sprite, width) map-get($sprite, height);
+        #{$mode}-size: map.get($sprite, width) map.get($sprite, height);
       } @else if $include-size == 'box' {
-        width: map-get($sprite, width);
-        height: map-get($sprite, height);
+        width: map.get($sprite, width);
+        height: map.get($sprite, height);
       }
     }
   }
