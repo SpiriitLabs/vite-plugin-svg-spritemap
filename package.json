@@ -67,6 +67,9 @@
     "vue": "^3.0.0"
   },
   "peerDependenciesMeta": {
+    "svgo": {
+      "optional": true
+    },
     "vue": {
       "optional": true
     }
