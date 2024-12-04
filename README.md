@@ -2,7 +2,7 @@
 
 # vite-plugin-svg-spritemap
 
-> This plugin supports Vite 4 and 5.
+> This plugin supports Vite 5 and 6.
 
 This ViteJS plugin generates a single SVG [spritemap](https://css-tricks.com/svg-sprites-use-better-icon-fonts/) with `<symbol>`/`<view>`/`<use>` for each SVG files. It can also generate a stylesheet (CSS/SCSS/Stylus/Less) containing the sprites to be used directly (via a Data URI or SVG fragments).
 
