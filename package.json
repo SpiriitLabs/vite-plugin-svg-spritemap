@@ -59,7 +59,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit --skipLibCheck",
-    "prepublishOnly": "pnpm build"
+    "prepublishOnly": "pnpm build",
+    "attw": "pnpm -s dlx @arethetypeswrong/cli --profile node16 --ignore-rules cjs-resolves-to-esm --pack ."
   },
   "peerDependencies": {
     "svgo": "^3.0.0",
@@ -75,7 +76,7 @@
     }
   },
   "dependencies": {
-    "@xmldom/xmldom": "^0.9.5",
+    "@xmldom/xmldom": "^0.9.6",
     "fast-glob": "^3.3.2",
     "hash-sum": "^2.0.0",
     "mini-svg-data-uri": "^1.4.4"
