@@ -18,7 +18,6 @@ export interface UserOptions {
   /**
    * Take an SVGO Options object. If true, it will use the default SVGO preset, if false, it will disable SVGO optimization
    * @see https://github.com/svg/svgo#default-preset
-   * @default true
    */
   svgo?: boolean | SvgoConfig
   /**
@@ -52,8 +51,14 @@ export interface UserOptions {
   /**
    * Inject the SVG Spritemap inside the body on dev
    * @default false
+   * @deprecated Use injectSvgOnDev instead
    */
   injectSVGOnDev?: boolean
+  /**
+   * Inject the SVG Spritemap inside the body on dev
+   * @default false
+   */
+  injectSvgOnDev?: boolean
   /**
    * Change the route allowing multiple instance of the plugin
    * @default '__spritemap'
@@ -144,11 +149,11 @@ interface OptionsStylesNames {
 }
 
 export interface Options {
-  svgo: SvgoConfig | false
+  svgo?: boolean | SvgoConfig
   styles: OptionsStyles | false
   output: OptionsOutput | false
-  prefix: string | false
-  injectSVGOnDev: boolean
+  prefix: string
+  injectSvgOnDev: boolean
   idify: (name: string, svg: SvgMapObject) => string
   route: string
 }

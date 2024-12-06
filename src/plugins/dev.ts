@@ -79,7 +79,7 @@ export default function DevPlugin(iconsPattern: Pattern, options: Options): Plug
         event,
         data: {
           id: svgManager.hash,
-          spritemap: options.injectSVGOnDev ? svgManager.spritemap : '',
+          spritemap: options.injectSvgOnDev ? svgManager.spritemap : '',
         },
       })
     },
@@ -133,13 +133,13 @@ export default function DevPlugin(iconsPattern: Pattern, options: Options): Plug
     }`
 
     return `console.debug('[vite-plugin-svg-spritemap]', 'connected.')
-      ${options.injectSVGOnDev ? injectSvg : ''}
-      ${options.injectSVGOnDev ? `injectSvg(${JSON.stringify({ spritemap })})` : ''}
+      ${options.injectSvgOnDev ? injectSvg : ''}
+      ${options.injectSvgOnDev ? `injectSvg(${JSON.stringify({ spritemap })})` : ''}
       if (import.meta.hot) {
         import.meta.hot.on('${event}', data => {
           console.debug('[vite-plugin-svg-spritemap]', 'update')
           ${updateElements}
-          ${options.injectSVGOnDev ? 'injectSvg(data)' : ''}
+          ${options.injectSvgOnDev ? 'injectSvg(data)' : ''}
         })
       }`
   }

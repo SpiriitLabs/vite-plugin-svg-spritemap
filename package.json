@@ -2,7 +2,7 @@
   "name": "@spiriit/vite-plugin-svg-spritemap",
   "type": "module",
   "version": "3.0.0",
-  "packageManager": "pnpm@9.14.4",
+  "packageManager": "pnpm@9.15.0",
   "description": "Generates symbol-based SVG spritemap from all .svg files in a directory",
   "author": "Spiriit",
   "license": "MIT",
@@ -91,12 +91,12 @@
     "c8": "^10.1.2",
     "eslint": "^9.16.0",
     "playwright": "^1.49.0",
-    "rollup": "^4.28.0",
+    "rollup": "^4.28.1",
     "svg-element-attributes": "^2.1.0",
     "svgo": "^3.3.2",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
-    "vite": "^6.0.2",
+    "vite": "^6.0.3",
     "vitest": "^2.1.8",
     "vue": "^3.5.13"
   }

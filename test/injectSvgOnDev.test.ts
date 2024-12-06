@@ -26,7 +26,7 @@ beforeAll(async () => {
     plugins: [
       VitePluginSvgSpritemap(getPath('./fixtures/basic/svg/*.svg'), {
         styles: getPath('./fixtures/basic/styles/spritemap.css'),
-        injectSVGOnDev: true,
+        injectSvgOnDev: true,
       }),
     ],
   })
@@ -46,7 +46,7 @@ afterEach(async () => {
   await page.close()
 })
 
-describe('injectSVGOnDev', () => {
+describe('injectSvgOnDev', () => {
   it('has SVG injected', async () => {
     await page.goto('http://localhost:3000')
     const wrapper = page.locator('#vite-plugin-svg-spritemap')

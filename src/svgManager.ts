@@ -1,3 +1,4 @@
+import type { Config as SvgoConfig } from 'svgo'
 import type { ResolvedConfig } from 'vite'
 import type { Options, Pattern, SvgMapObject } from './types'
 import { promises as fs } from 'node:fs'
@@ -7,7 +8,7 @@ import fg from 'fast-glob'
 import hash_sum from 'hash-sum'
 import { calculateY } from './helpers/calculateY'
 import { cleanAttributes } from './helpers/cleanAttributes'
-import { getOptimize } from './helpers/svgo'
+import { getOptimize, getOptions } from './helpers/svgo'
 import { Styles } from './styles/styles'
 
 export class SVGManager {
@@ -17,6 +18,8 @@ export class SVGManager {
   private _iconsPattern: Pattern
   private _config: ResolvedConfig
   public hash: string | null = null
+  private _optimizeOptions: SvgoConfig | false = false
+  private _optimize: Awaited<ReturnType<typeof getOptimize>> | null = null
 
   constructor(iconsPattern: Pattern, options: Options, config: ResolvedConfig) {
     this._parser = new DOMParser()
@@ -24,6 +27,7 @@ export class SVGManager {
     this._svgs = new Map()
     this._iconsPattern = iconsPattern
     this._config = config
+    this._optimizeOptions = getOptions(typeof this._options.svgo === 'undefined' ? true : this._options.svgo, this._options.prefix)
   }
 
   async update(filePath: string, loop = false) {
@@ -62,10 +66,16 @@ export class SVGManager {
     if (!width || !height || !viewBox)
       return
 
-    if (typeof this._options.svgo === 'object') {
-      const optimize = await getOptimize()
-      if (optimize) {
-        const optimizedSvg = optimize(svg, this._options.svgo)
+    if (this._optimize === null) {
+      this._optimize = await getOptimize()
+      if (this._options.svgo && !this._optimize) {
+        this._config.logger.warn(`[vite-plugin-svg-spritemap] You need to install SVGO to be able to optimize your SVG with it.`)
+      }
+    }
+
+    if (this._optimize) {
+      if (this._optimizeOptions) {
+        const optimizedSvg = this._optimize(svg, this._optimizeOptions)
         if ('data' in optimizedSvg)
           svg = optimizedSvg.data
       }

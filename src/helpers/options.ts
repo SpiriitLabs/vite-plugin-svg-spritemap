@@ -1,5 +1,4 @@
 import type { Options, OptionsStyles, StylesLang, UserOptions } from '../types'
-import { check } from './svgo'
 
 export function createOptions(options: UserOptions = {}): Options {
   let prefix: Options['prefix'] = 'sprite-'
@@ -7,41 +6,6 @@ export function createOptions(options: UserOptions = {}): Options {
     prefix = ''
   else if (typeof options.prefix === 'string')
     prefix = options.prefix
-
-  // Default svgo options
-  let svgo: Options['svgo'] = {
-    plugins: [
-      {
-        name: 'preset-default',
-        params: {
-          overrides: {
-            removeViewBox: false,
-            removeEmptyAttrs: false,
-            moveGroupAttrsToElems: false,
-            collapseGroups: false,
-            cleanupIds: {
-              preservePrefixes: [prefix],
-            },
-          },
-        },
-      },
-    ],
-  }
-
-  const checkSvgo = check()
-  options.svgo = typeof options.svgo === 'undefined' ? checkSvgo : options.svgo
-  if (typeof options.svgo === 'object' || options.svgo === false) {
-    if (!checkSvgo) {
-      console.warn(
-        '[vite-plugin-spritemap]',
-        'Please install the svgo package to use the svgo optimization.',
-      )
-      svgo = false
-    }
-    else {
-      svgo = options.svgo
-    }
-  }
 
   let styles: Options['styles'] = false
   const stylesLang = ['css', 'scss', 'less', 'styl']
@@ -122,7 +86,7 @@ export function createOptions(options: UserOptions = {}): Options {
     }
   }
 
-  const injectSVGOnDev = options.injectSVGOnDev || false
+  const injectSvgOnDev = options.injectSvgOnDev || options.injectSVGOnDev || false
 
   // Idify
   let idify: UserOptions['idify'] = name => prefix + name
@@ -135,11 +99,11 @@ export function createOptions(options: UserOptions = {}): Options {
     route = options.route
 
   return {
-    svgo,
+    svgo: options.svgo,
     output,
     prefix,
     styles,
-    injectSVGOnDev,
+    injectSvgOnDev,
     idify,
     route,
   } satisfies Options
