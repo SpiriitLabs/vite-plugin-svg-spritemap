@@ -17,7 +17,7 @@ export default defineConfig({
       './../_fixtures/icons/*.svg',
       {
         prefix: 'icon-',
-        injectSVGOnDev: true,
+        injectSvgOnDev: true,
       },
     ),
     Inspect(),

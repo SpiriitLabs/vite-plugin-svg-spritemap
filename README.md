@@ -2,7 +2,7 @@
 
 # vite-plugin-svg-spritemap
 
-> This plugin supports Vite 4 and 5.
+> This plugin supports Vite 5 and 6.
 
 This ViteJS plugin generates a single SVG [spritemap](https://css-tricks.com/svg-sprites-use-better-icon-fonts/) with `<symbol>`/`<view>`/`<use>` for each SVG files. It can also generate a stylesheet (CSS/SCSS/Stylus/Less) containing the sprites to be used directly (via a Data URI or SVG fragments).
 
@@ -23,12 +23,15 @@ The plugin outputs can be fully configurable through [options](#🛠-options).
 
 ```shell
 npm i -D @spiriit/vite-plugin-svg-spritemap
+npm i -D svgo #if you need svgo optimization
 
 # yarn
 yarn add -D @spiriit/vite-plugin-svg-spritemap
+yarn add -D svgo #if you need svgo optimization
 
 # pnpm
 pnpm add -D @spiriit/vite-plugin-svg-spritemap
+pnpm add -D svgo #if you need svgo optimization
 ```
 
 ## 👨‍💻 Usage
@@ -246,7 +249,7 @@ ViteJS allows to be use to [serve assets](https://vitejs.dev/guide/backend-integ
 > [!IMPORTANT]
 > To make `vite-plugin-svg-spritemap` works with this kind of environnment, you will need to handle the right url inside your backend if you are on dev or build.
 
-For example, with `<use>` on dev, using direcly the id of the svg (with the `injectSVGOnDev` option).
+For example, with `<use>` on dev, using direcly the id of the svg (with the `injectSvgOnDev` option).
 
 ```html
 <svg>
@@ -261,7 +264,7 @@ And in prod, by putting the correct URL manually thanks to [the manifest.json fi
 </svg>
 ```
 
-To prevent [CORS issue with SVG](https://oreillymedia.github.io/Using_SVG/extras/ch10-cors.html) and `<use>`, you can use the `injectSVGOnDev` option. Don't forget to add the HMR script directly above you close body.
+To prevent [CORS issue with SVG](https://oreillymedia.github.io/Using_SVG/extras/ch10-cors.html) and `<use>`, you can use the `injectSvgOnDev` option. Don't forget to add the HMR script directly above you close body.
 
 ```html
 <script type="module" src="http://localhost:5173/@vite-plugin-svg-spritemap/client"></script>
@@ -298,8 +301,8 @@ The first argument is a glob path (using [fast-glob](https://github.com/mrmlnc/f
 | output         | `boolean` or `object` or `string`   | `true`  | As a string, set the destination of the file (see [output.filename](#output)).<br> For more control, see [output](#output).<br> Set to false to disable output. |
 | styles         | `false` or `object` or `string`     | `false` | File destination like `src/css/spritemap.css` or [styles object](#styles) |
 | prefix         | `string` or `false`  | `sprite-`    | Define the prefix uses for sprite id in `<symbol>`/`<use>`/`<view>`.<br> Set to false to disable the prefix |
-| svgo           | `boolean` or `object`     | `true`  | Take an SVGO Options object.<br> If `true`, it will use the [default SVGO preset](https://github.com/svg/svgo#default-preset), if `false`, it will disable SVGO optimization |
-| injectSVGOnDev | `boolean`  | `false`   | Inject the SVG Spritemap inside the body on dev |
+| svgo           | `boolean` or `object`     | `false` if SVGO not installed, `true` if SVGO is installed  | Take an SVGO Options object.<br> If `true`, it will use the [default SVGO preset](https://github.com/svg/svgo#default-preset), if `false`, it will disable SVGO optimization |
+| injectSvgOnDev | `boolean`  | `false`   | Inject the SVG Spritemap inside the body on dev |
 | idify          | `(name:string, svg:object) => string`   | `name => options.prefix + name` | Function allowing to customize the id of each symbol of the spritemap svg. |
 | route          | `string`   | `__spritemap` | Change the route name allowing you to have multiple instance of the plugin |
 
@@ -346,7 +349,7 @@ export default {
           },
         ],
       },
-      injectSVGOnDev: true,
+      injectSvgOnDev: true,
       idefy: (name, svg) => `icon-${name}-cheese`,
       styles: {
         lang: 'scss',

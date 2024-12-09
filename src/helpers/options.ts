@@ -7,28 +7,6 @@ export function createOptions(options: UserOptions = {}): Options {
   else if (typeof options.prefix === 'string')
     prefix = options.prefix
 
-  // Default svgo options
-  let svgo: Options['svgo'] = {
-    plugins: [
-      {
-        name: 'preset-default',
-        params: {
-          overrides: {
-            removeViewBox: false,
-            removeEmptyAttrs: false,
-            moveGroupAttrsToElems: false,
-            collapseGroups: false,
-            cleanupIds: {
-              preservePrefixes: [prefix],
-            },
-          },
-        },
-      },
-    ],
-  }
-  if (typeof options.svgo === 'object' || options.svgo === false)
-    svgo = options.svgo
-
   let styles: Options['styles'] = false
   const stylesLang = ['css', 'scss', 'less', 'styl']
   if (typeof options.styles === 'string') {
@@ -108,7 +86,7 @@ export function createOptions(options: UserOptions = {}): Options {
     }
   }
 
-  const injectSVGOnDev = options.injectSVGOnDev || false
+  const injectSvgOnDev = options.injectSvgOnDev || options.injectSVGOnDev || false
 
   // Idify
   let idify: UserOptions['idify'] = name => prefix + name
@@ -121,11 +99,11 @@ export function createOptions(options: UserOptions = {}): Options {
     route = options.route
 
   return {
-    svgo,
+    svgo: options.svgo,
     output,
     prefix,
     styles,
-    injectSVGOnDev,
+    injectSvgOnDev,
     idify,
     route,
   } satisfies Options
