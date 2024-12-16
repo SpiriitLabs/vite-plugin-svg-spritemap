@@ -1,6 +1,6 @@
 import { promises as fs } from 'node:fs'
 import { resolve } from 'node:path'
-import fg from 'fast-glob'
+import { glob } from 'tinyglobby'
 import { defineConfig } from 'tsup'
 
 export default defineConfig({
@@ -11,7 +11,7 @@ export default defineConfig({
   async onSuccess() {
     // Add styles templates for css generation
     const styles = async () => {
-      const files = await fg('src/styles/*.(scss|styl|less)')
+      const files = await glob('src/styles/*.(scss|styl|less)')
       for (const file of files)
         await fs.copyFile(file, file.replace('src/styles', 'dist/'))
     }
