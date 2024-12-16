@@ -4,8 +4,8 @@ import type { Options, Pattern, SvgMapObject } from './types'
 import { promises as fs } from 'node:fs'
 import { basename, resolve } from 'node:path'
 import { DOMImplementation, DOMParser, XMLSerializer } from '@xmldom/xmldom'
-import fg from 'fast-glob'
 import hash_sum from 'hash-sum'
+import { glob } from 'tinyglobby'
 import { calculateY } from './helpers/calculateY'
 import { cleanAttributes } from './helpers/cleanAttributes'
 import { getOptimize, getOptions } from './helpers/svgo'
@@ -96,7 +96,7 @@ export class SVGManager {
   }
 
   async updateAll() {
-    const iconsPath = await fg(this._iconsPattern)
+    const iconsPath = await glob(this._iconsPattern)
 
     for (let index = 0; index < iconsPath.length; index++) {
       const iconPath = iconsPath[index]
@@ -132,9 +132,9 @@ export class SVGManager {
       const documentElement = document.documentElement
       let attributes = documentElement
         ? cleanAttributes(
-          Array.from(documentElement.attributes),
-          'symbol',
-        )
+            Array.from(documentElement.attributes),
+            'symbol',
+          )
         : []
 
       // spritemap attributes
@@ -177,9 +177,9 @@ export class SVGManager {
         const view = DOM.createElement('view')
         attributes = documentElement && documentElement.attributes
           ? cleanAttributes(
-            Array.from(documentElement.attributes),
-            'view',
-          )
+              Array.from(documentElement.attributes),
+              'view',
+            )
           : []
         attributes.forEach((attr) => {
           view.setAttribute(attr.name, attr.value)
