@@ -60,7 +60,10 @@
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit --skipLibCheck",
     "prepublishOnly": "pnpm build",
-    "attw": "pnpm -s dlx @arethetypeswrong/cli --profile node16 --ignore-rules cjs-resolves-to-esm --pack ."
+    "attw": "pnpm -s dlx @arethetypeswrong/cli --profile node16 --ignore-rules cjs-resolves-to-esm --pack .",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "peerDependencies": {
     "svgo": "^3.0.0",
@@ -94,10 +97,11 @@
     "rollup": "^4.34.8",
     "svg-element-attributes": "^2.1.0",
     "svgo": "^3.3.2",
-    "tsup": "^8.4.0",
-    "typescript": "^5.7.3",
-    "vite": "^6.2.0",
-    "vitest": "^3.0.7",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.3",
+    "vitepress": "^1.6.3",
+    "vitest": "^2.1.8",
     "vue": "^3.5.13"
   }
 }
