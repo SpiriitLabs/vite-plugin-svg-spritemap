@@ -9,7 +9,7 @@ If you have any problem to configure the plugin. You can check the demo folder o
   - [Stylus](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/tree/main/demo/_fixtures/stylus/)
 
 - [Nuxt](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/tree/main/demo/nuxt) framework with VueJS components usage
-- [Server](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/tree/main/demo/server) using NitroJS
+- [Server](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/tree/main/demo/server) using NitroJS with backend integration example
 - [Svelte](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/tree/main/demo/svelte)
 - [SvelteKit](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/tree/main/demo/sveltekit)
 - [Vue](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/tree/main/demo/vue) with components usage

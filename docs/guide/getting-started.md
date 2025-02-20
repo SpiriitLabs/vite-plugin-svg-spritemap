@@ -1,6 +1,20 @@
 # Getting started
 
+This ViteJS plugin generates a single SVG [spritemap](https://css-tricks.com/svg-sprites-use-better-icon-fonts/) with `<symbol>`/`<view>`/`<use>` for each SVG files. It can also generate a stylesheet (CSS/SCSS/Stylus/Less) containing the sprites to be used directly (via a Data URI or SVG fragments).
+
+## Features
+- ⚡ Fully integrated in your ViteJS environment
+- 📦 Pack your SVG files in one ([spritemap](https://css-tricks.com/svg-sprites-use-better-icon-fonts/)) file
+- ✨ Use your SVG in an `<svg>` or `<img>` tags and also directly in your CSS/SCSS/Stylus/Less
+- 🍕 Import SVG fragment as VueJS component
+- 🔥 HMR support
+
 ## Install
+
+**Requirements**
+
+- Vite 5 or Vite 6
+- Node 18 or Node 20 and superior
 
 ```shell
 npm i -D @spiriit/vite-plugin-svg-spritemap
@@ -15,7 +29,7 @@ pnpm add -D @spiriit/vite-plugin-svg-spritemap
 pnpm add -D svgo #if you need svgo optimization
 ```
 
-## Usage
+## Basic Usage
 
 By default, the plugin will generate a spritemap to support all methods described below (files populated with `<view>` for fragments and `<use>` for sprite).
 
@@ -45,33 +59,3 @@ You need to add the suffix `-view` to access to the fragment.
 ```html
 <img src="/__spritemap#sprite-spiriit-view" />
 ```
-
-**CSS**
-
-You can also use the spritemap SVGs in your CSS. The plugin supports CSS (basic classes) and also SCSS, Stylus and Less (mixins and map with SVG Data URI and sizes).
-
-First you need to adjust the plugin options to set the output styles. For full styles options, check the [Options](#🛠-options).
-
-```ts
-// vite.config.js / vite.config.ts
-import VitePluginSvgSpritemap from '@spiriit/vite-plugin-svg-spritemap'
-
-export default {
-  plugins: [
-    VitePluginSvgSpritemap('./src/icons/*.svg', {
-      styles: 'src/scss/spritemap.scss'
-    })
-  ]
-}
-```
-
-```scss
-// main.scss
-@import './spritemap.scss';
-```
-
-After that, you need to import the file in your current styles. Don't forget to [load the CSS](https://vitejs.dev/guide/features.html#css) via ViteJS.
-
-If you use a CSS preprocessing language, you can use the mixin `sprite` and access to a map with all sprites infos. If not, you will only access to classes.
-
-You can see the usage with the [examples](/examples).

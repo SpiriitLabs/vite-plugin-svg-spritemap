@@ -26,4 +26,4 @@ To prevent [CORS issue with SVG](https://oreillymedia.github.io/Using_SVG/extras
 <script type="module" src="http://localhost:5173/@vite-plugin-svg-spritemap/client"></script>
 ```
 
-You can see an example of integration in the [corresponding demo folder](/demo/server/routes/index.pug).
+You can see an example of backend integration in the server example folder [examples](/examples).
