@@ -4,8 +4,8 @@ You can also use the spritemap SVGs in your CSS. The plugin supports CSS (basic 
 
 First you need to adjust the plugin options to set the output styles. For full styles options, check the [Options](#🛠-options).
 
-```ts
-// vite.config.js / vite.config.ts
+::: code-group
+```ts [vite.config.ts]
 import VitePluginSvgSpritemap from '@spiriit/vite-plugin-svg-spritemap'
 
 export default {
@@ -17,15 +17,32 @@ export default {
 }
 ```
 
-```scss
-// main.scss
+```scss [main.scss]
 @import './spritemap.scss';
+
+.example {
+  @each $name, $sprite in $sprites {
+    &--frags .icon-#{$name} {
+      @include sprite($name, $type: 'fragment');
+    }
+
+    &--uri .icon-#{$name} {
+      @include sprite($name);
+    }
+
+    &--mask-uri .icon-#{$name}-mask {
+      @include sprite($name, $mode: 'mask');
+    }
+  }
+}
 ```
+:::
 
 After that, you need to import the file in your current styles. Don't forget to [load the CSS](https://vitejs.dev/guide/features.html#css) via ViteJS.
 
-If you use a CSS preprocessing language, you can use the mixin `sprite` and access to a map with all sprites infos. If not, you will only access to classes.
+If you use a CSS preprocessing language (Less/Scss/Sass/Stylus), you can use the mixin `sprite` and access to a map with all sprites infos.
+If you use regular CSS, you will only access to generated classes.
 
 You can see the usage with the [examples](/examples).
 
-For advanced usage like customize styles output, check this [page](/advanced/customize-styles-output.md)
+For advanced usage like customize styles output, check this [page](/guide/advanced/customize-styles-output.md)
