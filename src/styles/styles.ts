@@ -11,10 +11,11 @@ export class Styles {
     this._svgs = new Map()
     this._options = options
 
-    svgs.forEach((svg, name) => {
+    svgs.forEach((svg, filePath) => {
       const svgDataUri = svgToMiniDataURI(svg.source)
 
-      this._svgs.set(name, {
+      this._svgs.set(filePath, {
+        id: svg.id,
         width: svg.width,
         height: svg.height,
         viewbox: svg.viewBox,
@@ -25,15 +26,14 @@ export class Styles {
 
   private createSpriteMap(
     generator: (
-      name: string,
       svg: SvgDataUriMapObject,
       isLast: boolean
     ) => string,
   ): string {
     let spriteMap = ''
     let index = 1
-    this._svgs.forEach((svg, name) => {
-      spriteMap += `${generator(name, svg, index === this._svgs.size)}\n`
+    this._svgs.forEach((svg) => {
+      spriteMap += `${generator(svg, index === this._svgs.size)}\n`
       index++
     })
     return spriteMap
@@ -87,9 +87,9 @@ export class Styles {
     let insert = `$${this._options.styles.names.prefix}: '${this._options.prefix}';\n`
 
     insert += `$${this._options.styles.names.sprites}: (\n`
-    insert += this.createSpriteMap((name, svg, isLast) => {
+    insert += this.createSpriteMap((svg, isLast) => {
       let sprite = ''
-      sprite = `\t'${name}': (`
+      sprite = `\t'${svg.id}': (`
       sprite += `\n\t\turi: "${svg.svgDataUri}",`
       sprite += `\n\t\twidth: ${svg.width}px,`
       sprite += `\n\t\theight: ${svg.height}px`
@@ -114,9 +114,9 @@ export class Styles {
     let insert = `$${this._options.styles.names.prefix} = '${this._options.prefix}'\n`
 
     insert += `$${this._options.styles.names.sprites} = {\n`
-    insert += this.createSpriteMap((name, svg, isLast) => {
+    insert += this.createSpriteMap((svg, isLast) => {
       let sprite = ''
-      sprite = `\t'${name}': {`
+      sprite = `\t'${svg.id}': {`
       sprite += `\n\t\turi: "${svg.svgDataUri}",`
       sprite += `\n\t\twidth: ${svg.width}px,`
       sprite += `\n\t\theight: ${svg.height}px`
@@ -141,9 +141,9 @@ export class Styles {
     let insert = `@${this._options.styles.names.prefix}: '${this._options.prefix}';\n`
 
     insert += `@${this._options.styles.names.sprites}: {\n`
-    insert += this.createSpriteMap((name, svg) => {
+    insert += this.createSpriteMap((svg) => {
       let sprite = ''
-      sprite = `\t@${name}: {`
+      sprite = `\t@${svg.id}: {`
       sprite += `\n\t\turi: "${svg.svgDataUri}";`
       sprite += `\n\t\twidth: ${svg.width}px;`
       sprite += `\n\t\theight: ${svg.height}px;`
@@ -163,8 +163,8 @@ export class Styles {
       return insert
 
     if (this._options.styles.include === true || this._options.styles.include.includes('bg')) {
-      insert = this.createSpriteMap((name, svg) => {
-        const selector = `.${this._options.prefix}${name}`
+      insert = this.createSpriteMap((svg) => {
+        const selector = `.${this._options.prefix + svg.id}`
         let sprite = ''
         sprite = `${selector} {`
         sprite += `\n\tbackground: url("${svg.svgDataUri}") center no-repeat;`
@@ -174,8 +174,8 @@ export class Styles {
     }
 
     if (this._options.styles.include === true || this._options.styles.include.includes('mask')) {
-      insert += this.createSpriteMap((name, svg) => {
-        const selector = `.${this._options.prefix}${name}-mask`
+      insert += this.createSpriteMap((svg) => {
+        const selector = `.${this._options.prefix + svg.id}-mask`
         let sprite = ''
         sprite = `${selector} {`
         sprite += `\n\tmask: url("${svg.svgDataUri}") center no-repeat;`
@@ -186,12 +186,12 @@ export class Styles {
 
     if (this._options.styles.include === true || this._options.styles.include.includes('bg-frag')) {
       if (this._options.output && this._options.output.view) {
-        insert += this.createSpriteMap((name) => {
-          const selector = `.${this._options.prefix}${name}-frag`
+        insert += this.createSpriteMap((svg) => {
+          const selector = `.${this._options.prefix + svg.id}-frag`
           let sprite = ''
           sprite = `${selector} {`
           sprite += `\n\tbackground: url('/${this._options.route}#${
-            this._options.prefix + name
+            this._options.prefix + svg.id
           }-view') center no-repeat;`
           sprite += '\n}'
           return sprite

@@ -89,7 +89,7 @@ export function createOptions(options: UserOptions = {}): Options {
   const injectSvgOnDev = options.injectSvgOnDev || options.injectSVGOnDev || false
 
   // Idify
-  let idify: UserOptions['idify'] = name => prefix + name
+  let idify: UserOptions['idify'] = name => name
 
   if (typeof options.idify === 'function')
     idify = options.idify
