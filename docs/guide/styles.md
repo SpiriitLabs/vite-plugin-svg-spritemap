@@ -45,4 +45,4 @@ If you use regular CSS, you will only access to generated classes.
 
 You can see the usage with the [examples](/examples).
 
-For advanced usage like customize styles output, check this [page](/guide/advanced/customize-styles-output.md)
+For advanced usage like customize styles output, check this [page](/guide/customize-styles-output.md)

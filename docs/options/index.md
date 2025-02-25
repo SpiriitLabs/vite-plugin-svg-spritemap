@@ -31,7 +31,7 @@ If `true`, it will use the [default SVGO preset](https://github.com/svg/svgo#def
 - **Type:** `boolean`
 - **Default:** `false`
 
-Inject the SVG Spritemap inside the body on dev (see [Backend integration](/guide/advanced/backend-integration)).
+Inject the SVG Spritemap inside the body on dev (see [Backend integration](/guide/backend-integration)).
 
 ## idify
 
@@ -45,7 +45,7 @@ Function allowing to customize the id of each symbol of the spritemap svg.
 - **Type:** `string`
 - **Default:** `'__spritemap'`
 
-Change the route name allowing you to have multiple instance of the plugin (see [Multiple Instance](/guide/advanced/multiple-instance)).
+Change the route name allowing you to have multiple instance of the plugin (see [Multiple Instance](/guide/multiple-instance)).
 
 ## Example with full options
 

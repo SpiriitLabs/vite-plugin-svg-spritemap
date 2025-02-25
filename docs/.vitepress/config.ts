@@ -7,7 +7,7 @@ export default defineConfig({
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: 'Guide', link: '/guide/getting-started' },
+      { text: 'Guide', link: '/guide/' },
       { text: 'Options', link: '/options' },
       { text: 'Examples', link: '/examples' },
     ],
@@ -17,17 +17,17 @@ export default defineConfig({
         {
           text: 'Guide',
           items: [
-            { text: 'Getting started', link: '/guide/getting-started' },
+            { text: 'Getting started', link: '/guide/' },
             { text: 'Styles', link: '/guide/styles' },
           ],
         },
         {
           text: 'Advanced',
           items: [
-            { text: 'Backend Integration', link: '/guide/advanced/backend-integration' },
-            { text: 'Vue/Nuxt', link: '/guide/advanced/vue' },
-            { text: 'Customize styles output', link: '/guide/advanced/customize-styles-output' },
-            { text: 'Mutliple Instance', link: '/guide/advanced/multiple-instance' },
+            { text: 'Backend Integration', link: '/guide/backend-integration' },
+            { text: 'Vue/Nuxt', link: '/guide/vue' },
+            { text: 'Customize styles output', link: '/guide/customize-styles-output' },
+            { text: 'Multiple Instance', link: '/guide/multiple-instance' },
           ],
         },
       ],
