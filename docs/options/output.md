@@ -5,7 +5,6 @@
 - **Default:** `true`
 
 As a string, set the destination of the file (see [output.filename](#output)).
-For more control, see [output](#output).
 Set to `false` to disable output.
 
 ## output.filename
@@ -15,7 +14,9 @@ Set to `false` to disable output.
 
 The destination of the file. You can use [output filename like Rollup](https://www.rollupjs.org/guide/en/#outputassetfilenames).
 
-*Note: Doesn't support hash number.*
+::: info
+Doesn't support rollup hash number
+:::
 
 ## output.name
 
@@ -29,11 +30,25 @@ The name of file, appear on the manifest key.
 - **Type:** `boolean`
 - **Default:** `true`
 
-Insert `use` element in the spritemap.
+Insert `use` element in the spritemap. Allowing you to invoke svg sprite with `<use>` tag:
+
+```html
+<svg>
+  <use xlink:href="/__spritemap#sprite-spiriit"></use>
+</svg>
+```
+
+Disable this option to remove `use` generation on spritemap.
 
 ## output.view
 
 - **Type:** `boolean`
 - **Default:** `true`
 
-Insert `view` element in the spritemap.
+Insert `view` element in the spritemap. Allowing you to invoke svg sprite with `<img>` tag:
+
+```html
+<img src="/__spritemap#sprite-spiriit-view" />
+```
+
+Disable this option to remove `view` generation on spritemap.

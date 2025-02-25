@@ -42,7 +42,7 @@ bun add -D svgo #if you need svgo optimization
 
 ## Basic Usage
 
-By default, the plugin will generate a spritemap to support all methods described below (files populated with `<view>` for fragments and `<use>` for sprite).
+Add all your SVGs icons in one folder (like below `/src/icons` folder for example) and pass the first argument as a glob path including your svg files.
 
 ```ts
 // vite.config.js / vite.config.ts
@@ -53,9 +53,15 @@ export default {
 }
 ```
 
-You can access to the spritemap via the route `/__spritemap`. All files process by ViteJS will transform the path of the file on build. By default, you will need to use the prefix `sprite-`.
+You can access to the spritemap via the route [`/__spritemap`](/options/#route). All files process by ViteJS will transform the path of the file on build. By default, you will need to use the prefix [`sprite-`](/options/#prefix).
 
-**SVG**
+## Access sprite
+
+By default, the plugin will generate a spritemap to support all methods described below (files populated with `<view>` for fragments and `<use>` for sprite).
+
+### With `<svg>` tag
+
+To access to your svg sprite, you need to use the route name (by default [`__spritemap`](/options/#route)) and the [`prefix`](/options/#prefix) + the name of your svg sprite as an anchor.
 
 ```html
 <svg>
@@ -63,10 +69,28 @@ You can access to the spritemap via the route `/__spritemap`. All files process 
 </svg>
 ```
 
-**Img**
+Under the hood, the spritemap generates `<use>` tags. This can be disabled by using the [`output.use`](http://localhost:5173/options/output.html#output-use) option.
 
-You need to add the suffix `-view` to access to the fragment.
+### With `<img>` tag
+
+If you prefer, you can access to your svg spritemap with an `<img>` tag.
+
+To access the fragment, you need to use the route name (by default [`__spritemap`](/options/#route)) and the [`prefix`](/options/#prefix) + the name of your svg sprite (with the suffix `-view`) as an anchor.
 
 ```html
 <img src="/__spritemap#sprite-spiriit-view" />
 ```
+
+Under the hood, the spritemap generates `<view>` tags. This can be disabled by using the [`output.view`](http://localhost:5173/options/output.html#output-view) option.
+
+## Advanced usage
+
+This plugin is trying to cover a maxiumum of use cases and usage because ViteJS is very versatile tool.
+You can pass, as a second argument, an object with options allowing you to control the svg output.
+
+Check the advanced and [options](/options/) documentations.
+
+- [Backend integration](/guide/backend-integration)
+- [Vue/Nuxt](/guide/vue)
+- [Customize Styles Output](/guide/customize-styles-output)
+- [Multiple Instance](/guide/multiple-instance)
