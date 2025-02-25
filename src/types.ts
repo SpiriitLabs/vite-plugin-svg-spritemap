@@ -8,6 +8,7 @@ export type Pattern = string[] | string
 export type StylesLang = 'less' | 'scss' | 'styl' | 'css'
 
 export interface SvgDataUriMapObject {
+  id: string
   width: number
   height: number
   viewbox: number[]
@@ -45,9 +46,9 @@ export interface UserOptions {
     | false
   /**
    * Function allowing to customize the id of each symbol of the spritemap svg.
-   * @default name => options.prefix + name
+   * @default name => name
    */
-  idify?: (name: string, svg: SvgMapObject) => string
+  idify?: (name: string, svg: Omit<SvgMapObject, 'id'>) => string
   /**
    * Inject the SVG Spritemap inside the body on dev
    * @default false
@@ -124,7 +125,6 @@ export interface OptionsStyles {
        */
       createSpritemap: (
         generator: (
-          name: string,
           svg: SvgDataUriMapObject,
           isLast: boolean
         ) => string
@@ -154,7 +154,7 @@ export interface Options {
   output: OptionsOutput | false
   prefix: string
   injectSvgOnDev: boolean
-  idify: (name: string, svg: SvgMapObject) => string
+  idify: (name: string, svg: Omit<SvgMapObject, 'id'>) => string
   route: string
 }
 
@@ -175,6 +175,10 @@ export interface SvgMapObject {
    * The filepath of the svg
    */
   filePath: string
+  /**
+   * ID returned by idify function
+   */
+  id: string
   /**
    * The source code of the svg
    */

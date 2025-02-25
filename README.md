@@ -303,7 +303,7 @@ The first argument is a glob path (using [fast-glob](https://github.com/mrmlnc/f
 | prefix         | `string` or `false`  | `sprite-`    | Define the prefix uses for sprite id in `<symbol>`/`<use>`/`<view>`.<br> Set to false to disable the prefix |
 | svgo           | `boolean` or `object`     | `false` if SVGO not installed, `true` if SVGO is installed  | Take an SVGO Options object.<br> If `true`, it will use the [default SVGO preset](https://github.com/svg/svgo#default-preset), if `false`, it will disable SVGO optimization |
 | injectSvgOnDev | `boolean`  | `false`   | Inject the SVG Spritemap inside the body on dev |
-| idify          | `(name:string, svg:object) => string`   | `name => options.prefix + name` | Function allowing to customize the id of each symbol of the spritemap svg. |
+| idify          | `(name:string, svg:object) => string`   | `name => name` | Function allowing to customize the id of each symbol of the spritemap svg. Added to the prefix (`sprite-[id]`). |
 | route          | `string`   | `__spritemap` | Change the route name allowing you to have multiple instance of the plugin |
 
 ### output

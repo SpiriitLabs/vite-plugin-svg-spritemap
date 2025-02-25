@@ -14,6 +14,7 @@ import { Styles } from './styles/styles'
 export class SVGManager {
   private _options: Options
   private _parser: DOMParser
+  private _ids: Set<string>
   private _svgs: Map<string, SvgMapObject>
   private _iconsPattern: Pattern
   private _config: ResolvedConfig
@@ -24,6 +25,7 @@ export class SVGManager {
   constructor(iconsPattern: Pattern, options: Options, config: ResolvedConfig) {
     this._parser = new DOMParser()
     this._options = options
+    this._ids = new Set()
     this._svgs = new Map()
     this._iconsPattern = iconsPattern
     this._config = config
@@ -81,12 +83,24 @@ export class SVGManager {
       }
     }
 
-    this._svgs.set(name, {
+    const svgData = {
       width,
       height,
       viewBox,
       filePath,
       source: svg,
+    }
+
+    const id = this._options.idify(name, svgData)
+
+    if (this._ids.has(id)) {
+      this._config.logger.warn(`[vite-plugin-svg-spritemap] Sprite '${filePath}' has the same id (${id}) as another sprite.`)
+    }
+
+    this._ids.add(id)
+    this._svgs.set(filePath, {
+      ...svgData,
+      id,
     })
 
     if (!loop) {
@@ -126,7 +140,7 @@ export class SVGManager {
     }
     const parser = new DOMParser()
 
-    this._svgs.forEach((svg, name) => {
+    this._svgs.forEach((svg) => {
       const symbol = DOM.createElement('symbol')
       const document = parser.parseFromString(svg.source, 'image/svg+xml')
       const documentElement = document.documentElement
@@ -148,7 +162,7 @@ export class SVGManager {
       attributes.forEach((attr) => {
         symbol.setAttribute(attr.name, attr.value)
       })
-      symbol.setAttribute('id', this._options.idify(name, svg))
+      symbol.setAttribute('id', this._options.prefix + svg.id)
       symbol.setAttribute('viewBox', svg.viewBox.join(' '))
 
       // add childs
@@ -165,7 +179,7 @@ export class SVGManager {
       // use
       if (this._options.output && this._options.output.use) {
         const use = DOM.createElement('use')
-        use.setAttribute('xlink:href', `#${this._options.prefix}${name}`)
+        use.setAttribute('xlink:href', `#${this._options.prefix + svg.id}`)
         use.setAttribute('width', svg.width.toString())
         use.setAttribute('height', svg.height.toString())
         use.setAttribute('y', y.toString())
@@ -184,7 +198,7 @@ export class SVGManager {
         attributes.forEach((attr) => {
           view.setAttribute(attr.name, attr.value)
         })
-        view.setAttribute('id', `${this._options.prefix + name}-view`)
+        view.setAttribute('id', `${this._options.prefix + svg.id}-view`)
         view.setAttribute(
           'viewBox',
           `0 ${Math.max(0, y)} ${svg.width} ${svg.height}`,

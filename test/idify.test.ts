@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { buildVite } from './helper/build'
 
 const idifyConfigs: Record<string, UserOptions['idify']> = {
-  custom: name => `prefix-${name}`,
+  custom: name => `custom-${name}`,
 }
 
 describe('idefy', () => {
