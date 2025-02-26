@@ -69,7 +69,7 @@ To access to your svg sprite, you need to use the route name (by default [`__spr
 </svg>
 ```
 
-Under the hood, the spritemap generates `<use>` tags. This can be disabled by using the [`output.use`](http://localhost:5173/options/output.html#output-use) option.
+Under the hood, the spritemap generates `<use>` tags. This can be disabled by using the [`output.use`](/options/output#output-use) option.
 
 ### With `<img>` tag
 
@@ -81,7 +81,7 @@ To access the fragment, you need to use the route name (by default [`__spritemap
 <img src="/__spritemap#sprite-spiriit-view" />
 ```
 
-Under the hood, the spritemap generates `<view>` tags. This can be disabled by using the [`output.view`](http://localhost:5173/options/output.html#output-view) option.
+Under the hood, the spritemap generates `<view>` tags. This can be disabled by using the [`output.view`](/options/output.html#output-view) option.
 
 ## Advanced usage
 

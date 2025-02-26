@@ -38,7 +38,7 @@ will generate
 <img src="/__spritemap#sprite-vite-view" width="31" height="32">
 ```
 
-You can see the usage in the [corresponding demo folder](/demo/vue/src/App.vue).
+You can see the usage in the [corresponding demo folder](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/tree/main/demo/vue/src/App.vue).
 
 ## Typescript
 
@@ -69,7 +69,7 @@ export default defineNuxtConfig({
 })
 ```
 
-You can see the usage in the [corresponding demo folder](/demo/nuxt/app.vue).
+You can see the usage in the [corresponding demo folder](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/tree/main/demo/nuxt/app.vue).
 
 ## Typescript
 

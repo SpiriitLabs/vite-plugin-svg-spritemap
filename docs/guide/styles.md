@@ -2,7 +2,7 @@
 
 You can also use the spritemap SVGs in your CSS. The plugin supports CSS (basic classes) and also SCSS, Stylus and Less (mixins and map with SVG Data URI and sizes).
 
-First you need to adjust the plugin options to set the output styles. For full styles options, check the [Options](#🛠-options).
+First you need to adjust the plugin options to set the output styles. For full styles options, check the [Options](/options/).
 
 ::: code-group
 ```ts [vite.config.ts]

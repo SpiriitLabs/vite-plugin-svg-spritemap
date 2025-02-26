@@ -5,7 +5,7 @@ ViteJS allows to be use to [serve assets](https://vitejs.dev/guide/backend-integ
 > [!IMPORTANT]
 > To make `vite-plugin-svg-spritemap` works with this kind of environnment, you will need to handle the right url inside your backend if you are on dev or build.
 
-For example, with `<use>` on dev, using direcly the id of the svg (with the `injectSvgOnDev` option).
+For example, with `<use>` on dev, using direcly the id of the svg (with the [`injectSvgOnDev`](/options/#injectsvgondev) option).
 
 ```html
 <svg>
@@ -20,7 +20,7 @@ And in prod, by putting the correct URL manually thanks to [the manifest.json fi
 </svg>
 ```
 
-To prevent [CORS issue with SVG](https://oreillymedia.github.io/Using_SVG/extras/ch10-cors.html) and `<use>`, you can use the `injectSvgOnDev` option. Don't forget to add the HMR script directly above you close body.
+To prevent [CORS issue with SVG](https://oreillymedia.github.io/Using_SVG/extras/ch10-cors.html) and `<use>`, you can use the [`injectSvgOnDev`](/options/#injectsvgondev) option. Don't forget to add the HMR script directly above you close body.
 
 ```html
 <script type="module" src="http://localhost:5173/@vite-plugin-svg-spritemap/client"></script>

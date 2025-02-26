@@ -4,6 +4,10 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: 'vite-plugin-svg-spritemap',
   description: 'A Vite plugin to generate svg spritemap ',
+  base: '/vite-plugin-svg-spritemap/',
+  sitemap: {
+    hostname: 'https://spiriitlabs.github.io',
+  },
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
@@ -48,5 +52,8 @@ export default defineConfig({
     search: {
       provider: 'local',
     },
+  },
+  vite: {
+    clearScreen: false,
   },
 })
