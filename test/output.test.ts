@@ -46,9 +46,9 @@ describe('output generation', () => {
         const result = await buildVite({ name: `output_${key}`, options: { output } })
         const asset = 'output' in result
           ? result.output.find(
-            asset =>
-              asset.name?.startsWith('spritemap.') && asset.name.endsWith('.svg'),
-          )
+              asset =>
+                asset.name?.startsWith('spritemap.') && asset.name.endsWith('.svg'),
+            )
           : undefined
 
         expect(asset)[output === false ? 'toBeUndefined' : 'toBeDefined']()
@@ -98,8 +98,8 @@ it('empty output generation', async () => {
   const result = await buildVite({ name: 'output_empty', path: './project/svg_empty/*.svg' })
   const asset = 'output' in result
     ? result.output.find(
-      asset => asset.name?.startsWith('spritemap.') && asset.name.endsWith('.svg'),
-    )
+        asset => asset.name?.startsWith('spritemap.') && asset.name.endsWith('.svg'),
+      )
     : undefined
 
   expect(asset).toBeDefined()
@@ -131,8 +131,8 @@ describe('output manifest generation', () => {
 
         const manifestBundle = 'output' in result
           ? result.output.find(
-            asset => asset.fileName.endsWith('manifest.json'),
-          )
+              asset => asset.fileName.endsWith('manifest.json'),
+            )
           : undefined
 
         expect(manifestBundle).toBeDefined()

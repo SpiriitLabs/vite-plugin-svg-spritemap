@@ -132,9 +132,9 @@ export class SVGManager {
       const documentElement = document.documentElement
       let attributes = documentElement
         ? cleanAttributes(
-          Array.from(documentElement.attributes),
-          'symbol',
-        )
+            Array.from(documentElement.attributes),
+            'symbol',
+          )
         : []
 
       // spritemap attributes
@@ -177,9 +177,9 @@ export class SVGManager {
         const view = DOM.createElement('view')
         attributes = documentElement && documentElement.attributes
           ? cleanAttributes(
-            Array.from(documentElement.attributes),
-            'view',
-          )
+              Array.from(documentElement.attributes),
+              'view',
+            )
           : []
         attributes.forEach((attr) => {
           view.setAttribute(attr.name, attr.value)
