@@ -113,7 +113,7 @@ Inject the SVG Spritemap inside the body on dev. Useful for mitigate CORS issue 
 ## idify
 
 - **Type:** `(name: string, svg: object) => string`
-- **Default:** `name => options.prefix + name`
+- **Default:** `name => name`
 
 Function allowing to customize the id of each symbol of the spritemap svg.
 
