@@ -32,6 +32,7 @@ export default defineConfig({
             { text: 'Vue/Nuxt', link: '/guide/vue' },
             { text: 'Customize styles output', link: '/guide/customize-styles-output' },
             { text: 'Multiple Instance', link: '/guide/multiple-instance' },
+            { text: 'Styles variables', link: '/guide/styles-variables' },
           ],
         },
       ],

@@ -94,3 +94,4 @@ Check the advanced and [options](/options/) documentations.
 - [Vue/Nuxt](/guide/vue)
 - [Customize Styles Output](/guide/customize-styles-output)
 - [Multiple Instance](/guide/multiple-instance)
+- [Styles variables](/guide/styles-variables)
