@@ -25,8 +25,8 @@ export default function VuePlugin(iconsPattern: Pattern, options: Options): Plug
         return
 
       const [path, query] = id.split('?', 2)
-      const { name, base: filename } = parse(path)
-      const svg = svgManager.svgs.get(name)
+      const { base: filename } = parse(path)
+      const svg = svgManager.svgs.get(path)
 
       let source = ''
 
@@ -36,10 +36,10 @@ export default function VuePlugin(iconsPattern: Pattern, options: Options): Plug
       else if (query === 'view') {
         const width = svg?.width ? `width="${Math.ceil(svg.width)}"` : ''
         const height = svg?.width ? `height="${Math.ceil(svg.height)}"` : ''
-        source = `<img src="/${options.route}#${options.prefix}${name}-view" ${[width, height].filter(item => item.length > 0).join(' ')}/>`
+        source = `<img src="/${options.route}#${options.prefix + svg?.id}-view" ${[width, height].filter(item => item.length > 0).join(' ')}/>`
       }
       else {
-        source = `<svg><slot/><use xlink:href="/${options.route}#${options.prefix}${name}"></use></svg>`
+        source = `<svg><slot/><use xlink:href="/${options.route}#${options.prefix + svg?.id}"></use></svg>`
       }
 
       const { compileTemplate } = await import('vue/compiler-sfc')
