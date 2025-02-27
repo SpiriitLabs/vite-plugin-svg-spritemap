@@ -129,8 +129,8 @@ describe('styles generation', () => {
           filename,
           callback: ({ content, options, createSpritemap }) => {
             let insert = ''
-            insert += createSpritemap((name, svg) => {
-              const selector = `.${options.prefix}${name}`
+            insert += createSpritemap((svg) => {
+              const selector = `.${options.prefix + svg.id}`
               let sprite = ''
               sprite = `${selector} {`
               sprite += `\n\tbackground: url("${svg.svgDataUri}") center no-repeat!important;`

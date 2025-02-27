@@ -4,16 +4,20 @@ import type { Options, Pattern, SvgMapObject } from './types'
 import { promises as fs } from 'node:fs'
 import { basename, resolve } from 'node:path'
 import { DOMImplementation, DOMParser, XMLSerializer } from '@xmldom/xmldom'
-import fg from 'fast-glob'
 import hash_sum from 'hash-sum'
+import { glob } from 'tinyglobby'
 import { calculateY } from './helpers/calculateY'
 import { cleanAttributes } from './helpers/cleanAttributes'
 import { getOptimize, getOptions } from './helpers/svgo'
 import { Styles } from './styles/styles'
 
+/**
+ * Manages SVG files for creating a sprite map
+ */
 export class SVGManager {
   private _options: Options
   private _parser: DOMParser
+  private _ids: Set<string>
   private _svgs: Map<string, SvgMapObject>
   private _iconsPattern: Pattern
   private _config: ResolvedConfig
@@ -24,26 +28,84 @@ export class SVGManager {
   constructor(iconsPattern: Pattern, options: Options, config: ResolvedConfig) {
     this._parser = new DOMParser()
     this._options = options
+    this._ids = new Set()
     this._svgs = new Map()
     this._iconsPattern = iconsPattern
     this._config = config
     this._optimizeOptions = getOptions(typeof this._options.svgo === 'undefined' ? true : this._options.svgo, this._options.prefix)
   }
 
+  /**
+   * Update a single SVG file in the sprite map
+   */
   async update(filePath: string, loop = false) {
     const name = basename(filePath, '.svg')
     if (!name)
       return false
 
-    let svg: string = await fs.readFile(filePath, 'utf8')
+    let svg: string
+    try {
+      svg = await fs.readFile(filePath, 'utf8')
+    }
+    catch (error) {
+      this._config.logger.error(`[vite-plugin-svg-spritemap] Failed to read file '${filePath}': ${error}`)
+      return false
+    }
+
+    const { width, height, viewBox } = this._extractSvgDimensions(svg, filePath)
+    if (!width || !height || !viewBox)
+      return false
+
+    if (!loop) {
+      await this._initializeOptimizer()
+    }
+
+    // Optimize SVG if SVGO is enabled and available
+    svg = await this._optimizeSvg(svg)
+
+    const svgData = {
+      width,
+      height,
+      viewBox,
+      filePath,
+      source: svg,
+    }
+
+    const id = this._options.idify(name, svgData)
+
+    if (this._ids.has(id)) {
+      this._config.logger.warn(`[vite-plugin-svg-spritemap] Sprite '${filePath}' has the same id (${id}) as another sprite.`)
+    }
+
+    this._ids.add(id)
+    this._svgs.set(filePath, {
+      ...svgData,
+      id,
+    })
+
+    if (!loop) {
+      this.hash = hash_sum(this.spritemap)
+      this._sortSvgs()
+      await this.createFileStyle()
+    }
+
+    return true
+  }
+
+  /**
+   * Extract width, height and viewBox from SVG
+   */
+  private _extractSvgDimensions(svg: string, filePath: string): { width?: number, height?: number, viewBox?: number[] } {
     const document = this._parser.parseFromString(svg, 'image/svg+xml')
     const documentElement = document.documentElement
+
     let viewBox = (
       documentElement?.getAttribute('viewBox')
       || documentElement?.getAttribute('viewbox')
     )
       ?.split(' ')
       .map(a => Number.parseFloat(a))
+
     const widthAttr = documentElement?.getAttribute('width')
     const heightAttr = documentElement?.getAttribute('height')
     let width = widthAttr ? Number.parseFloat(widthAttr) : undefined
@@ -51,9 +113,9 @@ export class SVGManager {
 
     if (viewBox && viewBox.length !== 4 && (!width || !height)) {
       this._config.logger.warn(`[vite-plugin-svg-spritemap] Sprite '${filePath}' is invalid, it's lacking both a viewBox and width/height attributes.`)
-
-      return
+      return {}
     }
+
     if ((!viewBox || viewBox.length !== 4) && width && height)
       viewBox = [0, 0, width, height]
 
@@ -63,9 +125,13 @@ export class SVGManager {
     if (!height && viewBox)
       height = viewBox[3]
 
-    if (!width || !height || !viewBox)
-      return
+    return { width, height, viewBox }
+  }
 
+  /**
+   * Optimize SVG using SVGO if available
+   */
+  private async _optimizeSvg(svg: string): Promise<string> {
     if (this._optimize === null) {
       this._optimize = await getOptimize()
       if (this._options.svgo && !this._optimize) {
@@ -73,41 +139,58 @@ export class SVGManager {
       }
     }
 
-    if (this._optimize) {
-      if (this._optimizeOptions) {
+    if (this._optimize && this._optimizeOptions) {
+      try {
         const optimizedSvg = this._optimize(svg, this._optimizeOptions)
         if ('data' in optimizedSvg)
-          svg = optimizedSvg.data
+          return optimizedSvg.data
+      }
+      catch (error) {
+        this._config.logger.warn(`[vite-plugin-svg-spritemap] SVGO optimization failed: ${error}`)
       }
     }
 
-    this._svgs.set(name, {
-      width,
-      height,
-      viewBox,
-      filePath,
-      source: svg,
-    })
+    return svg
+  }
 
-    if (!loop) {
-      this.hash = hash_sum(this.spritemap)
-      await this.createFileStyle()
+  /**
+   * Initialize SVGO optimizer
+   */
+  private async _initializeOptimizer(): Promise<void> {
+    if (this._optimize === null) {
+      this._optimize = await getOptimize()
+      if (this._options.svgo && !this._optimize) {
+        this._config.logger.warn(`[vite-plugin-svg-spritemap] You need to install SVGO to be able to optimize your SVG with it.`)
+      }
     }
   }
 
-  async updateAll() {
-    const iconsPath = await fg(this._iconsPattern)
+  /**
+   * Update all SVG files in the glob pattern
+   */
+  async updateAll(): Promise<void> {
+    const iconsPath = await glob(this._iconsPattern, {
+      cwd: this._config.root,
+      absolute: true,
+    })
 
-    for (let index = 0; index < iconsPath.length; index++) {
-      const iconPath = iconsPath[index]
-      await this.update(iconPath, true)
-    }
+    // Initialize SVGO before parallel processing to avoid race conditions
+    await this._initializeOptimizer()
+
+    // Process files in parallel for better performance
+    await Promise.all(
+      iconsPath.map(iconPath => this.update(iconPath, true)),
+    )
+    this._sortSvgs()
 
     this.hash = hash_sum(this.spritemap)
     await this.createFileStyle()
   }
 
-  get spritemap() {
+  /**
+   * Generate the SVG sprite map
+   */
+  get spritemap(): string {
     const DOM = new DOMImplementation().createDocument(null, '', null)
     const Serializer = new XMLSerializer()
     const spritemap = DOM.createElement('svg')
@@ -126,7 +209,7 @@ export class SVGManager {
     }
     const parser = new DOMParser()
 
-    this._svgs.forEach((svg, name) => {
+    this._svgs.forEach((svg) => {
       const symbol = DOM.createElement('symbol')
       const document = parser.parseFromString(svg.source, 'image/svg+xml')
       const documentElement = document.documentElement
@@ -139,7 +222,6 @@ export class SVGManager {
 
       // spritemap attributes
       attributes.forEach((attr) => {
-        // console.log(attr.name, attr.value)
         if (attr.name.toLowerCase().startsWith('xmlns:'))
           spritemap.setAttribute(attr.name, attr.value)
       })
@@ -148,7 +230,7 @@ export class SVGManager {
       attributes.forEach((attr) => {
         symbol.setAttribute(attr.name, attr.value)
       })
-      symbol.setAttribute('id', this._options.idify(name, svg))
+      symbol.setAttribute('id', this._options.prefix + svg.id)
       symbol.setAttribute('viewBox', svg.viewBox.join(' '))
 
       // add childs
@@ -165,7 +247,7 @@ export class SVGManager {
       // use
       if (this._options.output && this._options.output.use) {
         const use = DOM.createElement('use')
-        use.setAttribute('xlink:href', `#${this._options.prefix}${name}`)
+        use.setAttribute('xlink:href', `#${this._options.prefix + svg.id}`)
         use.setAttribute('width', svg.width.toString())
         use.setAttribute('height', svg.height.toString())
         use.setAttribute('y', y.toString())
@@ -184,7 +266,7 @@ export class SVGManager {
         attributes.forEach((attr) => {
           view.setAttribute(attr.name, attr.value)
         })
-        view.setAttribute('id', `${this._options.prefix + name}-view`)
+        view.setAttribute('id', `${this._options.prefix + svg.id}-view`)
         view.setAttribute(
           'viewBox',
           `0 ${Math.max(0, y)} ${svg.width} ${svg.height}`,
@@ -199,17 +281,54 @@ export class SVGManager {
     return Serializer.serializeToString(spritemap)
   }
 
-  private async createFileStyle() {
+  /**
+   * Generate and write CSS styles file
+   */
+  private async createFileStyle(): Promise<void> {
     if (typeof this._options.styles !== 'object')
       return
-    const styleGen: Styles = new Styles(this._svgs, this._options)
-    const content = await styleGen.generate()
-    const path = resolve(this._config.root, this._options.styles.filename)
 
-    await fs.writeFile(path, content, 'utf8')
+    try {
+      const styleGen: Styles = new Styles(this._svgs, this._options)
+      const content = await styleGen.generate()
+      const path = resolve(this._config.root, this._options.styles.filename)
+
+      await fs.writeFile(path, content, 'utf8')
+    }
+    catch (error) {
+      this._config.logger.error(`[vite-plugin-svg-spritemap] Failed to create style file: ${error}`)
+    }
   }
 
-  public get svgs() {
+  /**
+   * Get all SVG objects
+   */
+  public get svgs(): Map<string, SvgMapObject> {
     return this._svgs
+  }
+
+  /**
+   * Get all directories containing SVGs
+   */
+  public get directories(): Set<string> {
+    const directories = new Set<string>()
+    this._svgs.forEach((svg) => {
+      const folder = svg.filePath.split('/').slice(0, -1).join('/')
+      directories.add(folder)
+    })
+    return directories
+  }
+
+  /**
+   * Sort the internal SVGs Map alphabetically by file path
+   */
+  private _sortSvgs(): void {
+    const entries = [...this._svgs.entries()]
+    entries.sort((a, b) => a[0].localeCompare(b[0]))
+
+    this._svgs.clear()
+    for (const [key, value] of entries) {
+      this._svgs.set(key, value)
+    }
   }
 }

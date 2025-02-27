@@ -1,7 +1,7 @@
 {
   "name": "@spiriit/vite-plugin-svg-spritemap",
   "type": "module",
-  "version": "3.0.1",
+  "version": "4.0.0",
   "packageManager": "pnpm@9.15.0",
   "description": "Generates symbol-based SVG spritemap from all .svg files in a directory",
   "author": "Spiriit",
@@ -80,9 +80,9 @@
   },
   "dependencies": {
     "@xmldom/xmldom": "^0.9.7",
-    "fast-glob": "^3.3.3",
     "hash-sum": "^2.0.0",
-    "mini-svg-data-uri": "^1.4.4"
+    "mini-svg-data-uri": "^1.4.4",
+    "tinyglobby": "^0.2.12"
   },
   "devDependencies": {
     "@antfu/eslint-config": "4.3.0",

@@ -12,3 +12,4 @@ test/fixtures/basic/styles/*
 demo/_fixtures/scss/spritemap.scss
 demo/_fixtures/scss/spritemap-flags.scss
 docs/.vitepress/cache
+.tsup
