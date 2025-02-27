@@ -1,6 +1,5 @@
 import type { Plugin, ResolvedConfig } from 'vite'
 import type { Options, Pattern } from '../types'
-import { glob } from 'tinyglobby'
 import { SVGManager } from '../svgManager'
 
 const event = 'vite-plugin-svg-spritemap:update'
@@ -29,15 +28,7 @@ export default function DevPlugin(iconsPattern: Pattern, options: Options): Plug
     },
     async buildStart() {
       await svgManager.updateAll()
-
-      const icons = await glob(iconsPattern)
-      const directories: Set<string> = new Set()
-      icons.forEach((icon) => {
-        const directory = icon.split('/').slice(0, -1).join('/')
-        directories.add(directory)
-      })
-
-      directories.forEach(directory => this.addWatchFile(directory))
+      svgManager.directories.forEach(directory => this.addWatchFile(directory))
     },
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {

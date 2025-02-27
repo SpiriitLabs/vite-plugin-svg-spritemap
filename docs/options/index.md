@@ -1,6 +1,6 @@
 # Options
 
-The first argument is a glob path (using [fast-glob](https://github.com/mrmlnc/fast-glob))
+The first argument is a glob path (using [tinnyglobby](https://github.com/SuperchupuDev/tinyglobby))
 
 ```ts
 // vite.config.js / vite.config.ts

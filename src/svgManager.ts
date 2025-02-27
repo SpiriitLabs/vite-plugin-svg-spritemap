@@ -96,7 +96,10 @@ export class SVGManager {
   }
 
   async updateAll() {
-    const iconsPath = await glob(this._iconsPattern)
+    const iconsPath = await glob(this._iconsPattern, {
+      cwd: this._config.root,
+      absolute: true,
+    })
 
     for (let index = 0; index < iconsPath.length; index++) {
       const iconPath = iconsPath[index]
@@ -211,5 +214,14 @@ export class SVGManager {
 
   public get svgs() {
     return this._svgs
+  }
+
+  public get directories() {
+    const directories = new Set<string>()
+    this._svgs.forEach((svg) => {
+      const folder = svg.filePath.split('/').slice(0, -1).join('/')
+      directories.add(folder)
+    })
+    return directories
   }
 }
