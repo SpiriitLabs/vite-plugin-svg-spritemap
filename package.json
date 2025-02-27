@@ -1,7 +1,7 @@
 {
   "name": "@spiriit/vite-plugin-svg-spritemap",
   "type": "module",
-  "version": "3.0.1",
+  "version": "4.0.0",
   "packageManager": "pnpm@9.15.0",
   "description": "Generates symbol-based SVG spritemap from all .svg files in a directory",
   "author": "Spiriit",
