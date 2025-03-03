@@ -131,6 +131,12 @@ export interface OptionsStyles {
       ) => string
     }
   ) => string
+  /**
+   * Enable support for variables support through styles
+   * @default false
+   * @see https://spiriitlabs.github.io/vite-plugin-svg-spritemap/options/styles.html#styles-variables
+   */
+  variables?: boolean
 }
 
 interface OptionsStylesNames {
@@ -158,6 +164,16 @@ export interface Options {
   route: string
 }
 
+export interface SvgVariable {
+  name: string
+  attribute: string
+  value: string
+  /**
+   * Untransformed svg to be used for variables styles generations
+  */
+  svg: string
+}
+
 export interface SvgMapObject {
   /**
    * The interpreted width attribute of the svg
@@ -183,4 +199,8 @@ export interface SvgMapObject {
    * The source code of the svg
    */
   source: string
+  /**
+   * SVG variables extracted
+   */
+  variables: SvgVariable[]
 }

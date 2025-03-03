@@ -40,4 +40,11 @@ Allow to customize the variables/mixin names of the generated Sass/Less/Stylus.
 - **Type:** `Function | undefined`
 - **Default:** `undefined`
 
-Allow you to customize the output of the generated styles file (see [Customize Styles Outputs](/guide/customize-styles-output)).
+Allow you to customize the output of the generated styles file (see [Customize styles outputs](/guide/customize-styles-output)).
+
+## styles.variables
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Enable or not the styles variables features (see [Styles variables](/guide/styles-variables)).

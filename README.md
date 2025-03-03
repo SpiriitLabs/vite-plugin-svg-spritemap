@@ -73,10 +73,6 @@ You need to add the suffix `-view` to access to the fragment.
 
 For more informations, check the [vite-plugin-svg-spritemap documentation](https://spiriitlabs.github.io/vite-plugin-svg-spritemap). It covers everything from getting started to advanced topics.
 
-## 🏃 What's next
-
-- Add variable supports inspired by [svg-spritemap-webpack-plugin](https://github.com/cascornelissen/svg-spritemap-webpack-plugin/blob/master/docs/variables.md)
-
 ## 👨‍💼 Licence
 
 MIT
