@@ -18,11 +18,15 @@ export default defineConfig({
   plugins: [
     VitePluginSvgSpritemap('./../_fixtures/icons/*.svg', {
       // styles: './../_fixtures/icons/spritemap.css',
-      styles: './../_fixtures/scss/spritemap.scss',
+      styles: {
+        filename: './../_fixtures/scss/spritemap.scss',
+        variables: true,
+      },
       // styles: './../_fixtures/icons/spritemap.styl',
       // styles: './../_fixtures/icons/spritemap.less',
       prefix: 'icon-',
       svgo: false,
+
       // output: {
       //   use: false,
       //   view: false,
@@ -38,7 +42,7 @@ export default defineConfig({
           prefix: 'flags-prefix',
           sprites: 'flags',
           mixin: 'sprites-flags',
-        },
+        }
       },
     }),
     Inspect(),
