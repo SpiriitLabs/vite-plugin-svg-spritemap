@@ -36,7 +36,7 @@ export default {
         ],
       },
       injectSvgOnDev: true,
-      idefy: (name, svg) => `icon-${name}-cheese`,
+      idify: (name, svg) => `icon-${name}-cheese`,
       styles: {
         lang: 'scss',
         filename: 'src/scss/spritemap.scss',
