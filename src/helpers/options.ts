@@ -29,6 +29,7 @@ export function createOptions(options: UserOptions = {}): Options {
         sprites: 'sprites',
         mixin: 'sprite',
       },
+      variables: false,
     }
   }
   else if (
@@ -56,6 +57,7 @@ export function createOptions(options: UserOptions = {}): Options {
       include: typeof options.styles.include === 'undefined' ? true : options.styles.include,
       names: stylesNames,
       callback: options.styles.callback,
+      variables: options.styles.variables || false,
     }
   }
 

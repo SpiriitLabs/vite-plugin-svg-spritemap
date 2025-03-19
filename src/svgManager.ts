@@ -1,6 +1,6 @@
 import type { Config as SvgoConfig } from 'svgo'
 import type { ResolvedConfig } from 'vite'
-import type { Options, Pattern, SvgMapObject } from './types'
+import type { Options, Pattern, SvgMapObject, SvgVariable } from './types'
 import { promises as fs } from 'node:fs'
 import { basename, resolve } from 'node:path'
 import { DOMImplementation, DOMParser, XMLSerializer } from '@xmldom/xmldom'
@@ -10,6 +10,7 @@ import { calculateY } from './helpers/calculateY'
 import { cleanAttributes } from './helpers/cleanAttributes'
 import { getOptimize, getOptions } from './helpers/svgo'
 import { Styles } from './styles/styles'
+import SVGVariables from './svgVariables'
 
 /**
  * Manages SVG files for creating a sprite map
@@ -52,6 +53,14 @@ export class SVGManager {
       return false
     }
 
+    let extractedVariables: SvgVariable[] = []
+
+    if (typeof this._options.styles === 'object' && this._options.styles.variables === true) {
+      const variables = new SVGVariables(svg, this._config)
+      extractedVariables = variables.vars
+      svg = variables.clean()
+    }
+
     const { width, height, viewBox } = this._extractSvgDimensions(svg, filePath)
     if (!width || !height || !viewBox)
       return false
@@ -69,6 +78,7 @@ export class SVGManager {
       viewBox,
       filePath,
       source: svg,
+      variables: extractedVariables,
     }
 
     const id = this._options.idify(name, svgData)
