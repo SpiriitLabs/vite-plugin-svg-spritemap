@@ -6,7 +6,7 @@ const idifyConfigs: Record<string, UserOptions['idify']> = {
   custom: name => `custom-${name}`,
 }
 
-describe('idefy', () => {
+describe('idify', () => {
   for (const key in idifyConfigs) {
     if (Object.prototype.hasOwnProperty.call(idifyConfigs, key)) {
       it.concurrent(key, async () => {
