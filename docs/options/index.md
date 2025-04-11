@@ -37,6 +37,7 @@ export default {
       },
       injectSvgOnDev: true,
       idify: (name, svg) => `icon-${name}-cheese`,
+      gutter: 0,
       styles: {
         lang: 'scss',
         filename: 'src/scss/spritemap.scss',
@@ -123,3 +124,10 @@ Function allowing to customize the id of each symbol of the spritemap svg.
 - **Default:** `'__spritemap'`
 
 Change the route name allowing you to have multiple instance of the plugin (see [Multiple Instance](/guide/multiple-instance)).
+
+## gutter
+
+- **Type:** `number`
+- **Default:** `0`
+
+Gutter (in pixels) between each sprite to help prevent overlap

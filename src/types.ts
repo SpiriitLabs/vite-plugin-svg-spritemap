@@ -65,6 +65,11 @@ export interface UserOptions {
    * @default '__spritemap'
    */
   route?: string
+  /**
+   * Gutter (in pixels) between each sprite to help prevent overlap
+   * @default 0
+   */
+  gutter?: number
 }
 
 export interface OptionsOutput {
