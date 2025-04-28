@@ -161,6 +161,7 @@ export interface Options {
   injectSvgOnDev: boolean
   idify: (name: string, svg: Omit<SvgMapObject, 'id'>) => string
   route: string
+  gutter: number
 }
 
 export interface SvgMapObject {
