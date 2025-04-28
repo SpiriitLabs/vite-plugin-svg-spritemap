@@ -98,10 +98,7 @@ export function createOptions(options: UserOptions = {}): Options {
   if (typeof options.route === 'string')
     route = options.route
 
-  let gutter = 0
-  if (typeof options.gutter === 'number') {
-    gutter = options.gutter
-  }
+  const gutter = options.gutter || 0
 
   return {
     svgo: options.svgo,
