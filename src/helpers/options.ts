@@ -98,6 +98,11 @@ export function createOptions(options: UserOptions = {}): Options {
   if (typeof options.route === 'string')
     route = options.route
 
+  let gutter = 0
+  if (typeof options.gutter === 'number') {
+    gutter = options.gutter
+  }
+
   return {
     svgo: options.svgo,
     output,
@@ -106,5 +111,6 @@ export function createOptions(options: UserOptions = {}): Options {
     injectSvgOnDev,
     idify,
     route,
+    gutter,
   } satisfies Options
 }

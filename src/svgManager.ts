@@ -242,7 +242,7 @@ export class SVGManager {
       }
 
       spritemap.appendChild(symbol)
-      const y = calculateY(sizes.height)
+      const y = calculateY(sizes.height, this._options.gutter)
 
       // use
       if (this._options.output && this._options.output.use) {
