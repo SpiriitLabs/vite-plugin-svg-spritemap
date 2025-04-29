@@ -58,11 +58,11 @@ export default {
 
 ## output
 
-See [Output options](/options/output)
+See [Output options](/options/output).
 
 ## styles
 
-See [Styles options](/options/styles)
+See [Styles options](/options/styles).
 
 ## prefix
 
@@ -130,4 +130,4 @@ Change the route name allowing you to have multiple instance of the plugin (see 
 - **Type:** `number`
 - **Default:** `0`
 
-Gutter (in pixels) between each sprite to help prevent overlap
+Gutter (in pixels) between each sprite to help prevent overlap.
