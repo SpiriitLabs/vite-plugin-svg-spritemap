@@ -7,17 +7,17 @@
     "preview": "node .output/server/index.mjs"
   },
   "dependencies": {
-    "nitropack": "^2.10.4",
+    "nitropack": "^2.11.11",
     "pug": "^3.0.3"
   },
   "devDependencies": {
     "@spiriit/vite-plugin-svg-spritemap": "workspace:*",
-    "autoprefixer": "^10.4.20",
-    "concurrently": "^9.1.0",
-    "postcss": "^8.4.49",
-    "sass": "^1.83.0",
-    "typescript": "^5.7.2",
-    "vite": "^6.0.3",
-    "vite-plugin-inspect": "^0.10.3"
+    "autoprefixer": "^10.4.21",
+    "concurrently": "^9.1.2",
+    "postcss": "^8.5.3",
+    "sass": "^1.87.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.3",
+    "vite-plugin-inspect": "^11.0.1"
   }
 }
