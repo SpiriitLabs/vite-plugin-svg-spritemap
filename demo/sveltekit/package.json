@@ -12,15 +12,15 @@
   },
   "devDependencies": {
     "@spiriit/vite-plugin-svg-spritemap": "workspace:*",
-    "@sveltejs/adapter-auto": "^3.3.1",
-    "@sveltejs/kit": "^2.12.0",
-    "@sveltejs/vite-plugin-svelte": "^5.0.2",
-    "sass": "^1.83.0",
+    "@sveltejs/adapter-auto": "^6.0.0",
+    "@sveltejs/kit": "^2.20.7",
+    "@sveltejs/vite-plugin-svelte": "^5.0.3",
+    "sass": "^1.87.0",
     "stylus": "^0.64.0",
-    "svelte": "^5.14.0",
-    "svelte-check": "^4.1.1",
+    "svelte": "^5.28.2",
+    "svelte-check": "^4.1.6",
     "tslib": "^2.8.1",
-    "typescript": "^5.7.2",
-    "vite": "^6.0.3"
+    "typescript": "^5.8.3",
+    "vite": "^6.3.3"
   }
 }
