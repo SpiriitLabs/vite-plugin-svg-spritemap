@@ -22,6 +22,11 @@ export interface UserOptions {
    */
   svgo?: boolean | SvgoConfig
   /**
+   * Take an OXVG Options object. If true, it will use the default options from OXVG, if false, it will disable OXVG optimization
+   * @see https://github.com/noahbald/oxvg
+   */
+  oxvg?: boolean | SvgoConfig
+  /**
    * Output spritemap options.
    * Set as a string to change the destination of the file. You can use output filename like Rollup (doesn't support hash number).
    * Set to false to disable output generation
@@ -154,6 +159,7 @@ interface OptionsStylesNames {
 }
 
 export interface Options {
+  oxvg?: boolean | SvgoConfig
   svgo?: boolean | SvgoConfig
   styles: OptionsStyles | false
   output: OptionsOutput | false

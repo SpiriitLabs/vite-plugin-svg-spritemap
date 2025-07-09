@@ -4,7 +4,7 @@ import type { Options } from '../types'
 /**
  * Get SVGO Options
  */
-export function getOptions(svgoOptions: Options['svgo'], prefix: string) {
+export function getOptions(svgoOptions: Options['svgo'] | undefined, prefix: string) {
   let svgo: SvgoConfig | false = {
     plugins: [
       {
@@ -23,6 +23,7 @@ export function getOptions(svgoOptions: Options['svgo'], prefix: string) {
       },
     ],
   }
+
   if (typeof svgoOptions === 'object' || svgoOptions === false)
     svgo = svgoOptions
 

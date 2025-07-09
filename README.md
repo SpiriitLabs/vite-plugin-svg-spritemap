@@ -21,19 +21,15 @@ This ViteJS plugin generates a single SVG [spritemap](https://css-tricks.com/svg
 
 ```shell
 npm i -D @spiriit/vite-plugin-svg-spritemap
-npm i -D svgo #if you need svgo optimization
 
 # yarn
 yarn add -D @spiriit/vite-plugin-svg-spritemap
-yarn add -D svgo #if you need svgo optimization
 
 # pnpm
 pnpm add -D @spiriit/vite-plugin-svg-spritemap
-pnpm add -D svgo #if you need svgo optimization
 
 # bun
 bun add -D @spiriit/vite-plugin-svg-spritemap
-bun add -D svgo #if you need svgo optimization
 ```
 
 ## 👨‍💻 Quick start
