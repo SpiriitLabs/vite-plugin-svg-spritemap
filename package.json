@@ -108,6 +108,7 @@
     "@antfu/eslint-config": "4.12.0",
     "@oxvg/napi": "^0.0.4-1",
     "@oxvg/napi-darwin-arm64": "^0.0.4-1",
+    "@oxvg/napi-linux-x64-gnu": "0.0.4-1",
     "@types/hash-sum": "^1.0.2",
     "@types/node": "^22.15.3",
     "@types/xmldom": "^0.1.34",

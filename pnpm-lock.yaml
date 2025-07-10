@@ -30,6 +30,9 @@ importers:
       '@oxvg/napi-darwin-arm64':
         specifier: ^0.0.4-1
         version: 0.0.4-1
+      '@oxvg/napi-linux-x64-gnu':
+        specifier: 0.0.4-1
+        version: 0.0.4-1
       '@types/hash-sum':
         specifier: ^1.0.2
         version: 1.0.2
@@ -7153,8 +7156,7 @@ snapshots:
   '@oxvg/napi-darwin-x64@0.0.4-1':
     optional: true
 
-  '@oxvg/napi-linux-x64-gnu@0.0.4-1':
-    optional: true
+  '@oxvg/napi-linux-x64-gnu@0.0.4-1': {}
 
   '@oxvg/napi-win32-x64-msvc@0.0.4-1':
     optional: true
