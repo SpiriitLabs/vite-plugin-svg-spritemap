@@ -1,6 +1,6 @@
 # Examples
 
-If you have any problem to configure the plugin. You can check the demo folder of the project:
+If you have any problem configuring the plugin. You can check the demo folder of the project:
 
 - [Basic](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/tree/main/demo/basic) ViteJS example
   - [CSS](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/tree/main/demo/_fixtures/css/)

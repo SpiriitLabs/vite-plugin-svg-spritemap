@@ -66,11 +66,31 @@
     "docs:preview": "vitepress preview docs"
   },
   "peerDependencies": {
+    "@oxvg/napi": "^0.0.4-1",
+    "@oxvg/napi-darwin-arm64": "^0.0.4-1",
+    "@oxvg/napi-darwin-x64": "^0.0.4-1",
+    "@oxvg/napi-linux-x64-gnu": "^0.0.4-1",
+    "@oxvg/napi-win32-x64-msvc": "^0.0.4-1",
     "svgo": "^3.0.0",
     "vite": "^5.0.0 || ^6.0.0",
     "vue": "^3.0.0"
   },
   "peerDependenciesMeta": {
+    "@oxvg/napi": {
+      "optional": true
+    },
+    "@oxvg/napi-darwin-arm64": {
+      "optional": true
+    },
+    "@oxvg/napi-darwin-x64": {
+      "optional": true
+    },
+    "@oxvg/napi-linux-x64-gnu": {
+      "optional": true
+    },
+    "@oxvg/napi-win32-x64-msvc": {
+      "optional": true
+    },
     "svgo": {
       "optional": true
     },
@@ -86,6 +106,9 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "4.12.0",
+    "@oxvg/napi": "^0.0.4-1",
+    "@oxvg/napi-darwin-arm64": "^0.0.4-1",
+    "@oxvg/napi-linux-x64-gnu": "0.0.4-1",
     "@types/hash-sum": "^1.0.2",
     "@types/node": "^22.15.3",
     "@types/xmldom": "^0.1.34",

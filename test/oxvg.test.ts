@@ -2,22 +2,30 @@ import type { UserOptions } from '../src/types'
 import { describe, expect, it, vi } from 'vitest'
 import { buildVite } from './helper/build'
 
-const svgoConfigs: Record<string, UserOptions['svgo']> = {
+const oxvgConfigs: Record<string, UserOptions['oxvg']> = {
   default: true,
   false: false,
   custom: {
-    plugins: ['prefixIds'],
+    prefixIds: {
+      delim: '-',
+      prefixClassNames: true,
+      prefixIds: true,
+      prefix: { type: 'Prefix', field0: 'prefix' },
+    },
   },
+  // custom: {
+  //   plugins: ['prefixIds'],
+  // },
 }
 
-describe('svgo', () => {
-  for (const key in svgoConfigs) {
-    if (Object.prototype.hasOwnProperty.call(svgoConfigs, key)) {
+describe('oxvg', () => {
+  for (const key in oxvgConfigs) {
+    if (Object.prototype.hasOwnProperty.call(oxvgConfigs, key)) {
       it(key, async () => {
-        const svgo = svgoConfigs[key]
+        const oxvg = oxvgConfigs[key]
         const result = await buildVite({
-          name: `svgo_${key}`,
-          options: { svgo, oxvg: false },
+          name: `oxvg_${key}`,
+          options: { oxvg, svgo: false },
         })
         if (!('output' in result))
           return
@@ -34,21 +42,21 @@ describe('svgo', () => {
     }
   }
 
-  for (const key in svgoConfigs) {
-    if (Object.prototype.hasOwnProperty.call(svgoConfigs, key)) {
+  for (const key in oxvgConfigs) {
+    if (Object.prototype.hasOwnProperty.call(oxvgConfigs, key)) {
       it(`${key} with warning`, async () => {
         const spy = vi.spyOn(console, 'warn')
-        vi.doMock('svgo', async () => {})
+        vi.doMock('@oxvg/napi', async () => {})
 
-        const svgo = svgoConfigs[key]
+        const oxvg = oxvgConfigs[key]
         const result = await buildVite({
-          name: `svgo_warning`,
-          options: { svgo, oxvg: false },
+          name: `oxvg_warning`,
+          options: { oxvg, svgo: false },
         })
-        const warningStr = '[vite-plugin-svg-spritemap] You need to install SVGO to be able to optimize your SVG with it.'
+        const warningStr = '[vite-plugin-svg-spritemap] You need to install OXVG to be able to optimize your SVG with it.'
 
         for (const call of spy.mock.calls) {
-          if (svgo === false) {
+          if (oxvg === false) {
             expect(call).not.toStrictEqual([warningStr])
           }
           else {
@@ -57,7 +65,7 @@ describe('svgo', () => {
         }
 
         spy.mockClear()
-        vi.doUnmock('svgo')
+        vi.doUnmock('@oxvg/napi')
 
         if (!('output' in result))
           return

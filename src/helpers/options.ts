@@ -102,6 +102,7 @@ export function createOptions(options: UserOptions = {}): Options {
 
   return {
     svgo: options.svgo,
+    oxvg: options.oxvg,
     output,
     prefix,
     styles,

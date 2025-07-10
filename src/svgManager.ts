@@ -1,3 +1,4 @@
+import type { Jobs as OxvgConfig } from '@oxvg/napi'
 import type { Config as SvgoConfig } from 'svgo'
 import type { ResolvedConfig } from 'vite'
 import type { Options, Pattern, SvgMapObject } from './types'
@@ -8,7 +9,8 @@ import hash_sum from 'hash-sum'
 import { glob } from 'tinyglobby'
 import { calculateY } from './helpers/calculateY'
 import { cleanAttributes } from './helpers/cleanAttributes'
-import { getOptimize, getOptions } from './helpers/svgo'
+import { getOptimize as getOptimiseOxvg, getOptions as getOptionsOxvg } from './helpers/oxvg'
+import { getOptimize as getOptimizeSvgo, getOptions as getOptionsSvgo } from './helpers/svgo'
 import { Styles } from './styles/styles'
 
 /**
@@ -22,8 +24,8 @@ export class SVGManager {
   private _iconsPattern: Pattern
   private _config: ResolvedConfig
   public hash: string | null = null
-  private _optimizeOptions: SvgoConfig | false = false
-  private _optimize: Awaited<ReturnType<typeof getOptimize>> | null = null
+  private _optimizeType: 'svgo' | 'oxvg' | null = null
+  private _optimize: Awaited<ReturnType<typeof getOptimizeSvgo | typeof getOptimiseOxvg>> | null = null
 
   constructor(iconsPattern: Pattern, options: Options, config: ResolvedConfig) {
     this._parser = new DOMParser()
@@ -32,7 +34,6 @@ export class SVGManager {
     this._svgs = new Map()
     this._iconsPattern = iconsPattern
     this._config = config
-    this._optimizeOptions = getOptions(typeof this._options.svgo === 'undefined' ? true : this._options.svgo, this._options.prefix)
   }
 
   /**
@@ -60,7 +61,6 @@ export class SVGManager {
       await this._initializeOptimizer()
     }
 
-    // Optimize SVG if SVGO is enabled and available
     svg = await this._optimizeSvg(svg)
 
     const svgData = {
@@ -129,20 +129,19 @@ export class SVGManager {
   }
 
   /**
-   * Optimize SVG using SVGO if available
+   * Optimize SVG using SVGO or OXVG if available
    */
   private async _optimizeSvg(svg: string): Promise<string> {
-    if (this._optimize === null) {
-      this._optimize = await getOptimize()
-      if (this._options.svgo && !this._optimize) {
-        this._config.logger.warn(`[vite-plugin-svg-spritemap] You need to install SVGO to be able to optimize your SVG with it.`)
-      }
-    }
-
-    if (this._optimize && this._optimizeOptions) {
+    if (this._optimize && this._optimizeType) {
       try {
-        const optimizedSvg = this._optimize(svg, this._optimizeOptions)
-        if ('data' in optimizedSvg)
+        let config: SvgoConfig | OxvgConfig | undefined = getOptionsSvgo(this._options.svgo, this._options.prefix)
+        if (this._optimizeType === 'oxvg') {
+          config = getOptionsOxvg(this._options.oxvg)
+        }
+        const optimizedSvg = this._optimize(svg, config)
+        if (typeof optimizedSvg === 'string')
+          return optimizedSvg
+        else if ('data' in optimizedSvg)
           return optimizedSvg.data
       }
       catch (error) {
@@ -157,11 +156,31 @@ export class SVGManager {
    * Initialize SVGO optimizer
    */
   private async _initializeOptimizer(): Promise<void> {
-    if (this._optimize === null) {
-      this._optimize = await getOptimize()
-      if (this._options.svgo && !this._optimize) {
-        this._config.logger.warn(`[vite-plugin-svg-spritemap] You need to install SVGO to be able to optimize your SVG with it.`)
-      }
+    if (this._optimize !== null)
+      return
+
+    // Try to load SVGO first, if not available, fallback to OXVG
+    if (this._options.svgo !== false)
+      this._optimize = await getOptimizeSvgo()
+    if (this._optimize) {
+      this._config.logger.info(`[vite-plugin-svg-spritemap] Using SVGO for SVG optimization.`)
+      this._optimizeType = 'svgo'
+    }
+    if (this._options.svgo && !this._optimize) {
+      this._config.logger.warn(`[vite-plugin-svg-spritemap] You need to install SVGO to be able to optimize your SVG with it.`)
+    }
+
+    if (this._optimize)
+      return
+
+    if (this._options.oxvg !== false)
+      this._optimize = await getOptimiseOxvg(this._config.logger)
+    if (this._optimize) {
+      this._config.logger.info(`[vite-plugin-svg-spritemap] Using OXVG for SVG optimization.`)
+      this._optimizeType = 'oxvg'
+    }
+    if (this._options.oxvg && !this._optimize) {
+      this._config.logger.warn(`[vite-plugin-svg-spritemap] You need to install OXVG to be able to optimize your SVG with it.`)
     }
   }
 

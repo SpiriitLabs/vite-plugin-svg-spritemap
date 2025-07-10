@@ -83,7 +83,7 @@ Take an SVGO Options object.
 If `true`, it will use the [default SVGO preset](https://github.com/svg/svgo#default-preset), if `false`, it will disable SVGO optimization.
 
 ::: warning
-Since the version 3.0, you need to install `svgo` manually as a depency of your project if you want `vite-plugin-svg-spritemap` to process SVG file with it.
+Since the version 3.0, you need to install `svgo` manually as a dependency of your project if you want `vite-plugin-svg-spritemap` to process SVG file with it.
 
 ::: code-group
 
@@ -109,14 +109,14 @@ bun add -D svgo
 - **Type:** `boolean`
 - **Default:** `false`
 
-Inject the SVG Spritemap inside the body on dev. Useful for mitigate CORS issue with a [Backend](/guide/backend-integration).
+Inject the SVG Spritemap inside the body on dev. Useful for mitigating CORS issue with a [Backend](/guide/backend-integration).
 
 ## idify
 
 - **Type:** `(name: string, svg: object) => string`
 - **Default:** `name => name`
 
-Function allowing to customize the id of each symbol of the spritemap svg.
+Function allowing you to customize the id of each symbol of the spritemap svg.
 
 ## route
 
@@ -131,3 +131,49 @@ Change the route name allowing you to have multiple instance of the plugin (see 
 - **Default:** `0`
 
 Gutter (in pixels) between each sprite to help prevent overlap.
+
+## oxvg
+
+- **Type:** `boolean | object`
+- **Default:** `false` if OXVG not installed, `true` if OXVG is installed
+
+Take an OXVG Options object.
+If `true`, it will use the [default SVGO preset](https://github.com/svg/svgo#default-preset), if `false`, it will disable OXVG optimization.
+
+::: warning
+You need to install `@oxvg/napi` (**0.0.4-1** or superior)  and the corresponding native binding dependency for your platform.
+
+::: code-group
+
+```bash [npm]
+npm i -D @oxvg/napi
+npm i -D @oxvg/napi-darwin-arm64 #macOS ARM64 (Apple Silicon)
+npm i -D @oxvg/napi-darwin-x64 #macOS x64 (Intel)
+npm i -D @oxvg/napi-linux-x64-gnu #Linux x64 (GNU)
+npm i -D @oxvg/napi-win32-x64-msvc #Windows x64 (MSVC)
+```
+
+```bash [Yarn]
+yarn add -D @oxvg/napi
+yarn add -D @oxvg/napi-darwin-arm64 #macOS ARM64 (Apple Silicon)
+yarn add -D @oxvg/napi-darwin-x64 #macOS x64 (Intel)
+yarn add -D @oxvg/napi-linux-x64-gnu #Linux x64 (GNU)
+yarn add -D @oxvg/napi-win32-x64-msvc #Windows x64 (MSVC)
+```
+
+```bash [pnpm]
+pnpm add -D @oxvg/napi
+pnpm add -D @oxvg/napi-darwin-arm64 #macOS ARM64 (Apple Silicon)
+pnpm add -D @oxvg/napi-darwin-x64 #macOS x64 (Intel)
+pnpm add -D @oxvg/napi-linux-x64-gnu #Linux x64 (GNU)
+pnpm add -D @oxvg/napi-win32-x64-msvc #Windows x64 (MSVC)
+```
+
+```bash [Bun]
+bun add -D @oxvg/napi
+bun add -D @oxvg/napi-darwin-arm64 #macOS ARM64 (Apple Silicon)
+bun add -D @oxvg/napi-darwin-x64 #macOS x64 (Intel)
+bun add -D @oxvg/napi-linux-x64-gnu #Linux x64 (GNU)
+bun add -D @oxvg/napi-win32-x64-msvc #Windows x64 (MSVC)
+```
+:::

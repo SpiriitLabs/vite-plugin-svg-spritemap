@@ -4,7 +4,7 @@
 
 > This plugin supports Vite 5 and 6.
 
-This ViteJS plugin generates a single SVG [spritemap](https://css-tricks.com/svg-sprites-use-better-icon-fonts/) with `<symbol>`/`<view>`/`<use>` for each SVG files. It can also generate a stylesheet (CSS/SCSS/Stylus/Less) containing the sprites to be used directly (via a Data URI or SVG fragments).
+This ViteJS plugin generates a single SVG [spritemap](https://css-tricks.com/svg-sprites-use-better-icon-fonts/) with `<symbol>`/`<view>`/`<use>` for each SVG file. It can also generate a stylesheet (CSS/SCSS/Stylus/Less) containing the sprites to be used directly (via a Data URI or SVG fragments).
 
 > [!NOTE]
 > This plugin is inspired by [svg-spritemap-webpack-plugin](https://github.com/cascornelissen/svg-spritemap-webpack-plugin) for Webpack.
@@ -13,27 +13,23 @@ This ViteJS plugin generates a single SVG [spritemap](https://css-tricks.com/svg
 
 - ⚡ Fully integrated in your ViteJS environment
 - 📦 Pack your SVG files in one ([spritemap](https://css-tricks.com/svg-sprites-use-better-icon-fonts/)) file
-- ✨ Use your SVG in an `<svg>` or `<img>` tags and also directly in your CSS/SCSS/Stylus/Less
-- 🍕 Import SVG fragment as VueJS component
+- ✨ Use your SVG in `<svg>` or `<img>` tags and also directly in your CSS/SCSS/Stylus/Less
+- 🍕 Import SVG fragments as VueJS components
 - 🔥 HMR support
 
 ## 📦 Install
 
 ```shell
 npm i -D @spiriit/vite-plugin-svg-spritemap
-npm i -D svgo #if you need svgo optimization
 
 # yarn
 yarn add -D @spiriit/vite-plugin-svg-spritemap
-yarn add -D svgo #if you need svgo optimization
 
 # pnpm
 pnpm add -D @spiriit/vite-plugin-svg-spritemap
-pnpm add -D svgo #if you need svgo optimization
 
 # bun
 bun add -D @spiriit/vite-plugin-svg-spritemap
-bun add -D svgo #if you need svgo optimization
 ```
 
 ## 👨‍💻 Quick start
@@ -49,7 +45,7 @@ export default {
 }
 ```
 
-You can access to the spritemap via the route `/__spritemap`. All files process by ViteJS will transform the path of the file on build. The prefix is `sprite-` by default.
+You can access the spritemap via the route `/__spritemap`. All files processed by ViteJS will transform the path of the file on build. The prefix is `sprite-` by default.
 
 The plugin will generate a spritemap to support all methods described below (files populated with `<view>` for fragments and `<use>` for sprite). This can be configured through options.
 
@@ -63,7 +59,7 @@ The plugin will generate a spritemap to support all methods described below (fil
 
 **Img**
 
-You need to add the suffix `-view` to access to the fragment.
+You need to add the suffix `-view` to access the fragment.
 
 ```html
 <img src="/__spritemap#sprite-spiriit-view" />
@@ -71,12 +67,12 @@ You need to add the suffix `-view` to access to the fragment.
 
 ## 📚 Documentation
 
-For more informations, check the [vite-plugin-svg-spritemap documentation](https://spiriitlabs.github.io/vite-plugin-svg-spritemap). It covers everything from getting started to advanced topics.
+For more information, check the [vite-plugin-svg-spritemap documentation](https://spiriitlabs.github.io/vite-plugin-svg-spritemap). It covers everything from getting started to advanced topics.
 
 ## 🏃 What's next
 
 - Add variable supports inspired by [svg-spritemap-webpack-plugin](https://github.com/cascornelissen/svg-spritemap-webpack-plugin/blob/master/docs/variables.md)
 
-## 👨‍💼 Licence
+## 👨‍💼 License
 
 MIT

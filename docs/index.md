@@ -29,5 +29,8 @@ features:
   - title: Hot Module Replacement (HMR) Support
     icon: 🔥
     details: Real-time updates with HMR for faster development.
+  - title: Optional SVGO Optimization
+    icon: ⚙️
+    details: Optimize your SVGs with SVGO or OXVG for better performance and smaller file sizes.
 
 ---
