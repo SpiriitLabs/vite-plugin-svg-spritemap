@@ -85,7 +85,7 @@ Under the hood, the spritemap generates `<view>` tags. This can be disabled by u
 
 ## Advanced usage
 
-This plugin is trying to cover a maxiumum of use cases and usage because ViteJS is very versatile tool.
+This plugin is trying to cover a maximum of use cases and usage because ViteJS is a very versatile tool.
 You can pass, as a second argument, an object with options allowing you to control the svg output.
 
 Check the advanced and [options](/options/) documentations.

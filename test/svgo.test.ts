@@ -43,7 +43,7 @@ describe('svgo', () => {
         const svgo = svgoConfigs[key]
         const result = await buildVite({
           name: `svgo_warning`,
-          options: { svgo },
+          options: { svgo, oxvg: false },
         })
         const warningStr = '[vite-plugin-svg-spritemap] You need to install SVGO to be able to optimize your SVG with it.'
 

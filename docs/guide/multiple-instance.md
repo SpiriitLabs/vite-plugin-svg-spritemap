@@ -1,6 +1,6 @@
 # Multiple Instance
 
-If you want to have multiple SVG sprites files, you can configure multiple instances of the plugin. To do so, you will need the options [`route`](/options/#route). Instead of the traditionnal `/__spritemap`, you can set for example `/__flags`.
+If you want to have multiple SVG sprites files, you can configure multiple instances of the plugin. To do so, you will need the options [`route`](/options/#route). Instead of the traditional `/__spritemap`, you can set for example `/__flags`.
 
 ```ts
 // vite.config.js / vite.config.ts

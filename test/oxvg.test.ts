@@ -43,7 +43,7 @@ describe('oxvg', () => {
         const oxvg = oxvgConfigs[key]
         const result = await buildVite({
           name: `oxvg_warning`,
-          options: { oxvg },
+          options: { oxvg, svgo: false },
         })
         const warningStr = '[vite-plugin-svg-spritemap] You need to install OXVG to be able to optimize your SVG with it.'
 
