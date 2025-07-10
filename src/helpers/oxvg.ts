@@ -1,4 +1,4 @@
-import type { Config as SvgoConfig } from 'svgo'
+import type { Jobs as OxvgConfig } from '@oxvg/napi'
 import type { Logger } from 'vite'
 import type { Options } from '../types'
 
@@ -6,9 +6,11 @@ import type { Options } from '../types'
  * Get OXVG Options
  */
 export function getOptions(oxvgOptions: Options['oxvg'] | undefined) {
-  let svgo: SvgoConfig | false = {}
-  if (typeof oxvgOptions === 'object' || oxvgOptions === false)
+  let svgo: OxvgConfig | undefined = {}
+  if (typeof oxvgOptions === 'object')
     svgo = oxvgOptions
+  else if (oxvgOptions === false)
+    svgo = undefined
 
   return svgo
 }

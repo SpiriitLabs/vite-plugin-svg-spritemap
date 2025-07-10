@@ -23,6 +23,7 @@ export default defineConfig({
       // styles: './../_fixtures/icons/spritemap.less',
       prefix: 'icon-',
       svgo: false,
+      oxvg: true,
       // output: {
       //   use: false,
       //   view: false,
@@ -32,6 +33,8 @@ export default defineConfig({
     VitePluginSvgSpritemap('./../_fixtures/flags/*.svg', {
       route: '__flags',
       prefix: 'flag-',
+      svgo: true,
+      oxvg: false,
       styles: {
         filename: './../_fixtures/scss/spritemap-flags.scss',
         names: {

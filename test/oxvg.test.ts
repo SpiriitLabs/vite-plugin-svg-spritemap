@@ -5,6 +5,14 @@ import { buildVite } from './helper/build'
 const oxvgConfigs: Record<string, UserOptions['oxvg']> = {
   default: true,
   false: false,
+  custom: {
+    prefixIds: {
+      delim: '-',
+      prefixClassNames: true,
+      prefixIds: true,
+      prefix: { type: 'Prefix', field0: 'prefix' },
+    },
+  },
   // custom: {
   //   plugins: ['prefixIds'],
   // },
