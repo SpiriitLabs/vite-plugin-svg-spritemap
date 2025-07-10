@@ -13,29 +13,25 @@ This ViteJS plugin generates a single SVG [spritemap](https://css-tricks.com/svg
 
 **Requirements**
 
-- Vite 5 or Vite 6
-- Node 18 or Node 20 and superior
+- Vite 7 or Vite 6
+- Node 18 or Node 20 or Node 22 and superior
 
 ::: code-group
 
 ```bash [npm]
 npm i -D @spiriit/vite-plugin-svg-spritemap
-npm i -D svgo #if you need svgo optimization
 ```
 
 ```bash [Yarn]
 yarn add -D @spiriit/vite-plugin-svg-spritemap
-yarn add -D svgo #if you need svgo optimization
 ```
 
 ```bash [pnpm]
 pnpm add -D @spiriit/vite-plugin-svg-spritemap
-pnpm add -D svgo #if you need svgo optimization
 ```
 
 ```bash [Bun]
 bun add -D @spiriit/vite-plugin-svg-spritemap
-bun add -D svgo #if you need svgo optimization
 ```
 
 :::

@@ -12,11 +12,11 @@
     "@spiriit/vite-plugin-svg-spritemap": "workspace:*",
     "autoprefixer": "^10.4.21",
     "less": "^4.3.0",
-    "postcss": "^8.5.3",
-    "sass": "^1.87.0",
+    "postcss": "^8.5.6",
+    "sass": "^1.89.2",
     "stylus": "^0.64.0",
     "typescript": "^5.8.3",
-    "vite": "^6.3.3",
-    "vite-plugin-inspect": "^11.0.1"
+    "vite": "^7.0.4",
+    "vite-plugin-inspect": "^11.3.0"
   }
 }

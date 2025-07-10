@@ -11,7 +11,6 @@ export function getOptions(svgoOptions: Options['svgo'] | undefined, prefix: str
         name: 'preset-default',
         params: {
           overrides: {
-            removeViewBox: false,
             removeEmptyAttrs: false,
             moveGroupAttrsToElems: false,
             collapseGroups: false,

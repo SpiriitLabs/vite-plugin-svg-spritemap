@@ -17,7 +17,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: 'Build: node-20, ubuntu-latest'
+    name: 'Build: node-22, ubuntu-latest'
 
     steps:
       - uses: actions/checkout@v4
@@ -26,10 +26,10 @@ jobs:
 
       - uses: pnpm/action-setup@v4
 
-      - name: Set node version to 20
+      - name: Set node version to 22
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
 
       - name: Install
@@ -45,13 +45,13 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node_version: [18, 20]
+        node_version: [18, 20, 22]
         include:
           # Active LTS + other OS
           - os: macos-latest
-            node_version: 20
+            node_version: 22
           - os: windows-latest
-            node_version: 20
+            node_version: 22
       fail-fast: false
 
     steps:
@@ -62,10 +62,10 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
 
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js ${{ matrix.node_version }}
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ matrix.node_version }}
           cache: pnpm
 
       - name: Install Python
@@ -91,12 +91,12 @@ jobs:
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: test-project-${{ matrix.os }}-${{ matrix.node-version }}
+          name: test-project-${{ matrix.os }}-${{ matrix.node_version }}
           path: test/project/
 
   coverage:
     runs-on: ubuntu-latest
-    name: 'Coverage: node-20, ubuntu-latest'
+    name: 'Coverage: node-22, ubuntu-latest'
 
     steps:
       - uses: actions/checkout@v4
@@ -105,10 +105,10 @@ jobs:
 
       - uses: pnpm/action-setup@v4
 
-      - name: Set node version to 20
+      - name: Set node version to 22
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
 
       - name: Install
@@ -127,7 +127,7 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
-    name: 'Lint: node-20, ubuntu-latest'
+    name: 'Lint: node-22, ubuntu-latest'
 
     steps:
       - uses: actions/checkout@v4
@@ -136,10 +136,10 @@ jobs:
 
       - uses: pnpm/action-setup@v4
 
-      - name: Set node version to 20
+      - name: Set node version to 22
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
 
       - name: Install
