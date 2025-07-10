@@ -11,9 +11,6 @@ importers:
       '@oxvg/napi-darwin-x64':
         specifier: ^0.0.4-1
         version: 0.0.4-1
-      '@oxvg/napi-win32-x64-msvc':
-        specifier: ^0.0.4-1
-        version: 0.0.4-1
       '@xmldom/xmldom':
         specifier: ^0.9.8
         version: 0.9.8
@@ -37,6 +34,9 @@ importers:
         specifier: ^0.0.4-1
         version: 0.0.4-1
       '@oxvg/napi-linux-x64-gnu':
+        specifier: 0.0.4-1
+        version: 0.0.4-1
+      '@oxvg/napi-win32-x64-msvc':
         specifier: 0.0.4-1
         version: 0.0.4-1
       '@types/hash-sum':
