@@ -25,7 +25,7 @@
     "test",
     "dist",
     "demo",
-    "tsup.config.ts",
+    "tsdown.config.ts",
     "vitest.config.ts"
   ]
 }
