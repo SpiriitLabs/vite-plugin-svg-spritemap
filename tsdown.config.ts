@@ -1,13 +1,10 @@
 import { promises as fs } from 'node:fs'
 import { resolve } from 'node:path'
 import { glob } from 'tinyglobby'
-import { defineConfig } from 'tsup'
+import { defineConfig } from 'tsdown'
 
 export default defineConfig({
   entry: ['src/index.ts'],
-  format: ['cjs', 'esm'],
-  shims: true,
-  dts: true,
   async onSuccess() {
     // Add styles templates for css generation
     const styles = async () => {
@@ -17,7 +14,7 @@ export default defineConfig({
     }
 
     Promise.all([
-      fs.copyFile(resolve(__dirname, './src/client.d.ts'), resolve(__dirname, 'dist/client.d.ts')),
+      fs.copyFile(resolve(import.meta.dirname, './src/client.d.ts'), resolve(import.meta.dirname, 'dist/client.d.ts')),
       styles(),
     ])
   },

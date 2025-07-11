@@ -49,7 +49,7 @@ export class Styles {
         || this._options.styles.include.includes('mixin'))
     ) {
       template = await promises.readFile(
-        path.join(__dirname, `/template.${this._options.styles.lang}`),
+        path.join(import.meta.dirname, `/template.${this._options.styles.lang}`),
         'utf8',
       )
     }

@@ -1,6 +1,5 @@
 import type { Jobs as OXVGConfig } from '@oxvg/napi'
 import type { Config as SvgoConfig } from 'svgo'
-import './types.d.ts'
 
 type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
