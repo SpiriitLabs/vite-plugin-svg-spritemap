@@ -49,10 +49,10 @@ For typescript, you need to load the type definitions inside `vite-env.d.ts` to 
 /// <reference types="@spiriit/vite-plugin-svg-spritemap/client" />
 ```
 
-## Nuxt 3
+## Nuxt 3/4
 
 > [!NOTE]
-> This plugin only works with Nuxt 3 and Vite as a bundler.
+> This plugin only works with Nuxt 3/4 and Vite as a bundler.
 
 You just need to install the plugin and set it in the right place for Nuxt 3.
 
@@ -73,8 +73,8 @@ You can see the usage in the [corresponding demo folder](https://github.com/Spir
 
 ## TypeScript
 
-For usage with TypeScript, you will need to add in a `.d.ts` file the reference type `/// <reference types="@spiriit/vite-plugin-svg-spritemap/dist/client" />` (see [issue #38](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/38)) to use `?use`/`?view` query.
+For usage with TypeScript, you will need to add in a `.d.ts` file the reference type to use `?use`/`?view` query.
 
 ```ts
-/// <reference types="@spiriit/vite-plugin-svg-spritemap/dist/client" />
+/// <reference types="@spiriit/vite-plugin-svg-spritemap/client" />
 ```
