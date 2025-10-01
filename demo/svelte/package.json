@@ -11,14 +11,14 @@
   },
   "devDependencies": {
     "@spiriit/vite-plugin-svg-spritemap": "workspace:*",
-    "@sveltejs/vite-plugin-svelte": "^6.0.0",
-    "@tsconfig/svelte": "^5.0.4",
-    "sass": "^1.89.2",
+    "@sveltejs/vite-plugin-svelte": "^6.2.1",
+    "@tsconfig/svelte": "^5.0.5",
+    "sass": "^1.93.2",
     "stylus": "^0.64.0",
-    "svelte": "^5.35.6",
-    "svelte-check": "^4.2.2",
+    "svelte": "^5.39.7",
+    "svelte-check": "^4.3.2",
     "tslib": "^2.8.1",
-    "typescript": "^5.8.3",
-    "vite": "^7.0.4"
+    "typescript": "^5.9.3",
+    "vite": "^7.1.7"
   }
 }
