@@ -76,7 +76,7 @@ importers:
         specifier: ^0.15.6
         version: 0.15.6(typescript@5.9.3)(vue-tsc@3.1.0(typescript@5.9.3))
       typescript:
-        specifier: ^5.8.3
+        specifier: ^5.9.3
         version: 5.9.3
       vite:
         specifier: ^6.3.6
