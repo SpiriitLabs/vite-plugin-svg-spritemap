@@ -163,7 +163,7 @@ export class SVGManager {
     if (this._options.svgo !== false)
       this._optimize = await getOptimizeSvgo()
     if (this._optimize) {
-      this._config.logger.info(`[vite-plugin-svg-spritemap] Using SVGO for SVG optimization.`)
+      this._config.logger.info(`[vite-plugin-svg-spritemap] Using SVGO for SVG optimization on ${this._options.route}.`)
       this._optimizeType = 'svgo'
     }
     if (this._options.svgo && !this._optimize) {
@@ -176,7 +176,7 @@ export class SVGManager {
     if (this._options.oxvg !== false)
       this._optimize = await getOptimiseOxvg(this._config.logger)
     if (this._optimize) {
-      this._config.logger.info(`[vite-plugin-svg-spritemap] Using OXVG for SVG optimization.`)
+      this._config.logger.info(`[vite-plugin-svg-spritemap] Using OXVG for SVG optimization on ${this._options.route}.`)
       this._optimizeType = 'oxvg'
     }
     if (this._options.oxvg && !this._optimize) {

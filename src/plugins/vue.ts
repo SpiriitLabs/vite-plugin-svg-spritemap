@@ -1,11 +1,10 @@
 import type { Plugin, ResolvedConfig } from 'vite'
-import type { Options, Pattern } from '../types'
+import type { SVGManager } from '../svgManager'
+import type { Options } from '../types'
 import { parse } from 'node:path'
-import { SVGManager } from '../svgManager'
 
-export default function VuePlugin(iconsPattern: Pattern, options: Options): Plugin {
+export default function VuePlugin(shared: { svgManager: SVGManager | null }, options: Options): Plugin {
   const filterVueComponent = /\.svg\?(use|view)?$/
-  let svgManager: SVGManager
   let config: ResolvedConfig
 
   return <Plugin>{
@@ -13,10 +12,6 @@ export default function VuePlugin(iconsPattern: Pattern, options: Options): Plug
     enforce: 'pre',
     configResolved(_config) {
       config = _config
-      if (config.plugins.findIndex(plugin => plugin.name === 'vite:vue') === -1 || !options.output)
-        return
-      svgManager = new SVGManager(iconsPattern, options, config)
-      svgManager.updateAll()
     },
     async load(id) {
       if (config.plugins.findIndex(plugin => plugin.name === 'vite:vue') === -1 || !options.output)
@@ -26,7 +21,7 @@ export default function VuePlugin(iconsPattern: Pattern, options: Options): Plug
 
       const [path, query] = id.split('?', 2)
       const { base: filename } = parse(path)
-      const svg = svgManager.svgs.get(path)
+      const svg = shared.svgManager?.svgs.get(path)
 
       let source = ''
 

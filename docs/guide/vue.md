@@ -62,9 +62,12 @@ import VitePluginSvgSpritemap from '@spiriit/vite-plugin-svg-spritemap'
 
 export default defineNuxtConfig({
   vite: {
-    plugins: [
-      VitePluginSvgSpritemap('./assets/icons/*.svg'),
-    ]
+    $client: {
+      // Client-side only
+      plugins: [
+        VitePluginSvgSpritemap('./assets/icons/*.svg'),
+      ]
+    },
   }
 })
 ```

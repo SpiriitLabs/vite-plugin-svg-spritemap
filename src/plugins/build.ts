@@ -1,17 +1,16 @@
 import type { ExternalOption } from 'rollup'
 import type { Plugin, ResolvedConfig } from 'vite'
-import type { Options, Pattern } from '../types'
+import type { SVGManager } from '../svgManager'
+import type { Options } from '../types'
 import { posix as path } from 'node:path'
 import { getFileName } from '../helpers/filename'
-import { SVGManager } from '../svgManager'
 
-export default function BuildPlugin(iconsPattern: Pattern, options: Options): Plugin {
-  let config: ResolvedConfig
+export default function BuildPlugin(shared: { svgManager: SVGManager | null }, options: Options): Plugin {
   let fileRef: string
   let fileName: string
-  let svgManager: SVGManager
   const spritemapFilter = new RegExp(`/${options?.route || '__spritemap'}`, 'g')
   const pluginExternal: ExternalOption = new RegExp(`/${options?.route || '__spritemap'}`)
+  let config: ResolvedConfig
 
   return <Plugin>{
     name: 'vite-plugin-svg-spritemap:build',
@@ -47,16 +46,18 @@ export default function BuildPlugin(iconsPattern: Pattern, options: Options): Pl
     },
     configResolved(_config) {
       config = _config
-      svgManager = new SVGManager(iconsPattern, options, config)
     },
     async buildStart() {
-      await svgManager.updateAll()
+      if (!shared.svgManager)
+        return
+
+      await shared.svgManager.updateAll()
 
       if (typeof options.output === 'object') {
         fileName = getFileName(
           options.output.filename,
           'spritemap',
-          svgManager.spritemap,
+          shared.svgManager.spritemap,
           'svg',
         )
         const filePath = path.join(config.build.assetsDir, fileName)
@@ -64,7 +65,7 @@ export default function BuildPlugin(iconsPattern: Pattern, options: Options): Pl
           type: 'asset',
           needsCodeReference: false,
           name: options.output.name,
-          source: svgManager.spritemap,
+          source: shared.svgManager.spritemap,
           fileName: filePath,
           originalFileName: options.output.name,
         })
