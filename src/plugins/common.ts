@@ -12,7 +12,7 @@ export default function CommonPlugin(shared: Shared, iconsPattern: Pattern, opti
     enforce: 'pre',
     configResolved(_config) {
       config = _config
-      const _options = createOptions(options)
+      const _options = createOptions(options, config.logger)
       shared.options = _options
       shared.svgManager = new SVGManager(iconsPattern, _options, _config)
     },

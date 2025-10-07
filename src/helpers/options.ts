@@ -1,6 +1,7 @@
+import type { Logger } from 'vite'
 import type { Options, OptionsStyles, StylesLang, UserOptions } from '../types'
 
-export function createOptions(options: UserOptions = {}): Options {
+export function createOptions(options: UserOptions = {}, logger: Logger): Options {
   let prefix: Options['prefix'] = 'sprite-'
   if (options.prefix === false)
     prefix = ''
@@ -14,10 +15,7 @@ export function createOptions(options: UserOptions = {}): Options {
 
     if (typeof lang === 'undefined' || !stylesLang.includes(lang)) {
       lang = 'css'
-      console.warn(
-        '[vite-plugin-spritemap]',
-        'Invalid styles lang, fallback to css',
-      )
+      logger.warn('[vite-plugin-spritemap] Invalid styles lang, fallback to css')
     }
 
     styles = {
@@ -44,10 +42,7 @@ export function createOptions(options: UserOptions = {}): Options {
     let lang = options.styles.filename.split('.').pop() as StylesLang | undefined
     if (typeof lang === 'undefined' || !stylesLang.includes(lang)) {
       lang = 'css'
-      console.warn(
-        '[vite-plugin-spritemap]',
-        'Invalid styles lang, fallback to css',
-      )
+      logger.warn('[vite-plugin-spritemap] Invalid styles lang, fallback to css')
     }
 
     styles = {

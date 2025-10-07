@@ -73,7 +73,7 @@ describe('styles generation', () => {
 
   for (const lang in styleIncludes) {
     if (Object.prototype.hasOwnProperty.call(styleIncludes, lang)) {
-      const includes = styleIncludes[lang]
+      const includes = styleIncludes[lang as StylesLang]
       for (const include of includes) {
         it(`include ${lang} ${JSON.stringify(include)}`, async () => {
           const includePath = Array.isArray(include) ? include.join('_') : include
@@ -167,8 +167,7 @@ describe('styles generation', () => {
     })
     for (const call of spy.mock.calls) {
       expect(call).toStrictEqual([
-        '[vite-plugin-spritemap]',
-        'Invalid styles lang, fallback to css',
+        '[vite-plugin-spritemap] Invalid styles lang, fallback to css',
       ])
     }
   })
