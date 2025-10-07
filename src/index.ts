@@ -1,32 +1,18 @@
 import type { Plugin } from 'vite'
-import type { Pattern, UserOptions } from './types'
-import { createOptions } from './helpers/options'
+import type { Pattern, Shared, UserOptions } from './types'
 import BuildPlugin from './plugins/build'
+import CommonPlugin from './plugins/common'
 import DevPlugin from './plugins/dev'
-import VuePlugin from './plugins/vue'
-import { SVGManager } from './svgManager'
 
 export default function VitePluginSvgSpritemap(
   iconsPattern: Pattern,
   options?: UserOptions,
 ): Plugin[] {
-  const _options = createOptions(options)
-  const shared = { svgManager: null as SVGManager | null }
-
-  function OrchestratorPlugin(): Plugin {
-    return {
-      name: 'vite-plugin-svg-spritemap:orchestrator',
-      enforce: 'pre',
-      configResolved(_config) {
-        shared.svgManager = new SVGManager(iconsPattern, _options, _config)
-      },
-    }
-  }
+  const shared: Shared = { svgManager: null, options: null }
 
   return [
-    OrchestratorPlugin(),
-    BuildPlugin(shared, _options),
-    DevPlugin(shared, _options),
-    VuePlugin(shared, _options),
+    CommonPlugin(shared, iconsPattern, options),
+    BuildPlugin(shared),
+    DevPlugin(shared),
   ]
 }

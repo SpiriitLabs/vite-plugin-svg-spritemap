@@ -1,15 +1,12 @@
 import type { ExternalOption } from 'rollup'
 import type { Plugin, ResolvedConfig } from 'vite'
-import type { SVGManager } from '../svgManager'
-import type { Options } from '../types'
+import type { Shared } from '../types'
 import { posix as path } from 'node:path'
 import { getFileName } from '../helpers/filename'
 
-export default function BuildPlugin(shared: { svgManager: SVGManager | null }, options: Options): Plugin {
+export default function BuildPlugin(shared: Shared): Plugin {
   let fileRef: string
   let fileName: string
-  const spritemapFilter = new RegExp(`/${options?.route || '__spritemap'}`, 'g')
-  const pluginExternal: ExternalOption = new RegExp(`/${options?.route || '__spritemap'}`)
   let config: ResolvedConfig
 
   return <Plugin>{
@@ -17,6 +14,7 @@ export default function BuildPlugin(shared: { svgManager: SVGManager | null }, o
     apply: 'build',
     config(config) {
       const configExternal = config.build?.rollupOptions?.external
+      const pluginExternal = new RegExp(`/${shared.options?.route || '__spritemap'}`)
       let finalExternal: ExternalOption = pluginExternal
 
       if (Array.isArray(configExternal)) {
@@ -48,14 +46,14 @@ export default function BuildPlugin(shared: { svgManager: SVGManager | null }, o
       config = _config
     },
     async buildStart() {
-      if (!shared.svgManager)
+      if (!shared.svgManager || !shared.options)
         return
 
       await shared.svgManager.updateAll()
 
-      if (typeof options.output === 'object') {
+      if (typeof shared.options.output === 'object') {
         fileName = getFileName(
-          options.output.filename,
+          shared.options.output.filename,
           'spritemap',
           shared.svgManager.spritemap,
           'svg',
@@ -64,15 +62,19 @@ export default function BuildPlugin(shared: { svgManager: SVGManager | null }, o
         fileRef = this.emitFile({
           type: 'asset',
           needsCodeReference: false,
-          name: options.output.name,
+          name: shared.options.output.name,
           source: shared.svgManager.spritemap,
           fileName: filePath,
-          originalFileName: options.output.name,
+          originalFileName: shared.options.output.name,
         })
       }
     },
     transform(code) {
-      if (typeof options.output !== 'object' || !spritemapFilter.test(code))
+      if (!shared.options || typeof shared.options.output !== 'object')
+        return
+
+      const spritemapFilter = new RegExp(`/${shared.options?.route || '__spritemap'}`, 'g')
+      if (!spritemapFilter.test(code))
         return
 
       // prevent sveltekit rewrite
