@@ -1,27 +1,34 @@
 import type { Plugin } from 'vite'
 import type { Options, Shared } from '../types'
-
-const event = 'vite-plugin-svg-spritemap:update'
+import micromatch from 'micromatch'
 
 export default function DevPlugin(shared: Shared): Plugin {
   const filterSVG = /\.svg$/
   const filterCSS = /\.(s?css|styl|less)$/
 
-  function virtualModuleId() {
+  function getVirtualModuleId() {
+    const virtualModuleId = '/@vite-plugin-svg-spritemap/client'
     if (!shared.options)
-      return '/@vite-plugin-svg-spritemap/client'
-    return `/@vite-plugin-svg-spritemap/client${shared.options.route}`
+      return virtualModuleId
+    return `${virtualModuleId}${shared.options.route}`
+  }
+
+  function getEventName() {
+    const event = 'vite-plugin-svg-spritemap:update'
+    if (shared.options && shared.options.route)
+      return `${event}:${shared.options.route}`
+    return event
   }
 
   return <Plugin>{
     name: 'vite-plugin-svg-spritemap:dev',
     apply: 'serve',
     resolveId(id) {
-      if (id === virtualModuleId())
+      if (id === getVirtualModuleId())
         return id
     },
     load(id) {
-      if (id === virtualModuleId() && shared.options && shared.svgManager)
+      if (id === getVirtualModuleId() && shared.options && shared.svgManager)
         return generateHMR(shared.svgManager.spritemap, shared.options)
     },
     async buildStart() {
@@ -58,19 +65,32 @@ export default function DevPlugin(shared: Shared): Plugin {
 
         return html.replace(
           '</body>',
-          `<script type="module" src="${virtualModuleId()}"></script></body>`,
+          `<script type="module" src="${getVirtualModuleId()}"></script></body>`,
         )
       },
+    },
+    async watchChange(id, { event }) {
+      if (!shared.svgManager || !id.match(filterSVG))
+        return
+
+      if ((event === 'update' || event === 'delete') && shared.svgManager.has(id)) {
+        if (event === 'update')
+          await shared.svgManager.update(id)
+        else
+          await shared.svgManager.delete(id)
+      }
+      else if (event === 'create' && micromatch.isMatch(id, shared.svgManager.iconsPattern)) {
+        await shared.svgManager.update(id)
+      }
     },
     async handleHotUpdate(ctx) {
       if (!shared.svgManager)
         return
 
-      if (!ctx.file.match(filterSVG))
+      if (!ctx.file.match(filterSVG) || !shared.svgManager.has(ctx.file))
         return
 
-      await shared.svgManager.update(ctx.file)
-
+      const event = getEventName()
       ctx.server.ws.send({
         type: 'custom',
         event,
@@ -82,7 +102,7 @@ export default function DevPlugin(shared: Shared): Plugin {
     },
     transform(code, id) {
       if (!id.match(filterCSS) || !shared.options || !shared.svgManager)
-        return undefined
+        return
 
       const replaceRegExp = new RegExp(`${shared.options.route}-\d*|${shared.options.route}`, 'g')
       return {
@@ -133,7 +153,7 @@ export default function DevPlugin(shared: Shared): Plugin {
       ${options.injectSvgOnDev ? injectSvg : ''}
       ${options.injectSvgOnDev ? `injectSvg(${JSON.stringify({ spritemap })})` : ''}
       if (import.meta.hot) {
-        import.meta.hot.on('${event}', data => {
+        import.meta.hot.on('${getEventName()}', data => {
           console.debug('[vite-plugin-svg-spritemap]', 'update')
           ${updateElements}
           ${options.injectSvgOnDev ? 'injectSvg(data)' : ''}

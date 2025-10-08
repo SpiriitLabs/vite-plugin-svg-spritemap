@@ -37,7 +37,10 @@ export class SVGManager {
   }
 
   /**
-   * Update a single SVG file in the sprite map
+   * Update a single SVG file in the spritemap
+   * @param filePath - The path of the SVG file to update
+   * @param loop - Whether this update is part of a bulk update (to optimize performance)
+   * @returns True if the SVG file was updated, false otherwise
    */
   async update(filePath: string, loop = false) {
     const name = basename(filePath, '.svg')
@@ -93,7 +96,30 @@ export class SVGManager {
   }
 
   /**
+   * Remove a single SVG file from the spritemap
+   * @param filePath - The path of the SVG file to remove
+   * @returns True if the SVG file was removed, false if it was not found
+   */
+  async delete(filePath: string) {
+    if (!this._svgs.has(filePath))
+      return false
+
+    const svg = this._svgs.get(filePath)
+    if (svg)
+      this._ids.delete(svg.id)
+
+    this._svgs.delete(filePath)
+    this.hash = hash_sum(this.spritemap)
+    this._sortSvgs()
+    await this.createFileStyle()
+    return true
+  }
+
+  /**
    * Extract width, height and viewBox from SVG
+   * @param svg - The SVG content as a string
+   * @param filePath - The path of the SVG file (for logging purposes)
+   * @returns An object containing width, height and viewBox (if available)
    */
   private _extractSvgDimensions(svg: string, filePath: string): { width?: number, height?: number, viewBox?: number[] } {
     const document = this._parser.parseFromString(svg, 'image/svg+xml')
@@ -130,6 +156,8 @@ export class SVGManager {
 
   /**
    * Optimize SVG using SVGO or OXVG if available
+   * @param svg - The SVG content as a string
+   * @returns The optimized SVG content as a string
    */
   private async _optimizeSvg(svg: string): Promise<string> {
     if (this._optimize && this._optimizeType) {
@@ -339,6 +367,14 @@ export class SVGManager {
   }
 
   /**
+   * Get the glob pattern used to find SVG files
+   * @return The glob pattern
+   */
+  public get iconsPattern(): Pattern {
+    return this._iconsPattern
+  }
+
+  /**
    * Sort the internal SVGs Map alphabetically by file path
    */
   private _sortSvgs(): void {
@@ -349,5 +385,14 @@ export class SVGManager {
     for (const [key, value] of entries) {
       this._svgs.set(key, value)
     }
+  }
+
+  /**
+   * Check if an SVG file is already managed
+   * @param filePath - The path of the SVG file to check
+   * @returns True if the SVG file is managed, false otherwise
+   */
+  public has(filePath: string): boolean {
+    return this._svgs.has(filePath)
   }
 }

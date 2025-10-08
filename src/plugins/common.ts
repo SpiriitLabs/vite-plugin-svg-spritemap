@@ -20,7 +20,6 @@ export default function CommonPlugin(shared: Shared, iconsPattern: Pattern, opti
       const vueComponent = await vueComponentTransformer({ id, shared, config })
       if (vueComponent)
         return vueComponent
-      return undefined
     },
   }
 }
