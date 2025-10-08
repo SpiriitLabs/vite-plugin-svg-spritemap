@@ -91,7 +91,6 @@
   "dependencies": {
     "@xmldom/xmldom": "^0.9.8",
     "hash-sum": "^2.0.0",
-    "micromatch": "^4.0.8",
     "mini-svg-data-uri": "^1.4.4",
     "tinyglobby": "^0.2.15"
   },
@@ -102,7 +101,6 @@
     "@oxvg/napi-linux-x64-gnu": "0.0.4-1",
     "@oxvg/napi-win32-x64-msvc": "0.0.4-1",
     "@types/hash-sum": "^1.0.2",
-    "@types/micromatch": "^4.0.9",
     "@types/node": "^24.6.1",
     "@types/xmldom": "^0.1.34",
     "@vitejs/plugin-vue": "^6.0.1",

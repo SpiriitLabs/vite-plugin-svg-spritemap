@@ -39,10 +39,11 @@ export class SVGManager {
   /**
    * Update a single SVG file in the spritemap
    * @param filePath - The path of the SVG file to update
+   * @param mode - The mode of operation, either 'create' or 'update' (default: 'create')
    * @param loop - Whether this update is part of a bulk update (to optimize performance)
    * @returns True if the SVG file was updated, false otherwise
    */
-  async update(filePath: string, loop = false) {
+  async update(filePath: string, mode: 'create' | 'update' = 'create', loop = false) {
     const name = basename(filePath, '.svg')
     if (!name)
       return false
@@ -76,7 +77,7 @@ export class SVGManager {
 
     const id = this._options.idify(name, svgData)
 
-    if (this._ids.has(id)) {
+    if (this._ids.has(id) && mode === 'create') {
       this._config.logger.warn(`[vite-plugin-svg-spritemap] Sprite '${filePath}' has the same id (${id}) as another sprite.`)
     }
 
@@ -214,8 +215,9 @@ export class SVGManager {
 
   /**
    * Update all SVG files in the glob pattern
+   * @param mode - The mode of operation, either 'create' or 'update' (default: 'create')
    */
-  async updateAll(): Promise<void> {
+  async updateAll(mode: 'create' | 'update' = 'create'): Promise<void> {
     const iconsPath = await glob(this._iconsPattern, {
       cwd: this._config.root,
       absolute: true,
@@ -226,7 +228,7 @@ export class SVGManager {
 
     // Process files in parallel for better performance
     await Promise.all(
-      iconsPath.map(iconPath => this.update(iconPath, true)),
+      iconsPath.map(iconPath => this.update(iconPath, mode, true)),
     )
     this._sortSvgs()
 

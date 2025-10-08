@@ -1,6 +1,5 @@
 import type { Plugin } from 'vite'
 import type { Options, Shared } from '../types'
-import micromatch from 'micromatch'
 
 export default function DevPlugin(shared: Shared): Plugin {
   const filterSVG = /\.svg$/
@@ -69,29 +68,24 @@ export default function DevPlugin(shared: Shared): Plugin {
         )
       },
     },
-    async watchChange(id, { event }) {
-      if (!shared.svgManager || !id.match(filterSVG))
-        return
-
-      if ((event === 'update' || event === 'delete') && shared.svgManager.has(id)) {
-        if (event === 'update')
-          await shared.svgManager.update(id)
-        else
-          await shared.svgManager.delete(id)
-      }
-      else if (event === 'create' && micromatch.isMatch(id, shared.svgManager.iconsPattern)) {
-        await shared.svgManager.update(id)
-      }
-    },
-    async handleHotUpdate(ctx) {
+    async hotUpdate({ server, file, type }) {
       if (!shared.svgManager)
         return
 
-      if (!ctx.file.match(filterSVG) || !shared.svgManager.has(ctx.file))
+      if (!file.match(filterSVG))
+        return
+
+      if (type === 'delete' && shared.svgManager.has(file))
+        await shared.svgManager.delete(file)
+      else if (type === 'create' && !shared.svgManager.has(file))
+        await shared.svgManager.update(file, type)
+      else if (type === 'update' && shared.svgManager.has(file))
+        await shared.svgManager.update(file, type)
+      else
         return
 
       const event = getEventName()
-      ctx.server.ws.send({
+      server.ws.send({
         type: 'custom',
         event,
         data: {
