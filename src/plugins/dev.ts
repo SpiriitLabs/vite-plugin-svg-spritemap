@@ -75,14 +75,18 @@ export default function DevPlugin(shared: Shared): Plugin {
       if (!file.match(filterSVG))
         return
 
-      if (type === 'delete' && shared.svgManager.has(file))
+      if (type === 'delete' && shared.svgManager.has(file)) {
         await shared.svgManager.delete(file)
-      else if (type === 'create' && !shared.svgManager.has(file))
+      }
+      else if (
+        (type === 'create' && !shared.svgManager.has(file))
+        || (type === 'update' && shared.svgManager.has(file))
+      ) {
         await shared.svgManager.update(file, type)
-      else if (type === 'update' && shared.svgManager.has(file))
-        await shared.svgManager.update(file, type)
-      else
+      }
+      else {
         return
+      }
 
       const event = getEventName()
       server.ws.send({
