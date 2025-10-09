@@ -98,18 +98,23 @@ export default function DevPlugin(shared: Shared): Plugin {
         },
       })
     },
-    transform(code, id) {
-      if (!id.match(filterCSS) || !shared.options || !shared.svgManager)
-        return
+    transform: {
+      filter: {
+        id: filterCSS,
+      },
+      handler(code) {
+        if (!shared.options || !shared.svgManager)
+          return
 
-      const replaceRegExp = new RegExp(`${shared.options.route}-\d*|${shared.options.route}`, 'g')
-      return {
-        code: code.replace(
-          replaceRegExp,
-          `${shared.options.route}__${shared.svgManager.hash}`,
-        ),
-        map: null,
-      }
+        const replaceRegExp = new RegExp(`${shared.options.route}-\d*|${shared.options.route}`, 'g')
+        return {
+          code: code.replace(
+            replaceRegExp,
+            `${shared.options.route}__${shared.svgManager.hash}`,
+          ),
+          map: null,
+        }
+      },
     },
   }
 
