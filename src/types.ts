@@ -8,7 +8,7 @@ export type Pattern = string[] | string
 
 export type StylesLang = 'less' | 'scss' | 'styl' | 'css'
 
-export interface Shared { svgManager: SVGManager | null, options: Options | null }
+export interface Shared { svgManager: SVGManager | null, options: Options | null, route: string }
 
 export interface SvgDataUriMapObject {
   id: string

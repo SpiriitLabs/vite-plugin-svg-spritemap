@@ -5,30 +5,28 @@ export default function DevPlugin(shared: Shared): Plugin {
   const filterSVG = /\.svg$/
   const filterCSS = /\.(s?css|styl|less)$/
 
-  function getVirtualModuleId() {
-    const virtualModuleId = '/@vite-plugin-svg-spritemap/client'
-    if (!shared.options)
-      return virtualModuleId
-    return `${virtualModuleId}${shared.options.route}`
-  }
-
-  function getEventName() {
-    const event = 'vite-plugin-svg-spritemap:update'
-    if (shared.options && shared.options.route)
-      return `${event}:${shared.options.route}`
-    return event
-  }
+  const virtualModuleId = `/@vite-plugin-svg-spritemap/client${shared.route}`
+  const eventName = `vite-plugin-svg-spritemap:update:${shared.route}`
 
   return <Plugin>{
     name: 'vite-plugin-svg-spritemap:dev',
     apply: 'serve',
-    resolveId(id) {
-      if (id === getVirtualModuleId())
+    resolveId: {
+      filter: {
+        id: virtualModuleId,
+      },
+      handler(id) {
         return id
+      },
     },
-    load(id) {
-      if (id === getVirtualModuleId() && shared.options && shared.svgManager)
-        return generateHMR(shared.svgManager.spritemap, shared.options)
+    load: {
+      filter: {
+        id: virtualModuleId,
+      },
+      handler() {
+        if (shared.options && shared.svgManager)
+          return generateHMR(shared.svgManager.spritemap, shared.options)
+      },
     },
     async buildStart() {
       await shared.svgManager?.updateAll()
@@ -64,7 +62,7 @@ export default function DevPlugin(shared: Shared): Plugin {
 
         return html.replace(
           '</body>',
-          `<script type="module" src="${getVirtualModuleId()}"></script></body>`,
+          `<script type="module" src="${virtualModuleId}"></script></body>`,
         )
       },
     },
@@ -88,10 +86,9 @@ export default function DevPlugin(shared: Shared): Plugin {
         return
       }
 
-      const event = getEventName()
       server.ws.send({
         type: 'custom',
-        event,
+        event: eventName,
         data: {
           id: shared.svgManager.hash,
           spritemap: shared.options?.injectSvgOnDev ? shared.svgManager.spritemap : '',
@@ -156,7 +153,7 @@ export default function DevPlugin(shared: Shared): Plugin {
       ${options.injectSvgOnDev ? injectSvg : ''}
       ${options.injectSvgOnDev ? `injectSvg(${JSON.stringify({ spritemap })})` : ''}
       if (import.meta.hot) {
-        import.meta.hot.on('${getEventName()}', data => {
+        import.meta.hot.on('${eventName}', data => {
           console.debug('[vite-plugin-svg-spritemap]', 'update')
           ${updateElements}
           ${options.injectSvgOnDev ? 'injectSvg(data)' : ''}

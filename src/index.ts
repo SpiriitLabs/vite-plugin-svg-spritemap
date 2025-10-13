@@ -8,7 +8,12 @@ export default function VitePluginSvgSpritemap(
   iconsPattern: Pattern,
   options?: UserOptions,
 ): Plugin[] {
-  const shared: Shared = { svgManager: null, options: null }
+  // Get route before options are created because it is used on load/transform hooks filters
+  let route = '__spritemap'
+  if (typeof options?.route === 'string')
+    route = options.route
+
+  const shared: Shared = { svgManager: null, options: null, route }
 
   return [
     CommonPlugin(shared, iconsPattern, options),

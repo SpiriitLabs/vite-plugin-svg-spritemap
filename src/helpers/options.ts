@@ -1,7 +1,7 @@
 import type { Logger } from 'vite'
 import type { Options, OptionsStyles, StylesLang, UserOptions } from '../types'
 
-export function createOptions(options: UserOptions = {}, logger: Logger): Options {
+export function createOptions(options: UserOptions = {}, route: string, logger: Logger): Options {
   let prefix: Options['prefix'] = 'sprite-'
   if (options.prefix === false)
     prefix = ''
@@ -88,10 +88,6 @@ export function createOptions(options: UserOptions = {}, logger: Logger): Option
 
   if (typeof options.idify === 'function')
     idify = options.idify
-
-  let route = '__spritemap'
-  if (typeof options.route === 'string')
-    route = options.route
 
   const gutter = options.gutter || 0
 

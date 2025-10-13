@@ -8,13 +8,14 @@ export default function BuildPlugin(shared: Shared): Plugin {
   let fileRef: string
   let fileName: string
   let config: ResolvedConfig
+  const pluginExternal = new RegExp(`/${shared.route}`)
+  const spritemapFilter = new RegExp(`/${shared.route || '__spritemap'}`, 'g')
 
   return <Plugin>{
     name: 'vite-plugin-svg-spritemap:build',
     apply: 'build',
     config(config) {
       const configExternal = config.build?.rollupOptions?.external
-      const pluginExternal = new RegExp(`/${shared.options?.route || '__spritemap'}`)
       let finalExternal: ExternalOption = pluginExternal
 
       if (Array.isArray(configExternal)) {
@@ -69,26 +70,27 @@ export default function BuildPlugin(shared: Shared): Plugin {
         })
       }
     },
-    transform(code) {
-      if (!shared.options || typeof shared.options.output !== 'object')
-        return
+    transform: {
+      filter: {
+        code: spritemapFilter,
+      },
+      handler(code) {
+        if (!shared.options || typeof shared.options.output !== 'object')
+          return
 
-      const spritemapFilter = new RegExp(`/${shared.options?.route || '__spritemap'}`, 'g')
-      if (!spritemapFilter.test(code))
-        return
+        // prevent sveltekit rewrite
+        const base = config.base.startsWith('.')
+          ? config.base.substring(1)
+          : config.base
 
-      // prevent sveltekit rewrite
-      const base = config.base.startsWith('.')
-        ? config.base.substring(1)
-        : config.base
-
-      return {
-        code: code.replace(
-          spritemapFilter,
-          path.join(base, this.getFileName(fileRef)),
-        ),
-        map: null,
-      }
+        return {
+          code: code.replace(
+            spritemapFilter,
+            path.join(base, this.getFileName(fileRef)),
+          ),
+          map: null,
+        }
+      },
     },
   }
 }
