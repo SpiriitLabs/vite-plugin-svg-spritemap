@@ -1,7 +1,9 @@
-import type { Logger } from 'vite'
 import type { Options, OptionsStyles, StylesLang, UserOptions } from '../types'
 
-export function createOptions(options: UserOptions = {}, route: string, logger: Logger): Options {
+export function createOptions(options: UserOptions = {}) {
+  const logs = {
+    warn: [] as string[],
+  }
   let prefix: Options['prefix'] = 'sprite-'
   if (options.prefix === false)
     prefix = ''
@@ -15,7 +17,7 @@ export function createOptions(options: UserOptions = {}, route: string, logger: 
 
     if (typeof lang === 'undefined' || !stylesLang.includes(lang)) {
       lang = 'css'
-      logger.warn('[vite-plugin-spritemap] Invalid styles lang, fallback to css')
+      logs.warn.push('[vite-plugin-spritemap] Invalid styles lang, fallback to css')
     }
 
     styles = {
@@ -42,7 +44,7 @@ export function createOptions(options: UserOptions = {}, route: string, logger: 
     let lang = options.styles.filename.split('.').pop() as StylesLang | undefined
     if (typeof lang === 'undefined' || !stylesLang.includes(lang)) {
       lang = 'css'
-      logger.warn('[vite-plugin-spritemap] Invalid styles lang, fallback to css')
+      logs.warn.push('[vite-plugin-spritemap] Invalid styles lang, fallback to css')
     }
 
     styles = {
@@ -89,9 +91,13 @@ export function createOptions(options: UserOptions = {}, route: string, logger: 
   if (typeof options.idify === 'function')
     idify = options.idify
 
+  let route = '__spritemap'
+  if (typeof options.route === 'string')
+    route = options.route
+
   const gutter = options.gutter || 0
 
-  return {
+  const finalOptions = {
     svgo: options.svgo,
     oxvg: options.oxvg,
     output,
@@ -102,4 +108,9 @@ export function createOptions(options: UserOptions = {}, route: string, logger: 
     route,
     gutter,
   } satisfies Options
+
+  return {
+    options: finalOptions,
+    logs,
+  }
 }

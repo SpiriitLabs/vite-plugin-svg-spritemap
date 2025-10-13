@@ -1,23 +1,22 @@
 import type { Plugin } from 'vite'
 import type { Pattern, Shared, UserOptions } from './types'
+import { createOptions } from './helpers/options'
 import BuildPlugin from './plugins/build'
 import CommonPlugin from './plugins/common'
 import DevPlugin from './plugins/dev'
+import VuePlugin from './plugins/vue'
 
 export default function VitePluginSvgSpritemap(
   iconsPattern: Pattern,
   options?: UserOptions,
 ): Plugin[] {
-  // Get route before options are created because it is used on load/transform hooks filters
-  let route = '__spritemap'
-  if (typeof options?.route === 'string')
-    route = options.route
-
-  const shared: Shared = { svgManager: null, options: null, route }
+  const { options: _options, logs: _logsOptions } = createOptions(options)
+  const shared: Shared = { svgManager: null, options: _options }
 
   return [
-    CommonPlugin(shared, iconsPattern, options),
+    CommonPlugin(shared, iconsPattern, _logsOptions),
     BuildPlugin(shared),
     DevPlugin(shared),
+    VuePlugin(shared),
   ]
 }

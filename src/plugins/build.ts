@@ -8,8 +8,8 @@ export default function BuildPlugin(shared: Shared): Plugin {
   let fileRef: string
   let fileName: string
   let config: ResolvedConfig
-  const pluginExternal = new RegExp(`/${shared.route}`)
-  const spritemapFilter = new RegExp(`/${shared.route || '__spritemap'}`, 'g')
+  const pluginExternal = new RegExp(`/${shared.options.route}`)
+  const spritemapFilter = new RegExp(`/${shared.options.route || '__spritemap'}`, 'g')
 
   return <Plugin>{
     name: 'vite-plugin-svg-spritemap:build',
@@ -47,7 +47,7 @@ export default function BuildPlugin(shared: Shared): Plugin {
       config = _config
     },
     async buildStart() {
-      if (!shared.svgManager || !shared.options)
+      if (!shared.svgManager)
         return
 
       await shared.svgManager.updateAll()
@@ -75,7 +75,7 @@ export default function BuildPlugin(shared: Shared): Plugin {
         code: spritemapFilter,
       },
       handler(code) {
-        if (!shared.options || typeof shared.options.output !== 'object')
+        if (typeof shared.options.output !== 'object')
           return
 
         // prevent sveltekit rewrite

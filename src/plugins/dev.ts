@@ -5,8 +5,8 @@ export default function DevPlugin(shared: Shared): Plugin {
   const filterSVG = /\.svg$/
   const filterCSS = /\.(s?css|styl|less)$/
 
-  const virtualModuleId = `/@vite-plugin-svg-spritemap/client${shared.route}`
-  const eventName = `vite-plugin-svg-spritemap:update:${shared.route}`
+  const virtualModuleId = `/@vite-plugin-svg-spritemap/client${shared.options.route}`
+  const eventName = `vite-plugin-svg-spritemap:update:${shared.options.route}`
 
   return <Plugin>{
     name: 'vite-plugin-svg-spritemap:dev',
@@ -24,7 +24,7 @@ export default function DevPlugin(shared: Shared): Plugin {
         id: virtualModuleId,
       },
       handler() {
-        if (shared.options && shared.svgManager)
+        if (shared.svgManager)
           return generateHMR(shared.svgManager.spritemap, shared.options)
       },
     },
@@ -34,7 +34,7 @@ export default function DevPlugin(shared: Shared): Plugin {
     },
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
-        if (shared.options && req.url?.startsWith(`/${shared.options.route}`)) {
+        if (req.url?.startsWith(`/${shared.options.route}`)) {
           if (!shared.svgManager)
             return
           res.statusCode = 200
@@ -51,7 +51,7 @@ export default function DevPlugin(shared: Shared): Plugin {
     transformIndexHtml: {
       order: 'pre',
       handler(html) {
-        if (!shared.options || !shared.svgManager)
+        if (!shared.svgManager)
           return html
 
         const replaceRegExp = new RegExp(`${shared.options.route}-\d*|${shared.options.route}`, 'g')
@@ -100,7 +100,7 @@ export default function DevPlugin(shared: Shared): Plugin {
         id: filterCSS,
       },
       handler(code) {
-        if (!shared.options || !shared.svgManager)
+        if (!shared.svgManager)
           return
 
         const replaceRegExp = new RegExp(`${shared.options.route}-\d*|${shared.options.route}`, 'g')
