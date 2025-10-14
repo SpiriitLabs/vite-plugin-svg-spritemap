@@ -17,3 +17,9 @@ export default {
 ```
 
 If you are using Sass, Less or Stylus: you can optimize the style file export by only generate one mixin on one instance with [`styles.include`](/options/styles.html#styles-include) set to `['variables']` or/and use the `styles.names` object.
+
+If you are using the [`injectSvgOnDev`](/guide/backend-integration.html) option, don't forget to change the URL accordingly in your HTML file. For example, if you use the `__flags` route, the URL will be:
+
+```html
+<script type="module" src="http://localhost:5173/@vite-plugin-svg-spritemap/client__flags"></script>
+```

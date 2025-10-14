@@ -118,13 +118,13 @@ export default function DevPlugin(shared: Shared): Plugin {
   function generateHMR(spritemap: string | undefined, options: Options) {
     const injectSvg = `
     const injectSvg = (data) => {
-      const oldWrapper = document.getElementById('vite-plugin-svg-spritemap')
+      const oldWrapper = document.getElementById('vite-plugin-svg-spritemap${options.route}')
       if (oldWrapper)
         oldWrapper.remove()
 
       const wrapper = document.createElement('div')
       wrapper.innerHTML = data.spritemap
-      wrapper.id = 'vite-plugin-svg-spritemap'
+      wrapper.id = 'vite-plugin-svg-spritemap${options.route}'
       wrapper.style.display = 'none'
       document.body.append(wrapper)
     }`
