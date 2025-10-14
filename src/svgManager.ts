@@ -369,14 +369,6 @@ export class SVGManager {
   }
 
   /**
-   * Get the glob pattern used to find SVG files
-   * @return The glob pattern
-   */
-  public get iconsPattern(): Pattern {
-    return this._iconsPattern
-  }
-
-  /**
    * Sort the internal SVGs Map alphabetically by file path
    */
   private _sortSvgs(): void {

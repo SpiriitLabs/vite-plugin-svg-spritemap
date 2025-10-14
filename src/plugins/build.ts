@@ -9,7 +9,7 @@ export default function BuildPlugin(shared: Shared): Plugin {
   let fileName: string
   let config: ResolvedConfig
   const pluginExternal = new RegExp(`/${shared.options.route}`)
-  const spritemapFilter = new RegExp(`/${shared.options.route || '__spritemap'}`, 'g')
+  const spritemapFilter = new RegExp(`/${shared.options.route}`, 'g')
 
   return <Plugin>{
     name: 'vite-plugin-svg-spritemap:build',
