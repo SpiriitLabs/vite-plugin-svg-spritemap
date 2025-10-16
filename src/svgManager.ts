@@ -1,7 +1,8 @@
 import type { Jobs as OxvgConfig } from '@oxvg/napi'
+import type { Glob } from 'picomatch'
 import type { Config as SvgoConfig } from 'svgo'
 import type { ResolvedConfig } from 'vite'
-import type { Options, Pattern, SvgMapObject } from './types'
+import type { Options, SvgMapObject } from './types'
 import { promises as fs } from 'node:fs'
 import { basename, resolve } from 'node:path'
 import { DOMImplementation, DOMParser, XMLSerializer } from '@xmldom/xmldom'
@@ -21,13 +22,13 @@ export class SVGManager {
   private _parser: DOMParser
   private _ids: Set<string>
   private _svgs: Map<string, SvgMapObject>
-  private _iconsPattern: Pattern
+  private _iconsPattern: Glob
   private _config: ResolvedConfig
   public hash: string | null = null
   private _optimizeType: 'svgo' | 'oxvg' | null = null
   private _optimize: Awaited<ReturnType<typeof getOptimizeSvgo | typeof getOptimiseOxvg>> | null = null
 
-  constructor(iconsPattern: Pattern, options: Options, config: ResolvedConfig) {
+  constructor(iconsPattern: Glob, options: Options, config: ResolvedConfig) {
     this._parser = new DOMParser()
     this._options = options
     this._ids = new Set()
@@ -390,7 +391,7 @@ export class SVGManager {
     return this._svgs.has(filePath)
   }
 
-  public get iconsPattern(): Pattern {
+  public get iconsPattern(): Glob {
     return this._iconsPattern
   }
 }

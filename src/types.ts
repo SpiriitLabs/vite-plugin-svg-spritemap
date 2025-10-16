@@ -4,8 +4,6 @@ import type { SVGManager } from './svgManager'
 
 type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
-export type Pattern = string[] | string
-
 export type StylesLang = 'less' | 'scss' | 'styl' | 'css'
 
 export interface Shared { svgManager: SVGManager | null, options: Options }

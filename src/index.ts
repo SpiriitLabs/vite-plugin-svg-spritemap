@@ -1,5 +1,6 @@
+import type { Glob } from 'picomatch'
 import type { Plugin } from 'vite'
-import type { Pattern, Shared, UserOptions } from './types'
+import type { Shared, UserOptions } from './types'
 import { createOptions } from './helpers/options'
 import BuildPlugin from './plugins/build'
 import CommonPlugin from './plugins/common'
@@ -7,7 +8,7 @@ import DevPlugin from './plugins/dev'
 import VuePlugin from './plugins/vue'
 
 export default function VitePluginSvgSpritemap(
-  iconsPattern: Pattern,
+  iconsPattern: Glob,
   options?: UserOptions,
 ): Plugin[] {
   const { options: _options, logs: _logsOptions } = createOptions(options)
