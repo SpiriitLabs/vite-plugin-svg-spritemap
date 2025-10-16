@@ -9,6 +9,9 @@ export default function CommonPlugin(shared: Shared): Plugin {
   return {
     name: 'vite-plugin-svg-spritemap:vue',
     enforce: 'pre',
+    apply(config) {
+      return config.plugins?.findIndex(plugin => plugin && 'name' in plugin && plugin.name === 'vite:vue') !== -1
+    },
     configResolved(_config) {
       config = _config
     },
@@ -18,12 +21,12 @@ export default function CommonPlugin(shared: Shared): Plugin {
       },
       async handler(id) {
         const { options, svgManager } = shared
-        if (!svgManager || config.plugins.findIndex(plugin => plugin.name === 'vite:vue') === -1 || !options.output)
+        if (!svgManager || !options.output)
           return
 
         const [path, query] = id.split('?', 2)
         const { base: filename } = parse(path)
-        const svg = svgManager?.svgs.get(path)
+        const svg = svgManager.svgs.get(path)
 
         if (!svg)
           return

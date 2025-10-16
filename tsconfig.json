@@ -16,7 +16,8 @@
     "noImplicitThis": true,
     "declaration": true,
     /* Raise error on expressions and declarations with an implied 'any' type. */
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "isolatedDeclarations": true
   },
   "exclude": [
     "node_modules",

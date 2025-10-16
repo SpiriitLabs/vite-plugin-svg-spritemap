@@ -43,7 +43,7 @@ export class SVGManager {
    * @param loop - Whether this update is part of a bulk update (to optimize performance)
    * @returns True if the SVG file was updated, false otherwise
    */
-  async update(filePath: string, mode: 'create' | 'update' = 'create', loop = false) {
+  async update(filePath: string, mode: 'create' | 'update' = 'create', loop = false): Promise<boolean> {
     const name = basename(filePath, '.svg')
     if (!name)
       return false
@@ -101,7 +101,7 @@ export class SVGManager {
    * @param filePath - The path of the SVG file to remove
    * @returns True if the SVG file was removed, false if it was not found
    */
-  async delete(filePath: string) {
+  async delete(filePath: string): Promise<boolean> {
     if (!this._svgs.has(filePath))
       return false
 
