@@ -1,8 +1,8 @@
 import type { Options, OptionsStyles, StylesLang, UserOptions } from '../types'
 
-export function createOptions(options: UserOptions = {}) {
-  const logs = {
-    warn: [] as string[],
+export function createOptions(options: UserOptions = {}): { options: Options, logs: { warn: string[] } } {
+  const logs: { warn: string[] } = {
+    warn: [],
   }
   let prefix: Options['prefix'] = 'sprite-'
   if (options.prefix === false)

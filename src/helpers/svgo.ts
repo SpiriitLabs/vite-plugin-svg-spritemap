@@ -4,7 +4,7 @@ import type { Options } from '../types'
 /**
  * Get SVGO Options
  */
-export function getOptions(svgoOptions: Options['svgo'] | undefined, prefix: string) {
+export function getOptions(svgoOptions: Options['svgo'] | undefined, prefix: string): SvgoConfig | undefined {
   let svgo: SvgoConfig | undefined = {
     plugins: [
       {
@@ -34,7 +34,7 @@ export function getOptions(svgoOptions: Options['svgo'] | undefined, prefix: str
 /**
  * Get SVGO Optimize function
  */
-export async function getOptimize() {
+export async function getOptimize(): Promise<((data: string, config?: SvgoConfig) => { data: string }) | false> {
   try {
     const { optimize } = await import('svgo')
     return optimize

@@ -5,7 +5,7 @@ import type { Options } from '../types'
 /**
  * Get OXVG Options
  */
-export function getOptions(oxvgOptions: Options['oxvg'] | undefined) {
+export function getOptions(oxvgOptions: Options['oxvg'] | undefined): OxvgConfig | undefined {
   let svgo: OxvgConfig | undefined = {}
   if (typeof oxvgOptions === 'object')
     svgo = oxvgOptions
@@ -18,7 +18,7 @@ export function getOptions(oxvgOptions: Options['oxvg'] | undefined) {
 /**
  * Get SVGO Optimize function
  */
-export async function getOptimize(logger: Logger) {
+export async function getOptimize(logger: Logger): Promise<((svg: string, config?: OxvgConfig | null | undefined) => string) | false> {
   try {
     const { optimise } = await import('@oxvg/napi')
     return optimise
