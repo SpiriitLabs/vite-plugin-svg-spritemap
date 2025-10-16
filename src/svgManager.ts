@@ -389,4 +389,8 @@ export class SVGManager {
   public has(filePath: string): boolean {
     return this._svgs.has(filePath)
   }
+
+  public get iconsPattern(): Pattern {
+    return this._iconsPattern
+  }
 }

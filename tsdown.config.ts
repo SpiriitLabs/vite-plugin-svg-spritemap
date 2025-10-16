@@ -15,6 +15,7 @@ export default defineConfig({
 
     Promise.all([
       fs.copyFile(resolve(import.meta.dirname, './src/client.d.ts'), resolve(import.meta.dirname, 'dist/client.d.ts')),
+      fs.copyFile(resolve(import.meta.dirname, './src/events.d.ts'), resolve(import.meta.dirname, 'dist/events.d.ts')),
       styles(),
     ])
   },

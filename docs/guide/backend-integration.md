@@ -23,14 +23,7 @@ And in prod, by putting the correct URL manually thanks to [the manifest.json fi
 To prevent [CORS issue with SVG](https://oreillymedia.github.io/Using_SVG/extras/ch10-cors.html) and `<use>`, you can use the [`injectSvgOnDev`](/options/#injectsvgondev) option. Don't forget to add the HMR script directly above your close body (**only on dev**) if vite is not processing your index HTML file.
 
 ```html
-<script type="module" src="http://localhost:5173/@vite-plugin-svg-spritemap/client__spritemap"></script>
+<script type="module" src="http://localhost:5173/@vite-plugin-svg-spritemap/client"></script>
 ```
-
-> [!NOTE]
-> If you use an another route (for example you have multiple instance of the plugin), don't forget to change the URL accordingly. For exemple, if you use the `__flags` route, the URL will be:
->
-> ```html
-> <script type="module" src="http://localhost:5173/@vite-plugin-svg-spritemap/client__flags"></script>
-> ```
 
 You can see an example of backend integration in the server example folder [examples](/examples).

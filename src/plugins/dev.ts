@@ -1,12 +1,14 @@
 import type { Plugin } from 'vite'
 import type { Options, Shared } from '../types'
+import { relative } from 'node:path'
+import picomatch from 'picomatch'
 
 export default function DevPlugin(shared: Shared): Plugin {
   const filterSVG = /\.svg$/
   const filterCSS = /\.(s?css|styl|less)$/
 
-  const virtualModuleId = `/@vite-plugin-svg-spritemap/client${shared.options.route}`
-  const eventName = `vite-plugin-svg-spritemap:update:${shared.options.route}`
+  const virtualModuleId = '/@vite-plugin-svg-spritemap/client'
+  const event = 'vite-plugin-svg-spritemap:update'
 
   return <Plugin>{
     name: 'vite-plugin-svg-spritemap:dev',
@@ -66,11 +68,15 @@ export default function DevPlugin(shared: Shared): Plugin {
         )
       },
     },
-    async hotUpdate({ server, file, type }) {
+    async hotUpdate({ file, type }) {
       if (!shared.svgManager)
         return
 
       if (!file.match(filterSVG))
+        return
+
+      const relativePath = relative(this.environment.config.root, file)
+      if (!picomatch.isMatch(relativePath, shared.svgManager.iconsPattern))
         return
 
       if (type === 'delete' && shared.svgManager.has(file)) {
@@ -86,14 +92,17 @@ export default function DevPlugin(shared: Shared): Plugin {
         return
       }
 
-      server.ws.send({
+      this.environment.hot.send({
         type: 'custom',
-        event: eventName,
+        event,
         data: {
+          route: shared.options.route,
           id: shared.svgManager.hash,
           spritemap: shared.options?.injectSvgOnDev ? shared.svgManager.spritemap : '',
         },
       })
+
+      return []
     },
     transform: {
       filter: {
@@ -118,34 +127,34 @@ export default function DevPlugin(shared: Shared): Plugin {
   function generateHMR(spritemap: string | undefined, options: Options) {
     const injectSvg = `
     const injectSvg = (data) => {
-      const oldWrapper = document.getElementById('vite-plugin-svg-spritemap${options.route}')
+      const oldWrapper = document.getElementById('vite-plugin-svg-spritemap')
       if (oldWrapper)
         oldWrapper.remove()
 
       const wrapper = document.createElement('div')
       wrapper.innerHTML = data.spritemap
-      wrapper.id = 'vite-plugin-svg-spritemap${options.route}'
+      wrapper.id = 'vite-plugin-svg-spritemap'
       wrapper.style.display = 'none'
       document.body.append(wrapper)
     }`
 
     const updateElements = `
     const elements = document.querySelectorAll(
-      '[src*=${options.route}], [href*=${options.route}], [*|href*=${options.route}]'
+      '[src*=' + data.route + '], [href*=' + data.route + '], [*|href*=' + data.route + ']'
     )
 
     for (let i = 0; i < elements.length; i++) {
       const el = elements[i]
       const attributes = ['xlink:href', 'href', 'src']
       for (const attr of attributes) {
-        if (!el.hasAttribute(attr)) continue
-        const value = el.getAttribute(attr)
-        if (!value) continue
-        const newValue = value.replace(
-          /${options.route}.*#/g,
-          '${options.route}__' + data.id + '#'
-        )
-        el.setAttribute(attr, newValue)
+      if (!el.hasAttribute(attr)) continue
+      const value = el.getAttribute(attr)
+      if (!value) continue
+      const newValue = value.replace(
+        new RegExp(data.route + '.*#', 'g'),
+        data.route + '__' + data.id + '#'
+      )
+      el.setAttribute(attr, newValue)
       }
     }`
 
@@ -153,8 +162,8 @@ export default function DevPlugin(shared: Shared): Plugin {
       ${options.injectSvgOnDev ? injectSvg : ''}
       ${options.injectSvgOnDev ? `injectSvg(${JSON.stringify({ spritemap })})` : ''}
       if (import.meta.hot) {
-        import.meta.hot.on('${eventName}', data => {
-          console.debug('[vite-plugin-svg-spritemap]', 'update')
+        import.meta.hot.on('${event}', data => {
+          console.debug('[vite-plugin-svg-spritemap]', 'update for route ' + data.route)
           ${updateElements}
           ${options.injectSvgOnDev ? 'injectSvg(data)' : ''}
         })

@@ -1,3 +1,5 @@
+/// <reference types="./events" />
+
 declare module '*.svg?use' {
   import type { FunctionalComponent, SVGAttributes } from 'vue'
 
