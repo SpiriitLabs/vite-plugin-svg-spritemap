@@ -62,10 +62,14 @@ export default function DevPlugin(shared: Shared): Plugin {
           `${shared.options.route}__${shared.svgManager.hash}`,
         )
 
-        return html.replace(
-          '</body>',
-          `<script type="module" src="${virtualModuleId}"></script></body>`,
-        )
+        if (!html.includes(`src="${virtualModuleId}"`)) {
+          html = html.replace(
+            '</body>',
+            `<script type="module" src="${virtualModuleId}"></script></body>`,
+          )
+        }
+
+        return html
       },
     },
     async hotUpdate({ file, type }) {
