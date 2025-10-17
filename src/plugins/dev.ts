@@ -74,9 +74,10 @@ export default function DevPlugin(shared: Shared): Plugin {
 
       if (!file.match(filterSVG))
         return
-
       const relativePath = relative(this.environment.config.root, file)
-      if (!picomatch.isMatch(relativePath, shared.svgManager.iconsPattern))
+      const absolutePath = file
+
+      if (!picomatch.isMatch(relativePath, shared.svgManager.iconsPattern) && !picomatch.isMatch(absolutePath, shared.svgManager.iconsPattern))
         return
 
       if (type === 'delete' && shared.svgManager.has(file)) {
