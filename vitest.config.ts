@@ -7,6 +7,7 @@ export default defineConfig({
       exclude: [
         'src/types.ts',
         'src/client.d.ts',
+        'src/events.d.ts',
       ],
       reporter: ['lcov'],
     },
