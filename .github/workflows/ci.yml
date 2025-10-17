@@ -125,10 +125,10 @@ jobs:
       - name: Coverage
         uses: nick-fields/retry@v3
         with:
-            max_attempts: 3
-            timeout_minutes: 5
-            retry_on: error
-            command: pnpm coverage
+          max_attempts: 3
+          timeout_minutes: 5
+          retry_on: error
+          command: pnpm coverage
 
       - name: Coveralls
         uses: coverallsapp/github-action@master
