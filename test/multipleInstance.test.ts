@@ -41,14 +41,11 @@ describe('dev server', () => {
   it('has HMR scripts', async () => {
     const page = await browser.newPage()
     await page.goto('http://localhost:5174')
-    const testSpritemap
-      = '<script type="module" src="/@vite-plugin-svg-spritemap/client__spritemap"></script>'
-    const testFlags
-      = '<script type="module" src="/@vite-plugin-svg-spritemap/client__flags"></script>'
+    const testClient
+      = '<script type="module" src="/@vite-plugin-svg-spritemap/client"></script>'
     const result = await page.content()
     await page.close()
-    expect(result.includes(testSpritemap)).toBeTruthy()
-    expect(result.includes(testFlags)).toBeTruthy()
+    expect(result.includes(testClient)).toBeTruthy()
   })
 
   it('has routes with SVG spritemap', async () => {

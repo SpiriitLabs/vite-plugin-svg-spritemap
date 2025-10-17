@@ -49,7 +49,7 @@ afterEach(async () => {
 describe('injectSvgOnDev', () => {
   it('has SVG injected', async () => {
     await page.goto('http://localhost:3000')
-    const wrapper = page.locator('#vite-plugin-svg-spritemap__spritemap')
+    const wrapper = page.locator('#vite-plugin-svg-spritemap')
     await wrapper.waitFor({ state: 'attached' })
     const content = await wrapper.innerHTML()
     expect(content).toMatchSnapshot()

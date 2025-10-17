@@ -3,21 +3,14 @@ import type { ViteDevServer } from 'vite'
 import { unlink, writeFile } from 'node:fs/promises'
 import { chromium } from 'playwright'
 import { createServer } from 'vite'
-import { beforeAll, describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it, onTestFailed } from 'vitest'
 import VitePluginSvgSpritemap from '../src/index'
 import { getPath } from './helper/path'
 
 let server: ViteDevServer
 let browser: Browser
-const hmrVitePath = getPath(`./fixtures/basic/hmr/hmr-vite.svg`)
-const hmrViteName = 'sprite-hmr-vite'
 
 beforeAll(async () => {
-  // Clear old test SVG
-  try {
-    await unlink(hmrVitePath)
-  }
-  catch {}
   browser = await chromium.launch()
 
   server = await createServer({
@@ -49,7 +42,7 @@ describe('dev server', () => {
     const page = await browser.newPage()
     await page.goto('http://localhost:5173')
     const test
-      = '<script type="module" src="/@vite-plugin-svg-spritemap/client__spritemap"></script>'
+      = '<script type="module" src="/@vite-plugin-svg-spritemap/client"></script>'
     const result = await page.content()
     await page.close()
     expect(result.includes(test)).toBeTruthy()
@@ -73,7 +66,20 @@ describe('dev server', () => {
     expect(result).toMatchSnapshot()
   })
 
+  const hmrVitePath = getPath(`./fixtures/basic/hmr/hmr-vite.svg`)
+  const hmrViteName = 'sprite-hmr-vite'
   it('has HMR', async () => {
+    try {
+      await unlink(hmrVitePath)
+    }
+    catch {}
+    onTestFailed(async () => {
+      try {
+        await unlink(hmrVitePath)
+      }
+      catch {}
+    })
+
     const page = await browser.newPage()
     await page.goto('http://localhost:5173')
     const viteLogo = (fill = 'currentColor') =>
