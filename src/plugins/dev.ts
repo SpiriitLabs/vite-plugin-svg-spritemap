@@ -1,4 +1,5 @@
 import type { Plugin } from 'vite'
+import type { HMRUpdate } from '../events'
 import type { Options, Shared } from '../types'
 import { relative } from 'node:path'
 import picomatch from 'picomatch'
@@ -36,7 +37,7 @@ export default function DevPlugin(shared: Shared): Plugin {
     },
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
-        if (req.url?.startsWith(`/${shared.options.route}`)) {
+        if (req.url?.startsWith(shared.options.route)) {
           if (!shared.svgManager)
             return
           res.statusCode = 200
@@ -101,10 +102,11 @@ export default function DevPlugin(shared: Shared): Plugin {
         type: 'custom',
         event,
         data: {
+          routeName: shared.options.routeName,
           route: shared.options.route,
           id: shared.svgManager.hash,
           spritemap: shared.options?.injectSvgOnDev ? shared.svgManager.spritemap : '',
-        },
+        } satisfies HMRUpdate,
       })
 
       return []
@@ -145,21 +147,20 @@ export default function DevPlugin(shared: Shared): Plugin {
 
     const updateElements = `
     const elements = document.querySelectorAll(
-      '[src*=' + data.route + '], [href*=' + data.route + '], [*|href*=' + data.route + ']'
+      '[src^="' + data.route + '"], [href^="' + data.route + '"], [*|href^="' + data.route + '"]'
     )
 
     for (let i = 0; i < elements.length; i++) {
       const el = elements[i]
       const attributes = ['xlink:href', 'href', 'src']
       for (const attr of attributes) {
-      if (!el.hasAttribute(attr)) continue
-      const value = el.getAttribute(attr)
-      if (!value) continue
-      const newValue = value.replace(
-        new RegExp(data.route + '.*#', 'g'),
-        data.route + '__' + data.id + '#'
-      )
-      el.setAttribute(attr, newValue)
+        if (!el.hasAttribute(attr)) continue
+        const value = el.getAttribute(attr)
+        if (!value) continue
+        const [base, hash] = value.split('#')
+        if (!hash) continue
+        const newValue = data.route + '__' + data.id + '#' + hash
+        el.setAttribute(attr, newValue)
       }
     }`
 
@@ -168,7 +169,7 @@ export default function DevPlugin(shared: Shared): Plugin {
       ${options.injectSvgOnDev ? `injectSvg(${JSON.stringify({ spritemap })})` : ''}
       if (import.meta.hot) {
         import.meta.hot.on('${event}', data => {
-          console.debug('[vite-plugin-svg-spritemap]', 'update for route ' + data.route)
+          console.debug('[vite-plugin-svg-spritemap]', 'update for route ' + data.routeName)
           ${updateElements}
           ${options.injectSvgOnDev ? 'injectSvg(data)' : ''}
         })

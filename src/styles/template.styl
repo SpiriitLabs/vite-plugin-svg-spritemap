@@ -3,7 +3,7 @@ __mixin__($name, $include-size = false, $type = 'uri', $mode = 'background', $ro
 	$url = false
 
 	if $type == 'fragment'
-		$url = '/' + $route + '#' + $__prefix__ + $name + '-view'
+		$url = $route + '#' + $__prefix__ + $name + '-view'
 	else if $type == 'uri'
 		$url = $sprite[uri]
 	else

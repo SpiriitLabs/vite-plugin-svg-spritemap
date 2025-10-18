@@ -11,7 +11,7 @@
   $url: false;
 
   @if $type == 'fragment' {
-    $url: '/#{$route}##{$__prefix__}#{$name}-view';
+    $url: '#{$route}##{$__prefix__}#{$name}-view';
   } @else if $type == 'uri' {
     $url: map.get($sprite, uri);
   } @else {

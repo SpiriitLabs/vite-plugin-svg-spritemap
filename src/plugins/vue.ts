@@ -1,6 +1,7 @@
 import type { Plugin, ResolvedConfig } from 'vite'
 import type { Shared } from '../types'
 import { parse } from 'node:path'
+import { log } from '../helpers/log'
 
 export default function CommonPlugin(shared: Shared): Plugin {
   let config: ResolvedConfig
@@ -34,15 +35,15 @@ export default function CommonPlugin(shared: Shared): Plugin {
         let source = ''
 
         if (query === 'view' && (options.output.view === false || options.output.use === false)) {
-          config.logger.warn(`[vite-plugin-svg-spritemap] You need to enable the output.view and the output.use option to load ${id} as component with the ?view query.`)
+          log({ level: 'warn', message: `You need to enable the output.view and the output.use option to load ${id} as component with the ?view query.`, logger: config.logger })
         }
         else if (query === 'view') {
           const width = svg.width ? `width="${Math.ceil(svg.width)}"` : ''
           const height = svg.height ? `height="${Math.ceil(svg.height)}"` : ''
-          source = `<img src="/${options.route}#${options.prefix + svg.id}-view" ${[width, height].filter(item => item.length > 0).join(' ')}/>`
+          source = `<img src="${options.route}#${options.prefix + svg.id}-view" ${[width, height].filter(item => item.length > 0).join(' ')}/>`
         }
         else {
-          source = `<svg><slot/><use xlink:href="/${options.route}#${options.prefix + svg.id}"></use></svg>`
+          source = `<svg><slot/><use xlink:href="${options.route}#${options.prefix + svg.id}"></use></svg>`
         }
 
         const { compileTemplate } = await import('vue/compiler-sfc')

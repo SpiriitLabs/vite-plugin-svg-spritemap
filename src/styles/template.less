@@ -3,7 +3,7 @@
 
   @fragment: if(
     @type = 'fragment',
-    '/@{route}#@{__prefix__}@{name}-view',
+    '@{route}#@{__prefix__}@{name}-view',
     false
   );
   @uri: if(@type = 'uri', @sprite[uri], false);

@@ -31,7 +31,7 @@ export default defineConfig({
     }),
     // Multiple instance
     VitePluginSvgSpritemap('./../_fixtures/flags/*.svg', {
-      route: '__flags',
+      route: '/__flags',
       prefix: 'flag-',
       svgo: true,
       oxvg: false,

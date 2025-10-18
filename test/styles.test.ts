@@ -138,7 +138,7 @@ describe('styles generation', () => {
               return sprite
             })
 
-            content = `/* Route with ${options.route}*/ \n${insert}`
+            content = `/* Route ${options.routeName}*/ \n${insert}`
             return content
           },
         },
@@ -167,7 +167,7 @@ describe('styles generation', () => {
     })
     for (const call of spy.mock.calls) {
       expect(call).toStrictEqual([
-        '[vite-plugin-spritemap] Invalid styles lang, fallback to css',
+        '[vite-plugin-svg-spritemap] Invalid styles lang, fallback to css',
       ])
     }
   })

@@ -190,7 +190,7 @@ export class Styles {
           const selector = `.${this._options.prefix + svg.id}-frag`
           let sprite = ''
           sprite = `${selector} {`
-          sprite += `\n\tbackground: url('/${this._options.route}#${
+          sprite += `\n\tbackground: url('${this._options.route}#${
             this._options.prefix + svg.id
           }-view') center no-repeat;`
           sprite += '\n}'

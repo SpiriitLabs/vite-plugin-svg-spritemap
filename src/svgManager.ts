@@ -10,6 +10,7 @@ import hash_sum from 'hash-sum'
 import { glob } from 'tinyglobby'
 import { calculateY } from './helpers/calculateY'
 import { cleanAttributes } from './helpers/cleanAttributes'
+import { log } from './helpers/log'
 import { getOptimize as getOptimiseOxvg, getOptions as getOptionsOxvg } from './helpers/oxvg'
 import { getOptimize as getOptimizeSvgo, getOptions as getOptionsSvgo } from './helpers/svgo'
 import { Styles } from './styles/styles'
@@ -54,7 +55,7 @@ export class SVGManager {
       svg = await fs.readFile(filePath, 'utf8')
     }
     catch (error) {
-      this._config.logger.error(`[vite-plugin-svg-spritemap] Failed to read file '${filePath}': ${error}`)
+      log({ level: 'error', message: `Failed to read file '${filePath}': ${error}`, logger: this._config.logger })
       return false
     }
 
@@ -79,7 +80,7 @@ export class SVGManager {
     const id = this._options.idify(name, svgData)
 
     if (this._ids.has(id) && mode === 'create') {
-      this._config.logger.warn(`[vite-plugin-svg-spritemap] Sprite '${filePath}' has the same id (${id}) as another sprite.`)
+      log({ level: 'warn', message: `Sprite '${filePath}' has the same id (${id}) as another sprite.`, logger: this._config.logger })
     }
 
     this._ids.add(id)
@@ -140,7 +141,7 @@ export class SVGManager {
     let height = heightAttr ? Number.parseFloat(heightAttr) : undefined
 
     if (viewBox && viewBox.length !== 4 && (!width || !height)) {
-      this._config.logger.warn(`[vite-plugin-svg-spritemap] Sprite '${filePath}' is invalid, it's lacking both a viewBox and width/height attributes.`)
+      log({ level: 'warn', message: `Sprite '${filePath}' is invalid, it's lacking both a viewBox and width/height attributes.`, logger: this._config.logger })
       return {}
     }
 
@@ -175,7 +176,7 @@ export class SVGManager {
           return optimizedSvg.data
       }
       catch (error) {
-        this._config.logger.warn(`[vite-plugin-svg-spritemap] SVGO optimization failed: ${error}`)
+        log({ level: 'warn', message: `SVGO optimization failed: ${error}`, logger: this._config.logger })
       }
     }
 
@@ -193,11 +194,11 @@ export class SVGManager {
     if (this._options.svgo !== false)
       this._optimize = await getOptimizeSvgo()
     if (this._optimize) {
-      this._config.logger.info(`[vite-plugin-svg-spritemap] Using SVGO for SVG optimization on ${this._options.route}.`)
+      log({ level: 'info', message: `Using SVGO for SVG optimization on ${this._options.routeName}.`, logger: this._config.logger })
       this._optimizeType = 'svgo'
     }
     if (this._options.svgo && !this._optimize) {
-      this._config.logger.warn(`[vite-plugin-svg-spritemap] You need to install SVGO to be able to optimize your SVG with it.`)
+      log({ level: 'warn', message: `You need to install SVGO to be able to optimize your SVG with it.`, logger: this._config.logger })
     }
 
     if (this._optimize)
@@ -206,11 +207,11 @@ export class SVGManager {
     if (this._options.oxvg !== false)
       this._optimize = await getOptimiseOxvg(this._config.logger)
     if (this._optimize) {
-      this._config.logger.info(`[vite-plugin-svg-spritemap] Using OXVG for SVG optimization on ${this._options.route}.`)
+      log({ level: 'info', message: `Using OXVG for SVG optimization on ${this._options.routeName}.`, logger: this._config.logger })
       this._optimizeType = 'oxvg'
     }
     if (this._options.oxvg && !this._optimize) {
-      this._config.logger.warn(`[vite-plugin-svg-spritemap] You need to install OXVG to be able to optimize your SVG with it.`)
+      log({ level: 'warn', message: `You need to install OXVG to be able to optimize your SVG with it.`, logger: this._config.logger })
     }
   }
 
@@ -346,7 +347,7 @@ export class SVGManager {
       await fs.writeFile(path, content, 'utf8')
     }
     catch (error) {
-      this._config.logger.error(`[vite-plugin-svg-spritemap] Failed to create style file: ${error}`)
+      log({ level: 'error', message: `Failed to create style file: ${error}`, logger: this._config.logger })
     }
   }
 
@@ -391,6 +392,10 @@ export class SVGManager {
     return this._svgs.has(filePath)
   }
 
+  /**
+   * Get the icons glob pattern
+   * @return The icons glob pattern
+   */
   public get iconsPattern(): Glob {
     return this._iconsPattern
   }

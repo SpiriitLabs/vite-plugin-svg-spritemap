@@ -24,7 +24,10 @@ beforeAll(async () => {
       },
     },
     plugins: [
-      VitePluginSvgSpritemap([getPath('./fixtures/basic/svg/*.svg'), getPath('./fixtures/basic/hmr/*.svg')], {
+      VitePluginSvgSpritemap([
+        getPath('./fixtures/basic/svg/*.svg'),
+        getPath('./fixtures/basic/hmr/*.svg'),
+      ], {
         styles: getPath('./fixtures/basic/styles/spritemap.css'),
       }),
     ],
@@ -54,7 +57,7 @@ describe('dev server', () => {
     const result = await page.content()
     await page.close()
     expect(
-      /<use xlink:href="__spritemap__[^\n\r#\u2028\u2029]*#.*"><\/use>/.test(result),
+      /<use xlink:href="\/__spritemap__[^\n\r#\u2028\u2029]*#.*"><\/use>/.test(result),
     ).toBeTruthy()
   })
 

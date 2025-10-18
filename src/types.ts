@@ -68,9 +68,14 @@ export interface UserOptions {
   injectSvgOnDev?: boolean
   /**
    * Change the route allowing multiple instance of the plugin
-   * @default '__spritemap'
+   * @default '/__spritemap'
    */
   route?: string
+  /**
+   * Change the route name used accross the plugin to identify the instance
+   * @default 'spritemap'
+   */
+  routeName?: string
   /**
    * Gutter (in pixels) between each sprite to help prevent overlap
    * @default 0
@@ -168,6 +173,7 @@ export interface Options {
   injectSvgOnDev: boolean
   idify: (name: string, svg: Omit<SvgMapObject, 'id'>) => string
   route: string
+  routeName: string
   gutter: number
 }
 

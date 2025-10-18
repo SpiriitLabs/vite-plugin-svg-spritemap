@@ -1,6 +1,7 @@
 import type { Jobs as OxvgConfig } from '@oxvg/napi'
 import type { Logger } from 'vite'
 import type { Options } from '../types'
+import { log } from './log'
 
 /**
  * Get OXVG Options
@@ -25,7 +26,7 @@ export async function getOptimize(logger: Logger): Promise<((svg: string, config
   }
   catch (error: any) {
     if (error.code !== 'ERR_MODULE_NOT_FOUND')
-      logger.error(`[vite-plugin-svg-spritemap] Error when loading OXVG: ${error.message}`, { error })
+      log({ level: 'error', message: `Error when loading OXVG: ${error.message}`, logger })
     return false
   }
 }

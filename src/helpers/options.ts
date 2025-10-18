@@ -17,7 +17,7 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
 
     if (typeof lang === 'undefined' || !stylesLang.includes(lang)) {
       lang = 'css'
-      logs.warn.push('[vite-plugin-spritemap] Invalid styles lang, fallback to css')
+      logs.warn.push('Invalid styles lang, fallback to css')
     }
 
     styles = {
@@ -44,7 +44,7 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
     let lang = options.styles.filename.split('.').pop() as StylesLang | undefined
     if (typeof lang === 'undefined' || !stylesLang.includes(lang)) {
       lang = 'css'
-      logs.warn.push('[vite-plugin-spritemap] Invalid styles lang, fallback to css')
+      logs.warn.push('Invalid styles lang, fallback to css')
     }
 
     styles = {
@@ -91,9 +91,18 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
   if (typeof options.idify === 'function')
     idify = options.idify
 
-  let route = '__spritemap'
-  if (typeof options.route === 'string')
+  let route = '/__spritemap'
+  if (typeof options.route === 'string') {
     route = options.route
+    if (!route.startsWith('/')) {
+      logs.warn.push(`Route option ${route} should start with a leading slash, automatically added.`)
+      route = `/${route}`
+    }
+  }
+
+  let routeName = 'spritemap'
+  if (typeof options.routeName === 'string')
+    routeName = options.routeName
 
   const gutter = options.gutter || 0
 
@@ -106,6 +115,7 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
     injectSvgOnDev,
     idify,
     route,
+    routeName,
     gutter,
   } satisfies Options
 
