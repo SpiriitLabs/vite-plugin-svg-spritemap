@@ -33,7 +33,10 @@ describe('vue components', () => {
   it('has components', async () => {
     const { page, server, browser } = await createVueServer(3001)
 
-    await page.goto('http://localhost:3001')
+    await page.goto('http://localhost:3001', {
+      waitUntil: 'networkidle',
+    })
+
     const result = await page.content()
     expect(result).toMatchSnapshot()
 
