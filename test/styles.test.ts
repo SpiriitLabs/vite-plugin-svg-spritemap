@@ -138,7 +138,7 @@ describe('styles generation', () => {
               return sprite
             })
 
-            content = `/* Route ${options.routeName}*/ \n${insert}`
+            content = `/* Route ${options.route.name}*/ \n${insert}`
             return content
           },
         },

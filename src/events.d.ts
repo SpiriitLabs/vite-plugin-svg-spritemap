@@ -3,8 +3,10 @@ import 'vite/types/customEvent.d.ts'
 export interface HMRUpdate {
   spritemap: string
   id: string | null
-  route: string
-  routeName: string
+  route: {
+    name: string
+    url: string
+  }
 }
 
 declare module 'vite/types/customEvent.d.ts' {

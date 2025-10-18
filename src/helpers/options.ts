@@ -1,4 +1,4 @@
-import type { Options, OptionsStyles, StylesLang, UserOptions } from '../types'
+import type { Options, OptionsRoute, OptionsStyles, StylesLang, UserOptions } from '../types'
 
 export function createOptions(options: UserOptions = {}): { options: Options, logs: { warn: string[] } } {
   const logs: { warn: string[] } = {
@@ -91,18 +91,23 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
   if (typeof options.idify === 'function')
     idify = options.idify
 
-  let route = '/__spritemap'
+  const route: OptionsRoute = {
+    url: '/__spritemap',
+    name: 'spritemap',
+  }
   if (typeof options.route === 'string') {
-    route = options.route
-    if (!route.startsWith('/')) {
-      logs.warn.push(`Route option ${route} should start with a leading slash, automatically added.`)
-      route = `/${route}`
-    }
+    route.url = options.route
+    route.name = route.url.startsWith('/') ? options.route.slice(1) : options.route
+  }
+  else if (typeof options.route === 'object' && options.route.url) {
+    route.url = options.route.url || route.url
+    route.name = options.route.name || (route.url.startsWith('/') ? options.route.url.slice(1) : options.route.url)
   }
 
-  let routeName = 'spritemap'
-  if (typeof options.routeName === 'string')
-    routeName = options.routeName
+  if (!route.url.startsWith('/')) {
+    logs.warn.push(`Route option ${route.url} should start with a leading slash, automatically added.`)
+    route.url = `/${route.url}`
+  }
 
   const gutter = options.gutter || 0
 
@@ -115,7 +120,6 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
     injectSvgOnDev,
     idify,
     route,
-    routeName,
     gutter,
   } satisfies Options
 

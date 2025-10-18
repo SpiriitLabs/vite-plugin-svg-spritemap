@@ -120,10 +120,19 @@ Function allowing you to customize the id of each symbol of the spritemap svg.
 
 ## route
 
-- **Type:** `string`
-- **Default:** `'__spritemap'`
+- **Type:** `string | object`
+- **Default:** `'/__spritemap'`
 
-Change the route name allowing you to have multiple instance of the plugin (see [Multiple Instance](/guide/multiple-instance)).
+Change the route url allowing you to have multiple instance of the plugin (see [Multiple Instance](/guide/multiple-instance)).
+
+You can also provide an object with the `url` and `name` properties. This is useful if you want to customize the name of the route in the Vite Dev Server and styles comments.
+
+```ts
+{
+  url: '/__flags',
+  name: 'Flags',
+}
+```
 
 ## gutter
 

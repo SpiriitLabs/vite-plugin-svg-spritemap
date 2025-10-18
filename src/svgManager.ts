@@ -194,7 +194,7 @@ export class SVGManager {
     if (this._options.svgo !== false)
       this._optimize = await getOptimizeSvgo()
     if (this._optimize) {
-      log({ level: 'info', message: `Using SVGO for SVG optimization on ${this._options.routeName}.`, logger: this._config.logger })
+      log({ level: 'info', message: `Using SVGO for SVG optimization on ${this._options.route.name}.`, logger: this._config.logger })
       this._optimizeType = 'svgo'
     }
     if (this._options.svgo && !this._optimize) {
@@ -207,7 +207,7 @@ export class SVGManager {
     if (this._options.oxvg !== false)
       this._optimize = await getOptimiseOxvg(this._config.logger)
     if (this._optimize) {
-      log({ level: 'info', message: `Using OXVG for SVG optimization on ${this._options.routeName}.`, logger: this._config.logger })
+      log({ level: 'info', message: `Using OXVG for SVG optimization on ${this._options.route.name}.`, logger: this._config.logger })
       this._optimizeType = 'oxvg'
     }
     if (this._options.oxvg && !this._optimize) {

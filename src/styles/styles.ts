@@ -57,7 +57,7 @@ export class Styles {
     // Apply names/mixins changes
     const findAndReplaceObject: Record<string, string> = {
       mixin: this._options.styles.names.mixin,
-      route: this._options.route,
+      route: this._options.route.url,
       prefix: this._options.styles.names.prefix,
       sprites: this._options.styles.names.sprites,
     }
@@ -190,7 +190,7 @@ export class Styles {
           const selector = `.${this._options.prefix + svg.id}-frag`
           let sprite = ''
           sprite = `${selector} {`
-          sprite += `\n\tbackground: url('${this._options.route}#${
+          sprite += `\n\tbackground: url('${this._options.route.url}#${
             this._options.prefix + svg.id
           }-view') center no-repeat;`
           sprite += '\n}'

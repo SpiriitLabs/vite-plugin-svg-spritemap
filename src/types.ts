@@ -70,12 +70,7 @@ export interface UserOptions {
    * Change the route allowing multiple instance of the plugin
    * @default '/__spritemap'
    */
-  route?: string
-  /**
-   * Change the route name used accross the plugin to identify the instance
-   * @default 'spritemap'
-   */
-  routeName?: string
+  route?: string | Partial<OptionsRoute>
   /**
    * Gutter (in pixels) between each sprite to help prevent overlap
    * @default 0
@@ -149,6 +144,20 @@ export interface OptionsStyles {
   ) => string
 }
 
+export interface OptionsRoute {
+  /**
+   * Route name of the spritemap
+   * @description Used in logging and styles generation
+   * @default 'spritemap'
+   */
+  name: string
+  /**
+   * Route url use to serve the spritemap
+   * @default '/__spritemap'
+   */
+  url: string
+}
+
 interface OptionsStylesNames {
   /**
    * @default 'sprites-prefix'
@@ -172,8 +181,7 @@ export interface Options {
   prefix: string
   injectSvgOnDev: boolean
   idify: (name: string, svg: Omit<SvgMapObject, 'id'>) => string
-  route: string
-  routeName: string
+  route: OptionsRoute
   gutter: number
 }
 

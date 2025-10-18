@@ -37,7 +37,7 @@ export default function DevPlugin(shared: Shared): Plugin {
     },
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
-        if (req.url?.startsWith(shared.options.route)) {
+        if (req.url?.startsWith(shared.options.route.url)) {
           if (!shared.svgManager)
             return
           res.statusCode = 200
@@ -57,10 +57,10 @@ export default function DevPlugin(shared: Shared): Plugin {
         if (!shared.svgManager)
           return html
 
-        const replaceRegExp = new RegExp(`${shared.options.route}-\d*|${shared.options.route}`, 'g')
+        const replaceRegExp = new RegExp(`${shared.options.route.url}-\d*|${shared.options.route.url}`, 'g')
         html = html.replace(
           replaceRegExp,
-          `${shared.options.route}__${shared.svgManager.hash}`,
+          `${shared.options.route.url}__${shared.svgManager.hash}`,
         )
 
         if (!html.includes(`src="${virtualModuleId}"`)) {
@@ -102,7 +102,6 @@ export default function DevPlugin(shared: Shared): Plugin {
         type: 'custom',
         event,
         data: {
-          routeName: shared.options.routeName,
           route: shared.options.route,
           id: shared.svgManager.hash,
           spritemap: shared.options?.injectSvgOnDev ? shared.svgManager.spritemap : '',
@@ -119,11 +118,11 @@ export default function DevPlugin(shared: Shared): Plugin {
         if (!shared.svgManager)
           return
 
-        const replaceRegExp = new RegExp(`${shared.options.route}-\d*|${shared.options.route}`, 'g')
+        const replaceRegExp = new RegExp(`${shared.options.route.url}-\d*|${shared.options.route.url}`, 'g')
         return {
           code: code.replace(
             replaceRegExp,
-            `${shared.options.route}__${shared.svgManager.hash}`,
+            `${shared.options.route.url}__${shared.svgManager.hash}`,
           ),
           map: null,
         }
@@ -169,7 +168,7 @@ export default function DevPlugin(shared: Shared): Plugin {
       ${options.injectSvgOnDev ? `injectSvg(${JSON.stringify({ spritemap })})` : ''}
       if (import.meta.hot) {
         import.meta.hot.on('${event}', data => {
-          console.debug('[vite-plugin-svg-spritemap]', 'update for route ' + data.routeName)
+          console.debug('[vite-plugin-svg-spritemap]', 'update for route ' + data.route.name)
           ${updateElements}
           ${options.injectSvgOnDev ? 'injectSvg(data)' : ''}
         })

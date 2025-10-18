@@ -40,10 +40,10 @@ export default function CommonPlugin(shared: Shared): Plugin {
         else if (query === 'view') {
           const width = svg.width ? `width="${Math.ceil(svg.width)}"` : ''
           const height = svg.height ? `height="${Math.ceil(svg.height)}"` : ''
-          source = `<img src="${options.route}#${options.prefix + svg.id}-view" ${[width, height].filter(item => item.length > 0).join(' ')}/>`
+          source = `<img src="${options.route.url}#${options.prefix + svg.id}-view" ${[width, height].filter(item => item.length > 0).join(' ')}/>`
         }
         else {
-          source = `<svg><slot/><use xlink:href="${options.route}#${options.prefix + svg.id}"></use></svg>`
+          source = `<svg><slot/><use xlink:href="${options.route.url}#${options.prefix + svg.id}"></use></svg>`
         }
 
         const { compileTemplate } = await import('vue/compiler-sfc')
