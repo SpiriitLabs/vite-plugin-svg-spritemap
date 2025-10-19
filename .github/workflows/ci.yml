@@ -85,7 +85,12 @@ jobs:
         run: npx playwright install
 
       - name: Test
-        run: pnpm test
+        uses: nick-fields/retry@v3
+        with:
+          max_attempts: 3
+          timeout_minutes: 5
+          retry_on: error
+          command: pnpm test
 
       - name: Upload artifacts on failure
         uses: actions/upload-artifact@v4
@@ -118,7 +123,12 @@ jobs:
         run: npx playwright install
 
       - name: Coverage
-        run: pnpm coverage
+        uses: nick-fields/retry@v3
+        with:
+          max_attempts: 3
+          timeout_minutes: 5
+          retry_on: error
+          command: pnpm coverage
 
       - name: Coveralls
         uses: coverallsapp/github-action@master

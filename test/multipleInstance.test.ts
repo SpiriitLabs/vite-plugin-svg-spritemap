@@ -25,7 +25,10 @@ beforeAll(async () => {
     plugins: [
       VitePluginSvgSpritemap(getPath('./fixtures/basic/svg/*.svg')),
       VitePluginSvgSpritemap(getPath('./fixtures/basic/flags/*.svg'), {
-        route: '__flags',
+        route: {
+          name: 'flags',
+          url: '/__flags',
+        },
       }),
     ],
   })
