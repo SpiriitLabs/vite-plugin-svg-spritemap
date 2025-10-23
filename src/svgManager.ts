@@ -47,9 +47,6 @@ export class SVGManager {
    */
   async update(filePath: string, mode: 'create' | 'update' = 'create', loop = false): Promise<boolean> {
     const name = basename(filePath, '.svg')
-    if (!name)
-      return false
-
     let svg: string
     try {
       svg = await fs.readFile(filePath, 'utf8')

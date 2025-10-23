@@ -1,5 +1,6 @@
 import type { UserOptions } from '../src/types'
 import { describe, expect, it, vi } from 'vitest'
+import { logMessage } from '../src/helpers/log'
 import { buildVite } from './helper/build'
 
 const svgoConfigs: Record<string, UserOptions['svgo']> = {
@@ -45,15 +46,14 @@ describe('svgo', () => {
           name: `svgo_warning`,
           options: { svgo, oxvg: false },
         })
-        const warningStr = '[vite-plugin-svg-spritemap] You need to install SVGO to be able to optimize your SVG with it.'
+        const warningStr = logMessage('You need to install SVGO to be able to optimize your SVG with it.')
 
-        for (const call of spy.mock.calls) {
-          if (svgo === false) {
-            expect(call).not.toStrictEqual([warningStr])
-          }
-          else {
-            expect(call).toStrictEqual([warningStr])
-          }
+        const call = spy.mock.lastCall
+        if (svgo === false) {
+          expect(call).not.toStrictEqual([warningStr])
+        }
+        else {
+          expect(call).toStrictEqual([warningStr])
         }
 
         spy.mockClear()

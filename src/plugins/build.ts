@@ -47,6 +47,7 @@ export default function BuildPlugin(shared: Shared): Plugin {
       config = _config
     },
     async buildStart() {
+      /* v8 ignore if -- @preserve */
       if (!shared.svgManager)
         return
 

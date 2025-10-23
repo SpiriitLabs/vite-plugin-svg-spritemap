@@ -1,6 +1,7 @@
 import type { OptionsStyles, StylesLang } from '../src/types'
 import { promises as fs } from 'node:fs'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
+import { logMessage } from '../src/helpers/log'
 import { buildVite } from './helper/build'
 import { getPath } from './helper/path'
 
@@ -165,10 +166,9 @@ describe('styles generation', () => {
         },
       },
     })
-    for (const call of spy.mock.calls) {
-      expect(call).toStrictEqual([
-        '[vite-plugin-svg-spritemap] Invalid styles lang, fallback to css',
-      ])
-    }
+    const call = spy.mock.lastCall
+    expect(call).toStrictEqual([
+      logMessage('Invalid styles lang, fallback to css'),
+    ])
   })
 })

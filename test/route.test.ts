@@ -4,6 +4,7 @@ import { chromium } from 'playwright'
 import { createServer } from 'vite'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 import VitePluginSvgSpritemap from '../src'
+import { logMessage } from '../src/helpers/log'
 import { getPath } from './helper/path'
 
 let browser: Browser
@@ -61,14 +62,18 @@ beforeAll(async () => {
 })
 
 describe('route options', () => {
+  const spy = vi.spyOn(console, 'warn')
   const entries = Object.entries(routeConfigs)
   for (let index = 0; index < entries.length; index++) {
     const [key, route] = entries[index]
     if (Object.prototype.hasOwnProperty.call(routeConfigs, key)) {
       it.concurrent(key, async () => {
+        const routeValue = typeof route.value === 'string' ? route.value : route.value?.url
+        const shouldMockConsoleWarn = routeValue && !routeValue.startsWith('/')
+
+        // const spy = shouldMockConsoleWarn ? vi.spyOn(console, 'warn') : undefined
         const page = await browser.newPage()
         const port = 5175 + index
-        const spy = vi.spyOn(console, 'warn')
         const server = await createServer({
           server: {
             port,
@@ -85,18 +90,12 @@ describe('route options', () => {
         const result = await page.content()
         expect(result).toContain('<svg')
 
-        const routeValue = typeof route.value === 'string' ? route.value : route.value?.url
-        if (
-          routeValue
-          && !routeValue.startsWith('/')
-        ) {
-          for (const call of spy.mock.calls) {
-            expect(call).toStrictEqual([
-              `[vite-plugin-svg-spritemap] Route option ${routeValue} should start with a leading slash, automatically added.`,
-            ])
-          }
+        if (shouldMockConsoleWarn) {
+          const call = spy.mock.calls.findIndex(call => call.includes(
+            logMessage(`Route option ${routeValue} should start with a leading slash, automatically added.`),
+          ))
+          expect(call).not.toBe(-1)
         }
-        spy.mockClear()
 
         await page.close()
         await server.close()

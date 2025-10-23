@@ -3,6 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import { chromium } from 'playwright'
 import { createServer } from 'vite'
 import { describe, expect, it, vi } from 'vitest'
+import { logMessage } from '../src/helpers/log'
 import VitePluginSvgSpritemap from '../src/index'
 import { getPath } from './helper/path'
 
@@ -53,7 +54,10 @@ describe('vue components', () => {
       },
     })
 
-    await page.goto('http://localhost:3002')
+    await page.goto('http://localhost:3002', {
+      waitUntil: 'domcontentloaded',
+    })
+    await page.waitForSelector('#app svg')
     const result = await page.content()
     expect(result).toMatchSnapshot()
 
@@ -66,7 +70,7 @@ describe('vue components', () => {
       const call = calls[index]
       const id = files[index]
       expect(call).toStrictEqual([
-        `[vite-plugin-svg-spritemap] You need to enable the output.view and the output.use option to load ${getPath('./fixtures/vue/svg/')}/${id}.svg?view as component with the ?view query.`,
+        logMessage(`You need to enable the output.view and the output.use option to load ${getPath('./fixtures/vue/svg/')}/${id}.svg?view as component with the ?view query.`),
       ])
     }
   })

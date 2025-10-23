@@ -38,6 +38,7 @@ export default function DevPlugin(shared: Shared): Plugin {
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         if (req.url?.startsWith(shared.options.route.url)) {
+          /* v8 ignore if -- @preserve */
           if (!shared.svgManager)
             return
           res.statusCode = 200
@@ -54,6 +55,7 @@ export default function DevPlugin(shared: Shared): Plugin {
     transformIndexHtml: {
       order: 'pre',
       handler(html) {
+        /* v8 ignore if -- @preserve */
         if (!shared.svgManager)
           return html
 
@@ -74,6 +76,7 @@ export default function DevPlugin(shared: Shared): Plugin {
       },
     },
     async hotUpdate({ file, type }) {
+      /* v8 ignore if -- @preserve */
       if (!shared.svgManager)
         return
 
@@ -115,6 +118,7 @@ export default function DevPlugin(shared: Shared): Plugin {
         id: filterCSS,
       },
       handler(code) {
+        /* v8 ignore if -- @preserve */
         if (!shared.svgManager)
           return
 

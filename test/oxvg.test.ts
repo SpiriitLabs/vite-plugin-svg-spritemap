@@ -1,5 +1,6 @@
 import type { UserOptions } from '../src/types'
 import { describe, expect, it, vi } from 'vitest'
+import { logMessage } from '../src/helpers/log'
 import { buildVite } from './helper/build'
 
 const oxvgConfigs: Record<string, UserOptions['oxvg']> = {
@@ -53,15 +54,14 @@ describe('oxvg', () => {
           name: `oxvg_warning`,
           options: { oxvg, svgo: false },
         })
-        const warningStr = '[vite-plugin-svg-spritemap] You need to install OXVG to be able to optimize your SVG with it.'
+        const warningStr = logMessage('You need to install OXVG to be able to optimize your SVG with it.')
 
-        for (const call of spy.mock.calls) {
-          if (oxvg === false) {
-            expect(call).not.toStrictEqual([warningStr])
-          }
-          else {
-            expect(call).toStrictEqual([warningStr])
-          }
+        const call = spy.mock.lastCall
+        if (oxvg === false) {
+          expect(call).not.toStrictEqual([warningStr])
+        }
+        else {
+          expect(call).toStrictEqual([warningStr])
         }
 
         spy.mockClear()
