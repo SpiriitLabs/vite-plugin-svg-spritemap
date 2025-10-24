@@ -128,7 +128,8 @@ Change the route url allowing you to have multiple instance of the plugin (see [
 You can also provide an object with the `url` and `name` properties. This is useful if you want to customize the name of the route in the Vite Dev Server and styles comments.
 
 ```ts
-{
+// Example route object
+const route = {
   url: '/__flags',
   name: 'Flags',
 }
