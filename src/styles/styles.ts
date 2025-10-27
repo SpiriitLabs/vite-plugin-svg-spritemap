@@ -27,7 +27,7 @@ export class Styles {
   private createSpriteMap(
     generator: (
       svg: SvgDataUriMapObject,
-      isLast: boolean
+      isLast: boolean,
     ) => string,
   ): string {
     let spriteMap = ''

@@ -137,10 +137,10 @@ export interface OptionsStyles {
       createSpritemap: (
         generator: (
           svg: SvgDataUriMapObject,
-          isLast: boolean
-        ) => string
+          isLast: boolean,
+        ) => string,
       ) => string
-    }
+    },
   ) => string
 }
 
