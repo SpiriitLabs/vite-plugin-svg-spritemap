@@ -61,7 +61,7 @@ beforeAll(async () => {
   }
 })
 
-describe.skip('route options', () => {
+describe('route options', () => {
   const spy = vi.spyOn(console, 'warn')
   const entries = Object.entries(routeConfigs)
   for (let index = 0; index < entries.length; index++) {
@@ -73,7 +73,7 @@ describe.skip('route options', () => {
 
         // const spy = shouldMockConsoleWarn ? vi.spyOn(console, 'warn') : undefined
         const page = await browser.newPage()
-        const port = 5175 + index
+        const port = 6000 + index
         const server = await createServer({
           server: {
             port,
