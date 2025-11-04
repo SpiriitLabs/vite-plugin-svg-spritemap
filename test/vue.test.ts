@@ -37,6 +37,7 @@ describe('vue components', () => {
     await page.goto('http://localhost:3001', {
       waitUntil: 'networkidle',
     })
+    await page.waitForSelector('#app svg')
 
     const result = await page.content()
     expect(result).toMatchSnapshot()
