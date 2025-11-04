@@ -76,7 +76,7 @@ export default function BuildPlugin(shared: Shared): Plugin {
         code: spritemapFilter,
       },
       handler(code) {
-        if (typeof shared.options.output !== 'object')
+        if (!code.match(spritemapFilter) || typeof shared.options.output !== 'object')
           return
 
         // prevent sveltekit rewrite

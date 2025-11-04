@@ -22,7 +22,7 @@ export default function CommonPlugin(shared: Shared): Plugin {
       },
       async handler(id) {
         const { options, svgManager } = shared
-        if (!svgManager || !options.output)
+        if (!svgManager || !options.output || !id.match(filterVueComponent))
           return
 
         const [path, query] = id.split('?', 2)

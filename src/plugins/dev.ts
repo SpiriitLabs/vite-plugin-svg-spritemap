@@ -19,15 +19,16 @@ export default function DevPlugin(shared: Shared): Plugin {
         id: virtualModuleId,
       },
       handler(id) {
-        return id
+        if (id === virtualModuleId)
+          return id
       },
     },
     load: {
       filter: {
         id: virtualModuleId,
       },
-      handler() {
-        if (shared.svgManager)
+      handler(id) {
+        if (shared.svgManager && id === virtualModuleId)
           return generateHMR(shared.svgManager.spritemap, shared.options)
       },
     },
@@ -117,9 +118,9 @@ export default function DevPlugin(shared: Shared): Plugin {
       filter: {
         id: filterCSS,
       },
-      handler(code) {
+      handler(code, id) {
         /* v8 ignore if -- @preserve */
-        if (!shared.svgManager)
+        if (!shared.svgManager || !id.match(filterCSS))
           return
 
         const replaceRegExp = new RegExp(`${shared.options.route.url}-\d*|${shared.options.route.url}`, 'g')
