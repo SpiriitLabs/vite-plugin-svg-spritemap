@@ -64,9 +64,9 @@ beforeAll(async () => {
 describe.sequential('route options', () => {
   const spy = vi.spyOn(console, 'warn')
   const entries = Object.entries(routeConfigs)
+  let port = 5175
   for (let index = 0; index < entries.length; index++) {
     const [key, route] = entries[index]
-    let port = 5173
     if (Object.prototype.hasOwnProperty.call(routeConfigs, key)) {
       it(key, async () => {
         port += index
