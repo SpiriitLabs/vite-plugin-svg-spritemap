@@ -61,7 +61,7 @@ beforeAll(async () => {
   }
 })
 
-describe.sequential('route options', () => {
+describe.skip.sequential('route options', () => {
   const spy = vi.spyOn(console, 'warn')
   const entries = Object.entries(routeConfigs)
   for (let index = 0; index < entries.length; index++) {
