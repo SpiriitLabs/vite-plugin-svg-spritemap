@@ -92,7 +92,7 @@ jobs:
         if: failure()
         with:
           name: test-project-${{ matrix.os }}-${{ matrix.node_version }}
-          path: test/project/
+          path: test/fixtures
 
   coverage:
     runs-on: ubuntu-latest

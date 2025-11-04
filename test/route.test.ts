@@ -61,20 +61,22 @@ beforeAll(async () => {
   }
 })
 
-describe.skip.sequential('route options', () => {
+describe.sequential('route options', () => {
   const spy = vi.spyOn(console, 'warn')
   const entries = Object.entries(routeConfigs)
   for (let index = 0; index < entries.length; index++) {
     const [key, route] = entries[index]
+    let port = 5173
     if (Object.prototype.hasOwnProperty.call(routeConfigs, key)) {
       it(key, async () => {
+        port += index
         const routeValue = typeof route.value === 'string' ? route.value : route.value?.url
         const shouldMockConsoleWarn = routeValue && !routeValue.startsWith('/')
 
         const page = await browser.newPage()
         const server = await createServer({
           server: {
-            port: 5173,
+            port,
           },
           plugins: [
             VitePluginSvgSpritemap(getPath('./fixtures/basic/svg/*.svg'), {
@@ -83,7 +85,7 @@ describe.skip.sequential('route options', () => {
           ],
         })
         await server.listen()
-        await page.goto(`http://localhost:5173${route.expected}`)
+        await page.goto(`http://localhost:${port}${route.expected}`)
 
         const result = await page.content()
         expect(result).toContain('<svg')

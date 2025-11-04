@@ -35,7 +35,7 @@ describe('vue components', () => {
     const { page, server, browser } = await createVueServer(3001)
 
     await page.goto('http://localhost:3001', {
-      waitUntil: 'networkidle',
+      waitUntil: 'domcontentloaded',
     })
     await page.waitForSelector('#app svg')
 
