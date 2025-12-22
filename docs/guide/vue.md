@@ -42,7 +42,7 @@ You can see the usage in the [corresponding demo folder](https://github.com/Spir
 
 ## TypeScript
 
-For typescript, you need to load the type definitions inside `vite-env.d.ts` to fix errors with `?use`/`?view` query.
+For TypeScript, you need to load the type definitions inside `vite-env.d.ts` to fix errors with `?use`/`?view` query.
 
 ```ts
 /// <reference types="vite/client" />
@@ -73,7 +73,7 @@ You can see the usage in the [corresponding demo folder](https://github.com/Spir
 
 ## TypeScript
 
-For usage with TypeScript, you will need to add in a `.d.ts` file the reference type to use `?use`/`?view` query.
+For usage with TypeScript, you will need to add in a `.d.ts` file the reference type to use the `?use`/`?view` query.
 
 ```ts
 /// <reference types="@spiriit/vite-plugin-svg-spritemap/client" />

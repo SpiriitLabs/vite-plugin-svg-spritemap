@@ -1,6 +1,6 @@
 # Options
 
-The first argument is a glob path (using [tinnyglobby](https://github.com/SuperchupuDev/tinyglobby))
+The first argument is a glob path (using [tinyglobby](https://github.com/SuperchupuDev/tinyglobby))
 
 ```ts
 // vite.config.js / vite.config.ts
@@ -69,7 +69,7 @@ See [Styles options](/options/styles).
 - **Type:** `string | false`
 - **Default:** `'sprite-'`
 
-Define the prefix uses for sprite id in `<symbol>`/`<use>`/`<view>`.
+Define the prefix used for sprite id in `<symbol>`/`<use>`/`<view>`.
 You can set this option to false to disable the prefix.
 
 This option is recommended to prevent conflict with other SVG or ids in your project.
@@ -123,7 +123,7 @@ Function allowing you to customize the id of each symbol of the spritemap svg.
 - **Type:** `string | object`
 - **Default:** `'/__spritemap'`
 
-Change the route url allowing you to have multiple instance of the plugin (see [Multiple Instance](/guide/multiple-instance)).
+Change the route URL allowing you to have multiple instances of the plugin (see [Multiple Instance](/guide/multiple-instance)).
 
 You can also provide an object with the `url` and `name` properties. This is useful if you want to customize the name of the route in the Vite Dev Server and styles comments.
 
@@ -151,7 +151,7 @@ Take an OXVG Options object.
 If `true`, it will use the [default SVGO preset](https://github.com/svg/svgo#default-preset), if `false`, it will disable OXVG optimization.
 
 ::: warning
-You need to install `@oxvg/napi` (**0.0.4-1** or superior)  and the corresponding native binding dependency for your platform.
+You need to install `@oxvg/napi` (**0.0.4-1** or above) and the corresponding native binding dependency for your platform.
 
 ::: code-group
 

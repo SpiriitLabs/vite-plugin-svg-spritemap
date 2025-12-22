@@ -40,7 +40,7 @@ export default {
 
 After that, you need to import the file in your current styles. Don't forget to [load the CSS](https://vitejs.dev/guide/features.html#css) via ViteJS.
 
-If you use a CSS preprocessing language (Less/Scss/Sass/Stylus), you can use the mixin `sprite` and access to a map with all sprites infos.
+If you use a CSS preprocessing language (Less/SCSS/Sass/Stylus), you can use the mixin `sprite` and access a map with all sprites info.
 If you use regular CSS, you will only access to generated classes.
 
 You can see the usage with the [examples](/examples).

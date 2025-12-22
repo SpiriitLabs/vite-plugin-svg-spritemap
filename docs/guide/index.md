@@ -14,7 +14,7 @@ This ViteJS plugin generates a single SVG [spritemap](https://css-tricks.com/svg
 **Requirements**
 
 - Vite 7 or Vite 6
-- Node 18 or Node 20 or Node 22 and superior
+- Node 18 or Node 20 or Node 22 and above
 
 ::: code-group
 
@@ -49,7 +49,7 @@ export default {
 }
 ```
 
-You can access to the spritemap via the route [`/__spritemap`](/options/#route). All files process by ViteJS will transform the path of the file on build. By default, you will need to use the prefix [`sprite-`](/options/#prefix).
+You can access the spritemap via the route [`/__spritemap`](/options/#route). All files processed by ViteJS will transform the path of the file on build. By default, you will need to use the prefix [`sprite-`](/options/#prefix).
 
 ## Access sprite
 
@@ -57,7 +57,7 @@ By default, the plugin will generate a spritemap to support all methods describe
 
 ### With `<svg>` tag
 
-To access to your svg sprite, you need to use the route name (by default [`__spritemap`](/options/#route)) and the [`prefix`](/options/#prefix) + the name of your svg sprite as an anchor.
+To access your svg sprite, you need to use the route name (by default [`__spritemap`](/options/#route)) and the [`prefix`](/options/#prefix) + the name of your svg sprite as an anchor.
 
 ```html
 <svg>
@@ -69,7 +69,7 @@ Under the hood, the spritemap generates `<use>` tags. This can be disabled by us
 
 ### With `<img>` tag
 
-If you prefer, you can access to your svg spritemap with an `<img>` tag.
+If you prefer, you can access your svg spritemap with an `<img>` tag.
 
 To access the fragment, you need to use the route name (by default [`__spritemap`](/options/#route)) and the [`prefix`](/options/#prefix) + the name of your svg sprite (with the suffix `-view`) as an anchor.
 

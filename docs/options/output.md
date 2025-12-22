@@ -15,7 +15,7 @@ Set to `false` to disable output.
 The destination of the file. You can use [output filename like Rollup](https://www.rollupjs.org/guide/en/#outputassetfilenames).
 
 ::: info
-Doesn't support rollup hash number
+Doesn't support Rollup hash number
 :::
 
 ## output.name
@@ -23,7 +23,7 @@ Doesn't support rollup hash number
 - **Type:** `string`
 - **Default:** `'spritemap.svg'`
 
-The name of file, appear on the manifest key.
+The name of the file, appears in the manifest key.
 
 ## output.use
 

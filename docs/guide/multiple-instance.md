@@ -16,4 +16,4 @@ export default {
 }
 ```
 
-If you are using Sass, Less or Stylus: you can optimize the style file export by only generate one mixin on one instance with [`styles.include`](/options/styles.html#styles-include) set to `['variables']` or/and use the `styles.names` object.
+If you are using Sass, Less or Stylus: you can optimize the style file export by only generating one mixin on one instance with [`styles.include`](/options/styles.html#styles-include) set to `['variables']` and/or use the `styles.names` object.
