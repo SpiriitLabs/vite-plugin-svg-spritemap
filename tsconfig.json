@@ -17,7 +17,8 @@
     "declaration": true,
     /* Raise error on expressions and declarations with an implied 'any' type. */
     "esModuleInterop": true,
-    "isolatedDeclarations": true
+    "isolatedDeclarations": true,
+    "skipLibCheck": true
   },
   "exclude": [
     "node_modules",
