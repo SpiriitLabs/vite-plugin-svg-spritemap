@@ -151,19 +151,19 @@ export default function DevPlugin(shared: Shared): Plugin {
 
     const updateElements = `
     const elements = document.querySelectorAll(
-      '[src^="' + data.route + '"], [href^="' + data.route + '"], [*|href^="' + data.route + '"]'
+      '[src^="' + data.route.url + '"], [href^="' + data.route.url + '"], [*|href^="' + data.route.url + '"]'
     )
 
     for (let i = 0; i < elements.length; i++) {
       const el = elements[i]
-      const attributes = ['xlink:href', 'href', 'src']
+      const attributes = ['href', 'src', 'xlink:href']
       for (const attr of attributes) {
         if (!el.hasAttribute(attr)) continue
         const value = el.getAttribute(attr)
         if (!value) continue
         const [base, hash] = value.split('#')
         if (!hash) continue
-        const newValue = data.route + '__' + data.id + '#' + hash
+        const newValue = data.route.url + '__' + data.id + '#' + hash
         el.setAttribute(attr, newValue)
       }
     }`
