@@ -50,7 +50,8 @@ export default {
         callback: ({ content, options, createSpritemap }) => {
           return content
         }
-      }
+      },
+      types: 'src/types/spritemap.d.ts'
     })
   ]
 }
@@ -63,6 +64,10 @@ See [Output options](/options/output).
 ## styles
 
 See [Styles options](/options/styles).
+
+## types
+
+See [Types options](/options/types).
 
 ## prefix
 

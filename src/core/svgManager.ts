@@ -2,18 +2,19 @@ import type { Jobs as OxvgConfig } from '@oxvg/napi'
 import type { Glob } from 'picomatch'
 import type { Config as SvgoConfig } from 'svgo'
 import type { ResolvedConfig } from 'vite'
-import type { Options, SvgMapObject } from './types'
+import type { Options, SvgMapObject } from '@/types'
 import { promises as fs } from 'node:fs'
-import { basename, resolve } from 'node:path'
+import { basename, dirname, resolve } from 'node:path'
+import { log } from '@helpers/log'
+import { getOptimize as getOptimiseOxvg, getOptions as getOptionsOxvg } from '@helpers/oxvg'
+import { getOptimize as getOptimizeSvgo, getOptions as getOptionsSvgo } from '@helpers/svgo'
 import { DOMImplementation, DOMParser, XMLSerializer } from '@xmldom/xmldom'
 import hash_sum from 'hash-sum'
 import { glob } from 'tinyglobby'
-import { calculateY } from './helpers/calculateY'
-import { cleanAttributes } from './helpers/cleanAttributes'
-import { log } from './helpers/log'
-import { getOptimize as getOptimiseOxvg, getOptions as getOptionsOxvg } from './helpers/oxvg'
-import { getOptimize as getOptimizeSvgo, getOptions as getOptionsSvgo } from './helpers/svgo'
-import { Styles } from './styles/styles'
+import { Styles } from '@/core/styles'
+import { Types } from '@/core/types'
+import { calculateY } from '@/helpers/calculateY'
+import { cleanAttributes } from '@/helpers/cleanAttributes'
 
 /**
  * Manages SVG files for creating a sprite map
@@ -90,6 +91,7 @@ export class SVGManager {
       this.hash = hash_sum(this.spritemap)
       this._sortSvgs()
       await this.createFileStyle()
+      await this.createFileTypes()
     }
 
     return true
@@ -112,6 +114,7 @@ export class SVGManager {
     this.hash = hash_sum(this.spritemap)
     this._sortSvgs()
     await this.createFileStyle()
+    await this.createFileTypes()
     return true
   }
 
@@ -233,6 +236,7 @@ export class SVGManager {
 
     this.hash = hash_sum(this.spritemap)
     await this.createFileStyle()
+    await this.createFileTypes()
   }
 
   /**
@@ -340,11 +344,34 @@ export class SVGManager {
       const styleGen: Styles = new Styles(this._svgs, this._options)
       const content = await styleGen.generate()
       const path = resolve(this._config.root, this._options.styles.filename)
+      const dir = dirname(path)
+      await fs.mkdir(dir, { recursive: true })
 
       await fs.writeFile(path, content, 'utf8')
     }
     catch (error) {
       log({ level: 'error', message: `Failed to create style file: ${error}`, logger: this._config.logger })
+    }
+  }
+
+  /**
+   * Generate and write TypeScript type definition file
+   */
+  private async createFileTypes(): Promise<void> {
+    if (!this._options.types)
+      return
+
+    try {
+      const typesGen: Types = new Types(this._svgs, this._options)
+      const content = typesGen.generate()
+      const path = resolve(this._config.root, this._options.types)
+      const dir = dirname(path)
+
+      await fs.mkdir(dir, { recursive: true })
+      await fs.writeFile(path, content, 'utf8')
+    }
+    catch (error) {
+      log({ level: 'error', message: `Failed to create type file: ${error}`, logger: this._config.logger })
     }
   }
 

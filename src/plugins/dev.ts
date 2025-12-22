@@ -1,6 +1,6 @@
 import type { Plugin } from 'vite'
-import type { HMRUpdate } from '../events'
-import type { Options, Shared } from '../types'
+import type { HMRUpdate } from '@/events'
+import type { Options, Shared } from '@/types'
 import { relative } from 'node:path'
 import picomatch from 'picomatch'
 

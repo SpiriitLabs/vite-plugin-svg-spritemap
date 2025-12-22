@@ -8,9 +8,10 @@ export default defineConfig({
   async onSuccess() {
     // Add styles templates for css generation
     const styles = async () => {
-      const files = await glob('src/styles/*.(scss|styl|less)')
+      await fs.mkdir('dist/styles', { recursive: true })
+      const files = await glob('src/styles/*')
       for (const file of files)
-        await fs.copyFile(file, file.replace('src/styles', 'dist/'))
+        await fs.copyFile(file, file.replace('src/styles', 'dist/styles'))
     }
 
     Promise.all([

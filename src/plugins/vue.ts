@@ -1,7 +1,7 @@
 import type { Plugin, ResolvedConfig } from 'vite'
-import type { Shared } from '../types'
+import type { Shared } from '@/types'
 import { parse } from 'node:path'
-import { log } from '../helpers/log'
+import { log } from '@helpers/log'
 
 export default function CommonPlugin(shared: Shared): Plugin {
   let config: ResolvedConfig

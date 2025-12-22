@@ -1,8 +1,8 @@
 import type { ExternalOption } from 'rollup'
 import type { Plugin, ResolvedConfig } from 'vite'
-import type { Shared } from '../types'
+import type { Shared } from '@/types'
 import { posix as path } from 'node:path'
-import { getFileName } from '../helpers/filename'
+import { getFileName } from '@helpers/filename'
 
 export default function BuildPlugin(shared: Shared): Plugin {
   let fileRef: string

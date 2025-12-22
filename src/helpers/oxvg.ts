@@ -1,7 +1,7 @@
 import type { Jobs as OxvgConfig } from '@oxvg/napi'
 import type { Logger } from 'vite'
-import type { Options } from '../types'
-import { log } from './log'
+import type { Options } from '@/types'
+import { log } from '@helpers/log'
 
 /**
  * Get OXVG Options

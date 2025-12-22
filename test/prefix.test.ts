@@ -1,6 +1,6 @@
 import type { UserOptions } from '../src/types'
 import { describe, expect, it } from 'vitest'
-import { buildVite } from './helper/build'
+import { buildVite } from './helpers/build'
 
 const prefixConfigs: Record<string, UserOptions['prefix']> = {
   prefix: undefined,
