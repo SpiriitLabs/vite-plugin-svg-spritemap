@@ -220,4 +220,3 @@ VitePluginSvgSpritemap('./src/icons/*.svg', {
 4. **Consider HMR** - ensure changes work in both dev and build modes
 5. **Test multiple instances** - verify multiple plugin instances work correctly
 6. **Update documentation** - keep docs in sync with code changes
-
