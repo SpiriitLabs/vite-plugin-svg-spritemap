@@ -1,6 +1,6 @@
+import type { SVGManager } from '@core/svgManager'
 import type { Jobs as OXVGConfig } from '@oxvg/napi'
 import type { Config as SvgoConfig } from 'svgo'
-import type { SVGManager } from './svgManager'
 
 type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
@@ -76,6 +76,11 @@ export interface UserOptions {
    * @default 0
    */
   gutter?: number
+  /**
+   * TypeScript type generation. Put the relative file destination to enable, or false to disable.
+   * @default false
+   */
+  types?: string | false
 }
 
 export interface OptionsOutput {
@@ -177,6 +182,7 @@ export interface Options {
   oxvg?: boolean | OXVGConfig
   svgo?: boolean | SvgoConfig
   styles: OptionsStyles | false
+  types: string | false
   output: OptionsOutput | false
   prefix: string
   injectSvgOnDev: boolean

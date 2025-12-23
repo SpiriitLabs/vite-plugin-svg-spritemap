@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import SpiriitUse from './../_fixtures/icons/spiriit.svg?use'
 import SpiriitView from './../_fixtures/icons/spiriit.svg?view'
-import ViteUse from './../_fixtures/icons/vite.svg?use'
 import ViteView from './../_fixtures/icons/vite.svg?view'
 </script>
 
@@ -14,10 +12,8 @@ import ViteView from './../_fixtures/icons/vite.svg?view'
     <h2>Spritemap with &lt;use> via Vue component</h2>
 
     <div class="example__svgs">
-      <SpiriitUse class="icon icon-spiriit">
-        <title>My superb logo</title>
-      </SpiriitUse>
-      <ViteUse class="icon icon-vite" />
+      <Icon name="spiriit" />
+      <Icon name="vite" />
     </div>
   </div>
 

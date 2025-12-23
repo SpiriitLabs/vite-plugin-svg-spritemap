@@ -5,7 +5,7 @@ import { createServer } from 'vite'
 import { describe, expect, it, vi } from 'vitest'
 import { logMessage } from '../src/helpers/log'
 import VitePluginSvgSpritemap from '../src/index'
-import { getPath } from './helper/path'
+import { getPath } from './helpers/path'
 
 async function createVueServer(port: number, options: UserOptions | undefined = undefined) {
   const browser = await chromium.launch()

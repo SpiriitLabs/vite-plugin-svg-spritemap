@@ -1,5 +1,5 @@
 import type { Config as SvgoConfig } from 'svgo'
-import type { Options } from '../types'
+import type { Options } from '@/types'
 
 /**
  * Get SVGO Options

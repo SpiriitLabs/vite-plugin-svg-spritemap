@@ -1,8 +1,8 @@
 import type { Glob } from 'picomatch'
 import type { Plugin, ResolvedConfig } from 'vite'
-import type { Shared, UserOptionsLogs } from '../types'
-import { log } from '../helpers/log'
-import { SVGManager } from '../svgManager'
+import type { Shared, UserOptionsLogs } from '@/types'
+import { SVGManager } from '@core/svgManager'
+import { log } from '@helpers/log'
 
 export default function CommonPlugin(shared: Shared, iconsPattern: Glob, logsOptions: UserOptionsLogs): Plugin {
   let config: ResolvedConfig
