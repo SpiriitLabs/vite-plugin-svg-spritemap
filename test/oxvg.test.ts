@@ -1,7 +1,7 @@
 import type { UserOptions } from '../src/types'
 import { describe, expect, it, vi } from 'vitest'
 import { logMessage } from '../src/helpers/log'
-import { buildVite } from './helper/build'
+import { buildVite } from './helpers/build'
 
 const oxvgConfigs: Record<string, UserOptions['oxvg']> = {
   default: true,

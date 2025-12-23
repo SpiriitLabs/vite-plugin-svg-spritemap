@@ -5,7 +5,7 @@ import { createServer } from 'vite'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 import VitePluginSvgSpritemap from '../src'
 import { logMessage } from '../src/helpers/log'
-import { getPath } from './helper/path'
+import { getPath } from './helpers/path'
 
 let browser: Browser
 

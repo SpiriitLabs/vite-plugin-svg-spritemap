@@ -49,6 +49,49 @@ For TypeScript, you need to load the type definitions inside `vite-env.d.ts` to 
 /// <reference types="@spiriit/vite-plugin-svg-spritemap/client" />
 ```
 
+### Type-safe icon props
+
+You can use the [types option](/options/types) to generate TypeScript types for all your icons, allowing you to type your icon props for better type safety.
+
+```ts
+// vite.config.ts
+import VitePluginSvgSpritemap from '@spiriit/vite-plugin-svg-spritemap'
+
+export default {
+  plugins: [
+    VitePluginSvgSpritemap('./assets/icons/*.svg', {
+      types: 'src/types/spritemap.d.ts',
+    }),
+  ],
+}
+```
+
+Then use the generated types in your Vue components. For example, with a reusable Icon component:
+
+```vue
+<script lang="ts" setup>
+import type { Icons } from './types/spritemap'
+
+const props = defineProps<{
+  name?: Icons
+}>()
+
+const Icon = computed(() => {
+  return props.name
+    ? defineAsyncComponent(() => import(`assets/icons/${props.name}.svg?use`))
+    : null
+})
+</script>
+
+<template>
+  <component :is="Icon" v-if="name" :class="`icon icon-${name}`">
+    <slot />
+  </component>
+</template>
+```
+
+Now the `name` prop is type-safe and will only accept valid icon names from your spritemap. TypeScript will provide autocomplete and catch invalid icon names at compile time.
+
 ## Nuxt 3/4
 
 > [!NOTE]

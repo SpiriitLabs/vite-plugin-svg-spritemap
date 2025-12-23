@@ -4,7 +4,7 @@ import { chromium } from 'playwright'
 import { createServer } from 'vite'
 import { beforeAll, describe, expect, it } from 'vitest'
 import VitePluginSvgSpritemap from '../src/index'
-import { getPath } from './helper/path'
+import { getPath } from './helpers/path'
 
 let server: ViteDevServer
 let browser: Browser

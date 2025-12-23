@@ -48,10 +48,12 @@ export class Styles {
       && (this._options.styles.include === true
         || this._options.styles.include.includes('mixin'))
     ) {
-      template = await promises.readFile(
-        path.join(import.meta.dirname, `/template.${this._options.styles.lang}`),
-        'utf8',
-      )
+      const templateFileName = `template.${this._options.styles.lang}`
+      const currentDir = import.meta.dirname
+      const stylesDir = import.meta.env.STYLES_DIR || '../styles'
+      const templatePath = path.join(currentDir, stylesDir, templateFileName)
+
+      template = await promises.readFile(templatePath, 'utf8')
     }
 
     // Apply names/mixins changes

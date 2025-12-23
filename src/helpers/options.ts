@@ -1,4 +1,4 @@
-import type { Options, OptionsRoute, OptionsStyles, StylesLang, UserOptions } from '../types'
+import type { Options, OptionsRoute, OptionsStyles, StylesLang, UserOptions } from '@/types'
 
 export function createOptions(options: UserOptions = {}): { options: Options, logs: { warn: string[] } } {
   const logs: { warn: string[] } = {
@@ -111,12 +111,15 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
 
   const gutter = options.gutter || 0
 
+  const types: Options['types'] = typeof options.types === 'string' ? options.types : false
+
   const finalOptions = {
     svgo: options.svgo,
     oxvg: options.oxvg,
     output,
     prefix,
     styles,
+    types,
     injectSvgOnDev,
     idify,
     route,

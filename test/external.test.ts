@@ -1,6 +1,6 @@
 import type { ExternalOption } from 'rollup'
 import { describe, expect, it } from 'vitest'
-import { buildVite } from './helper/build'
+import { buildVite } from './helpers/build'
 
 const configs: Record<string, ExternalOption | undefined> = {
   no_external: undefined,
