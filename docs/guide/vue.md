@@ -114,6 +114,34 @@ export default defineNuxtConfig({
 
 You can see the usage in the [corresponding demo folder](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/tree/main/demo/nuxt/app.vue).
 
+### HMR support
+
+The injection of the HMR script is not supported on Nuxt. You should add it manually by adding `<script type="module" src="/_nuxt/@vite-plugin-svg-spritemap/client"></script>` on development only.
+
+```ts
+// nuxt.config.ts
+export default defineNuxtConfig({
+  $development: {
+    app: {
+      head: {
+        script: [
+          { src: '/_nuxt/@vite-plugin-svg-spritemap/client', type: 'module' },
+        ],
+      },
+    },
+  },
+})
+```
+
+### Improve Nuxt performance
+
+You can improve performance by removing one instance of the plugin by using enable the [`viteEnvironmentApi`](https://nuxt.com/docs/4.x/guide/going-further/experimental-features#viteenvironmentapi) option. This Nuxt option is available since Nuxt 4.2 and will be activated by default in Nuxt 5.
+
+This will also [remove the log pollution](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/83) in the console.
+
+>[!IMPORTANT]
+> On some setup this option can cause issues with plugins. Test your project with this option to ensure it works as expected.
+
 ## TypeScript
 
 For usage with TypeScript, you will need to add in a `.d.ts` file the reference type to use the `?use`/`?view` query.

@@ -21,5 +21,13 @@ export default defineNuxtConfig({
     ],
   },
   css: ['./../_fixtures/scss/style.scss'],
-
+  $development: {
+    app: {
+      head: {
+        script: [
+          { src: '/_nuxt/@vite-plugin-svg-spritemap/client', type: 'module' },
+        ],
+      },
+    },
+  },
 })
