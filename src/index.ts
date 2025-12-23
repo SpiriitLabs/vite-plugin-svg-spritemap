@@ -12,7 +12,7 @@ export default function VitePluginSvgSpritemap(
   options?: UserOptions,
 ): Plugin[] {
   const { options: _options, logs: _logsOptions } = createOptions(options)
-  const shared: Shared = { svgManager: null, options: _options }
+  const shared: Shared = { svgManager: null, options: _options, routeUrl: '' }
 
   return [
     CommonPlugin(shared, iconsPattern, _logsOptions),
