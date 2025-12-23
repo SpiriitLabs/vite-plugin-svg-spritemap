@@ -7,6 +7,7 @@ coverage
 .svelte-kit
 demo/server/public
 .nitro
+test/fixtures/basic/types/*
 test/fixtures/basic/styles/*
 !test/fixtures/basic/styles/.gitkeep
 demo/_fixtures/scss/spritemap.scss
