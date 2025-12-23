@@ -14,10 +14,12 @@ export default function CommonPlugin(shared: Shared, iconsPattern: Glob, logsOpt
     configResolved(_config) {
       config = _config
       logsOptions.warn.forEach(warn => log({ level: 'warn', message: warn, logger: config.logger }))
-      shared.svgManager = new SVGManager(iconsPattern, shared.options, _config)
+
       shared.routeUrl = shared.options.route.url
       if (_config.command === 'serve')
         shared.routeUrl = getBaseUrl(shared.options.route.url, _config.base)
+
+      shared.svgManager = new SVGManager(iconsPattern, shared.options, _config, shared.routeUrl)
     },
   }
 }

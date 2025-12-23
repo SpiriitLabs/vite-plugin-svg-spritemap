@@ -6,10 +6,12 @@ import svgToMiniDataURI from 'mini-svg-data-uri'
 export class Styles {
   private _svgs: Map<string, SvgDataUriMapObject>
   private _options: Options
+  private _routeUrl: string
 
-  constructor(svgs: Map<string, SvgMapObject>, options: Options) {
+  constructor(svgs: Map<string, SvgMapObject>, options: Options, routeUrl: string) {
     this._svgs = new Map()
     this._options = options
+    this._routeUrl = routeUrl
 
     svgs.forEach((svg, filePath) => {
       const svgDataUri = svgToMiniDataURI(svg.source)
@@ -59,7 +61,7 @@ export class Styles {
     // Apply names/mixins changes
     const findAndReplaceObject: Record<string, string> = {
       mixin: this._options.styles.names.mixin,
-      route: this._options.route.url,
+      route: this._routeUrl,
       prefix: this._options.styles.names.prefix,
       sprites: this._options.styles.names.sprites,
     }
@@ -192,7 +194,7 @@ export class Styles {
           const selector = `.${this._options.prefix + svg.id}-frag`
           let sprite = ''
           sprite = `${selector} {`
-          sprite += `\n\tbackground: url('${this._options.route.url}#${
+          sprite += `\n\tbackground: url('${this._routeUrl}#${
             this._options.prefix + svg.id
           }-view') center no-repeat;`
           sprite += '\n}'

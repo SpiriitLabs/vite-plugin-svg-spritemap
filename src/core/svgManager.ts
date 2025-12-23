@@ -29,14 +29,16 @@ export class SVGManager {
   public hash: string | null = null
   private _optimizeType: 'svgo' | 'oxvg' | null = null
   private _optimize: Awaited<ReturnType<typeof getOptimizeSvgo | typeof getOptimiseOxvg>> | null = null
+  private _routeUrl: string
 
-  constructor(iconsPattern: Glob, options: Options, config: ResolvedConfig) {
+  constructor(iconsPattern: Glob, options: Options, config: ResolvedConfig, routeUrl: string) {
     this._parser = new DOMParser()
     this._options = options
     this._ids = new Set()
     this._svgs = new Map()
     this._iconsPattern = iconsPattern
     this._config = config
+    this._routeUrl = routeUrl
   }
 
   /**
@@ -341,7 +343,7 @@ export class SVGManager {
       return
 
     try {
-      const styleGen: Styles = new Styles(this._svgs, this._options)
+      const styleGen: Styles = new Styles(this._svgs, this._options, this._routeUrl)
       const content = await styleGen.generate()
       const path = resolve(this._config.root, this._options.styles.filename)
       const dir = dirname(path)
