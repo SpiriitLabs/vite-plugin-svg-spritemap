@@ -5,6 +5,9 @@ import { defineConfig } from 'tsdown'
 
 export default defineConfig({
   entry: ['src/index.ts'],
+  env: {
+    STYLES_DIR: './styles',
+  },
   async onSuccess() {
     // Add styles templates for css generation
     const styles = async () => {

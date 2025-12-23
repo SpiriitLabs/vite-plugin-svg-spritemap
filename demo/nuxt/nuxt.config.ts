@@ -3,9 +3,9 @@ import VitePluginSvgSpritemap from '@spiriit/vite-plugin-svg-spritemap'
 
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  compatibilityDate: '2025-04-29',
-  experimental: {
-    viteEnvironmentApi: true,
+  compatibilityDate: '2025-12-23',
+  future: {
+    compatibilityVersion: 5,
   },
   vite: {
     plugins: [
@@ -16,6 +16,7 @@ export default defineNuxtConfig({
         // styles: './../_fixtures/icons/spritemap.less',
         prefix: 'icon-',
         gutter: 20,
+        types: './Icons.d.ts',
       }),
     ],
   },

@@ -50,7 +50,8 @@ export class Styles {
     ) {
       const templateFileName = `template.${this._options.styles.lang}`
       const currentDir = import.meta.dirname
-      const templatePath = path.join(currentDir, '..', 'styles', templateFileName)
+      const stylesDir = import.meta.env.STYLES_DIR || '../styles'
+      const templatePath = path.join(currentDir, stylesDir, templateFileName)
 
       template = await promises.readFile(templatePath, 'utf8')
     }
