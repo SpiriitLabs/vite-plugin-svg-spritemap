@@ -25,4 +25,31 @@ import ViteView from './../_fixtures/icons/vite.svg?view'
       <ViteView alt="" class="icon icon-vite" />
     </div>
   </div>
+
+  <div class="example example--bg-frags">
+    <h2>Spritemap with background-image (fragments)</h2>
+
+    <div class="example__svgs">
+      <span class="icon icon-spiriit icon-spiriit-frag" />
+      <span class="icon icon-vite icon-vite-frag" />
+    </div>
+  </div>
+
+  <div class="example example--bg-uri">
+    <h2>Spritemap with background-image data uri</h2>
+
+    <div class="example__svgs">
+      <span class="icon icon-spiriit" />
+      <span class="icon icon-vite" />
+    </div>
+  </div>
+
+  <div class="example example--mask-uri">
+    <h2>Spritemap with mask data uri</h2>
+
+    <div class="example__svgs">
+      <span class="icon icon-spiriit-mask" />
+      <span class="icon icon-vite-mask" />
+    </div>
+  </div>
 </template>

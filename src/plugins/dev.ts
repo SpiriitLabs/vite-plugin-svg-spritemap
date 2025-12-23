@@ -3,6 +3,8 @@ import type { HMRUpdate } from '@/events'
 import type { Options, Shared } from '@/types'
 import { relative } from 'node:path'
 import picomatch from 'picomatch'
+import { generateHMR } from '@/core/hmr'
+import { escapeRegExp } from '@/helpers/escapeRegExp'
 
 export default function DevPlugin(shared: Shared): Plugin {
   const filterSVG = /\.svg$/
@@ -28,8 +30,13 @@ export default function DevPlugin(shared: Shared): Plugin {
         id: virtualModuleId,
       },
       handler(id) {
-        if (shared.svgManager && id === virtualModuleId)
-          return generateHMR(shared.svgManager.spritemap, shared.options)
+        if (shared.svgManager && id === virtualModuleId) {
+          const optionsWithBase = {
+            ...shared.options,
+            route: { ...shared.options.route, url: shared.routeUrl },
+          } satisfies Options
+          return generateHMR(event, shared.svgManager.spritemap, optionsWithBase)
+        }
       },
     },
     async buildStart() {
@@ -38,7 +45,8 @@ export default function DevPlugin(shared: Shared): Plugin {
     },
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
-        if (req.url?.startsWith(shared.options.route.url)) {
+        const url = req.url || ''
+        if (url.startsWith(shared.routeUrl)) {
           /* v8 ignore if -- @preserve */
           if (!shared.svgManager)
             return
@@ -60,10 +68,10 @@ export default function DevPlugin(shared: Shared): Plugin {
         if (!shared.svgManager)
           return html
 
-        const replaceRegExp = new RegExp(`${shared.options.route.url}-\d*|${shared.options.route.url}`, 'g')
+        const replaceRegExp = new RegExp(`${escapeRegExp(shared.routeUrl)}-\\d*|${escapeRegExp(shared.routeUrl)}`, 'g')
         html = html.replace(
           replaceRegExp,
-          `${shared.options.route.url}__${shared.svgManager.hash}`,
+          `${shared.routeUrl}__${shared.svgManager.hash}`,
         )
 
         if (!html.includes(`src="${virtualModuleId}"`)) {
@@ -106,7 +114,7 @@ export default function DevPlugin(shared: Shared): Plugin {
         type: 'custom',
         event,
         data: {
-          route: shared.options.route,
+          route: { ...shared.options.route, url: shared.routeUrl },
           id: shared.svgManager.hash,
           spritemap: shared.options?.injectSvgOnDev ? shared.svgManager.spritemap : '',
         } satisfies HMRUpdate,
@@ -123,60 +131,15 @@ export default function DevPlugin(shared: Shared): Plugin {
         if (!shared.svgManager || !id.match(filterCSS))
           return
 
-        const replaceRegExp = new RegExp(`${shared.options.route.url}-\d*|${shared.options.route.url}`, 'g')
+        const replaceRegExp = new RegExp(`${escapeRegExp(shared.routeUrl)}-\\d*|${escapeRegExp(shared.routeUrl)}`, 'g')
         return {
           code: code.replace(
             replaceRegExp,
-            `${shared.options.route.url}__${shared.svgManager.hash}`,
+            `${shared.routeUrl}__${shared.svgManager.hash}`,
           ),
           map: null,
         }
       },
     },
-  }
-
-  function generateHMR(spritemap: string | undefined, options: Options) {
-    const injectSvg = `
-    const injectSvg = (data) => {
-      const oldWrapper = document.getElementById('vite-plugin-svg-spritemap')
-      if (oldWrapper)
-        oldWrapper.remove()
-
-      const wrapper = document.createElement('div')
-      wrapper.innerHTML = data.spritemap
-      wrapper.id = 'vite-plugin-svg-spritemap'
-      wrapper.style.display = 'none'
-      document.body.append(wrapper)
-    }`
-
-    const updateElements = `
-    const elements = document.querySelectorAll(
-      '[src^="' + data.route.url + '"], [href^="' + data.route.url + '"], [*|href^="' + data.route.url + '"]'
-    )
-
-    for (let i = 0; i < elements.length; i++) {
-      const el = elements[i]
-      const attributes = ['href', 'src', 'xlink:href']
-      for (const attr of attributes) {
-        if (!el.hasAttribute(attr)) continue
-        const value = el.getAttribute(attr)
-        if (!value) continue
-        const [base, hash] = value.split('#')
-        if (!hash) continue
-        const newValue = data.route.url + '__' + data.id + '#' + hash
-        el.setAttribute(attr, newValue)
-      }
-    }`
-
-    return `console.debug('[vite-plugin-svg-spritemap]', 'connected.')
-      ${options.injectSvgOnDev ? injectSvg : ''}
-      ${options.injectSvgOnDev ? `injectSvg(${JSON.stringify({ spritemap })})` : ''}
-      if (import.meta.hot) {
-        import.meta.hot.on('${event}', data => {
-          console.debug('[vite-plugin-svg-spritemap]', 'update for route ' + data.route.name)
-          ${updateElements}
-          ${options.injectSvgOnDev ? 'injectSvg(data)' : ''}
-        })
-      }`
   }
 }

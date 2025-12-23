@@ -13,7 +13,19 @@ export default function CommonPlugin(shared: Shared, iconsPattern: Glob, logsOpt
     configResolved(_config) {
       config = _config
       logsOptions.warn.forEach(warn => log({ level: 'warn', message: warn, logger: config.logger }))
-      shared.svgManager = new SVGManager(iconsPattern, shared.options, _config)
+
+      shared.routeUrl = shared.options.route.url
+      if (_config.command === 'serve') {
+        const { base } = _config
+        if (base && base !== '/') {
+          const { url } = shared.options.route
+          const normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base
+          const normalizedUrl = url.startsWith('/') ? url : `/${url}`
+          shared.routeUrl = `${normalizedBase}${normalizedUrl}`
+        }
+      }
+
+      shared.svgManager = new SVGManager(iconsPattern, shared.options, _config, shared.routeUrl)
     },
   }
 }
