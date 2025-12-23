@@ -5,7 +5,6 @@ import { log } from '@helpers/log'
 
 export default function CommonPlugin(shared: Shared): Plugin {
   let config: ResolvedConfig
-  let devRouteUrl: string
   const filterVueComponent = /\.svg\?(use|view)?$/
 
   return {
@@ -16,7 +15,6 @@ export default function CommonPlugin(shared: Shared): Plugin {
     },
     configResolved(_config) {
       config = _config
-      devRouteUrl = withBase(shared.options.route.url, config.base)
     },
     load: {
       filter: {
@@ -42,12 +40,10 @@ export default function CommonPlugin(shared: Shared): Plugin {
         else if (query === 'view') {
           const width = svg.width ? `width="${Math.ceil(svg.width)}"` : ''
           const height = svg.height ? `height="${Math.ceil(svg.height)}"` : ''
-          const routeUrl = config.command === 'serve' ? devRouteUrl : options.route.url
-          source = `<img src="${routeUrl}#${options.prefix + svg.id}-view" ${[width, height].filter(item => item.length > 0).join(' ')}/>`
+          source = `<img src="${shared.routeUrl}#${options.prefix + svg.id}-view" ${[width, height].filter(item => item.length > 0).join(' ')}/>`
         }
         else {
-          const routeUrl = config.command === 'serve' ? devRouteUrl : options.route.url
-          source = `<svg><slot/><use xlink:href="${routeUrl}#${options.prefix + svg.id}"></use></svg>`
+          source = `<svg><slot/><use xlink:href="${shared.routeUrl}#${options.prefix + svg.id}"></use></svg>`
         }
 
         const { compileTemplate } = await import('vue/compiler-sfc')
@@ -61,13 +57,5 @@ export default function CommonPlugin(shared: Shared): Plugin {
         return `${code}\nexport default { render: render }`
       },
     },
-  }
-
-  function withBase(url: string, base: string) {
-    if (!base || base === '/')
-      return url
-    const normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base
-    const normalizedUrl = url.startsWith('/') ? url : `/${url}`
-    return `${normalizedBase}${normalizedUrl}`
   }
 }

@@ -10,7 +10,6 @@ export default function DevPlugin(shared: Shared): Plugin {
 
   const virtualModuleId = '/@vite-plugin-svg-spritemap/client'
   const event = 'vite-plugin-svg-spritemap:update'
-  let devRouteUrl = shared.options.route.url
 
   return <Plugin>{
     name: 'vite-plugin-svg-spritemap:dev',
@@ -32,7 +31,7 @@ export default function DevPlugin(shared: Shared): Plugin {
         if (shared.svgManager && id === virtualModuleId) {
           const optionsWithBase = {
             ...shared.options,
-            route: { ...shared.options.route, url: devRouteUrl },
+            route: { ...shared.options.route, url: shared.routeUrl },
           } satisfies Options
           return generateHMR(shared.svgManager.spritemap, optionsWithBase)
         }
@@ -43,13 +42,9 @@ export default function DevPlugin(shared: Shared): Plugin {
       shared.svgManager?.directories.forEach(directory => this.addWatchFile(directory))
     },
     configureServer(server) {
-      devRouteUrl = withBase(shared.options.route.url, server.config.base)
-
       server.middlewares.use(async (req, res, next) => {
         const url = req.url || ''
-        const matchesRoute = url.startsWith(devRouteUrl) || url.startsWith(shared.options.route.url)
-
-        if (matchesRoute) {
+        if (url.startsWith(shared.routeUrl)) {
           /* v8 ignore if -- @preserve */
           if (!shared.svgManager)
             return
@@ -71,10 +66,10 @@ export default function DevPlugin(shared: Shared): Plugin {
         if (!shared.svgManager)
           return html
 
-        const replaceRegExp = new RegExp(`${escapeRegExp(devRouteUrl)}-\\d*|${escapeRegExp(devRouteUrl)}`, 'g')
+        const replaceRegExp = new RegExp(`${escapeRegExp(shared.routeUrl)}-\\d*|${escapeRegExp(shared.routeUrl)}`, 'g')
         html = html.replace(
           replaceRegExp,
-          `${devRouteUrl}__${shared.svgManager.hash}`,
+          `${shared.routeUrl}__${shared.svgManager.hash}`,
         )
 
         if (!html.includes(`src="${virtualModuleId}"`)) {
@@ -117,7 +112,7 @@ export default function DevPlugin(shared: Shared): Plugin {
         type: 'custom',
         event,
         data: {
-          route: { ...shared.options.route, url: devRouteUrl },
+          route: { ...shared.options.route, url: shared.routeUrl },
           id: shared.svgManager.hash,
           spritemap: shared.options?.injectSvgOnDev ? shared.svgManager.spritemap : '',
         } satisfies HMRUpdate,
@@ -134,24 +129,16 @@ export default function DevPlugin(shared: Shared): Plugin {
         if (!shared.svgManager || !id.match(filterCSS))
           return
 
-        const replaceRegExp = new RegExp(`${escapeRegExp(devRouteUrl)}-\\d*|${escapeRegExp(devRouteUrl)}`, 'g')
+        const replaceRegExp = new RegExp(`${escapeRegExp(shared.routeUrl)}-\\d*|${escapeRegExp(shared.routeUrl)}`, 'g')
         return {
           code: code.replace(
             replaceRegExp,
-            `${devRouteUrl}__${shared.svgManager.hash}`,
+            `${shared.routeUrl}__${shared.svgManager.hash}`,
           ),
           map: null,
         }
       },
     },
-  }
-
-  function withBase(url: string, base: string) {
-    if (!base || base === '/')
-      return url
-    const normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base
-    const normalizedUrl = url.startsWith('/') ? url : `/${url}`
-    return `${normalizedBase}${normalizedUrl}`
   }
 
   function escapeRegExp(text: string) {

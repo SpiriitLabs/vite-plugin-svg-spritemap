@@ -6,7 +6,7 @@ type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
 export type StylesLang = 'less' | 'scss' | 'styl' | 'css'
 
-export interface Shared { svgManager: SVGManager | null, options: Options }
+export interface Shared { svgManager: SVGManager | null, options: Options, routeUrl: string }
 
 export interface SvgDataUriMapObject {
   id: string
