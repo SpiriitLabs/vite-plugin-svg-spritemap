@@ -35,6 +35,42 @@ This allows you to choose what to include in the styles output payload.
 
 Allows you to customize the variables/mixin names of the generated Sass/Less/Stylus.
 
+## styles.sizes
+
+- **Type:** `{ unit: string, base: number }`
+- **Default:** `{ unit: 'px', base: 1 }`
+
+Allows you to customize the CSS unit and base value used for width/height output in the generated stylesheets. This is useful for outputting relative units like `em` or `rem` instead of pixels.
+
+### Example: Using `em` units
+
+```js
+VitePluginSvgSpritemap('./src/icons/*.svg', {
+  styles: {
+    filename: 'src/styles/spritemap.scss',
+    sizes: {
+      unit: 'em',
+      base: 16
+    }
+  }
+})
+```
+
+With this configuration, a sprite with dimensions `32x32` pixels will output as `2em x 2em` (32 / 16 = 2).
+
+This enables responsive icon sizing using font-size:
+
+```css
+.icon {
+  width: 1em;
+  height: 1em;
+}
+
+.container {
+  font-size: 200%; /* Icon will be twice the size */
+}
+```
+
 ## styles.callback
 
 - **Type:** `Function | undefined`

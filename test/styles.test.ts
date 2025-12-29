@@ -171,4 +171,48 @@ describe('styles generation', () => {
       logMessage('Invalid styles lang, fallback to css'),
     ])
   })
+
+  for (const style of styleLanguages.filter(style => style !== 'css')) {
+    it(`custom ${style} sizes with em unit`, async () => {
+      const filename = getPath(`./fixtures/basic/styles/spritemap_sizes.${style}`)
+
+      await buildVite({
+        name: `styles_sizes_em_${style}`,
+        options: {
+          styles: {
+            filename,
+            sizes: {
+              unit: 'em',
+              base: 16,
+            },
+          },
+        },
+      })
+
+      const resultWithString = await fs.readFile(filename, 'utf8')
+      expect(resultWithString).toMatchSnapshot()
+    })
+  }
+
+  for (const style of styleLanguages.filter(style => style !== 'css')) {
+    it(`custom ${style} sizes with rem unit and base 10`, async () => {
+      const filename = getPath(`./fixtures/basic/styles/spritemap_sizes_rem.${style}`)
+
+      await buildVite({
+        name: `styles_sizes_rem_${style}`,
+        options: {
+          styles: {
+            filename,
+            sizes: {
+              unit: 'rem',
+              base: 10,
+            },
+          },
+        },
+      })
+
+      const resultWithString = await fs.readFile(filename, 'utf8')
+      expect(resultWithString).toMatchSnapshot()
+    })
+  }
 })

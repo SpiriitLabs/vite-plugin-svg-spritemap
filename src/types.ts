@@ -47,7 +47,7 @@ export interface UserOptions {
    * @default false
    */
   styles?:
-    | Omit<WithOptional<OptionsStyles, 'lang' | 'include'>, 'names'> & { names?: Partial<OptionsStylesNames> }
+    | Omit<WithOptional<OptionsStyles, 'lang' | 'include' | 'sizes'>, 'names' | 'sizes'> & { names?: Partial<OptionsStylesNames>, sizes?: Partial<OptionsStylesSizes> }
     | string
     | false
   /**
@@ -126,6 +126,10 @@ export interface OptionsStyles {
    * Names of variables/mixin inside the stylesheet
    */
   names: OptionsStylesNames
+  /**
+   * Size output configuration for width/height values
+   */
+  sizes: OptionsStylesSizes
   callback?: (
     ctx: {
       /**
@@ -176,6 +180,19 @@ interface OptionsStylesNames {
    * @default 'sprite'
    */
   mixin: string
+}
+
+export interface OptionsStylesSizes {
+  /**
+   * The CSS unit for width/height values
+   * @default 'px'
+   */
+  unit: string
+  /**
+   * Base value to divide dimensions by (useful for px to em/rem conversion)
+   * @default 1
+   */
+  base: number
 }
 
 export interface Options {
