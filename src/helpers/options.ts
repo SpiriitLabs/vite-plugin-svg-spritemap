@@ -1,4 +1,4 @@
-import type { Options, OptionsRoute, OptionsStyles, StylesLang, UserOptions } from '@/types'
+import type { Options, OptionsRoute, OptionsStyles, OptionsStylesSizes, StylesLang, UserOptions } from '@/types'
 
 export function createOptions(options: UserOptions = {}): { options: Options, logs: { warn: string[] } } {
   const logs: { warn: string[] } = {
@@ -29,6 +29,10 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
         sprites: 'sprites',
         mixin: 'sprite',
       },
+      sizes: {
+        unit: 'px',
+        base: 1,
+      },
     }
   }
   else if (
@@ -39,6 +43,11 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
       prefix: options.styles.names?.prefix || 'sprites-prefix',
       sprites: options.styles.names?.sprites || 'sprites',
       mixin: options.styles.names?.mixin || 'sprite',
+    }
+
+    const stylesSizes: OptionsStylesSizes = {
+      unit: options.styles.sizes?.unit || 'px',
+      base: options.styles.sizes?.base || 1,
     }
 
     let lang = options.styles.filename.split('.').pop() as StylesLang | undefined
@@ -52,6 +61,7 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
       lang,
       include: typeof options.styles.include === 'undefined' ? true : options.styles.include,
       names: stylesNames,
+      sizes: stylesSizes,
       callback: options.styles.callback,
     }
   }

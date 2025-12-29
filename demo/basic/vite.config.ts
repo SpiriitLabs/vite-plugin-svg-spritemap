@@ -18,7 +18,13 @@ export default defineConfig({
   plugins: [
     VitePluginSvgSpritemap('./../_fixtures/icons/*.svg', {
       // styles: './../_fixtures/icons/spritemap.css',
-      styles: './../_fixtures/scss/spritemap.scss',
+      styles: {
+        filename: './../_fixtures/scss/spritemap.scss',
+        sizes: {
+          unit: 'rem',
+          base: 16,
+        },
+      },
       // styles: './../_fixtures/icons/spritemap.styl',
       // styles: './../_fixtures/icons/spritemap.less',
       prefix: 'icon-',
