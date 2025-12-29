@@ -41,6 +41,14 @@ export class Styles {
     return spriteMap
   }
 
+  private formatSize(value: number): string {
+    if (!this._options.styles)
+      return `${value}px`
+    const { unit, base } = this._options.styles.sizes
+    const computedValue = value / base
+    return `${computedValue}${unit}`
+  }
+
   private async insert(insert: string): Promise<string> {
     if (!this._options.styles || this._options.styles.include === false)
       return ''
@@ -95,8 +103,8 @@ export class Styles {
       let sprite = ''
       sprite = `\t'${svg.id}': (`
       sprite += `\n\t\turi: "${svg.svgDataUri}",`
-      sprite += `\n\t\twidth: ${svg.width}px,`
-      sprite += `\n\t\theight: ${svg.height}px`
+      sprite += `\n\t\twidth: ${this.formatSize(svg.width)},`
+      sprite += `\n\t\theight: ${this.formatSize(svg.height)}`
       sprite += `\n\t${!isLast ? '),' : ')'}`
       return sprite
     })
@@ -122,8 +130,8 @@ export class Styles {
       let sprite = ''
       sprite = `\t'${svg.id}': {`
       sprite += `\n\t\turi: "${svg.svgDataUri}",`
-      sprite += `\n\t\twidth: ${svg.width}px,`
-      sprite += `\n\t\theight: ${svg.height}px`
+      sprite += `\n\t\twidth: ${this.formatSize(svg.width)},`
+      sprite += `\n\t\theight: ${this.formatSize(svg.height)}`
       sprite += `\n\t${!isLast ? '},' : '}'}`
       return sprite
     })
@@ -149,8 +157,8 @@ export class Styles {
       let sprite = ''
       sprite = `\t@${svg.id}: {`
       sprite += `\n\t\turi: "${svg.svgDataUri}";`
-      sprite += `\n\t\twidth: ${svg.width}px;`
-      sprite += `\n\t\theight: ${svg.height}px;`
+      sprite += `\n\t\twidth: ${this.formatSize(svg.width)};`
+      sprite += `\n\t\theight: ${this.formatSize(svg.height)};`
       sprite += '\n\t};'
       return sprite
     })
