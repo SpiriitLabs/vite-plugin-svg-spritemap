@@ -2,6 +2,8 @@
 
 You can also use the spritemap SVGs in your CSS. The plugin supports CSS (basic classes) and also SCSS, Stylus and Less (mixins and map with SVG Data URI and sizes).
 
+## Using SCSS/Less/Stylus mixins
+
 First you need to adjust the plugin options to set the output styles. For full styles options, check the [Options](/options/).
 
 ::: code-group
@@ -46,3 +48,19 @@ If you use regular CSS, you will only access to generated classes.
 You can see the usage with the [examples](/examples).
 
 For advanced usage like customize styles output, check this [page](/guide/customize-styles-output.md)
+
+## Using background-image directly
+
+If you want to use the spritemap with `background-image` CSS property without generating style files, you can reference the spritemap directly using fragment URLs. With this method, you cannot access a sprite as a data URI. Only as a fragment URL.
+
+```css
+.icon {
+  background-image: url('/__spritemap#sprite-icon-name-view');
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+```
+
+::: tip Remember the `-view` suffix
+When using `background-image` with fragment URLs, always include the `-view` suffix. Without it, the browser will display the entire spritemap instead of just the referenced icon. See [`output.view`](/options/output.html#output-view) for more details.
+:::

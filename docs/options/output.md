@@ -45,10 +45,24 @@ Disable this option to remove `use` generation on spritemap.
 - **Type:** `boolean`
 - **Default:** `true`
 
-Insert `view` element in the spritemap. Allowing you to invoke svg sprite with `<img>` tag:
+Insert `view` element in the spritemap. Allowing you to invoke svg sprite with `<img>` tag or `background-image` CSS property:
 
 ```html
 <img src="/__spritemap#sprite-spiriit-view" />
 ```
+
+```css
+.icon {
+  background-image: url('/__spritemap#sprite-spiriit-view');
+}
+```
+
+::: tip Why the `-view` suffix?
+The spritemap generates two types of elements for each SVG:
+- **`<symbol>` elements** (e.g., `#sprite-icon-name`): Used with `<use>` tags inside `<svg>` elements. These cannot be used directly with `<img>` tags or `background-image` CSS.
+- **`<view>` elements** (e.g., `#sprite-icon-name-view`): Used with fragment URLs in `<img>` tags and `background-image` CSS. The `-view` suffix is required because `<view>` elements define a specific viewBox that displays only the referenced icon, not the entire spritemap.
+
+When using `background-image` or `<img>` tags, always use the `-view` suffix to reference the correct element.
+:::
 
 Disable this option to remove `view` generation on spritemap.

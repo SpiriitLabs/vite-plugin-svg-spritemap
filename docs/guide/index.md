@@ -79,6 +79,28 @@ To access the fragment, you need to use the route name (by default [`__spritemap
 
 Under the hood, the spritemap generates `<view>` tags. This can be disabled by using the [`output.view`](/options/output.html#output-view) option.
 
+### With `background-image` CSS
+
+You can also use the spritemap with the CSS `background-image` property. **Important:** You must use the `-view` suffix when referencing icons in `background-image`:
+
+```css
+.icon {
+  background-image: url('/__spritemap#sprite-spiriit-view');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+```
+
+::: info Using the correct suffix
+When using `background-image` or `<img>` tags, always include the `-view` suffix (e.g., `#sprite-icon-name-view`). Without it, the browser will display the entire spritemap instead of just the referenced icon.
+
+- ✅ Correct: `url('/__spritemap#sprite-icon-name-view')`
+- ❌ Incorrect: `url('/__spritemap#sprite-icon-name')` (shows entire spritemap)
+
+This is because `<symbol>` elements (without `-view`) are designed for `<use>` tags only, while `<view>` elements (with `-view`) define a specific viewBox for fragment URLs. See [`output.view`](/options/output.html#output-view) for more details.
+:::
+
 ## Advanced usage
 
 This plugin is trying to cover a maximum of use cases and usage because ViteJS is a very versatile tool.
