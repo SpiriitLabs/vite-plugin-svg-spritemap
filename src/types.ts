@@ -189,7 +189,7 @@ export interface OptionsStylesSizes {
    */
   unit: string
   /**
-   * Base value to divide dimensions by (useful for px to em conversion)
+   * Base value to divide dimensions by (useful for px to em/rem conversion)
    * @default 1
    */
   base: number
