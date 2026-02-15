@@ -54,7 +54,7 @@ The plugin will generate a spritemap to support all methods described below (fil
 
 ```html
 <svg>
-  <use xlink:href="/__spritemap#sprite-spiriit"></use>
+  <use href="/__spritemap#sprite-spiriit"></use>
 </svg>
 ```
 
