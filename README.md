@@ -58,6 +58,8 @@ The plugin will generate a spritemap to support all methods described below (fil
 </svg>
 ```
 
+By default the generated spritemap uses the `xlink:href` attribute inside the `<use>` tags for compatibility. If you want or need these generated elements to use the standard `href` attribute, you can override this by setting `output.useAttribute: 'href'`.
+
 **Img**
 
 You need to add the suffix `-view` to access the fragment.
