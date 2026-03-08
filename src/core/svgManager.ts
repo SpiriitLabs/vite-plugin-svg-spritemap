@@ -301,7 +301,7 @@ export class SVGManager {
       // use
       if (this._options.output && this._options.output.use) {
         const use = DOM.createElement('use')
-        use.setAttribute('xlink:href', `#${this._options.prefix + svg.id}`)
+        use.setAttribute(this._options.output.useAttribute || 'xlink:href', `#${this._options.prefix + svg.id}`)
         use.setAttribute('width', svg.width.toString())
         use.setAttribute('height', svg.height.toString())
         use.setAttribute('y', y.toString())
