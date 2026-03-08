@@ -61,6 +61,7 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
     name: 'spritemap.svg',
     use: true,
     view: true,
+    useAttribute: 'xlink:href',
   }
   if (options.output === false) {
     output = false
@@ -80,6 +81,10 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
         typeof options.output.view !== 'undefined'
           ? options.output.view
           : output.view,
+      useAttribute:
+        typeof options.output.useAttribute !== 'undefined'
+          ? options.output.useAttribute
+          : output.useAttribute,
     }
   }
 

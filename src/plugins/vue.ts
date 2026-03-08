@@ -43,7 +43,7 @@ export default function CommonPlugin(shared: Shared): Plugin {
           source = `<img src="${options.route.url}#${options.prefix + svg.id}-view" ${[width, height].filter(item => item.length > 0).join(' ')}/>`
         }
         else {
-          source = `<svg><slot/><use xlink:href="${options.route.url}#${options.prefix + svg.id}"></use></svg>`
+          source = `<svg><slot/><use ${options.output.useAttribute || 'xlink:href'}="${options.route.url}#${options.prefix + svg.id}"></use></svg>`
         }
 
         const { compileTemplate } = await import('vue/compiler-sfc')

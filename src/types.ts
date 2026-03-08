@@ -100,6 +100,11 @@ export interface OptionsOutput {
    * @default true
    */
   view: boolean
+  /**
+   * The attribute to use for the href in the use element
+   * @default 'xlink:href'
+   */
+  useAttribute?: 'xlink:href' | 'href' | string
 }
 
 export interface OptionsStyles {
