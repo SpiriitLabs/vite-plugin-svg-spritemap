@@ -63,7 +63,6 @@ export default function BuildPlugin(shared: Shared): Plugin {
         const filePath = path.join(config.build.assetsDir, fileName)
         fileRef = this.emitFile({
           type: 'asset',
-          needsCodeReference: false,
           name: shared.options.output.name,
           source: shared.svgManager.spritemap,
           fileName: filePath,
