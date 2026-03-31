@@ -36,6 +36,8 @@ const styleIncludes: Record<OptionsStyles['lang'], Array<OptionsStyles['include'
     false,
     ['bg'],
     ['bg', 'mask'],
+    ['bg-frag'],
+    ['bg', 'mask', 'bg-frag'],
   ],
   less: otherStylesIncludes,
   scss: otherStylesIncludes,

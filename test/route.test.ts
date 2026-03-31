@@ -103,3 +103,25 @@ describe.sequential('route options', () => {
     }
   }
 })
+
+describe.sequential('route with custom base', () => {
+  it('serves spritemap at base + route URL', async () => {
+    const port = 5190
+    const page = await browser.newPage()
+    const server = await createServer({
+      server: { port },
+      base: '/app/',
+      plugins: [
+        VitePluginSvgSpritemap(getPath('./fixtures/basic/svg/*.svg')),
+      ],
+    })
+    await server.listen()
+    await page.goto(`http://localhost:${port}/app/__spritemap`)
+
+    const result = await page.content()
+    expect(result).toContain('<svg')
+
+    await page.close()
+    await server.close()
+  })
+})

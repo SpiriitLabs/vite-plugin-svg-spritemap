@@ -1,6 +1,7 @@
 import type { UserOptions } from '../src/types'
 import { describe, expect, it, vi } from 'vitest'
 import { logMessage } from '../src/helpers/log'
+import { getOptions } from '../src/helpers/oxvg'
 import { buildVite } from './helpers/build'
 
 const oxvgConfigs: Record<string, UserOptions['oxvg']> = {
@@ -18,6 +19,21 @@ const oxvgConfigs: Record<string, UserOptions['oxvg']> = {
   //   plugins: ['prefixIds'],
   // },
 }
+
+describe('oxvg getOptions', () => {
+  it('returns undefined when false', () => {
+    expect(getOptions(false)).toBeUndefined()
+  })
+
+  it('returns custom config when object', () => {
+    const config = { prefixIds: { delim: '-', prefixClassNames: true, prefixIds: true, prefix: { type: 'Prefix' as const, field0: 'prefix' } } }
+    expect(getOptions(config)).toEqual(config)
+  })
+
+  it('returns empty object when true/undefined', () => {
+    expect(getOptions(undefined)).toEqual({})
+  })
+})
 
 describe('oxvg', () => {
   for (const key in oxvgConfigs) {
