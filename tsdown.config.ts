@@ -8,6 +8,9 @@ export default defineConfig({
   env: {
     STYLES_DIR: './styles',
   },
+  deps: {
+    onlyBundle: ['kolorist', 'svg-element-attributes'],
+  },
   async onSuccess() {
     // Add styles templates for css generation
     const styles = async () => {
