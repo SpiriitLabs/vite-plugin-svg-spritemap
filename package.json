@@ -1,8 +1,8 @@
 {
   "name": "@spiriit/vite-plugin-svg-spritemap",
   "type": "module",
-  "version": "6.0.0",
-  "packageManager": "pnpm@10.26.1",
+  "version": "7.0.0",
+  "packageManager": "pnpm@10.33.0",
   "description": "Generates symbol-based SVG spritemap from all .svg files in a directory",
   "author": "Spiriit",
   "license": "MIT",
@@ -42,7 +42,7 @@
     "dist"
   ],
   "engines": {
-    "node": "^18.0.0 || ^20.0.0 || >=22.0.0"
+    "node": "^20.0.0 || >=22.0.0"
   },
   "scripts": {
     "build": "tsdown",
@@ -64,8 +64,8 @@
     "@oxvg/napi-darwin-x64": "^0.0.4-1",
     "@oxvg/napi-linux-x64-gnu": "^0.0.4-1",
     "@oxvg/napi-win32-x64-msvc": "^0.0.4-1",
-    "svgo": "^4.0.0",
-    "vite": "^6.0.0 || ^7.0.0",
+    "svgo": "^4.0.1",
+    "vite": "^7.0.0 || ^8.0.0",
     "vue": "^3.0.0"
   },
   "peerDependenciesMeta": {
@@ -95,33 +95,33 @@
     "@xmldom/xmldom": "^0.9.8",
     "hash-sum": "^2.0.0",
     "mini-svg-data-uri": "^1.4.4",
-    "picomatch": "^4.0.3",
+    "picomatch": "^4.0.4",
     "tinyglobby": "^0.2.15"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "6.7.3",
+    "@antfu/eslint-config": "7.7.3",
     "@oxvg/napi": "0.0.4-1",
     "@oxvg/napi-darwin-arm64": "0.0.4-1",
     "@oxvg/napi-linux-x64-gnu": "0.0.4-1",
     "@oxvg/napi-win32-x64-msvc": "0.0.4-1",
     "@types/hash-sum": "^1.0.2",
-    "@types/node": "^24.10.4",
+    "@types/node": "^24.12.0",
     "@types/picomatch": "^4.0.2",
     "@types/xmldom": "^0.1.34",
-    "@vitejs/plugin-vue": "^6.0.3",
+    "@vitejs/plugin-vue": "catalog:",
     "@vitest/coverage-v8": "^4.0.16",
-    "c8": "^10.1.3",
-    "eslint": "^9.39.2",
+    "c8": "^11.0.0",
+    "eslint": "^9.39.4",
     "kolorist": "^1.8.0",
     "playwright": "^1.57.0",
-    "rollup": "^4.54.0",
+    "rollup": "^4.60.1",
     "svg-element-attributes": "^2.1.0",
-    "svgo": "^4.0.0",
-    "tsdown": "^0.18.2",
-    "typescript": "^5.9.3",
-    "vite": "^6.4.1",
+    "svgo": "^4.0.1",
+    "tsdown": "^0.21.7",
+    "typescript": "catalog:",
+    "vite": "catalog:",
     "vitepress": "^1.6.4",
     "vitest": "^4.0.16",
-    "vue": "^3.5.26"
+    "vue": "catalog:"
   }
 }

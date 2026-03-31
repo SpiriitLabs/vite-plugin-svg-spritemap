@@ -13,8 +13,8 @@ This ViteJS plugin generates a single SVG [spritemap](https://css-tricks.com/svg
 
 **Requirements**
 
-- Vite 7 or Vite 6
-- Node 18 or Node 20 or Node 22 and above
+- Vite 8 or Vite 7
+- Node 20 or Node 22 and above
 
 ::: code-group
 
