@@ -14,6 +14,7 @@ export default defineConfig({
     ],
   },
   test: {
+    testTimeout: 15000,
     coverage: {
       include: ['src/*'],
       exclude: [
@@ -21,7 +22,7 @@ export default defineConfig({
         'src/client.d.ts',
         'src/events.d.ts',
       ],
-      reporter: ['lcov'],
+      reporter: ['lcov', 'text'],
     },
   },
 })

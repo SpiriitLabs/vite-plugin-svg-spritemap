@@ -1,5 +1,5 @@
 import type { UserOptions } from '../src/types'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { buildVite } from './helpers/build'
 
 const outputConfigs: Record<string, UserOptions['output']> = {
@@ -145,4 +145,37 @@ describe('output manifest generation', () => {
       })
     }
   }
+})
+
+it('warns on duplicate sprite ids', async () => {
+  const spy = vi.spyOn(console, 'warn')
+  await buildVite({
+    name: 'output_duplicate_id',
+    options: {
+      idify: () => 'same-id',
+    },
+  })
+
+  const warningCalls = spy.mock.calls.filter(call =>
+    call.some(arg => typeof arg === 'string' && arg.includes('same id')),
+  )
+  expect(warningCalls.length).toBeGreaterThan(0)
+  spy.mockRestore()
+})
+
+it('build with relative base (SvelteKit-style)', async () => {
+  const result = await buildVite({
+    name: 'output_relative_base',
+    viteConfig: {
+      base: './',
+    },
+  })
+
+  if (!('output' in result))
+    return
+
+  const asset = result.output.find(
+    asset => asset.name?.startsWith('spritemap.') && asset.name.endsWith('.svg'),
+  )
+  expect(asset).toBeDefined()
 })

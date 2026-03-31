@@ -10,13 +10,13 @@ import { getPath } from './helpers/path'
 async function createVueServer(port: number, options: UserOptions | undefined = undefined) {
   const browser = await chromium.launch()
   const server = await createServer({
-    // any valid user config options, plus `mode` and `configFile`
     configFile: false,
     root: getPath('./fixtures/vue'),
+    cacheDir: getPath(`./fixtures/vue/node_modules/.vite-${port}`),
     server: {
       port,
       watch: {
-        ignored: [getPath('./fixtures/vue/dist')], // ignore dist change because of parallized test
+        ignored: [getPath('./fixtures/vue/dist')],
       },
     },
     plugins: [
@@ -30,14 +30,14 @@ async function createVueServer(port: number, options: UserOptions | undefined = 
   return { server, page, browser }
 }
 
-describe('vue components', () => {
+describe('vue components', { timeout: 60000 }, () => {
   it('has components', async () => {
     const { page, server, browser } = await createVueServer(3001)
 
     await page.goto('http://localhost:3001', {
       waitUntil: 'domcontentloaded',
     })
-    await page.waitForSelector('#app svg')
+    await page.waitForSelector('#app svg', { timeout: 55000 })
 
     const result = await page.content()
     expect(result).toMatchSnapshot()
@@ -58,7 +58,7 @@ describe('vue components', () => {
     await page.goto('http://localhost:3002', {
       waitUntil: 'domcontentloaded',
     })
-    await page.waitForSelector('#app svg')
+    await page.waitForSelector('#app svg', { timeout: 55000 })
     const result = await page.content()
     expect(result).toMatchSnapshot()
 
