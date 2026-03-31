@@ -13,7 +13,7 @@ const svgoConfigs: Record<string, UserOptions['svgo']> = {
 
 describe('svgo', () => {
   for (const key in svgoConfigs) {
-    if (Object.prototype.hasOwnProperty.call(svgoConfigs, key)) {
+    if (Object.hasOwn(svgoConfigs, key)) {
       it(key, async () => {
         const svgo = svgoConfigs[key]
         const result = await buildVite({
@@ -36,7 +36,7 @@ describe('svgo', () => {
   }
 
   for (const key in svgoConfigs) {
-    if (Object.prototype.hasOwnProperty.call(svgoConfigs, key)) {
+    if (Object.hasOwn(svgoConfigs, key)) {
       it(`${key} with warning`, async () => {
         const spy = vi.spyOn(console, 'warn')
         vi.doMock('svgo', async () => {})

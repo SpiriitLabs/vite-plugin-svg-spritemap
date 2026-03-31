@@ -10,7 +10,7 @@ const prefixConfigs: Record<string, UserOptions['prefix']> = {
 
 describe('prefix', () => {
   for (const key in prefixConfigs) {
-    if (Object.prototype.hasOwnProperty.call(prefixConfigs, key)) {
+    if (Object.hasOwn(prefixConfigs, key)) {
       it(key, async () => {
         const prefix = prefixConfigs[key]
         const result = await buildVite({ name: `prefix_${key}`, options: { prefix } })

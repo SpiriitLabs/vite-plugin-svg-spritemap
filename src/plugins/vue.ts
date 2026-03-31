@@ -3,9 +3,10 @@ import type { Shared } from '@/types'
 import { parse } from 'node:path'
 import { log } from '@helpers/log'
 
+const filterVueComponent = /\.svg\?(use|view)?$/
+
 export default function CommonPlugin(shared: Shared): Plugin {
   let config: ResolvedConfig
-  const filterVueComponent = /\.svg\?(use|view)?$/
 
   return {
     name: 'vite-plugin-svg-spritemap:vue',
@@ -22,7 +23,7 @@ export default function CommonPlugin(shared: Shared): Plugin {
       },
       async handler(id) {
         const { options, svgManager } = shared
-        if (!svgManager || !options.output || !id.match(filterVueComponent))
+        if (!svgManager || !options.output || !filterVueComponent.test(id))
           return
 
         const [path, query] = id.split('?', 2)

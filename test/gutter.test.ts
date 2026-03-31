@@ -9,7 +9,7 @@ const gutterConfigs: Record<string, UserOptions['gutter']> = {
 
 describe('gutter', () => {
   for (const key in gutterConfigs) {
-    if (Object.prototype.hasOwnProperty.call(gutterConfigs, key)) {
+    if (Object.hasOwn(gutterConfigs, key)) {
       it(key, async () => {
         const gutter = gutterConfigs[key]
         const result = await buildVite({ name: `gutter_${key}`, options: { gutter } })

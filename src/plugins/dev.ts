@@ -6,10 +6,10 @@ import picomatch from 'picomatch'
 import { generateHMR } from '@/core/hmr'
 import { escapeRegExp } from '@/helpers/escapeRegExp'
 
-export default function DevPlugin(shared: Shared): Plugin {
-  const filterSVG = /\.svg$/
-  const filterCSS = /\.(s?css|styl|less)$/
+const filterSVG = /\.svg$/
+const filterCSS = /\.(s?css|styl|less)$/
 
+export default function DevPlugin(shared: Shared): Plugin {
   const virtualModuleId = '/@vite-plugin-svg-spritemap/client'
   const event = 'vite-plugin-svg-spritemap:update'
 
@@ -89,7 +89,7 @@ export default function DevPlugin(shared: Shared): Plugin {
       if (!shared.svgManager)
         return
 
-      if (!file.match(filterSVG))
+      if (!filterSVG.test(file))
         return
       const relativePath = relative(this.environment.config.root, file)
       const absolutePath = file
@@ -128,7 +128,7 @@ export default function DevPlugin(shared: Shared): Plugin {
       },
       handler(code, id) {
         /* v8 ignore if -- @preserve */
-        if (!shared.svgManager || !id.match(filterCSS))
+        if (!shared.svgManager || !filterCSS.test(id))
           return
 
         const replaceRegExp = new RegExp(`${escapeRegExp(shared.routeUrl)}-\\d*|${escapeRegExp(shared.routeUrl)}`, 'g')

@@ -7,13 +7,13 @@
     "preview": "node .output/server/index.mjs"
   },
   "dependencies": {
-    "nitropack": "^2.13.2",
-    "pug": "^3.0.4"
+    "nitropack": "catalog:",
+    "pug": "catalog:"
   },
   "devDependencies": {
     "@spiriit/vite-plugin-svg-spritemap": "workspace:*",
     "autoprefixer": "catalog:",
-    "concurrently": "^9.2.1",
+    "concurrently": "catalog:",
     "postcss": "catalog:",
     "sass": "catalog:",
     "typescript": "catalog:",

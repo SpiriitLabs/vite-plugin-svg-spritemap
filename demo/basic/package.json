@@ -11,7 +11,7 @@
   "devDependencies": {
     "@spiriit/vite-plugin-svg-spritemap": "workspace:*",
     "autoprefixer": "catalog:",
-    "less": "^4.6.4",
+    "less": "catalog:",
     "postcss": "catalog:",
     "sass": "catalog:",
     "stylus": "catalog:",
