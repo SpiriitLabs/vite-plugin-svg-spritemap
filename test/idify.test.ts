@@ -8,7 +8,7 @@ const idifyConfigs: Record<string, UserOptions['idify']> = {
 
 describe('idify', () => {
   for (const key in idifyConfigs) {
-    if (Object.prototype.hasOwnProperty.call(idifyConfigs, key)) {
+    if (Object.hasOwn(idifyConfigs, key)) {
       it.concurrent(key, async () => {
         const idify = idifyConfigs[key]
         const result = await buildVite({ name: `idify_${key}`, options: { idify } })

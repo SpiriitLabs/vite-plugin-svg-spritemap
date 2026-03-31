@@ -51,7 +51,7 @@ For TypeScript, you need to load the type definitions inside `vite-env.d.ts` to 
 
 ### Type-safe icon props
 
-You can use the [types option](/options/types) to generate TypeScript types for all your icons, allowing you to type your icon props for better type safety.
+You can use the [types option](/options/#types) to generate TypeScript types for all your icons, allowing you to type your icon props for better type safety.
 
 ```ts
 // vite.config.ts

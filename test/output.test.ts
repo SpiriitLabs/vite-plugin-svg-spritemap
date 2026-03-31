@@ -40,7 +40,7 @@ const outputManifestConfigs: Record<string, UserOptions['output']> = {
 
 describe('output generation', () => {
   for (const key in outputConfigs) {
-    if (Object.prototype.hasOwnProperty.call(outputConfigs, key)) {
+    if (Object.hasOwn(outputConfigs, key)) {
       it.concurrent(key, async () => {
         const output = outputConfigs[key]
         const result = await buildVite({ name: `output_${key}`, options: { output } })
@@ -113,7 +113,7 @@ it('empty output generation', async () => {
 
 describe('output manifest generation', () => {
   for (const key in outputManifestConfigs) {
-    if (Object.prototype.hasOwnProperty.call(outputManifestConfigs, key)) {
+    if (Object.hasOwn(outputManifestConfigs, key)) {
       it.concurrent(key, async () => {
         const output = outputManifestConfigs[key]
         const manifestKey = (typeof output === 'object' ? output.name : null) || 'spritemap.svg'

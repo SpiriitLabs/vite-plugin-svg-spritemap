@@ -17,6 +17,6 @@
     "sass": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "vue-tsc": "^3.1.0"
+    "vue-tsc": "catalog:"
   }
 }

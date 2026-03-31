@@ -21,7 +21,7 @@ const oxvgConfigs: Record<string, UserOptions['oxvg']> = {
 
 describe('oxvg', () => {
   for (const key in oxvgConfigs) {
-    if (Object.prototype.hasOwnProperty.call(oxvgConfigs, key)) {
+    if (Object.hasOwn(oxvgConfigs, key)) {
       it(key, async () => {
         const oxvg = oxvgConfigs[key]
         const result = await buildVite({
@@ -44,7 +44,7 @@ describe('oxvg', () => {
   }
 
   for (const key in oxvgConfigs) {
-    if (Object.prototype.hasOwnProperty.call(oxvgConfigs, key)) {
+    if (Object.hasOwn(oxvgConfigs, key)) {
       it(`${key} with warning`, async () => {
         const spy = vi.spyOn(console, 'warn')
         vi.doMock('@oxvg/napi', async () => {})

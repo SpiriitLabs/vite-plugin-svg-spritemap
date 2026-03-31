@@ -12,7 +12,7 @@
   "devDependencies": {
     "@spiriit/vite-plugin-svg-spritemap": "workspace:*",
     "@sveltejs/vite-plugin-svelte": "catalog:",
-    "@tsconfig/svelte": "^5.0.8",
+    "@tsconfig/svelte": "catalog:",
     "sass": "catalog:",
     "stylus": "catalog:",
     "svelte": "catalog:",

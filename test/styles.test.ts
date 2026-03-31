@@ -73,7 +73,7 @@ describe('styles generation', () => {
   }
 
   for (const lang in styleIncludes) {
-    if (Object.prototype.hasOwnProperty.call(styleIncludes, lang)) {
+    if (Object.hasOwn(styleIncludes, lang)) {
       const includes = styleIncludes[lang as StylesLang]
       for (const include of includes) {
         it(`include ${lang} ${JSON.stringify(include)}`, async () => {

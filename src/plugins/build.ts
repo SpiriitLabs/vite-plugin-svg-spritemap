@@ -27,7 +27,7 @@ export default function BuildPlugin(shared: Shared): Plugin {
       }
       else if (typeof configExternal === 'function') {
         finalExternal = (source, importer, isResolved) => {
-          if (source.match(pluginExternal))
+          if (pluginExternal.test(source))
             return true
 
           const res = configExternal(source, importer, isResolved)
@@ -76,7 +76,7 @@ export default function BuildPlugin(shared: Shared): Plugin {
         code: spritemapFilter,
       },
       handler(code) {
-        if (!code.match(spritemapFilter) || typeof shared.options.output !== 'object')
+        if (!spritemapFilter.test(code) || typeof shared.options.output !== 'object')
           return
 
         // prevent sveltekit rewrite

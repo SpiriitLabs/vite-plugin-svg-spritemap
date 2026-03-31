@@ -67,7 +67,7 @@ describe.sequential('route options', () => {
   let port = 5175
   for (let index = 0; index < entries.length; index++) {
     const [key, route] = entries[index]
-    if (Object.prototype.hasOwnProperty.call(routeConfigs, key)) {
+    if (Object.hasOwn(routeConfigs, key)) {
       it(key, async () => {
         port += index
         const routeValue = typeof route.value === 'string' ? route.value : route.value?.url

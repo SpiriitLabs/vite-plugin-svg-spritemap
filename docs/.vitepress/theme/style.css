@@ -49,7 +49,7 @@
   --vp-c-default-3: var(--vp-c-gray-3);
   --vp-c-default-soft: var(--vp-c-gray-soft);
 
-  --vp-c-brand-1: #6279d6;
+  --vp-c-brand-1: #abb9ee;
   --vp-c-brand-2: var(--vp-c-indigo-2);
   --vp-c-brand-3: #3960ff;
   --vp-c-brand-soft: var(--vp-c-indigo-soft);
@@ -116,17 +116,6 @@
   :root {
     --vp-home-hero-image-filter: blur(68px);
   }
-}
-
-/**
- * Component: Custom Block
- * -------------------------------------------------------------------------- */
-
-:root {
-  --vp-custom-block-tip-border: transparent;
-  --vp-custom-block-tip-text: var(--vp-c-text-1);
-  --vp-custom-block-tip-bg: var(--vp-c-brand-soft);
-  --vp-custom-block-tip-code-bg: var(--vp-c-brand-soft);
 }
 
 /**
