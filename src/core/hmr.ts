@@ -16,7 +16,7 @@ export function generateHMR(event: string, spritemap: string | undefined, option
 
   const updateElements = `
   const elements = document.querySelectorAll(
-    '[src^="' + data.route.url + '"], [href^="' + data.route.url + '"], [*|href^="' + data.route.url + '"]'
+    '[src*="' + data.route.url + '"], [href*="' + data.route.url + '"], [*|href*="' + data.route.url + '"]'
   )
 
   for (let i = 0; i < elements.length; i++) {
@@ -26,10 +26,13 @@ export function generateHMR(event: string, spritemap: string | undefined, option
       if (!el.hasAttribute(attr)) continue
       const value = el.getAttribute(attr)
       if (!value) continue
-      const [base, hash] = value.split('#')
-      if (!hash) continue
-      const newValue = data.route.url + '__' + data.id + '#' + hash
-      el.setAttribute(attr, newValue)
+      const routeIdx = value.indexOf(data.route.url)
+      if (routeIdx === -1) continue
+      const prefix = value.substring(0, routeIdx)
+      const hashIdx = value.indexOf('#', routeIdx)
+      if (hashIdx === -1) continue
+      const hash = value.substring(hashIdx + 1)
+      el.setAttribute(attr, prefix + data.route.url + '__' + data.id + '#' + hash)
     }
   }`
 
