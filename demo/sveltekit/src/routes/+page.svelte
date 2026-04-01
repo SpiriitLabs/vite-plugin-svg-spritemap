@@ -1,5 +1,9 @@
 <script lang="ts">
 import './../../../_fixtures/scss/style.scss'
+
+if (import.meta.env.DEV) {
+  import('/@vite-plugin-svg-spritemap/client')
+}
 </script>
 
 <main>
