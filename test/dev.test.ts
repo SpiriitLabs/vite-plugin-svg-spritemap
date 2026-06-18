@@ -41,7 +41,8 @@ beforeAll(async () => {
     ],
   })
   await server.listen()
-  baseUrl = server.resolvedUrls!.local[0]
+  // Strip the trailing slash so `${baseUrl}/path` doesn't double up.
+  baseUrl = server.resolvedUrls!.local[0].replace(/\/$/, '')
 
   return async () => {
     await server.close()
@@ -72,7 +73,7 @@ describe('dev server', () => {
 
   it('has route with SVG spritemap', async () => {
     const page = await browser.newPage()
-    await page.goto(`${baseUrl}__spritemap`)
+    await page.goto(`${baseUrl}/__spritemap`)
     const result = await page.content()
     await page.close()
     expect(result).toMatchSnapshot()

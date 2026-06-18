@@ -8,6 +8,10 @@ import { getPath } from './helpers/path'
 
 let server: ViteDevServer
 let browser: Browser
+// Resolved from the server after it listens. The requested port may already be
+// taken (another dev server, Docker, …), in which case Vite falls back to a
+// free port — so we navigate to the actual URL instead of a hardcoded one.
+let baseUrl: string
 
 beforeAll(async () => {
   browser = await chromium.launch()
@@ -37,6 +41,8 @@ beforeAll(async () => {
     ],
   })
   await server.listen()
+  // Strip the trailing slash so `${baseUrl}/path` doesn't double up.
+  baseUrl = server.resolvedUrls!.local[0].replace(/\/$/, '')
 
   return async () => {
     await server.close()
@@ -47,7 +53,7 @@ beforeAll(async () => {
 describe('dev server', () => {
   it('has HMR scripts', async () => {
     const page = await browser.newPage()
-    await page.goto('http://localhost:5174')
+    await page.goto(baseUrl)
     const testClient
       = '<script type="module" src="/@vite-plugin-svg-spritemap/client"></script>'
     const result = await page.content()
@@ -57,9 +63,9 @@ describe('dev server', () => {
 
   it('has routes with SVG spritemap', async () => {
     const page = await browser.newPage()
-    await page.goto('http://localhost:5174/__spritemap')
+    await page.goto(`${baseUrl}/__spritemap`)
     const resultSpritemap = await page.content()
-    await page.goto('http://localhost:5174/__flags')
+    await page.goto(`${baseUrl}/__flags`)
     const resultFlags = await page.content()
     await page.close()
     expect(resultSpritemap).toMatchSnapshot()

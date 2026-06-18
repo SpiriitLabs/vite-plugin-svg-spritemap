@@ -26,15 +26,19 @@ async function createVueServer(port: number, options: UserOptions | undefined = 
   })
   await server.listen()
   const page = await browser.newPage()
+  // The requested port may already be taken (another dev server, Docker, …),
+  // in which case Vite falls back to a free port — so navigate to the actual
+  // URL. Strip the trailing slash so `${baseUrl}/path` doesn't double up.
+  const baseUrl = server.resolvedUrls!.local[0].replace(/\/$/, '')
 
-  return { server, page, browser }
+  return { server, page, browser, baseUrl }
 }
 
 describe('vue components', { timeout: 60000 }, () => {
   it('has components', async () => {
-    const { page, server, browser } = await createVueServer(3001)
+    const { page, server, browser, baseUrl } = await createVueServer(3001)
 
-    await page.goto('http://localhost:3001', {
+    await page.goto(baseUrl, {
       waitUntil: 'domcontentloaded',
     })
     await page.waitForSelector('#app svg', { timeout: 55000 })
@@ -49,13 +53,13 @@ describe('vue components', { timeout: 60000 }, () => {
   it('test with warn', async () => {
     const spy = vi.spyOn(console, 'warn')
 
-    const { page, server, browser } = await createVueServer(3002, {
+    const { page, server, browser, baseUrl } = await createVueServer(3002, {
       output: {
         view: false,
       },
     })
 
-    await page.goto('http://localhost:3002', {
+    await page.goto(baseUrl, {
       waitUntil: 'domcontentloaded',
     })
     await page.waitForSelector('#app svg', { timeout: 55000 })
