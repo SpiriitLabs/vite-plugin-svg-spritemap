@@ -6,7 +6,24 @@ type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
 export type StylesLang = 'less' | 'scss' | 'styl' | 'css'
 
-export interface Shared { svgManager: SVGManager | null, options: Options, routeUrl: string }
+export interface Shared {
+  svgManager: SVGManager | null
+  options: Options
+  /**
+   * Raw, base-agnostic route url (`options.route.url`).
+   * Canonical token written into generated style/type artifacts and used as
+   * the match pattern when rewriting urls. Identical in dev and build so the
+   * generated files stay deterministic.
+   */
+  routeUrl: string
+  /**
+   * Browser-facing route url. Base-prefixed on the dev server (`serve`) so the
+   * spritemap resolves through `config.base`; identical to `routeUrl` in build
+   * (the build plugin applies the base itself when rewriting to the emitted
+   * asset path).
+   */
+  routeUrlBase: string
+}
 
 export interface SvgDataUriMapObject {
   id: string

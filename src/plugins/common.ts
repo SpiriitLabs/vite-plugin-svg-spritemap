@@ -14,17 +14,26 @@ export default function CommonPlugin(shared: Shared, iconsPattern: Glob, logsOpt
       config = _config
       logsOptions.warn.forEach(warn => log({ level: 'warn', message: warn, logger: config.logger }))
 
+      // Raw, base-agnostic route. Stays identical in dev and build so the
+      // generated style/type artifacts are deterministic.
       shared.routeUrl = shared.options.route.url
+
+      // Browser-facing route. The dev server serves the spritemap behind
+      // `config.base`, so prefix it there. In build the base is applied later
+      // by the build plugin when rewriting to the emitted asset path, so the
+      // browser-facing value matches the raw route here.
+      shared.routeUrlBase = shared.routeUrl
       if (_config.command === 'serve') {
         const { base } = _config
         if (base && base !== '/') {
-          const { url } = shared.options.route
           const normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base
-          const normalizedUrl = url.startsWith('/') ? url : `/${url}`
-          shared.routeUrl = `${normalizedBase}${normalizedUrl}`
+          const normalizedUrl = shared.routeUrl.startsWith('/') ? shared.routeUrl : `/${shared.routeUrl}`
+          shared.routeUrlBase = `${normalizedBase}${normalizedUrl}`
         }
       }
 
+      // Style/type files embed the raw route; the dev/build url rewriting
+      // resolves it to the base-aware path at serve/build time.
       shared.svgManager = new SVGManager(iconsPattern, shared.options, _config, shared.routeUrl)
     },
   }
