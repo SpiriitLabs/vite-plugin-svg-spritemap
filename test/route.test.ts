@@ -179,6 +179,126 @@ describe('route with custom base', { sequential: true }, () => {
     expect(servedBody).toContain('<svg')
   })
 
+  // Regression for #102 (Case 1): a raw absolute `/__spritemap` reference must
+  // resolve through `config.base` in production too, so the emitted asset path
+  // is prefixed with the base (and never doubled).
+  it('rewrites the route to the base-prefixed emitted asset in build', async () => {
+    const result = await build({
+      configFile: false,
+      logLevel: 'silent',
+      root: getPath('./fixtures/basic'),
+      base: '/example/',
+      build: { write: false, outDir: getPath('./fixtures/basic/dist/_base_build') },
+      plugins: [VitePluginSvgSpritemap(getPath('./fixtures/basic/svg/*.svg'))],
+    })
+    const outputs = (Array.isArray(result) ? result : [result]) as Array<{ output: any[] }>
+    const html = outputs
+      .flatMap(o => o.output)
+      .find(file => file.fileName.endsWith('.html'))
+    const source = String(html.source)
+
+    expect(source).toMatch(/\/example\/assets\/spritemap\.[^"#]+\.svg#sprite-vite/)
+    // base must not be doubled
+    expect(source).not.toContain('/example/example/')
+  })
+
+  // Regression for #102 (Case 2): with an absolute base, a *relative*
+  // `./__spritemap` reference must resolve to the base-prefixed asset without
+  // doubling the base. Previously the route regex matched `/__spritemap`
+  // inside `./__spritemap` and left the dot, producing `./example/assets/…`
+  // which the browser resolves to `/example/example/…`.
+  it('does not double the base for a relative route reference in build (absolute base)', async () => {
+    const result = await build({
+      configFile: false,
+      logLevel: 'silent',
+      root: getPath('./fixtures/basic'),
+      base: '/example/',
+      build: {
+        write: false,
+        outDir: getPath('./fixtures/basic/dist/_relative_abs'),
+        rollupOptions: { input: getPath('./fixtures/basic/relative.html') },
+      },
+      plugins: [VitePluginSvgSpritemap(getPath('./fixtures/basic/svg/*.svg'))],
+    })
+    const outputs = (Array.isArray(result) ? result : [result]) as Array<{ output: any[] }>
+    const html = outputs.flatMap(o => o.output).find(file => file.fileName.endsWith('.html'))
+    const source = String(html.source)
+
+    expect(source).toMatch(/"\/example\/assets\/spritemap\.[^"#]+\.svg#sprite-vite"/)
+    expect(source).not.toContain('/example/example/')
+    expect(source).not.toContain('"./example/')
+  })
+
+  // A *relative* base must keep emitting a relative asset path (the SvelteKit /
+  // sub-path-deploy use case), so a relative `./__spritemap` reference must
+  // stay relative — the dot is preserved, never turned into an absolute path.
+  it('keeps the relative asset path for a relative route reference in build (relative base)', async () => {
+    const result = await build({
+      configFile: false,
+      logLevel: 'silent',
+      root: getPath('./fixtures/basic'),
+      base: './',
+      build: {
+        write: false,
+        outDir: getPath('./fixtures/basic/dist/_relative_rel'),
+        rollupOptions: { input: getPath('./fixtures/basic/relative.html') },
+      },
+      plugins: [VitePluginSvgSpritemap(getPath('./fixtures/basic/svg/*.svg'))],
+    })
+    const outputs = (Array.isArray(result) ? result : [result]) as Array<{ output: any[] }>
+    const html = outputs.flatMap(o => o.output).find(file => file.fileName.endsWith('.html'))
+    const source = String(html.source)
+
+    expect(source).toMatch(/"\.\/assets\/spritemap\.[^"#]+\.svg#sprite-vite"/)
+  })
+
+  // Regression for #102 (Case 1): a raw absolute `/__spritemap` reference in a
+  // JS/Vue module (not an `?use`/`?view` import) must be rewritten to the
+  // base-aware URL in dev. Previously only CSS was rewritten, so the request
+  // hit `/__spritemap` (no base) and never matched the serving middleware.
+  it('rewrites raw route references in JS modules to the base-aware URL in dev', async () => {
+    const base = '/build-website/'
+    const port = 5193
+    const server = await createServer({
+      configFile: false,
+      logLevel: 'silent',
+      root: getPath('./fixtures/basic'),
+      base,
+      optimizeDeps: { noDiscovery: true },
+      server: { port },
+      plugins: [VitePluginSvgSpritemap(getPath('./fixtures/basic/svg/*.svg'))],
+    })
+    await server.listen()
+    const result = await server.transformRequest('/use-spritemap.js')
+    await server.close()
+
+    expect(result?.code).toMatch(/\/build-website\/__spritemap__[^#'"]+#sprite-vite/)
+    expect(result?.code).not.toContain('\'/__spritemap#')
+  })
+
+  // Regression for #102 (Case 2): a relative `./__spritemap` reference in a JS
+  // module must also resolve to the base-aware URL in dev, with the leading
+  // dot swallowed so the base isn't doubled (`./build-website/…`).
+  it('rewrites a relative route reference in JS modules to the base-aware URL in dev', async () => {
+    const base = '/build-website/'
+    const port = 5194
+    const server = await createServer({
+      configFile: false,
+      logLevel: 'silent',
+      root: getPath('./fixtures/basic'),
+      base,
+      optimizeDeps: { noDiscovery: true },
+      server: { port },
+      plugins: [VitePluginSvgSpritemap(getPath('./fixtures/basic/svg/*.svg'))],
+    })
+    await server.listen()
+    const result = await server.transformRequest('/use-spritemap-relative.js')
+    await server.close()
+
+    expect(result?.code).toMatch(/'\/build-website\/__spritemap__[^#'"]+#sprite-vite'/)
+    expect(result?.code).not.toContain('./build-website/')
+  })
+
   // The raw route written to source must still resolve to the base-aware URL in
   // the browser: the dev server rewrites raw `/__spritemap` references to
   // `<base>/__spritemap__<hash>` so the request matches the serving middleware.
