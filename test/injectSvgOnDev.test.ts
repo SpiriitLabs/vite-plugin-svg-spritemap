@@ -9,6 +9,10 @@ import { getPath } from './helpers/path'
 let server: ViteDevServer
 let browser: Browser
 let page: Page
+// Resolved from the server after it listens. The requested port may already be
+// taken (another dev server, Docker, …), in which case Vite falls back to a
+// free port — so we navigate to the actual URL instead of a hardcoded one.
+let baseUrl: string
 
 beforeAll(async () => {
   browser = await chromium.launch()
@@ -35,6 +39,8 @@ beforeAll(async () => {
     ],
   })
   await server.listen()
+  // Strip the trailing slash so `${baseUrl}/path` doesn't double up.
+  baseUrl = server.resolvedUrls!.local[0].replace(/\/$/, '')
 
   return async () => {
     await server.close()
@@ -52,7 +58,7 @@ afterEach(async () => {
 
 describe('injectSvgOnDev', () => {
   it('has SVG injected', async () => {
-    await page.goto('http://localhost:3000')
+    await page.goto(baseUrl)
     const wrapper = page.locator('#vite-plugin-svg-spritemap')
     await wrapper.waitFor({ state: 'attached' })
     const content = await wrapper.innerHTML()

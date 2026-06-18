@@ -92,7 +92,8 @@ describe('route options', { sequential: true }, () => {
           ],
         })
         await server.listen()
-        await page.goto(`http://localhost:${port}${route.expected}`)
+        const baseUrl = server.resolvedUrls!.local[0].replace(/\/$/, '')
+        await page.goto(`${baseUrl}${route.expected}`)
 
         const result = await page.content()
         expect(result).toContain('<svg')
@@ -126,7 +127,8 @@ describe('route with custom base', { sequential: true }, () => {
       ],
     })
     await server.listen()
-    await page.goto(`http://localhost:${port}/app/__spritemap`)
+    const baseUrl = server.resolvedUrls!.local[0].replace(/\/$/, '')
+    await page.goto(`${baseUrl}/app/__spritemap`)
 
     const result = await page.content()
     expect(result).toContain('<svg')
@@ -167,9 +169,10 @@ describe('route with custom base', { sequential: true }, () => {
       plugins: [VitePluginSvgSpritemap(getPath('./fixtures/basic/svg/*.svg'), stylesOption)],
     })
     await server.listen()
+    const baseUrl = server.resolvedUrls!.local[0].replace(/\/$/, '')
     const devRoute = await readRoute()
     // dev still serves the spritemap behind the base
-    const served = await fetch(`http://localhost:${port}${base}__spritemap`)
+    const served = await fetch(`${baseUrl}${base}__spritemap`)
     const servedBody = await served.text()
     await server.close()
     await fs.rm(filename, { force: true })
@@ -316,7 +319,8 @@ describe('route with custom base', { sequential: true }, () => {
       plugins: [VitePluginSvgSpritemap(getPath('./fixtures/basic/svg/*.svg'))],
     })
     await server.listen()
-    await page.goto(`http://localhost:${port}${base}`)
+    const baseUrl = server.resolvedUrls!.local[0].replace(/\/$/, '')
+    await page.goto(`${baseUrl}${base}`)
 
     const href = await page.getAttribute('svg use', 'xlink:href')
     expect(href).toMatch(/^\/build-website\/__spritemap__[^#]+#sprite-vite$/)
