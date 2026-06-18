@@ -1,7 +1,8 @@
 import type { Browser } from 'playwright'
 import type { UserOptions } from '../src/types'
+import { promises as fs } from 'node:fs'
 import { chromium } from 'playwright'
-import { createServer } from 'vite'
+import { build, createServer } from 'vite'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 import VitePluginSvgSpritemap from '../src'
 import { logMessage } from '../src/helpers/log'
@@ -129,6 +130,76 @@ describe('route with custom base', { sequential: true }, () => {
 
     const result = await page.content()
     expect(result).toContain('<svg')
+
+    await page.close()
+    await server.close()
+  })
+
+  // Regression: the generated style file must embed the raw, base-agnostic
+  // route in both dev and build. Previously the dev server baked `config.base`
+  // into the route written to the style file, so the same source produced
+  // `/app/__spritemap` in dev but `/__spritemap` in build.
+  it('writes the same raw route to the generated style in dev and build', async () => {
+    const base = '/build-website/'
+    const filename = getPath('./fixtures/basic/styles/_base_consistency.scss')
+    const readRoute = async () =>
+      (await fs.readFile(filename, 'utf8')).match(/\$route: '([^']*)'/)?.[1]
+    const stylesOption = { styles: { filename, lang: 'scss' as const, include: ['mixin' as const] } }
+
+    await build({
+      configFile: false,
+      logLevel: 'silent',
+      root: getPath('./fixtures/basic'),
+      base,
+      build: { outDir: getPath('./fixtures/basic/dist/_base_consistency') },
+      plugins: [VitePluginSvgSpritemap(getPath('./fixtures/basic/svg/*.svg'), stylesOption)],
+    })
+    const buildRoute = await readRoute()
+
+    const port = 5191
+    const server = await createServer({
+      configFile: false,
+      logLevel: 'silent',
+      root: getPath('./fixtures/basic'),
+      base,
+      optimizeDeps: { noDiscovery: true },
+      server: { port },
+      plugins: [VitePluginSvgSpritemap(getPath('./fixtures/basic/svg/*.svg'), stylesOption)],
+    })
+    await server.listen()
+    const devRoute = await readRoute()
+    // dev still serves the spritemap behind the base
+    const served = await fetch(`http://localhost:${port}${base}__spritemap`)
+    const servedBody = await served.text()
+    await server.close()
+    await fs.rm(filename, { force: true })
+
+    expect(buildRoute).toBe('/__spritemap')
+    expect(devRoute).toBe('/__spritemap')
+    expect(servedBody).toContain('<svg')
+  })
+
+  // The raw route written to source must still resolve to the base-aware URL in
+  // the browser: the dev server rewrites raw `/__spritemap` references to
+  // `<base>/__spritemap__<hash>` so the request matches the serving middleware.
+  it('rewrites raw route references to the base-aware URL in dev', async () => {
+    const base = '/build-website/'
+    const port = 5192
+    const page = await browser.newPage()
+    const server = await createServer({
+      configFile: false,
+      logLevel: 'silent',
+      root: getPath('./fixtures/basic'),
+      base,
+      optimizeDeps: { noDiscovery: true },
+      server: { port },
+      plugins: [VitePluginSvgSpritemap(getPath('./fixtures/basic/svg/*.svg'))],
+    })
+    await server.listen()
+    await page.goto(`http://localhost:${port}${base}`)
+
+    const href = await page.getAttribute('svg use', 'xlink:href')
+    expect(href).toMatch(/^\/build-website\/__spritemap__[^#]+#sprite-vite$/)
 
     await page.close()
     await server.close()

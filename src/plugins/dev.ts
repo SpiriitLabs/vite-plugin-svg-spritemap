@@ -33,7 +33,7 @@ export default function DevPlugin(shared: Shared): Plugin {
         if (shared.svgManager && id === virtualModuleId) {
           const optionsWithBase = {
             ...shared.options,
-            route: { ...shared.options.route, url: shared.routeUrl },
+            route: { ...shared.options.route, url: shared.routeUrlBase },
           } satisfies Options
           return generateHMR(event, shared.svgManager.spritemap, optionsWithBase)
         }
@@ -46,7 +46,7 @@ export default function DevPlugin(shared: Shared): Plugin {
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         const url = req.url || ''
-        if (url.startsWith(shared.routeUrl)) {
+        if (url.startsWith(shared.routeUrlBase)) {
           /* v8 ignore if -- @preserve */
           if (!shared.svgManager)
             return
@@ -68,6 +68,9 @@ export default function DevPlugin(shared: Shared): Plugin {
         if (!shared.svgManager)
           return html
 
+        // Keep the raw route here: Vite's own HTML processing injects
+        // `config.base` into root-relative URLs, so prefixing it ourselves
+        // would double the base.
         const replaceRegExp = new RegExp(`${escapeRegExp(shared.routeUrl)}-\\d*|${escapeRegExp(shared.routeUrl)}`, 'g')
         html = html.replace(
           replaceRegExp,
@@ -114,7 +117,7 @@ export default function DevPlugin(shared: Shared): Plugin {
         type: 'custom',
         event,
         data: {
-          route: { ...shared.options.route, url: shared.routeUrl },
+          route: { ...shared.options.route, url: shared.routeUrlBase },
           id: shared.svgManager.hash,
           spritemap: shared.options?.injectSvgOnDev ? shared.svgManager.spritemap : '',
         } satisfies HMRUpdate,
@@ -135,7 +138,7 @@ export default function DevPlugin(shared: Shared): Plugin {
         return {
           code: code.replace(
             replaceRegExp,
-            `${shared.routeUrl}__${shared.svgManager.hash}`,
+            `${shared.routeUrlBase}__${shared.svgManager.hash}`,
           ),
           map: null,
         }
