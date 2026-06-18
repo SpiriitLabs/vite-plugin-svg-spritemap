@@ -14,7 +14,9 @@ export class Styles {
     this._routeUrl = routeUrl
 
     svgs.forEach((svg, filePath) => {
-      const svgDataUri = svgToMiniDataURI(svg.source)
+      const svgDataUri = Styles.encodeInnerUrlReferences(
+        svgToMiniDataURI(svg.source),
+      )
 
       this._svgs.set(filePath, {
         id: svg.id,
@@ -24,6 +26,26 @@ export class Styles {
         svgDataUri,
       })
     })
+  }
+
+  /**
+   * Encode the parentheses of internal `url(...)` references (e.g.
+   * `filter="url(#a)"`, `fill="url(#gradient)"`) that survive inside the
+   * data URI. `mini-svg-data-uri` keeps these parens literal and percent
+   * encodes the `#` to `%23`, which hides the fragment from downstream CSS
+   * tooling (Vite's `url()` rewriter, Sass): the leftover `url(%23a)` is then
+   * mistaken for an asset reference and rewritten to a file path, corrupting
+   * the data URI and breaking compilation. Encoding the parens to `%28`/`%29`
+   * removes the `url(` token entirely while still decoding back to a valid
+   * `url(#a)` once the browser parses the data URI.
+   *
+   * @see https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/98
+   */
+  private static encodeInnerUrlReferences(svgDataUri: string): string {
+    return svgDataUri.replace(
+      /url\(([^)]*)\)/g,
+      (_, reference) => `url%28${reference}%29`,
+    )
   }
 
   private createSpriteMap(

@@ -122,6 +122,44 @@ describe('styles generation', () => {
     })
   }
 
+  // https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/98
+  // An SVG referencing an internal `url(#id)` (filter, gradient, clip-path…)
+  // must not leave a `url(...)` token in the generated data URI, otherwise
+  // downstream CSS tooling (Vite's url() rewriter, Sass) treats the encoded
+  // `%23id` as an asset path, corrupting the data URI and breaking compilation.
+  it.each(['scss', 'less', 'styl', 'css'] as const)(
+    'encodes internal url() references in data uri (%s) #98',
+    async (lang) => {
+      const filename = getPath(`./fixtures/basic/styles/spritemap_filter.${lang}`)
+
+      await buildVite({
+        name: `styles_filter_${lang}`,
+        path: './fixtures/basic/filter/*.svg',
+        options: {
+          styles: {
+            filename,
+            lang,
+            include: lang === 'css' ? ['bg'] : ['variables'],
+          },
+        },
+      })
+
+      const result = await fs.readFile(filename, 'utf8')
+
+      // The encoded reference is present…
+      expect(result).toContain('url%28%23a%29')
+      // …and no raw `url(` token survives inside the data uri to be picked up
+      // by a CSS url() rewriter. The data uri is always wrapped in double
+      // quotes (`uri: "…"` / `url("…")`) and only uses single quotes inside,
+      // so delimit on the closing double quote.
+      const dataUri = result.match(/data:image\/svg\+xml,[^"]+/)?.[0] ?? ''
+      expect(dataUri).not.toContain('url(')
+
+      // The data uri still round-trips to a valid internal `url(#a)` reference.
+      expect(decodeURIComponent(dataUri)).toContain('url(#a)')
+    },
+  )
+
   it('styles callback', async () => {
     const filename = getPath(`./fixtures/basic/styles/spritemap_callback.css`)
 
