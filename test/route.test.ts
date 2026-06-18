@@ -61,7 +61,7 @@ beforeAll(async () => {
   }
 })
 
-describe.sequential('route options', () => {
+describe('route options', { sequential: true }, () => {
   const spy = vi.spyOn(console, 'warn')
   const entries = Object.entries(routeConfigs)
   let port = 5175
@@ -75,6 +75,12 @@ describe.sequential('route options', () => {
 
         const page = await browser.newPage()
         const server = await createServer({
+          configFile: false,
+          root: getPath('./fixtures/basic'),
+          // Tests don't import npm deps that need pre-bundling; disabling
+          // discovery avoids the async esbuild dep-scan racing with
+          // server.close() (vite:dep-scan "server is being restarted" noise).
+          optimizeDeps: { noDiscovery: true },
           server: {
             port,
           },
@@ -104,11 +110,14 @@ describe.sequential('route options', () => {
   }
 })
 
-describe.sequential('route with custom base', () => {
+describe('route with custom base', { sequential: true }, () => {
   it('serves spritemap at base + route URL', async () => {
     const port = 5190
     const page = await browser.newPage()
     const server = await createServer({
+      configFile: false,
+      root: getPath('./fixtures/basic'),
+      optimizeDeps: { noDiscovery: true },
       server: { port },
       base: '/app/',
       plugins: [

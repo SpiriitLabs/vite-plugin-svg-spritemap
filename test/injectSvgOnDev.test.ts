@@ -17,6 +17,10 @@ beforeAll(async () => {
     // any valid user config options, plus `mode` and `configFile`
     configFile: false,
     root: getPath('./fixtures/basic'),
+    // Tests don't import npm deps that need pre-bundling; disabling discovery
+    // avoids the async esbuild dep-scan racing with server.close() (vite:dep-scan
+    // "server is being restarted or closed" noise).
+    optimizeDeps: { noDiscovery: true },
     server: {
       port: 3000,
       watch: {
