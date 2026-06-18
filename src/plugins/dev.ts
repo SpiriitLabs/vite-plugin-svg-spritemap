@@ -5,13 +5,21 @@ import { relative } from 'node:path'
 import picomatch from 'picomatch'
 import { generateHMR } from '@/core/hmr'
 import { escapeRegExp } from '@/helpers/escapeRegExp'
+import { createRouteRegExp } from '@/helpers/routeRegExp'
 
 const filterSVG = /\.svg$/
-const filterCSS = /\.(s?css|styl|less)$/
+// `?use` / `?view` modules are emitted by the Vue plugin already resolved
+// against `config.base` (`routeUrlBase`); they must be skipped when rewriting
+// raw route references so the base isn't applied twice.
+const filterVueComponent = /\.svg\?(?:use|view)\b/
 
 export default function DevPlugin(shared: Shared): Plugin {
   const virtualModuleId = '/@vite-plugin-svg-spritemap/client'
   const event = 'vite-plugin-svg-spritemap:update'
+  // Match any module (CSS, JS, compiled Vue/JSX templates, …) that references
+  // the raw route so user-authored `/__spritemap#…` usages are rewritten to
+  // the base-aware url in dev, not just stylesheet `url()` declarations.
+  const routeFilter = new RegExp(escapeRegExp(shared.options.route.url))
 
   return <Plugin>{
     name: 'vite-plugin-svg-spritemap:dev',
@@ -68,12 +76,12 @@ export default function DevPlugin(shared: Shared): Plugin {
         if (!shared.svgManager)
           return html
 
-        // Keep the raw route here: Vite's own HTML processing injects
-        // `config.base` into root-relative URLs, so prefixing it ourselves
-        // would double the base.
-        const replaceRegExp = new RegExp(`${escapeRegExp(shared.routeUrl)}-\\d*|${escapeRegExp(shared.routeUrl)}`, 'g')
+        // Keep the raw, root-relative route here: Vite's own HTML processing
+        // injects `config.base` into root-relative URLs, so prefixing it
+        // ourselves would double the base. A leading `./` is swallowed so a
+        // relative reference becomes root-relative and still gets the base.
         html = html.replace(
-          replaceRegExp,
+          createRouteRegExp(shared.routeUrl),
           `${shared.routeUrl}__${shared.svgManager.hash}`,
         )
 
@@ -127,17 +135,21 @@ export default function DevPlugin(shared: Shared): Plugin {
     },
     transform: {
       filter: {
-        id: filterCSS,
+        code: routeFilter,
       },
       handler(code, id) {
         /* v8 ignore if -- @preserve */
-        if (!shared.svgManager || !filterCSS.test(id))
+        if (!shared.svgManager)
           return
 
-        const replaceRegExp = new RegExp(`${escapeRegExp(shared.routeUrl)}-\\d*|${escapeRegExp(shared.routeUrl)}`, 'g')
+        // The Vue plugin already bakes `config.base` into `?use` / `?view`
+        // output, so rewriting it here would double the base.
+        if (filterVueComponent.test(id))
+          return
+
         return {
           code: code.replace(
-            replaceRegExp,
+            createRouteRegExp(shared.routeUrl),
             `${shared.routeUrlBase}__${shared.svgManager.hash}`,
           ),
           map: null,

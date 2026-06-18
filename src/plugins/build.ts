@@ -2,14 +2,16 @@ import type { ExternalOption } from 'rollup'
 import type { Plugin, ResolvedConfig } from 'vite'
 import type { Shared } from '@/types'
 import { posix as path } from 'node:path'
+import { escapeRegExp } from '@helpers/escapeRegExp'
 import { getFileName } from '@helpers/filename'
+import { createRouteRegExp } from '@helpers/routeRegExp'
 
 export default function BuildPlugin(shared: Shared): Plugin {
   let fileRef: string
   let fileName: string
   let config: ResolvedConfig
   const pluginExternal = new RegExp(shared.options.route.url)
-  const spritemapFilter = new RegExp(shared.options.route.url, 'g')
+  const spritemapFilter = new RegExp(escapeRegExp(shared.options.route.url))
 
   return <Plugin>{
     name: 'vite-plugin-svg-spritemap:build',
@@ -80,13 +82,18 @@ export default function BuildPlugin(shared: Shared): Plugin {
           return
 
         // prevent sveltekit rewrite
-        const base = config.base.startsWith('.')
+        const isRelativeBase = config.base.startsWith('.')
+        const base = isRelativeBase
           ? config.base.substring(1)
           : config.base
 
         return {
           code: code.replace(
-            spritemapFilter,
+            // For an absolute base, swallow a leading `./` so a relative
+            // `./__spritemap` reference doesn't double the base
+            // (`./example/…`). For a relative base keep the dot so the emitted
+            // path stays relative (`./assets/…`).
+            createRouteRegExp(shared.options.route.url, { dot: !isRelativeBase, numbered: false }),
             path.join(base, this.getFileName(fileRef)),
           ),
           map: null,
