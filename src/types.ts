@@ -1,5 +1,6 @@
 import type { SVGManager } from '@core/svgManager'
 import type { Jobs as OXVGConfig } from '@oxvg/napi'
+import type { Glob } from 'picomatch'
 import type { Config as SvgoConfig } from 'svgo'
 
 type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
@@ -33,10 +34,7 @@ export interface UserOptions {
    * Set to false to disable output generation
    * @default true
    */
-  output?:
-    | Partial<OptionsOutput>
-    | string
-    | boolean
+  output?: Partial<OptionsOutput> | string | boolean
   /**
    * Define the prefix uses for sprite id in symbol/use/view. Set to false to disable the prefix
    * @default 'sprite-'
@@ -47,7 +45,13 @@ export interface UserOptions {
    * @default false
    */
   styles?:
-    | Omit<WithOptional<OptionsStyles, 'lang' | 'include' | 'sizes'>, 'names' | 'sizes'> & { names?: Partial<OptionsStylesNames>, sizes?: Partial<OptionsStylesSizes> }
+    | (Omit<
+      WithOptional<OptionsStyles, 'lang' | 'include' | 'sizes'>,
+        'names' | 'sizes'
+    > & {
+      names?: Partial<OptionsStylesNames>
+      sizes?: Partial<OptionsStylesSizes>
+    })
     | string
     | false
   /**
@@ -80,8 +84,13 @@ export interface UserOptions {
    * TypeScript type generation. Put the relative file destination to enable, or false to disable.
    * @default false
    */
-  types?: string | false
+  types?: TypesOptions
 }
+
+export type TypesOptions = {
+  output: string
+  groups: Record<string, Glob>
+} | false | string
 
 export interface OptionsOutput {
   /**
@@ -199,7 +208,7 @@ export interface Options {
   oxvg?: boolean | OXVGConfig
   svgo?: boolean | SvgoConfig
   styles: OptionsStyles | false
-  types: string | false
+  types: TypesOptions
   output: OptionsOutput | false
   prefix: string
   injectSvgOnDev: boolean
