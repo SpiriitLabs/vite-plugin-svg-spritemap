@@ -94,8 +94,7 @@ export interface TypesConfig {
   filename: string
   /**
    * Map of `TypeName` → glob(s). Each glob is matched against icon file paths
-   * (same base as the plugin's input glob) and the matching icon ids become a
-   * union type named after the key, alongside the global `Icons` type.
+   * and the matching icon ids become a union type named after the key.
    */
   groups?: Record<string, Glob>
 }
