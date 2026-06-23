@@ -9,14 +9,20 @@ export default defineNuxtConfig({
   },
   vite: {
     plugins: [
-      VitePluginSvgSpritemap('./../_fixtures/icons/*.svg', {
+      VitePluginSvgSpritemap('./../_fixtures/{icons,flags}/*.svg', {
         // styles: './../_fixtures/icons/spritemap.css',
         styles: './../_fixtures/scss/spritemap.scss',
         // styles: './../_fixtures/icons/spritemap.styl',
         // styles: './../_fixtures/icons/spritemap.less',
         prefix: 'icon-',
         gutter: 20,
-        types: './Icons.d.ts',
+        types: {
+          filename: './Icons.d.ts',
+          groups: {
+            UiIcons: './../_fixtures/icons/*.svg',
+            Flags: './../_fixtures/flags/*.svg',
+          },
+        },
       }),
     ],
   },

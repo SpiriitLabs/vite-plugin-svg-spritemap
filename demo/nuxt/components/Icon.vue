@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import type { Icons } from '../Icons.d.ts'
+import type { UiIcons } from '../Icons.d.ts'
 
 const props = defineProps<{
-  name: Icons
+  name: UiIcons
 }>()
 
 const Icon = computed(() => {

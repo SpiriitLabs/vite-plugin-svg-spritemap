@@ -18,6 +18,22 @@ import ViteView from './../_fixtures/icons/vite.svg?view'
   </div>
 
   <div class="example">
+    <h2>Typed groups from a single spritemap</h2>
+
+    <p>
+      <code>Icon</code> only accepts <code>UiIcons</code>,
+      <code>Flag</code> only accepts <code>Flags</code> — both typed from the
+      same spritemap.
+    </p>
+
+    <div class="example__svgs">
+      <Flag name="CH" />
+      <Flag name="FR" />
+      <Flag name="JP" />
+    </div>
+  </div>
+
+  <div class="example">
     <h2>Spritemap with &lt;img> (fragments) via Vue component</h2>
 
     <div class="example__svgs">
