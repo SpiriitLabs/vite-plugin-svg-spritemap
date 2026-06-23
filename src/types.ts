@@ -87,10 +87,20 @@ export interface UserOptions {
   types?: TypesOptions
 }
 
-export type TypesOptions = {
-  output: string
-  groups: Record<string, Glob>
-} | false | string
+export interface TypesConfig {
+  /**
+   * File destination of the generated type definitions, e.g. `src/types/spritemap.d.ts`.
+   */
+  filename: string
+  /**
+   * Map of `TypeName` → glob(s). Each glob is matched against icon file paths
+   * (same base as the plugin's input glob) and the matching icon ids become a
+   * union type named after the key, alongside the global `Icons` type.
+   */
+  groups?: Record<string, Glob>
+}
+
+export type TypesOptions = TypesConfig | string | false
 
 export interface OptionsOutput {
   /**
@@ -208,7 +218,7 @@ export interface Options {
   oxvg?: boolean | OXVGConfig
   svgo?: boolean | SvgoConfig
   styles: OptionsStyles | false
-  types: TypesOptions
+  types: { filename: string, groups: Record<string, Glob> } | false
   output: OptionsOutput | false
   prefix: string
   injectSvgOnDev: boolean
