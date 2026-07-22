@@ -74,11 +74,13 @@ File destination like `src/types/spritemap.d.ts` to enable type generation, or `
 
 When enabled, generates a TypeScript type definition file containing union types of all valid icon names from the spritemap. This allows you to type your icon props for better type safety.
 
-The generated file includes three types:
+The generated file always includes the `Icons` type, plus two prefix-related types when a [`prefix`](#prefix) is set:
 
 - **`Icons`**: Union type of all icon base IDs (without prefix)
-- **`Prefix`**: String literal type containing the prefix used in the spritemap
-- **`IconsPrefixed`**: Template literal type that combines the prefix with each icon ID, automatically generating `'sprite-icon1' | 'sprite-icon2' | 'sprite-icon3'`
+- **`Prefix`**: String literal type containing the prefix used in the spritemap (only generated when a prefix is set)
+- **`IconsPrefixed`**: Template literal type that combines the prefix with each icon ID, automatically generating `'sprite-icon1' | 'sprite-icon2' | 'sprite-icon3'` (only generated when a prefix is set)
+
+When `prefix: false`, only the `Icons` type is generated.
 
 You can then use these types in your components.
 
@@ -104,7 +106,7 @@ This will generate a file `src/types/spritemap.d.ts`:
 
 export type Icons = 'icon1' | 'icon2' | 'icon3'
 export type Prefix = 'sprite-'
-export type IconsPrefixed = `${IconsPrefix}${Icons}`
+export type IconsPrefixed = `${Prefix}${Icons}`
 ```
 
 :::

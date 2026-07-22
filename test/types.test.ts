@@ -58,6 +58,8 @@ describe('types generation', () => {
     })
 
     const result = await fs.readFile(filename, 'utf8')
+    expect(result).not.toContain('Prefix')
+    expect(result).not.toContain('IconsPrefixed')
     expect(result).toMatchSnapshot()
   })
 
