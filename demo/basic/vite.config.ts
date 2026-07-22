@@ -16,7 +16,7 @@ export default defineConfig({
     },
   },
   plugins: [
-    VitePluginSvgSpritemap('./../_fixtures/icons/*.svg', {
+    VitePluginSvgSpritemap('./../_fixtures/{icons,flags}/*.svg', {
       // styles: './../_fixtures/icons/spritemap.css',
       styles: {
         filename: './../_fixtures/scss/spritemap.scss',
@@ -30,6 +30,13 @@ export default defineConfig({
       prefix: 'icon-',
       svgo: false,
       oxvg: true,
+      // A single spritemap can generate multiple named types via globs.
+      types: {
+        filename: './src/Icons.d.ts',
+        groups: {
+          Flags: './../_fixtures/flags/*.svg',
+        },
+      },
       // output: {
       //   use: false,
       //   view: false,

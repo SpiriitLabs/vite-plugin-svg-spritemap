@@ -1,5 +1,6 @@
 import { promises as fs } from 'node:fs'
-import { beforeAll, describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it, vi } from 'vitest'
+import { logMessage } from '../src/helpers/log'
 import { buildVite } from './helpers/build'
 import { getPath } from './helpers/path'
 
@@ -127,5 +128,144 @@ describe('types generation', () => {
 
     const result = await fs.readFile(filename, 'utf8')
     expect(result).toMatchSnapshot()
+  })
+
+  it('generates the same output for the object form without groups', async () => {
+    const stringFilename = getPath('./fixtures/basic/types/spritemap_object_string.d.ts')
+    const objectFilename = getPath('./fixtures/basic/types/spritemap_object_no_groups.d.ts')
+
+    await buildVite({
+      name: 'types_object_string',
+      options: {
+        types: stringFilename,
+      },
+    })
+    await buildVite({
+      name: 'types_object_no_groups',
+      options: {
+        // object form without `groups` behaves like the string form
+        types: { filename: objectFilename },
+      },
+    })
+
+    const stringResult = await fs.readFile(stringFilename, 'utf8')
+    const objectResult = await fs.readFile(objectFilename, 'utf8')
+    expect(objectResult).toBe(stringResult)
+    expect(objectResult).not.toContain('export type UiIcons')
+  })
+
+  it('generates grouped types from glob-matched folders', async () => {
+    const filename = getPath('./fixtures/basic/types/spritemap_groups.d.ts')
+
+    await buildVite({
+      name: 'types_groups',
+      path: './fixtures/basic/{svg,flags}/*.svg',
+      options: {
+        types: {
+          filename,
+          groups: {
+            UiIcons: 'svg/*.svg',
+            Flags: 'flags/*.svg',
+          },
+        },
+      },
+    })
+
+    const result = await fs.readFile(filename, 'utf8')
+    // Global `Icons` stays the full set, groups are subsets.
+    expect(result).toContain('export type Icons =')
+    expect(result).toContain('export type UiIcons =')
+    expect(result).toContain('export type Flags = \'CH\' | \'FR\' | \'JP\';')
+    expect(result).toMatchSnapshot()
+  })
+
+  it('supports an array of globs for a single group', async () => {
+    const filename = getPath('./fixtures/basic/types/spritemap_groups_array.d.ts')
+
+    await buildVite({
+      name: 'types_groups_array',
+      path: './fixtures/basic/{svg,flags}/*.svg',
+      options: {
+        types: {
+          filename,
+          groups: {
+            Mixed: ['svg/vite.svg', 'flags/*.svg'],
+          },
+        },
+      },
+    })
+
+    const result = await fs.readFile(filename, 'utf8')
+    expect(result).toContain('export type Mixed = \'CH\' | \'FR\' | \'JP\' | \'vite\';')
+    expect(result).toMatchSnapshot()
+  })
+
+  it('resolves a group that matches no icons to never', async () => {
+    const filename = getPath('./fixtures/basic/types/spritemap_groups_empty.d.ts')
+
+    await buildVite({
+      name: 'types_groups_empty',
+      options: {
+        types: {
+          filename,
+          groups: {
+            Missing: 'does-not-exist/*.svg',
+          },
+        },
+      },
+    })
+
+    const result = await fs.readFile(filename, 'utf8')
+    expect(result).toContain('export type Missing = never;')
+    expect(result).toMatchSnapshot()
+  })
+
+  it('skips a group that collides with a reserved type name', async () => {
+    const filename = getPath('./fixtures/basic/types/spritemap_groups_reserved.d.ts')
+    const spy = vi.spyOn(console, 'warn')
+
+    await buildVite({
+      name: 'types_groups_reserved',
+      options: {
+        types: {
+          filename,
+          groups: {
+            // reserved -> skipped, so `Icons` stays declared exactly once
+            Icons: 'svg/*.svg',
+          },
+        },
+      },
+    })
+
+    const result = await fs.readFile(filename, 'utf8')
+    expect(result.match(/export type Icons =/g)).toHaveLength(1)
+    expect(spy).toHaveBeenCalledWith(
+      logMessage('Type group "Icons" collides with the reserved type "Icons" and was skipped.'),
+    )
+    spy.mockRestore()
+  })
+
+  it('skips a group whose name is not a valid TypeScript type name', async () => {
+    const filename = getPath('./fixtures/basic/types/spritemap_groups_invalid.d.ts')
+    const spy = vi.spyOn(console, 'warn')
+
+    await buildVite({
+      name: 'types_groups_invalid',
+      options: {
+        types: {
+          filename,
+          groups: {
+            'my-icons': 'svg/*.svg',
+          },
+        },
+      },
+    })
+
+    const result = await fs.readFile(filename, 'utf8')
+    expect(result).not.toContain('my-icons')
+    expect(spy).toHaveBeenCalledWith(
+      logMessage('Type group "my-icons" is not a valid TypeScript type name and was skipped.'),
+    )
+    spy.mockRestore()
   })
 })

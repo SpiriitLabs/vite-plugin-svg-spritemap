@@ -1,5 +1,6 @@
 import type { SVGManager } from '@core/svgManager'
 import type { Jobs as OXVGConfig } from '@oxvg/napi'
+import type { Glob } from 'picomatch'
 import type { Config as SvgoConfig } from 'svgo'
 
 type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
@@ -95,9 +96,33 @@ export interface UserOptions {
   gutter?: number
   /**
    * TypeScript type generation. Put the relative file destination to enable, or false to disable.
+   * You can also pass an object to additionally generate grouped types.
    * @default false
    */
-  types?: string | false
+  types?: TypesOptions
+}
+
+export interface TypesConfig {
+  /**
+   * File destination of the generated type definitions, e.g. `src/types/spritemap.d.ts`.
+   */
+  filename: string
+  /**
+   * Map of `TypeName` → glob(s). Each glob is matched against icon file paths
+   * and the matching icon ids become a union type named after the key.
+   */
+  groups?: Record<string, Glob>
+}
+
+export type TypesOptions = TypesConfig | string | false
+
+/**
+ * Resolved `types` option (normalized from {@link TypesOptions}). `groups`
+ * always defaults to `{}` when omitted by the user.
+ */
+export interface OptionsTypes {
+  filename: string
+  groups: Record<string, Glob>
 }
 
 export interface OptionsOutput {
@@ -225,7 +250,7 @@ export interface Options {
   oxvg?: boolean | OXVGConfig
   svgo?: boolean | SvgoConfig
   styles: OptionsStyles | false
-  types: string | false
+  types: OptionsTypes | false
   output: OptionsOutput | false
   prefix: string
   injectSvgOnDev: boolean
