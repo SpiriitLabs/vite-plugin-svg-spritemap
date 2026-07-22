@@ -44,7 +44,13 @@ export default function CommonPlugin(shared: Shared): Plugin {
           source = `<img src="${shared.routeUrlBase}#${options.prefix + svg.id}-view" ${[width, height].filter(item => item.length > 0).join(' ')}/>`
         }
         else {
-          source = `<svg><slot/><use ${options.output.useAttribute || 'xlink:href'}="${shared.routeUrlBase}#${options.prefix + svg.id}"></use></svg>`
+          const reference = `${shared.routeUrlBase}#${options.prefix + svg.id}`
+          const hrefAttribute = options.output.hrefAttribute || 'xlink:href'
+          const attributes = [
+            hrefAttribute !== 'xlink:href' ? `href="${reference}"` : '',
+            hrefAttribute !== 'href' ? `xlink:href="${reference}"` : '',
+          ].filter(Boolean).join(' ')
+          source = `<svg><slot/><use ${attributes}></use></svg>`
         }
 
         const { compileTemplate } = await import('vue/compiler-sfc')

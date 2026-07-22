@@ -123,10 +123,14 @@ export interface OptionsOutput {
    */
   view: boolean
   /**
-   * The attribute to use for the href in the use element
+   * Which attribute(s) to reference the sprite with on generated `<use>`
+   * elements:
+   * - `'xlink:href'`: the deprecated attribute (legacy browser support)
+   * - `'href'`: the standard SVG 2 attribute
+   * - `'both'`: emit `href` with an `xlink:href` fallback for older browsers
    * @default 'xlink:href'
    */
-  useAttribute?: 'xlink:href' | 'href'
+  hrefAttribute?: 'xlink:href' | 'href' | 'both'
 }
 
 export interface OptionsStyles {
