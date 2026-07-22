@@ -54,11 +54,11 @@ The plugin will generate a spritemap to support all methods described below (fil
 
 ```html
 <svg>
-  <use href="/__spritemap#sprite-spiriit"></use>
+  <use xlink:href="/__spritemap#sprite-spiriit"></use>
 </svg>
 ```
 
-By default the generated spritemap uses the `xlink:href` attribute inside the `<use>` tags for compatibility. If you want or need these generated elements to use the standard `href` attribute, you can override this by setting `output.useAttribute: 'href'`.
+By default the generated spritemap uses the deprecated `xlink:href` attribute inside the `<use>` tags for compatibility. You can switch to the standard `href` attribute or emit both with an `xlink:href` fallback — via the [`output.hrefAttribute`](https://spiriitlabs.github.io/vite-plugin-svg-spritemap/options/output.html#output-hrefattribute) option (`'xlink:href' | 'href' | 'both'`).
 
 **Img**
 

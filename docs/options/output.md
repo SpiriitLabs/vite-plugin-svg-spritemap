@@ -40,24 +40,34 @@ Insert `use` element in the spritemap. Allowing you to invoke svg sprite with `<
 
 Disable this option to remove `use` generation on spritemap.
 
-## output.useAttribute
+## output.hrefAttribute
 
-- **Type:** `'xlink:href' | 'href'`
+- **Type:** `'xlink:href' | 'href' | 'both'`
 - **Default:** `'xlink:href'`
 
-The attribute used to reference the sprite inside the generated `<use>` elements (both in the spritemap and in the `?use` Vue component).
+Which attribute(s) are used to reference the sprite on the generated `<use>` elements — both in the spritemap and in the `?use` Vue component.
 
-By default the plugin uses `xlink:href` for maximum compatibility. Since [`xlink:href` is deprecated](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/xlink:href), you can opt into the standard `href` attribute:
+[SVG 2 removed the need for the `xlink` namespace](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/xlink:href), so `xlink:href` is deprecated in favor of `href`. This option lets you choose:
+
+| Value | Output | Use case |
+| --- | --- | --- |
+| `'xlink:href'` | `<use xlink:href="#sprite-id">` | Legacy (default) |
+| `'href'` | `<use href="#sprite-id">` | Browsers supporting SVG 2 |
+| `'both'` | `<use href="#sprite-id" xlink:href="#sprite-id">` | Modern with legacy fallback |
 
 ```ts
 VitePluginSvgSpritemap('./svg/*.svg', {
   output: {
-    useAttribute: 'href',
+    hrefAttribute: 'both',
   },
 })
 ```
 
-When set to `href`, the `xmlns:xlink` namespace is no longer added to the root `<svg>` of the spritemap.
+The `xmlns:xlink` namespace is added to the root `<svg>` of the spritemap only when `xlink:href` is emitted (i.e. for `'xlink:href'` and `'both'`).
+
+::: tip Browser support
+Check the [`href` attribute browser compatibility table](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/href#svg.elements.a.href) before dropping `xlink:href`. If you need to support browsers that predate SVG 2, use `'both'` to keep the `xlink:href` fallback.
+:::
 
 ## output.view
 

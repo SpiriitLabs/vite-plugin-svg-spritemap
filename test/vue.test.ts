@@ -50,6 +50,45 @@ describe('vue components', { timeout: 60000 }, () => {
     await browser.close()
   })
 
+  it('uses href with an xlink:href fallback on ?use component when output.hrefAttribute is "both"', async () => {
+    const { page, server, browser, baseUrl } = await createVueServer(3003, {
+      output: {
+        hrefAttribute: 'both',
+      },
+    })
+
+    await page.goto(baseUrl, {
+      waitUntil: 'domcontentloaded',
+    })
+    await page.waitForSelector('#app svg', { timeout: 55000 })
+    const result = await page.content()
+
+    await server.close()
+    await browser.close()
+
+    expect(result).toContain('<use href="/__spritemap#sprite-spiriit" xlink:href="/__spritemap#sprite-spiriit">')
+  })
+
+  it('uses only href on ?use component when output.hrefAttribute is "href"', async () => {
+    const { page, server, browser, baseUrl } = await createVueServer(3004, {
+      output: {
+        hrefAttribute: 'href',
+      },
+    })
+
+    await page.goto(baseUrl, {
+      waitUntil: 'domcontentloaded',
+    })
+    await page.waitForSelector('#app svg', { timeout: 55000 })
+    const result = await page.content()
+
+    await server.close()
+    await browser.close()
+
+    expect(result).toContain('<use href="/__spritemap#sprite-spiriit">')
+    expect(result).not.toContain('xlink:href')
+  })
+
   it('test with warn', async () => {
     const spy = vi.spyOn(console, 'warn')
 

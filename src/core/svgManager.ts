@@ -250,7 +250,7 @@ export class SVGManager {
     const spritemap = DOM.createElement('svg')
     spritemap.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
 
-    if (this._options.output && this._options.output.use && (this._options.output.useAttribute || 'xlink:href') === 'xlink:href')
+    if (this._options.output && this._options.output.use && (this._options.output.hrefAttribute || 'xlink:href') !== 'href')
       spritemap.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink')
 
     // return empty spritemap
@@ -301,7 +301,12 @@ export class SVGManager {
       // use
       if (this._options.output && this._options.output.use) {
         const use = DOM.createElement('use')
-        use.setAttribute(this._options.output.useAttribute || 'xlink:href', `#${this._options.prefix + svg.id}`)
+        const hrefAttribute = this._options.output.hrefAttribute || 'xlink:href'
+        const reference = `#${this._options.prefix + svg.id}`
+        if (hrefAttribute !== 'xlink:href')
+          use.setAttribute('href', reference)
+        if (hrefAttribute !== 'href')
+          use.setAttribute('xlink:href', reference)
         use.setAttribute('width', svg.width.toString())
         use.setAttribute('height', svg.height.toString())
         use.setAttribute('y', y.toString())
