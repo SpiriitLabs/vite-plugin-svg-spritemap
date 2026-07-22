@@ -40,6 +40,25 @@ Insert `use` element in the spritemap. Allowing you to invoke svg sprite with `<
 
 Disable this option to remove `use` generation on spritemap.
 
+## output.useAttribute
+
+- **Type:** `'xlink:href' | 'href'`
+- **Default:** `'xlink:href'`
+
+The attribute used to reference the sprite inside the generated `<use>` elements (both in the spritemap and in the `?use` Vue component).
+
+By default the plugin uses `xlink:href` for maximum compatibility. Since [`xlink:href` is deprecated](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/xlink:href), you can opt into the standard `href` attribute:
+
+```ts
+VitePluginSvgSpritemap('./svg/*.svg', {
+  output: {
+    useAttribute: 'href',
+  },
+})
+```
+
+When set to `href`, the `xmlns:xlink` namespace is no longer added to the root `<svg>` of the spritemap.
+
 ## output.view
 
 - **Type:** `boolean`

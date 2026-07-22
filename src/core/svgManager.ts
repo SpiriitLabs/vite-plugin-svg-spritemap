@@ -250,7 +250,7 @@ export class SVGManager {
     const spritemap = DOM.createElement('svg')
     spritemap.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
 
-    if (this._options.output && this._options.output.use)
+    if (this._options.output && this._options.output.use && (this._options.output.useAttribute || 'xlink:href') === 'xlink:href')
       spritemap.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink')
 
     // return empty spritemap

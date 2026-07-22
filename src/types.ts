@@ -126,7 +126,7 @@ export interface OptionsOutput {
    * The attribute to use for the href in the use element
    * @default 'xlink:href'
    */
-  useAttribute?: 'xlink:href' | 'href' | string
+  useAttribute?: 'xlink:href' | 'href'
 }
 
 export interface OptionsStyles {
