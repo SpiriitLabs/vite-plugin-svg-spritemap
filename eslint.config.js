@@ -1,5 +1,5 @@
 import antfu from '@antfu/eslint-config'
 
 export default antfu({
-  ignores: ['demo/nuxt/Icons.d.ts'],
+  ignores: ['demo/nuxt/Icons.d.ts', 'demo/basic/src/Icons.d.ts'],
 })

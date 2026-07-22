@@ -1,4 +1,5 @@
 import type { Options, OptionsRoute, OptionsStyles, OptionsStylesSizes, StylesLang, UserOptions } from '@/types'
+import { RESERVED_TYPE_NAMES } from '@/core/types'
 
 export function createOptions(options: UserOptions = {}): { options: Options, logs: { warn: string[] } } {
   const logs: { warn: string[] } = {
@@ -126,7 +127,24 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
 
   const gutter = options.gutter || 0
 
-  const types: Options['types'] = typeof options.types === 'string' ? options.types : false
+  let types: Options['types'] = false
+  if (typeof options.types === 'string')
+    types = { filename: options.types, groups: {} }
+  else if (typeof options.types === 'object' && options.types !== null)
+    types = { filename: options.types.filename, groups: options.types.groups ?? {} }
+
+  if (types) {
+    for (const name of Object.keys(types.groups)) {
+      if (RESERVED_TYPE_NAMES.includes(name)) {
+        logs.warn.push(`Type group "${name}" collides with the reserved type "${name}" and was skipped.`)
+        delete types.groups[name]
+      }
+      else if (!/^[A-Z_$][\w$]*$/i.test(name)) {
+        logs.warn.push(`Type group "${name}" is not a valid TypeScript type name and was skipped.`)
+        delete types.groups[name]
+      }
+    }
+  }
 
   const finalOptions = {
     svgo: options.svgo,

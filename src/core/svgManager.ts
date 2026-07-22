@@ -369,9 +369,9 @@ export class SVGManager {
       return
 
     try {
-      const typesGen: Types = new Types(this._svgs, this._options)
+      const typesGen: Types = new Types(this._svgs, this._options, this._config.root)
       const content = typesGen.generate()
-      const path = resolve(this._config.root, this._options.types)
+      const path = resolve(this._config.root, this._options.types.filename)
       const dir = dirname(path)
 
       await fs.mkdir(dir, { recursive: true })
