@@ -149,12 +149,15 @@ export class SVGManager {
     let width = widthAttr ? Number.parseFloat(widthAttr) : undefined
     let height = heightAttr ? Number.parseFloat(heightAttr) : undefined
 
-    if (viewBox && viewBox.length !== 4 && (!width || !height)) {
-      log({ level: 'warn', message: `Sprite '${filePath}' is invalid, it's lacking both a viewBox and width/height attributes.`, logger: this._config.logger })
+    const hasUsableViewBox
+      = Array.isArray(viewBox) && viewBox.length === 4 && viewBox[2] > 0 && viewBox[3] > 0
+
+    if (!hasUsableViewBox && (!width || !height)) {
+      log({ level: 'warn', message: `Sprite '${filePath}' was skipped: it needs a valid viewBox or both width and height attributes.`, logger: this._config.logger })
       return {}
     }
 
-    if ((!viewBox || viewBox.length !== 4) && width && height)
+    if (!hasUsableViewBox && width && height)
       viewBox = [0, 0, width, height]
 
     if (!width && viewBox)
@@ -233,6 +236,13 @@ export class SVGManager {
       cwd: this._config.root,
       absolute: true,
     })
+
+    if (iconsPath.length === 0) {
+      const pattern = Array.isArray(this._iconsPattern)
+        ? this._iconsPattern.join(', ')
+        : this._iconsPattern
+      log({ level: 'warn', message: `No SVG files found for pattern '${pattern}' on route '${this._options.route.name}'. The spritemap will be empty.`, logger: this._config.logger })
+    }
 
     // Initialize SVGO before parallel processing to avoid race conditions
     await this._initializeOptimizer()

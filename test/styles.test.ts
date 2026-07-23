@@ -206,8 +206,7 @@ describe('styles generation', () => {
         },
       },
     })
-    const call = spy.mock.lastCall
-    expect(call).toStrictEqual([
+    expect(spy.mock.calls).toContainEqual([
       logMessage('Invalid styles lang, fallback to css'),
     ])
   })
