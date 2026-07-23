@@ -127,7 +127,14 @@ export class SVGManager {
    * @returns An object containing width, height and viewBox (if available)
    */
   private _extractSvgDimensions(svg: string, filePath: string): { width?: number, height?: number, viewBox?: number[] } {
-    const document = this._parser.parseFromString(svg, 'image/svg+xml')
+    let document: ReturnType<DOMParser['parseFromString']>
+    try {
+      document = this._parser.parseFromString(svg, 'image/svg+xml')
+    }
+    catch (error) {
+      log({ level: 'warn', message: `Sprite '${filePath}' could not be parsed and was skipped: ${error}`, logger: this._config.logger })
+      return {}
+    }
     const documentElement = document.documentElement
 
     let viewBox = (
@@ -230,10 +237,16 @@ export class SVGManager {
     // Initialize SVGO before parallel processing to avoid race conditions
     await this._initializeOptimizer()
 
-    // Process files in parallel for better performance
-    await Promise.all(
+    // Process files in parallel for better performance.
+    // Use allSettled so a single failing icon cannot abort the whole batch.
+    const results = await Promise.allSettled(
       iconsPath.map(iconPath => this.update(iconPath, mode, true)),
     )
+    results.forEach((result, index) => {
+      if (result.status === 'rejected') {
+        log({ level: 'error', message: `Failed to process '${iconsPath[index]}': ${result.reason}`, logger: this._config.logger })
+      }
+    })
     this._sortSvgs()
 
     this.hash = hash_sum(this.spritemap)
