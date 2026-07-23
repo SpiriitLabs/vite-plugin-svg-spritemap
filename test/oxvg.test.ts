@@ -72,12 +72,11 @@ describe('oxvg', () => {
         })
         const warningStr = logMessage('You need to install OXVG to be able to optimize your SVG with it.')
 
-        const call = spy.mock.lastCall
         if (oxvg === false) {
-          expect(call).not.toStrictEqual([warningStr])
+          expect(spy.mock.calls).not.toContainEqual([warningStr])
         }
         else {
-          expect(call).toStrictEqual([warningStr])
+          expect(spy.mock.calls).toContainEqual([warningStr])
         }
 
         spy.mockClear()
