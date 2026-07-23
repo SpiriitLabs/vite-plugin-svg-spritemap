@@ -178,7 +178,7 @@ export class SVGManager {
           return optimizedSvg.data
       }
       catch (error) {
-        log({ level: 'warn', message: `SVGO optimization failed: ${error}`, logger: this._config.logger })
+        log({ level: 'warn', message: `${this._optimizeType.toUpperCase()} optimization failed: ${error}`, logger: this._config.logger })
       }
     }
 
