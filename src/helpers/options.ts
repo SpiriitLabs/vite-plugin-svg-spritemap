@@ -99,6 +99,9 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
     }
   }
 
+  if (typeof options.injectSVGOnDev !== 'undefined')
+    logs.warn.push('The "injectSVGOnDev" option is deprecated. Use "injectSvgOnDev" instead.')
+
   const injectSvgOnDev = options.injectSvgOnDev || options.injectSVGOnDev || false
 
   // Idify

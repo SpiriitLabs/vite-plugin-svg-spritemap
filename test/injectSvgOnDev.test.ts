@@ -3,6 +3,7 @@ import type { ViteDevServer } from 'vite'
 import { chromium } from 'playwright'
 import { createServer } from 'vite'
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { createOptions } from '../src/helpers/options'
 import VitePluginSvgSpritemap from '../src/index'
 import { getPath } from './helpers/path'
 
@@ -67,4 +68,12 @@ describe('injectSvgOnDev', () => {
 
   // TODO: Do HMR verification
   it.skip('has HMR', async () => {})
+})
+
+describe('injectSvgOnDev back-compat', () => {
+  it('honors the deprecated injectSVGOnDev casing and warns', () => {
+    const { options, logs } = createOptions({ injectSVGOnDev: true })
+    expect(options.injectSvgOnDev).toBe(true)
+    expect(logs.warn.some(w => w.includes('injectSVGOnDev'))).toBe(true)
+  })
 })
