@@ -58,7 +58,10 @@ export default function BuildPlugin(shared: Shared): Plugin {
       if (typeof shared.options.output === 'object') {
         fileName = getFileName(
           shared.options.output.filename,
-          'spritemap',
+          // Derive the `[name]` token from `output.name` (`.svg` stripped)
+          // so `output.name` controls the emitted filename. Defaults to
+          // `spritemap` (from the default `output.name` of `spritemap.svg`).
+          path.basename(shared.options.output.name, '.svg'),
           shared.svgManager.spritemap,
           'svg',
         )

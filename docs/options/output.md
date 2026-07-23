@@ -23,7 +23,7 @@ Doesn't support Rollup hash number
 - **Type:** `string`
 - **Default:** `'spritemap.svg'`
 
-The name of the file, appears in the manifest key.
+The name of the file, appears in the manifest key. Its base name (extension stripped) also fills the `[name]` token in [output.filename](#output), so with the default filename `output: { name: 'flags.svg' }` emits `flags.[hash].svg`.
 
 ## output.use
 

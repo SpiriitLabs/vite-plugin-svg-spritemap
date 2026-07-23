@@ -133,7 +133,8 @@ export interface OptionsOutput {
    */
   filename: string
   /**
-   * The name of file, appear on the manifest key
+   * The name of file, appear on the manifest key. Its base name (extension
+   * stripped) also fills the `[name]` token in {@link OptionsOutput.filename}.
    * @default spritemap.svg
    */
   name: string
