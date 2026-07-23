@@ -111,6 +111,27 @@ it('empty output generation', async () => {
   }
 })
 
+it('derives the emitted filename from output.name', async () => {
+  const result = await buildVite({
+    name: 'output_name',
+    options: {
+      output: {
+        name: 'flags.svg',
+      },
+    },
+  })
+
+  if (!('output' in result))
+    return
+
+  const asset = result.output.find(
+    asset => asset.name === 'flags.svg' && asset.type === 'asset',
+  )
+  expect(asset).toBeDefined()
+  expect(asset?.fileName).toMatch(/flags\.[^/]+\.svg$/)
+  expect(asset?.fileName).not.toMatch(/spritemap/)
+})
+
 describe('output manifest generation', () => {
   for (const key in outputManifestConfigs) {
     if (Object.hasOwn(outputManifestConfigs, key)) {
