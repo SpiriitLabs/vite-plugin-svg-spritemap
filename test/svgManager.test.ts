@@ -7,18 +7,17 @@ import { SVGManager } from '../src/core/svgManager'
 import { createOptions } from '../src/helpers/options'
 import { getPath } from './helpers/path'
 
-// Sorts before `flags/`, so a create appends it last but `_sortSvgs()` moves
-// it first. Outside the glob, so nothing needs writing to disk.
+// Sorts before `flags/`, so a create must be reordered. Outside the glob.
 const createdPath = getPath('./fixtures/basic/broken/valid.svg')
 
 function createManager() {
-  // Only `root` and `logger` are ever read off the resolved config.
+  // Only `root` and `logger` are ever read
   const config = {
     root: getPath('./fixtures/basic'),
     logger: createLogger('silent'),
   } as unknown as ResolvedConfig
 
-  // No optimizer, and `styles`/`types` default to `false` — writes no files.
+  // No optimizer, and `styles`/`types` default off, so nothing is written
   const { options } = createOptions({ svgo: false, oxvg: false })
 
   return new SVGManager(
@@ -35,7 +34,7 @@ describe('sVGManager', () => {
     await manager.updateAll()
     expect(manager.hash).toBe(hash_sum(manager.spritemap))
 
-    // Create reorders the set — the hash used to be computed before the sort.
+    // The hash used to be computed before the sort
     await manager.update(createdPath, 'create')
     expect(manager.spritemap.indexOf('sprite-valid'))
       .toBeLessThan(manager.spritemap.indexOf('sprite-CH'))
@@ -57,14 +56,13 @@ describe('sVGManager', () => {
     const first = manager.spritemap
     spy.mockClear()
 
-    // Re-reading parses nothing, and the hash reuses the cached string.
     expect(manager.spritemap).toBe(first)
     expect(spy).not.toHaveBeenCalled()
     expect(manager.hash).toBe(hash_sum(first))
     expect(spy).not.toHaveBeenCalled()
 
     await manager.update(createdPath, 'create')
-    // Ignore the single parse `_extractSvgDimensions` does on the new file.
+    // Ignore the parse `_extractSvgDimensions` does on the new file
     spy.mockClear()
 
     const next = manager.spritemap

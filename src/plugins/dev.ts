@@ -12,6 +12,10 @@ const filterSVG = /\.svg$/
 // against `config.base` (`routeUrlBase`); they must be skipped when rewriting
 // raw route references so the base isn't applied twice.
 const filterVueComponent = /\.svg\?(?:use|view)\b/
+// `?import`, `?t=…`, `#sprite-x`: never part of the route
+const filterQuery = /[?#].*$/
+// The cache-busting suffix appended to the route in dev
+const filterRouteHash = /^__[\w-]+$/
 
 export default function DevPlugin(shared: Shared): Plugin {
   const virtualModuleId = '/@vite-plugin-svg-spritemap/client'
@@ -20,6 +24,18 @@ export default function DevPlugin(shared: Shared): Plugin {
   // the raw route so user-authored `/__spritemap#…` usages are rewritten to
   // the base-aware url in dev, not just stylesheet `url()` declarations.
   const routeFilter = new RegExp(escapeRegExp(shared.options.route.url))
+
+  /**
+   * Whether a request url targets the route or its `__<hash>` variant
+   */
+  function isSpritemapRequest(url: string): boolean {
+    const pathname = url.replace(filterQuery, '')
+    if (!pathname.startsWith(shared.routeUrlBase))
+      return false
+
+    const suffix = pathname.slice(shared.routeUrlBase.length)
+    return suffix === '' || filterRouteHash.test(suffix)
+  }
 
   return <Plugin>{
     name: 'vite-plugin-svg-spritemap:dev',
@@ -52,21 +68,19 @@ export default function DevPlugin(shared: Shared): Plugin {
       shared.svgManager?.directories.forEach(directory => this.addWatchFile(directory))
     },
     configureServer(server) {
-      server.middlewares.use(async (req, res, next) => {
-        const url = req.url || ''
-        if (url.startsWith(shared.routeUrlBase)) {
-          /* v8 ignore if -- @preserve */
-          if (!shared.svgManager)
-            return
-          res.statusCode = 200
-          res.setHeader('Content-Type', 'image/svg+xml')
-          res.setHeader('Access-Control-Allow-Origin', '*')
-          res.write(shared.svgManager.spritemap, 'utf-8')
-          res.end()
-        }
-        else {
-          next()
-        }
+      server.middlewares.use((req, res, next) => {
+        if (req.method !== 'GET' || !isSpritemapRequest(req.url || ''))
+          return next()
+
+        /* v8 ignore if -- @preserve */
+        if (!shared.svgManager)
+          return next()
+
+        res.statusCode = 200
+        res.setHeader('Content-Type', 'image/svg+xml')
+        res.setHeader('Access-Control-Allow-Origin', '*')
+        res.write(shared.svgManager.spritemap, 'utf-8')
+        res.end()
       })
     },
     transformIndexHtml: {
