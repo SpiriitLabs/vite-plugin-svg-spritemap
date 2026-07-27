@@ -8,6 +8,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Entries prior to this file were reconstructed from git tags and commit history,
 so early releases summarise the most user-facing changes rather than every commit.
 
+## [7.1.0] - 2026-07-27
+
+### Added
+
+- `output.hrefAttribute` option to control the reference emitted on generated
+  `<use>` elements: `'xlink:href'` (default), `'href'`, or `'both'`. Based on
+  ([#99]) by @ChrisAdels.
+- Object form for the `types` option with a `groups` key, generating several
+  named union types from a single spritemap. Based on ([#108]) by @spaansba.
+- This changelog.
+
+### Changed
+
+- The spritemap is now generated once per icon-set change instead of once per
+  access. It was re-parsed and re-serialized on every read: three times per
+  build, once per dev-server request to the route, and up to three times per
+  icon change in dev ([#111]).
+- The dev server answers the spritemap route only on an exact `GET` match, or
+  the route plus its `__<hash>` suffix. A prefix match meant a second plugin
+  instance on a route sharing the prefix never received its own requests.
+- Type generation no longer emits `Prefix` and `IconsPrefixed` when
+  `prefix: false`. Based on ([#107]) by @spaansba.
+
+### Fixed
+
+- A short route, or one containing regex metacharacters, could rewrite
+  unrelated imports during build. `route: '/fla'` matched inside
+  `svelte/internal/flags/async` and corrupted that specifier ([#97]).
+- `output.name` had no effect on the emitted filename; its base name now fills
+  the `[name]` token of `output.filename` ([#112]).
+- New icons were ignored in dev on Windows until the server restarted ([#96]).
+- One malformed SVG aborted the whole build or dev startup. It is now skipped
+  with a warning naming the file ([#110]).
+- The dev cache-busting hash was computed before the icons were sorted, so it
+  described an ordering that was never served ([#111]).
+- Silent failures now warn: an empty glob, and any icon skipped for missing
+  dimensions ([#114]).
+- The deprecated `injectSVGOnDev` casing warns, and optimizer errors name the
+  optimizer actually in use ([#115]).
+- The `createSpritemap` docs example used the wrong callback signature
+  ([#113]).
+
 ## [7.0.1] - 2026-07-20
 
 ### Fixed
@@ -246,6 +288,7 @@ so early releases summarise the most user-facing changes rather than every commi
   matched by a glob, with optional SVGO optimization, stylesheet generation, and
   HMR in dev.
 
+[7.1.0]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/compare/v7.0.1...v7.1.0
 [7.0.1]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/compare/v7.0.0...v7.0.1
 [7.0.0]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/compare/v6.0.0...v7.0.0
 [6.0.0]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/compare/v5.0.0...v6.0.0
@@ -295,3 +338,14 @@ so early releases summarise the most user-facing changes rather than every commi
 [#95]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/95
 [#98]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/98
 [#102]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/102
+[#96]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/96
+[#97]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/97
+[#99]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/99
+[#107]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/107
+[#108]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/108
+[#110]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/110
+[#111]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/111
+[#112]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/112
+[#113]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/113
+[#114]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/114
+[#115]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/115
