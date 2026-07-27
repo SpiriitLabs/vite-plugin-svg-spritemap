@@ -4,8 +4,7 @@ import type { Options, Shared } from '@/types'
 import { relative } from 'node:path'
 import picomatch from 'picomatch'
 import { generateHMR } from '@/core/hmr'
-import { escapeRegExp } from '@/helpers/escapeRegExp'
-import { createRouteRegExp } from '@/helpers/routeRegExp'
+import { createRouteFilterRegExp, createRouteRegExp } from '@/helpers/routeRegExp'
 
 const filterSVG = /\.svg$/
 // `?use` / `?view` modules are emitted by the Vue plugin already resolved
@@ -23,7 +22,7 @@ export default function DevPlugin(shared: Shared): Plugin {
   // Match any module (CSS, JS, compiled Vue/JSX templates, …) that references
   // the raw route so user-authored `/__spritemap#…` usages are rewritten to
   // the base-aware url in dev, not just stylesheet `url()` declarations.
-  const routeFilter = new RegExp(escapeRegExp(shared.options.route.url))
+  const routeFilter = createRouteFilterRegExp(shared.options.route.url)
 
   /**
    * Whether a request url targets the route or its `__<hash>` variant

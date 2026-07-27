@@ -1,31 +1,51 @@
-import { escapeRegExp } from './escapeRegExp'
+const escapeRegExpPattern = /[.*+?^${}()|[\]\\]/g
+
+function escapeRegExp(text: string): string {
+  return text.replace(escapeRegExpPattern, '\\$&')
+}
+
+// Pieces of a route reference. `String.raw` keeps them legible: `\.?`, not '\\.?'
+const DOT = String.raw`\.?`
+const LEGACY_HASH = String.raw`(?:-\d*)?`
+const QUERY_OR_FRAGMENT = String.raw`(?:[#?]\S*)?`
+// A reference can't continue into a path segment or identifier (#97)
+const BOUNDARY = String.raw`(?![\w\-/])`
 
 interface RouteRegExpOptions {
   /**
-   * Also swallow an optional leading `.` so a relative `./__spritemap`
-   * reference doesn't keep a dangling dot once the base is applied — otherwise
-   * the base gets doubled (`./example/…` → resolved as `/example/example/…`).
-   * Disable for a relative base, where the leading dot must be preserved to
-   * keep the emitted path relative.
+   * Swallow an optional leading `.`, so a relative `./__spritemap` doesn't
+   * double the base. Disable for a relative base, which needs the dot kept.
    * @default true
    */
   dot?: boolean
   /**
-   * Also match the legacy `-<number>` hashed suffix produced by older dev
-   * rewrites so it gets replaced instead of duplicated.
+   * Also match the legacy `-<number>` suffix, so it's replaced not duplicated.
    * @default true
    */
   numbered?: boolean
 }
 
 /**
- * Build a global RegExp matching a raw route reference (`route.url`, e.g.
- * `/__spritemap`) inside HTML/CSS/JS so it can be rewritten to the base-aware
- * url (dev) or the emitted asset path (build).
+ * Global RegExp matching a raw route reference in HTML/CSS/JS, for rewriting
+ * to the base-aware url (dev) or the emitted asset path (build)
  */
 export function createRouteRegExp(routeUrl: string, { dot = true, numbered = true }: RouteRegExpOptions = {}): RegExp {
-  const prefix = dot ? '\\.?' : ''
-  const route = escapeRegExp(routeUrl)
-  const numberedAlt = numbered ? `${prefix}${route}-\\d*|` : ''
-  return new RegExp(`${numberedAlt}${prefix}${route}`, 'g')
+  const route = (dot ? DOT : '') + escapeRegExp(routeUrl)
+  return new RegExp(route + (numbered ? LEGACY_HASH : '') + BOUNDARY, 'g')
+}
+
+/**
+ * Anchored RegExp matching an import specifier that is the route itself, for
+ * Rollup's `external`
+ */
+export function createRouteImportRegExp(routeUrl: string): RegExp {
+  return new RegExp(`^${DOT}${escapeRegExp(routeUrl)}${QUERY_OR_FRAGMENT}$`)
+}
+
+/**
+ * Loose RegExp gating which modules the route rewriting runs on. Deliberately
+ * unanchored and unbounded: it only decides whether to try a rewrite
+ */
+export function createRouteFilterRegExp(routeUrl: string): RegExp {
+  return new RegExp(escapeRegExp(routeUrl))
 }
