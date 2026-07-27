@@ -2,16 +2,15 @@ import type { ExternalOption } from 'rollup'
 import type { Plugin, ResolvedConfig } from 'vite'
 import type { Shared } from '@/types'
 import { posix as path } from 'node:path'
-import { escapeRegExp } from '@helpers/escapeRegExp'
 import { getFileName } from '@helpers/filename'
-import { createRouteRegExp } from '@helpers/routeRegExp'
+import { createRouteFilterRegExp, createRouteImportRegExp, createRouteRegExp } from '@helpers/routeRegExp'
 
 export default function BuildPlugin(shared: Shared): Plugin {
   let fileRef: string
   let fileName: string
   let config: ResolvedConfig
-  const pluginExternal = new RegExp(shared.options.route.url)
-  const spritemapFilter = new RegExp(escapeRegExp(shared.options.route.url))
+  const pluginExternal = createRouteImportRegExp(shared.options.route.url)
+  const spritemapFilter = createRouteFilterRegExp(shared.options.route.url)
 
   return <Plugin>{
     name: 'vite-plugin-svg-spritemap:build',
