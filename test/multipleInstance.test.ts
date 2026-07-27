@@ -76,3 +76,61 @@ describe('dev server', () => {
   it.skip('has HMR', async () => {
   })
 })
+
+describe('routes sharing a prefix', { sequential: true }, () => {
+  let overlapServer: ViteDevServer
+  let overlapUrl: string
+
+  beforeAll(async () => {
+    overlapServer = await createServer({
+      configFile: false,
+      root: getPath('./fixtures/basic'),
+      logLevel: 'silent',
+      optimizeDeps: { noDiscovery: true },
+      server: { port: 5195 },
+      plugins: [
+        // Registered first, and a prefix of the next
+        VitePluginSvgSpritemap(getPath('./fixtures/basic/svg/*.svg')),
+        VitePluginSvgSpritemap(getPath('./fixtures/basic/flags/*.svg'), {
+          route: { name: 'flags', url: '/__spritemap-flags' },
+        }),
+      ],
+    })
+    await overlapServer.listen()
+    overlapUrl = overlapServer.resolvedUrls!.local[0].replace(/\/$/, '')
+
+    return async () => {
+      await overlapServer.close()
+    }
+  })
+
+  it('serves each route its own spritemap', async () => {
+    const spritemap = await (await fetch(`${overlapUrl}/__spritemap`)).text()
+    const flags = await (await fetch(`${overlapUrl}/__spritemap-flags`)).text()
+
+    expect(spritemap).toContain('sprite-vite')
+    expect(spritemap).not.toContain('sprite-CH')
+    expect(flags).toContain('sprite-CH')
+    expect(flags).not.toContain('sprite-vite')
+  })
+
+  it('serves the hash-busted route', async () => {
+    const html = await (await fetch(`${overlapUrl}/`)).text()
+    const hashed = html.match(/\/__spritemap__[a-f0-9]+/)?.[0]
+    expect(hashed).toBeDefined()
+
+    const res = await fetch(`${overlapUrl}${hashed}`)
+    expect(res.headers.get('content-type')).toBe('image/svg+xml')
+    expect(await res.text()).toContain('sprite-vite')
+  })
+
+  it('falls through for paths that only share the route prefix', async () => {
+    const res = await fetch(`${overlapUrl}/__spritemap-nope`)
+    expect(res.headers.get('content-type')).not.toBe('image/svg+xml')
+  })
+
+  it('only answers GET', async () => {
+    const res = await fetch(`${overlapUrl}/__spritemap`, { method: 'POST' })
+    expect(res.headers.get('content-type')).not.toBe('image/svg+xml')
+  })
+})
