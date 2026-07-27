@@ -26,7 +26,10 @@ export class SVGManager {
   private _svgs: Map<string, SvgMapObject>
   private _iconsPattern: Glob
   private _config: ResolvedConfig
-  public hash: string | null = null
+  /** Memoized `_generateSpritemap()` output. `null` means "regenerate". */
+  private _spritemap: string | null = null
+  /** Cache-busting hash of `_spritemap`. Invalidated alongside it. */
+  private _hash: string | null = null
   private _optimizeType: 'svgo' | 'oxvg' | null = null
   private _optimize: Awaited<ReturnType<typeof getOptimizeSvgo | typeof getOptimiseOxvg>> | null = null
   private _routeUrl: string
@@ -88,9 +91,9 @@ export class SVGManager {
       ...svgData,
       id,
     })
+    this._invalidateSpritemap()
 
     if (!loop) {
-      this.hash = hash_sum(this.spritemap)
       this._sortSvgs()
       await this.createFileStyle()
       await this.createFileTypes()
@@ -113,7 +116,7 @@ export class SVGManager {
       this._ids.delete(svg.id)
 
     this._svgs.delete(filePath)
-    this.hash = hash_sum(this.spritemap)
+    this._invalidateSpritemap()
     this._sortSvgs()
     await this.createFileStyle()
     await this.createFileTypes()
@@ -258,16 +261,40 @@ export class SVGManager {
       }
     })
     this._sortSvgs()
-
-    this.hash = hash_sum(this.spritemap)
     await this.createFileStyle()
     await this.createFileTypes()
   }
 
   /**
-   * Generate the SVG sprite map
+   * The SVG sprite map, memoized. Regenerating re-parses every icon
    */
   get spritemap(): string {
+    if (this._spritemap === null)
+      this._spritemap = this._generateSpritemap()
+    return this._spritemap
+  }
+
+  /**
+   * Cache-busting token for the dev route, derived from the served spritemap
+   */
+  public get hash(): string {
+    if (this._hash === null)
+      this._hash = hash_sum(this.spritemap)
+    return this._hash
+  }
+
+  /**
+   * Call after every `_svgs` write, reorders included. Order affects output
+   */
+  private _invalidateSpritemap(): void {
+    this._spritemap = null
+    this._hash = null
+  }
+
+  /**
+   * Generate the SVG sprite map
+   */
+  private _generateSpritemap(): string {
     const DOM = new DOMImplementation().createDocument(null, '', null)
     const Serializer = new XMLSerializer()
     const spritemap = DOM.createElement('svg')
@@ -435,6 +462,7 @@ export class SVGManager {
     for (const [key, value] of entries) {
       this._svgs.set(key, value)
     }
+    this._invalidateSpritemap()
   }
 
   /**
