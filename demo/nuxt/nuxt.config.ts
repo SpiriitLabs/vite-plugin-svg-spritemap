@@ -20,7 +20,7 @@ export default defineNuxtConfig({
       }),
     ],
   },
-  css: ['./../_fixtures/scss/style.scss'],
+  css: ['~/../_fixtures/scss/style.scss'],
   $development: {
     app: {
       head: {
