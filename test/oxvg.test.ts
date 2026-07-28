@@ -1,7 +1,9 @@
 import type { UserOptions } from '../src/types'
+import { createLogger } from 'vite'
 import { describe, expect, it, vi } from 'vitest'
 import { logMessage } from '../src/helpers/log'
-import { getOptions } from '../src/helpers/oxvg'
+import { getOptimize, getOptions } from '../src/helpers/oxvg'
+import { defaultDisabledPlugins } from '../src/helpers/svgo'
 import { buildVite } from './helpers/build'
 
 const oxvgConfigs: Record<string, UserOptions['oxvg']> = {
@@ -21,17 +23,54 @@ const oxvgConfigs: Record<string, UserOptions['oxvg']> = {
 }
 
 describe('oxvg getOptions', () => {
-  it('returns undefined when false', () => {
-    expect(getOptions(false)).toBeUndefined()
+  it('returns undefined when false', async () => {
+    expect(await getOptions(false, 'sprite-')).toBeUndefined()
   })
 
-  it('returns custom config when object', () => {
+  it('returns custom config when object', async () => {
     const config = { prefixIds: { delim: '-', prefixClassNames: true, prefixIds: true, prefix: { type: 'Prefix' as const, field0: 'prefix' } } }
-    expect(getOptions(config)).toEqual(config)
+    expect(await getOptions(config, 'sprite-')).toEqual(config)
   })
 
-  it('returns empty object when true/undefined', () => {
-    expect(getOptions(undefined)).toEqual({})
+  it('translates the SVGO default config when true/undefined', async () => {
+    for (const value of [undefined, true] as const) {
+      const config = await getOptions(value, 'sprite-')
+
+      expect(Object.keys(config ?? {}).length).toBeGreaterThan(0)
+      expect(config?.cleanupIds?.preservePrefixes).toEqual(['sprite-'])
+      // shared with the SVGO optimizer through defaultDisabledPlugins
+      for (const plugin of Object.keys(defaultDisabledPlugins))
+        expect(config).not.toHaveProperty(plugin)
+    }
+  })
+})
+
+describe('oxvg default config', () => {
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><g fill="red"><g><path id="sprite-keep" d="M0 0h10v10z"/></g></g><path id="drop-me" d="M0 0h5v5z" data-x=""/></svg>'
+
+  it('applies the SVGO default config so both optimizers stay on par', async () => {
+    const optimize = await getOptimize(createLogger())
+    expect(optimize).toBeTypeOf('function')
+    if (!optimize)
+      return
+
+    const result = optimize(svg, await getOptions(true, 'sprite-'))
+
+    // disabled through defaultDisabledPlugins, shared with the SVGO optimizer
+    expect(result).toContain('<g fill="red">')
+    expect(result).toContain('data-x=""')
+    // cleanupIds runs, but keeps ids carrying the sprite prefix
+    expect(result).toContain('id="sprite-keep"')
+    expect(result).not.toContain('id="drop-me"')
+  })
+
+  it('lets an options object replace the default config', async () => {
+    const optimize = await getOptimize(createLogger())
+    if (!optimize)
+      return
+
+    // only prefixIds runs, so cleanupIds no longer drops the unreferenced id
+    expect(optimize(svg, await getOptions(oxvgConfigs.custom, 'sprite-'))).toContain('id="prefix-drop-me"')
   })
 })
 

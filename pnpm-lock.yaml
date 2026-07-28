@@ -157,7 +157,7 @@ importers:
     dependencies:
       '@oxvg/napi-darwin-x64':
         specifier: ^0.0.4-1 || ^0.0.6
-        version: 0.0.4
+        version: 0.0.6
       '@xmldom/xmldom':
         specifier: 'catalog:'
         version: 0.9.10
@@ -1263,12 +1263,6 @@ packages:
     resolution: {integrity: sha512-ImmgFf3rn7Hb/SQ+ZIs0EU5iNYSmYwKsSbSibFRSKvpUH2IlWI/Uw+ETtM7heAEWn9wVG47onrYnHdFuSAf36A==}
     engines: {node: '>= 10'}
     cpu: [arm64]
-    os: [darwin]
-
-  '@oxvg/napi-darwin-x64@0.0.4':
-    resolution: {integrity: sha512-uhLkTZkauwf33hevGo2F2vy9rCNUip2wXXT8CEUUf+hHaGuQNw4nD1jPkZxhhnBSuoAnc3gIeQo1do/ajDVfsA==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
     os: [darwin]
 
   '@oxvg/napi-darwin-x64@0.0.6':
@@ -7717,10 +7711,7 @@ snapshots:
 
   '@oxvg/napi-darwin-arm64@0.0.6': {}
 
-  '@oxvg/napi-darwin-x64@0.0.4': {}
-
-  '@oxvg/napi-darwin-x64@0.0.6':
-    optional: true
+  '@oxvg/napi-darwin-x64@0.0.6': {}
 
   '@oxvg/napi-linux-x64-gnu@0.0.6': {}
 

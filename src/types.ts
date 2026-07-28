@@ -41,7 +41,7 @@ export interface UserOptions {
    */
   svgo?: boolean | SvgoConfig
   /**
-   * Take an OXVG Options object. If true, it will use the default options from OXVG, if false, it will disable OXVG optimization
+   * Take an OXVG Options object. If true, it will use the same configuration as the svgo option translated to OXVG jobs, if false, it will disable OXVG optimization
    * @see https://github.com/noahbald/oxvg
    */
   oxvg?: boolean | OXVGConfig

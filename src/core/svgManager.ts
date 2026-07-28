@@ -182,7 +182,7 @@ export class SVGManager {
       try {
         let config: SvgoConfig | OxvgConfig | undefined = getOptionsSvgo(this._options.svgo, this._options.prefix)
         if (this._optimizeType === 'oxvg') {
-          config = getOptionsOxvg(this._options.oxvg)
+          config = await getOptionsOxvg(this._options.oxvg, this._options.prefix)
         }
         const optimizedSvg = this._optimize(svg, config)
         if (typeof optimizedSvg === 'string')
