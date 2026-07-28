@@ -240,8 +240,31 @@ Gutter (in pixels) between each sprite to help prevent overlap.
 - **Type:** `boolean | object`
 - **Default:** `false` if OXVG not installed, `true` if OXVG is installed
 
-Take an OXVG Options object.
-If `true`, it will use the [default SVGO preset](https://github.com/svg/svgo#default-preset), if `false`, it will disable OXVG optimization.
+Take an OXVG Options object. If `false`, it will disable OXVG optimization.
+
+If `true`, it runs the same configuration as the [svgo](#svgo) option, translated to
+OXVG jobs, so switching optimizer does not change the output. That translation needs
+`@oxvg/napi` **0.0.6** or above; below that it falls back to the OXVG default preset.
+
+::: tip
+SVGO takes precedence over OXVG: OXVG is only used when SVGO is not installed, or when
+[svgo](#svgo) is set to `false`.
+:::
+
+::: warning
+An options object is the **complete list of jobs to run**, it does not extend the default
+described above. Any job missing from your object is not run at all:
+
+```js
+svgSpritemap('./src/icons/*.svg', {
+  // prefixIds runs, and nothing else does: no path or attribute optimization
+  oxvg: { prefixIds: { /* ... */ } },
+})
+```
+
+So unlike [svgo](#svgo), you cannot keep the default and tweak a single job. OXVG has no
+equivalent of SVGO's `preset-default` overrides, and passing an object starts from nothing.
+:::
 
 ::: warning
 You need to install `@oxvg/napi` (**0.0.4-1** or above) and the corresponding native binding dependency for your platform.

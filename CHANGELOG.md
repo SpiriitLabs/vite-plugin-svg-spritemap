@@ -33,6 +33,9 @@ so early releases summarise the most user-facing changes rather than every commi
 
 ### Fixed
 
+- `oxvg: true` barely optimized anything: it passed an empty job list, which OXVG
+  reads as every job disabled. It now runs the `svgo` default configuration
+  translated to OXVG jobs, so both optimizers produce the same output.
 - A short route, or one containing regex metacharacters, could rewrite
   unrelated imports during build. `route: '/fla'` matched inside
   `svelte/internal/flags/async` and corrupted that specifier ([#97]).

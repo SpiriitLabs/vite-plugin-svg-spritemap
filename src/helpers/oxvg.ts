@@ -2,22 +2,36 @@ import type { Jobs as OxvgConfig } from '@oxvg/napi'
 import type { Logger } from 'vite'
 import type { Options } from '@/types'
 import { log } from '@helpers/log'
+import { defaultDisabledPlugins } from '@helpers/svgo'
 
 /**
  * Get OXVG Options
  */
-export function getOptions(oxvgOptions: Options['oxvg'] | undefined): OxvgConfig | undefined {
-  let svgo: OxvgConfig | undefined = {}
-  if (typeof oxvgOptions === 'object')
-    svgo = oxvgOptions
-  else if (oxvgOptions === false)
-    svgo = undefined
+export async function getOptions(oxvgOptions: Options['oxvg'] | undefined, prefix: string): Promise<OxvgConfig | undefined> {
+  const { convertSvgoConfig } = await import('@oxvg/napi')
 
-  return svgo
+  // Translate the SVGO default config into jobs so both optimizers behave the same.
+  // OXVG reads an omitted job as disabled, so dropping a job is how it gets disabled.
+  let oxvg: OxvgConfig | undefined = convertSvgoConfig(['preset-default'])
+  for (const plugin of Object.keys(defaultDisabledPlugins))
+    delete oxvg[plugin as keyof OxvgConfig]
+
+  if (!Object.keys(oxvg).length)
+    // OXVG below 0.0.6 converts nothing, leave it to apply its own default preset
+    oxvg = undefined
+  else if (oxvg.cleanupIds)
+    oxvg.cleanupIds.preservePrefixes = [prefix]
+
+  if (typeof oxvgOptions === 'object')
+    oxvg = oxvgOptions
+  else if (oxvgOptions === false)
+    oxvg = undefined
+
+  return oxvg
 }
 
 /**
- * Get SVGO Optimize function
+ * Get OXVG Optimize function
  */
 export async function getOptimize(logger: Logger): Promise<((svg: string, config?: OxvgConfig | null | undefined) => string) | false> {
   try {

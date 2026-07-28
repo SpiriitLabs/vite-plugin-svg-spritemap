@@ -2,6 +2,16 @@ import type { Config as SvgoConfig } from 'svgo'
 import type { Options } from '@/types'
 
 /**
+ * Plugins of the default preset the spritemap needs disabled.
+ * Shared with the OXVG optimizer so both optimizers behave the same.
+ */
+export const defaultDisabledPlugins = {
+  removeEmptyAttrs: false,
+  moveGroupAttrsToElems: false,
+  collapseGroups: false,
+} as const
+
+/**
  * Get SVGO Options
  */
 export function getOptions(svgoOptions: Options['svgo'] | undefined, prefix: string): SvgoConfig | undefined {
@@ -11,9 +21,7 @@ export function getOptions(svgoOptions: Options['svgo'] | undefined, prefix: str
         name: 'preset-default',
         params: {
           overrides: {
-            removeEmptyAttrs: false,
-            moveGroupAttrsToElems: false,
-            collapseGroups: false,
+            ...defaultDisabledPlugins,
             cleanupIds: {
               preservePrefixes: [prefix],
             },
