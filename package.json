@@ -59,12 +59,12 @@
     "docs:preview": "vitepress preview docs"
   },
   "peerDependencies": {
-    "@oxvg/napi": "^0.0.4-1",
-    "@oxvg/napi-darwin-arm64": "^0.0.4-1",
-    "@oxvg/napi-darwin-x64": "^0.0.4-1",
-    "@oxvg/napi-linux-x64-gnu": "^0.0.4-1",
-    "@oxvg/napi-win32-x64-msvc": "^0.0.4-1",
-    "svgo": "^4.0.1",
+    "@oxvg/napi": "^0.0.4-1 || ^0.0.6",
+    "@oxvg/napi-darwin-arm64": "^0.0.4-1 || ^0.0.6",
+    "@oxvg/napi-darwin-x64": "^0.0.4-1 || ^0.0.6",
+    "@oxvg/napi-linux-x64-gnu": "^0.0.4-1 || ^0.0.6",
+    "@oxvg/napi-win32-x64-msvc": "^0.0.4-1 || ^0.0.6",
+    "svgo": "^4.0.0",
     "vite": "^7.0.0 || ^8.0.0",
     "vue": "^3.0.0"
   },
