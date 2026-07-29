@@ -140,11 +140,13 @@ export class SVGManager {
     }
     const documentElement = document.documentElement
 
+    // viewBox values may be separated by whitespace and/or a comma (SVG 1.1 §7.7)
     let viewBox = (
       documentElement?.getAttribute('viewBox')
       || documentElement?.getAttribute('viewbox')
     )
-      ?.split(' ')
+      ?.trim()
+      .split(/[\s,]+/)
       .map(a => Number.parseFloat(a))
 
     const widthAttr = documentElement?.getAttribute('width')
