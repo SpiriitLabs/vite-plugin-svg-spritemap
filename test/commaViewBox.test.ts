@@ -27,11 +27,13 @@ describe('comma-separated viewBox', () => {
     )
     expect(asset).toBeDefined()
     if (asset && 'source' in asset) {
-      expect(asset.source).toContain('comma')
-      expect(asset.source).toContain('comma_space')
-      // values are parsed, not passed through as a single token
-      expect(asset.source).toContain('viewBox="0 0 32 32"')
-      expect(asset.source).toContain('viewBox="0 0 24 24"')
+      const source = String(asset.source)
+      const symbolViewBox = (id: string) =>
+        new RegExp(`<symbol id="sprite-${id}" viewBox="([^"]+)"`).exec(source)?.[1]
+
+      // both files declare the same box, one comma-separated, one comma-space
+      expect(symbolViewBox('comma')).toBe('0 0 32 32')
+      expect(symbolViewBox('comma_space')).toBe('0 0 32 32')
     }
 
     spy.mockRestore()
