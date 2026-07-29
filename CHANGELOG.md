@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Entries prior to this file were reconstructed from git tags and commit history,
 so early releases summarise the most user-facing changes rather than every commit.
 
+## [Unreleased]
+
+### Fixed
+
+- Icons with a comma-separated `viewBox`, such as `viewBox="0,0,32,32"`, were
+  skipped as if they had no dimensions. Whitespace and commas are both valid
+  separators ([#117]).
+
 ## [7.1.0] - 2026-07-27
 
 ### Added
@@ -291,6 +299,7 @@ so early releases summarise the most user-facing changes rather than every commi
   matched by a glob, with optional SVGO optimization, stylesheet generation, and
   HMR in dev.
 
+[Unreleased]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/compare/v7.1.0...HEAD
 [7.1.0]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/compare/v7.0.1...v7.1.0
 [7.0.1]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/compare/v7.0.0...v7.0.1
 [7.0.0]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/compare/v6.0.0...v7.0.0
@@ -352,3 +361,4 @@ so early releases summarise the most user-facing changes rather than every commi
 [#113]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/113
 [#114]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/114
 [#115]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/115
+[#117]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/117
