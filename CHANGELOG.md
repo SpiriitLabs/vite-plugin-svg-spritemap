@@ -15,6 +15,15 @@ so early releases summarise the most user-facing changes rather than every commi
 - Icons with a comma-separated `viewBox`, such as `viewBox="0,0,32,32"`, were
   skipped as if they had no dimensions. Whitespace and commas are both valid
   separators ([#117]).
+- Vue components were skipped entirely when `vite:vue` sat inside a nested
+  plugin array, a normal shape for presets and conditional plugin lists
+  ([#118]).
+- `?use` and `?view` ids carrying extra params were not recognised as component
+  requests: the `&t=…` Vite appends on a hot update broke the import, and
+  `?view&lang.js` rendered a `<use>` element instead of an image ([#118]).
+- Vue-rendered references now carry the dev cache-busting hash that HTML and
+  other modules already received, so an edited icon is no longer served from the
+  browser cache ([#118]).
 
 ## [7.1.0] - 2026-07-27
 
@@ -362,3 +371,4 @@ so early releases summarise the most user-facing changes rather than every commi
 [#114]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/114
 [#115]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/115
 [#117]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/117
+[#118]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/118

@@ -5,12 +5,9 @@ import { relative } from 'node:path'
 import picomatch from 'picomatch'
 import { generateHMR } from '@/core/hmr'
 import { createRouteFilterRegExp, createRouteRegExp } from '@/helpers/routeRegExp'
+import { parseSvgQuery } from '@/helpers/svgQuery'
 
 const filterSVG = /\.svg$/
-// `?use` / `?view` modules are emitted by the Vue plugin already resolved
-// against `config.base` (`routeUrlBase`); they must be skipped when rewriting
-// raw route references so the base isn't applied twice.
-const filterVueComponent = /\.svg\?(?:use|view)\b/
 // `?import`, `?t=…`, `#sprite-x`: never part of the route
 const filterQuery = /[?#].*$/
 // The cache-busting suffix appended to the route in dev
@@ -156,9 +153,9 @@ export default function DevPlugin(shared: Shared): Plugin {
         if (!shared.svgManager)
           return
 
-        // The Vue plugin already bakes `config.base` into `?use` / `?view`
-        // output, so rewriting it here would double the base.
-        if (filterVueComponent.test(id))
+        // The Vue plugin already bakes `config.base` and the cache-busting hash
+        // into `?use` / `?view` output, so rewriting it here would double them.
+        if (parseSvgQuery(id))
           return
 
         return {

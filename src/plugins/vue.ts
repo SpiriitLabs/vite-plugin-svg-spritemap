@@ -2,36 +2,46 @@ import type { Plugin, ResolvedConfig } from 'vite'
 import type { Shared } from '@/types'
 import { parse } from 'node:path'
 import { log } from '@helpers/log'
+import { filterSvgQuery, parseSvgQuery } from '@helpers/svgQuery'
 
-const filterVueComponent = /\.svg\?(use|view)?$/
-
-export default function CommonPlugin(shared: Shared): Plugin {
+export default function VuePlugin(shared: Shared): Plugin {
   let config: ResolvedConfig
 
   return {
     name: 'vite-plugin-svg-spritemap:vue',
     enforce: 'pre',
     apply(config) {
-      return config.plugins?.findIndex(plugin => plugin && 'name' in plugin && plugin.name === 'vite:vue') !== -1
+      // Plugin arrays can nest (presets, conditional lists)
+      return (config.plugins ?? [])
+        .flat(2)
+        .some(plugin => plugin && typeof plugin === 'object' && 'name' in plugin && plugin.name === 'vite:vue')
     },
     configResolved(_config) {
       config = _config
     },
     load: {
       filter: {
-        id: filterVueComponent,
+        id: filterSvgQuery,
       },
       async handler(id) {
         const { options, svgManager } = shared
-        if (!svgManager || !options.output || !filterVueComponent.test(id))
+        const parsed = parseSvgQuery(id)
+        if (!parsed || !svgManager || !options.output)
           return
 
-        const [path, query] = id.split('?', 2)
+        const { path, query } = parsed
         const { base: filename } = parse(path)
         const svg = svgManager.svgs.get(path)
 
         if (!svg)
           return
+
+        // Dev serves the spritemap at `route__<hash>` for cache busting. In
+        // build the route is rewritten to the emitted asset path instead, so
+        // the raw route is left in place.
+        const routeUrl = config.command === 'serve'
+          ? `${shared.routeUrlBase}__${svgManager.hash}`
+          : shared.routeUrlBase
 
         let source = ''
 
@@ -41,10 +51,10 @@ export default function CommonPlugin(shared: Shared): Plugin {
         else if (query === 'view') {
           const width = svg.width ? `width="${Math.ceil(svg.width)}"` : ''
           const height = svg.height ? `height="${Math.ceil(svg.height)}"` : ''
-          source = `<img src="${shared.routeUrlBase}#${options.prefix + svg.id}-view" ${[width, height].filter(item => item.length > 0).join(' ')}/>`
+          source = `<img src="${routeUrl}#${options.prefix + svg.id}-view" ${[width, height].filter(item => item.length > 0).join(' ')}/>`
         }
         else {
-          const reference = `${shared.routeUrlBase}#${options.prefix + svg.id}`
+          const reference = `${routeUrl}#${options.prefix + svg.id}`
           const hrefAttribute = options.output.hrefAttribute || 'xlink:href'
           const attributes = [
             hrefAttribute !== 'xlink:href' ? `href="${reference}"` : '',
