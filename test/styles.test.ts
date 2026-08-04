@@ -254,4 +254,39 @@ describe('styles generation', () => {
       expect(resultWithString).toMatchSnapshot()
     })
   }
+
+  // https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/119
+  // Custom names are substituted into the mixin template. `String.replace`
+  // with a string pattern reads `$$` and `$&` in the replacement as patterns,
+  // so a name containing either came out corrupted.
+  it.each(['scss', 'less', 'styl'] as const)(
+    'substitutes custom names containing $ literally (%s) #119',
+    async (lang) => {
+      const filename = getPath(`./fixtures/basic/styles/spritemap_dollar.${lang}`)
+
+      await buildVite({
+        name: `styles_dollar_${lang}`,
+        options: {
+          styles: {
+            filename,
+            lang,
+            include: ['mixin'],
+            names: {
+              // `$$` would collapse to a single `$`
+              mixin: 'sprite$$mixin',
+              // `$&` would expand to the matched `__prefix__` token
+              prefix: 'icon$&',
+            },
+          },
+        },
+      })
+
+      const result = await fs.readFile(filename, 'utf8')
+
+      expect(result).toContain('sprite$$mixin')
+      expect(result).toContain('icon$&')
+      expect(result).not.toContain('__mixin__')
+      expect(result).not.toContain('__prefix__')
+    },
+  )
 })

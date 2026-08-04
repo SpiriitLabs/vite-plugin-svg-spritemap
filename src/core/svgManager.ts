@@ -32,6 +32,8 @@ export class SVGManager {
   private _hash: string | null = null
   private _optimizeType: 'svgo' | 'oxvg' | null = null
   private _optimize: Awaited<ReturnType<typeof getOptimizeSvgo | typeof getOptimiseOxvg>> | null = null
+  /** Built once alongside `_optimize`, it does not vary per file. */
+  private _optimizeConfig: SvgoConfig | OxvgConfig | undefined
   private _routeUrl: string
 
   constructor(iconsPattern: Glob, options: Options, config: ResolvedConfig, routeUrl: string) {
@@ -182,11 +184,7 @@ export class SVGManager {
   private async _optimizeSvg(svg: string): Promise<string> {
     if (this._optimize && this._optimizeType) {
       try {
-        let config: SvgoConfig | OxvgConfig | undefined = getOptionsSvgo(this._options.svgo, this._options.prefix)
-        if (this._optimizeType === 'oxvg') {
-          config = await getOptionsOxvg(this._options.oxvg, this._options.prefix)
-        }
-        const optimizedSvg = this._optimize(svg, config)
+        const optimizedSvg = this._optimize(svg, this._optimizeConfig)
         if (typeof optimizedSvg === 'string')
           return optimizedSvg
         else if ('data' in optimizedSvg)
@@ -213,6 +211,7 @@ export class SVGManager {
     if (this._optimize) {
       log({ level: 'info', message: `Using SVGO for SVG optimization on ${this._options.route.name}.`, logger: this._config.logger })
       this._optimizeType = 'svgo'
+      this._optimizeConfig = getOptionsSvgo(this._options.svgo, this._options.prefix)
     }
     if (this._options.svgo && !this._optimize) {
       log({ level: 'warn', message: `You need to install SVGO to be able to optimize your SVG with it.`, logger: this._config.logger })
@@ -226,6 +225,7 @@ export class SVGManager {
     if (this._optimize) {
       log({ level: 'info', message: `Using OXVG for SVG optimization on ${this._options.route.name}.`, logger: this._config.logger })
       this._optimizeType = 'oxvg'
+      this._optimizeConfig = await getOptionsOxvg(this._options.oxvg, this._options.prefix)
     }
     if (this._options.oxvg && !this._optimize) {
       log({ level: 'warn', message: `You need to install OXVG to be able to optimize your SVG with it.`, logger: this._config.logger })
@@ -313,11 +313,9 @@ export class SVGManager {
       width: [],
       height: [],
     }
-    const parser = new DOMParser()
-
     this._svgs.forEach((svg) => {
       const symbol = DOM.createElement('symbol')
-      const document = parser.parseFromString(svg.source, 'image/svg+xml')
+      const document = this._parser.parseFromString(svg.source, 'image/svg+xml')
       const documentElement = document.documentElement
       let attributes = documentElement
         ? cleanAttributes(
@@ -447,8 +445,7 @@ export class SVGManager {
   public get directories(): Set<string> {
     const directories = new Set<string>()
     this._svgs.forEach((svg) => {
-      const folder = svg.filePath.split('/').slice(0, -1).join('/')
-      directories.add(folder)
+      directories.add(dirname(svg.filePath))
     })
     return directories
   }
