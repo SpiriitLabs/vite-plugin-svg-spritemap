@@ -5,11 +5,11 @@ import type { ResolvedConfig } from 'vite'
 import type { Options, SvgMapObject } from '@/types'
 import { promises as fs } from 'node:fs'
 import { basename, dirname, resolve } from 'node:path'
+import { hashContent } from '@helpers/hash'
 import { log } from '@helpers/log'
 import { getOptimize as getOptimiseOxvg, getOptions as getOptionsOxvg } from '@helpers/oxvg'
 import { getOptimize as getOptimizeSvgo, getOptions as getOptionsSvgo } from '@helpers/svgo'
 import { DOMImplementation, DOMParser, XMLSerializer } from '@xmldom/xmldom'
-import hash_sum from 'hash-sum'
 import { glob } from 'tinyglobby'
 import { Styles } from '@/core/styles'
 import { Types } from '@/core/types'
@@ -281,7 +281,7 @@ export class SVGManager {
    */
   public get hash(): string {
     if (this._hash === null)
-      this._hash = hash_sum(this.spritemap)
+      this._hash = hashContent(this.spritemap)
     return this._hash
   }
 

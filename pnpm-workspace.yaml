@@ -52,31 +52,27 @@ catalog:
   '@oxvg/napi-linux-x64-gnu': 0.0.6
   '@oxvg/napi-win32-x64-msvc': 0.0.6
   '@sveltejs/adapter-auto': ^7.0.1
-  '@sveltejs/kit': ^2.70.1
+  '@sveltejs/kit': ^2.70.2
   '@sveltejs/vite-plugin-svelte': ^7.2.0
   '@tsconfig/svelte': ^5.0.8
-  '@types/hash-sum': ^1.0.2
   '@types/node': ^24.13.3
   '@types/picomatch': ^4.0.3
-  '@types/xmldom': ^0.1.34
   '@vitejs/plugin-vue': ^6.0.8
   '@vitest/coverage-v8': ^4.1.10
   '@xmldom/xmldom': ^0.9.10
   autoprefixer: ^10.5.4
-  c8: ^12.0.0
   concurrently: ^10.0.4
   eslint: ^10.8.0
-  hash-sum: ^2.0.0
   kolorist: ^1.8.0
   less: ^4.8.1
   mini-svg-data-uri: ^1.4.4
   nitropack: ^2.13.4
   nuxt: ^4.5.1
   picomatch: ^4.0.5
-  playwright: ^1.62.0
-  postcss: ^8.5.23
+  playwright: ^1.62.1
+  postcss: ^8.5.25
   pug: ^3.0.4
-  rollup: ^4.62.3
+  rollup: ^4.62.4
   sass: ^1.102.0
   stylus: ^0.64.0
   svelte: ^5.56.8
@@ -89,11 +85,11 @@ catalog:
   typescript: ^6.0.3
   vite: ^7.3.6
   vite-plugin-inspect: ^12.0.2
-  vitepress: ^2.0.0-alpha.18
+  vitepress: ^2.0.0-alpha.19
   vitest: ^4.1.10
   vue: ^3.5.40
   vue-router: ^5.2.0
-  vue-tsc: ^3.3.8
+  vue-tsc: ^3.3.9
 
 onlyBuiltDependencies:
   - '@parcel/watcher'
