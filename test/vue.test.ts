@@ -7,7 +7,13 @@ import { logMessage } from '../src/helpers/log'
 import VitePluginSvgSpritemap from '../src/index'
 import { getPath } from './helpers/path'
 
-async function createVueServer(port: number, options: UserOptions | undefined = undefined) {
+// The dev cache-busting hash tracks the fixtures' content, so keep the literal
+// value out of assertions while still requiring that a hash is present.
+function normalizeHash(html: string) {
+  return html.replace(/(__spritemap)__[\w-]+/g, '$1__HASH')
+}
+
+async function createVueServer(port: number, options: UserOptions | undefined = undefined, nestVuePlugin = false) {
   const browser = await chromium.launch()
   const server = await createServer({
     configFile: false,
@@ -20,7 +26,9 @@ async function createVueServer(port: number, options: UserOptions | undefined = 
       },
     },
     plugins: [
-      vue(),
+      // A nested array is a normal shape (presets, conditional plugin lists),
+      // and `vite:vue` must still be found inside one.
+      nestVuePlugin ? [vue()] : vue(),
       VitePluginSvgSpritemap(getPath('./fixtures/vue/svg/*.svg'), options),
     ],
   })
@@ -44,10 +52,25 @@ describe('vue components', { timeout: 60000 }, () => {
     await page.waitForSelector('#app svg', { timeout: 55000 })
 
     const result = await page.content()
-    expect(result).toMatchSnapshot()
+    expect(normalizeHash(result)).toMatchSnapshot()
 
     await server.close()
     await browser.close()
+  })
+
+  it('detects vue when it is nested inside a plugin array', async () => {
+    const { page, server, browser, baseUrl } = await createVueServer(3005, undefined, true)
+
+    await page.goto(baseUrl, {
+      waitUntil: 'domcontentloaded',
+    })
+    await page.waitForSelector('#app svg', { timeout: 15000 })
+    const result = await page.content()
+
+    await server.close()
+    await browser.close()
+
+    expect(normalizeHash(result)).toContain('<use xlink:href="/__spritemap__HASH#sprite-spiriit">')
   })
 
   it('uses href with an xlink:href fallback on ?use component when output.hrefAttribute is "both"', async () => {
@@ -66,7 +89,7 @@ describe('vue components', { timeout: 60000 }, () => {
     await server.close()
     await browser.close()
 
-    expect(result).toContain('<use href="/__spritemap#sprite-spiriit" xlink:href="/__spritemap#sprite-spiriit">')
+    expect(normalizeHash(result)).toContain('<use href="/__spritemap__HASH#sprite-spiriit" xlink:href="/__spritemap__HASH#sprite-spiriit">')
   })
 
   it('uses only href on ?use component when output.hrefAttribute is "href"', async () => {
@@ -85,7 +108,7 @@ describe('vue components', { timeout: 60000 }, () => {
     await server.close()
     await browser.close()
 
-    expect(result).toContain('<use href="/__spritemap#sprite-spiriit">')
+    expect(normalizeHash(result)).toContain('<use href="/__spritemap__HASH#sprite-spiriit">')
     expect(result).not.toContain('xlink:href')
   })
 
@@ -103,7 +126,7 @@ describe('vue components', { timeout: 60000 }, () => {
     })
     await page.waitForSelector('#app svg', { timeout: 55000 })
     const result = await page.content()
-    expect(result).toMatchSnapshot()
+    expect(normalizeHash(result)).toMatchSnapshot()
 
     await server.close()
     await browser.close()
