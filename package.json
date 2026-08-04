@@ -1,8 +1,8 @@
 {
   "name": "@spiriit/vite-plugin-svg-spritemap",
   "type": "module",
-  "version": "7.1.0",
-  "packageManager": "pnpm@11.15.1",
+  "version": "7.1.1",
+  "packageManager": "pnpm@11.20.0",
   "description": "Generates symbol-based SVG spritemap from all .svg files in a directory",
   "author": "Spiriit",
   "license": "MIT",
@@ -93,7 +93,6 @@
   },
   "dependencies": {
     "@xmldom/xmldom": "catalog:",
-    "hash-sum": "catalog:",
     "mini-svg-data-uri": "catalog:",
     "picomatch": "catalog:",
     "tinyglobby": "catalog:"
@@ -104,13 +103,10 @@
     "@oxvg/napi-darwin-arm64": "catalog:",
     "@oxvg/napi-linux-x64-gnu": "catalog:",
     "@oxvg/napi-win32-x64-msvc": "catalog:",
-    "@types/hash-sum": "catalog:",
     "@types/node": "catalog:",
     "@types/picomatch": "catalog:",
-    "@types/xmldom": "catalog:",
     "@vitejs/plugin-vue": "catalog:",
     "@vitest/coverage-v8": "catalog:",
-    "c8": "catalog:",
     "eslint": "catalog:",
     "kolorist": "catalog:",
     "playwright": "catalog:",

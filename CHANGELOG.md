@@ -14,6 +14,13 @@ so early releases summarise the most user-facing changes rather than every commi
 
 - The SVGO or OXVG configuration is built once when the optimizer loads instead
   of being rebuilt for every icon ([#119]).
+- Content hashes are computed with `node:crypto` instead of the `hash-sum`
+  dependency, which has been removed. Generated `[hash]` filenames and the dev
+  cache-busting token change once after upgrading ([#121]).
+
+### Removed
+
+- The unused `c8` and `@types/xmldom` devDependencies ([#121]).
 
 ### Fixed
 
@@ -383,3 +390,4 @@ so early releases summarise the most user-facing changes rather than every commi
 [#117]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/117
 [#118]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/118
 [#119]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/119
+[#121]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/121
