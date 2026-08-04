@@ -10,8 +10,18 @@ so early releases summarise the most user-facing changes rather than every commi
 
 ## [Unreleased]
 
+### Changed
+
+- The SVGO or OXVG configuration is built once when the optimizer loads instead
+  of being rebuilt for every icon ([#119]).
+
 ### Fixed
 
+- A custom `styles.names` entry or a route containing `$$` or `$&` came out
+  corrupted in the generated mixin, because those are replacement patterns for
+  `String.replace` ([#119]).
+- Watched icon directories are derived with `path.dirname`, so they resolve on
+  Windows paths too ([#119]).
 - Icons with a comma-separated `viewBox`, such as `viewBox="0,0,32,32"`, were
   skipped as if they had no dimensions. Whitespace and commas are both valid
   separators ([#117]).
@@ -372,3 +382,4 @@ so early releases summarise the most user-facing changes rather than every commi
 [#115]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/115
 [#117]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/117
 [#118]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/118
+[#119]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/119
