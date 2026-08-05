@@ -15,6 +15,7 @@ export default defineConfig({
   },
   test: {
     testTimeout: 15000,
+    globalSetup: ['./test/globalSetup.ts'],
     coverage: {
       include: ['src/*'],
       exclude: [
