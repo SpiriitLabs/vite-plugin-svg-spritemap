@@ -156,7 +156,7 @@ export interface OptionsOutput {
    * - `'both'`: emit `href` with an `xlink:href` fallback for older browsers
    * @default 'xlink:href'
    */
-  hrefAttribute?: 'xlink:href' | 'href' | 'both'
+  hrefAttribute: 'xlink:href' | 'href' | 'both'
 }
 
 export interface OptionsStyles {

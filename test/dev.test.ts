@@ -36,7 +36,8 @@ beforeAll(async () => {
         getPath('./fixtures/basic/svg/*.svg'),
         getPath('./fixtures/basic/hmr/*.svg'),
       ], {
-        styles: getPath('./fixtures/basic/styles/spritemap.css'),
+        // own file, `styles.test.ts` snapshots `spritemap.css` in parallel
+        styles: getPath('./fixtures/basic/styles/spritemap-dev.css'),
       }),
     ],
   })
@@ -101,7 +102,7 @@ describe('dev server', () => {
     // Helper function to wait for CSS to be updated by reading it from the filesystem
     // This avoids Vite's HMR transformation that wraps CSS in JavaScript
     const waitForCssUpdate = async (expectedContent?: string, maxRetries = 20): Promise<string> => {
-      const cssPath = getPath('./fixtures/basic/styles/spritemap.css')
+      const cssPath = getPath('./fixtures/basic/styles/spritemap-dev.css')
 
       // Wait a bit for Vite to process the file change and write the CSS
       await new Promise(resolve => setTimeout(resolve, 200))

@@ -1,6 +1,8 @@
+import type { Config as SvgoConfig } from 'svgo'
 import type { UserOptions } from '../src/types'
 import { describe, expect, it, vi } from 'vitest'
 import { logMessage } from '../src/helpers/log'
+import { getOptions } from '../src/helpers/svgo'
 import { buildVite } from './helpers/build'
 
 const svgoConfigs: Record<string, UserOptions['svgo']> = {
@@ -10,6 +12,22 @@ const svgoConfigs: Record<string, UserOptions['svgo']> = {
     plugins: ['prefixIds'],
   },
 }
+
+describe('svgo getOptions', () => {
+  it('returns undefined when false', () => {
+    expect(getOptions(false, 'sprite-')).toBeUndefined()
+  })
+
+  it('returns the custom config when object', () => {
+    const config: SvgoConfig = { plugins: ['prefixIds'] }
+    expect(getOptions(config, 'sprite-')).toBe(config)
+  })
+
+  it('preserves the sprite prefix in the default config', () => {
+    for (const value of [undefined, true] as const)
+      expect(JSON.stringify(getOptions(value, 'sprite-'))).toContain('"preservePrefixes":["sprite-"]')
+  })
+})
 
 describe('svgo', () => {
   for (const key in svgoConfigs) {

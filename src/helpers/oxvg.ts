@@ -17,11 +17,13 @@ export async function getOptions(oxvgOptions: Options['oxvg'] | undefined, prefi
   for (const plugin of Object.keys(defaultDisabledPlugins))
     delete oxvg[plugin as keyof OxvgConfig]
 
+  // only reachable with OXVG below 0.0.6, which converts nothing
+  /* v8 ignore start -- @preserve */
   if (!Object.keys(oxvg).length)
-    // OXVG below 0.0.6 converts nothing, leave it to apply its own default preset
     oxvg = undefined
   else if (oxvg.cleanupIds)
     oxvg.cleanupIds.preservePrefixes = [prefix]
+  /* v8 ignore stop -- @preserve */
 
   if (typeof oxvgOptions === 'object')
     oxvg = oxvgOptions

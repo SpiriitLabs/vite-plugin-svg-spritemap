@@ -26,7 +26,10 @@ export default function CommonPlugin(shared: Shared, iconsPattern: Glob, logsOpt
       if (_config.command === 'serve') {
         const { base } = _config
         if (base && base !== '/') {
+          // guards only: Vite bases end with '/', route urls start with '/'
+          /* v8 ignore next -- @preserve */
           const normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base
+          /* v8 ignore next -- @preserve */
           const normalizedUrl = shared.routeUrl.startsWith('/') ? shared.routeUrl : `/${shared.routeUrl}`
           shared.routeUrlBase = `${normalizedBase}${normalizedUrl}`
         }
