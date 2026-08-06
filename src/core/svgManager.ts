@@ -34,6 +34,8 @@ export class SVGManager {
   private _optimize: Awaited<ReturnType<typeof getOptimizeSvgo | typeof getOptimiseOxvg>> | null = null
   /** Built once alongside `_optimize`, it does not vary per file. */
   private _optimizeConfig: SvgoConfig | OxvgConfig | undefined
+  /** Last content written per file, to skip byte-identical rewrites. */
+  private _written = new Map<string, string>()
   private _routeUrl: string
 
   constructor(iconsPattern: Glob, options: Options, config: ResolvedConfig, routeUrl: string) {
@@ -401,10 +403,13 @@ export class SVGManager {
       const styleGen: Styles = new Styles(this._svgs, this._options, this._routeUrl)
       const content = await styleGen.generate()
       const path = resolve(this._config.root, this._options.styles.filename)
+      if (this._written.get(path) === content)
+        return
       const dir = dirname(path)
       await fs.mkdir(dir, { recursive: true })
 
       await fs.writeFile(path, content, 'utf8')
+      this._written.set(path, content)
     }
     catch (error) {
       log({ level: 'error', message: `Failed to create style file: ${error}`, logger: this._config.logger })
@@ -422,10 +427,13 @@ export class SVGManager {
       const typesGen: Types = new Types(this._svgs, this._options, this._config.root)
       const content = typesGen.generate()
       const path = resolve(this._config.root, this._options.types.filename)
+      if (this._written.get(path) === content)
+        return
       const dir = dirname(path)
 
       await fs.mkdir(dir, { recursive: true })
       await fs.writeFile(path, content, 'utf8')
+      this._written.set(path, content)
     }
     catch (error) {
       log({ level: 'error', message: `Failed to create type file: ${error}`, logger: this._config.logger })

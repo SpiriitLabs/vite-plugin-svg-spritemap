@@ -72,9 +72,7 @@ describe('dev server', () => {
     expect(resultFlags).toMatchSnapshot()
   })
 
-  // TODO: add HMR verification
-  it.skip('has HMR', async () => {
-  })
+  it.todo('has HMR')
 })
 
 describe('routes sharing a prefix', { sequential: true }, () => {
