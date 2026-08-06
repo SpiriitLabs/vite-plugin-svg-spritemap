@@ -66,8 +66,7 @@ describe('injectSvgOnDev', () => {
     expect(content).toMatchSnapshot()
   })
 
-  // TODO: Do HMR verification
-  it.skip('has HMR', async () => {})
+  it.todo('has HMR')
 })
 
 describe('injectSvgOnDev back-compat', () => {

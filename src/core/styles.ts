@@ -1,7 +1,13 @@
-import type { Options, SvgDataUriMapObject, SvgMapObject } from '../types'
+import type { Options, StylesLang, SvgDataUriMapObject, SvgMapObject } from '../types'
 import { promises } from 'node:fs'
 import path from 'node:path'
 import svgToMiniDataURI from 'mini-svg-data-uri'
+
+// SVGManager replaces the SvgMapObject on every icon change, so a stale entry
+// can never be hit: an edited icon arrives as a new object
+const dataUriCache = new WeakMap<SvgMapObject, string>()
+// raw template.<lang> contents, immutable at runtime
+const templateCache = new Map<StylesLang, string>()
 
 export class Styles {
   private _svgs: Map<string, SvgDataUriMapObject>
@@ -14,9 +20,13 @@ export class Styles {
     this._routeUrl = routeUrl
 
     svgs.forEach((svg, filePath) => {
-      const svgDataUri = Styles.encodeInnerUrlReferences(
-        svgToMiniDataURI(svg.source),
-      )
+      let svgDataUri = dataUriCache.get(svg)
+      if (svgDataUri === undefined) {
+        svgDataUri = Styles.encodeInnerUrlReferences(
+          svgToMiniDataURI(svg.source),
+        )
+        dataUriCache.set(svg, svgDataUri)
+      }
 
       this._svgs.set(filePath, {
         id: svg.id,
@@ -80,12 +90,19 @@ export class Styles {
       && (this._options.styles.include === true
         || this._options.styles.include.includes('mixin'))
     ) {
-      const templateFileName = `template.${this._options.styles.lang}`
-      const currentDir = import.meta.dirname
-      const stylesDir = import.meta.env.STYLES_DIR || '../styles'
-      const templatePath = path.join(currentDir, stylesDir, templateFileName)
+      const lang = this._options.styles.lang
+      const cached = templateCache.get(lang)
+      if (cached !== undefined) {
+        template = cached
+      }
+      else {
+        const currentDir = import.meta.dirname
+        const stylesDir = import.meta.env.STYLES_DIR || '../styles'
+        const templatePath = path.join(currentDir, stylesDir, `template.${lang}`)
 
-      template = await promises.readFile(templatePath, 'utf8')
+        template = await promises.readFile(templatePath, 'utf8')
+        templateCache.set(lang, template)
+      }
     }
 
     // Apply names/mixins changes

@@ -17,6 +17,10 @@ so early releases summarise the most user-facing changes rather than every commi
 - Content hashes are computed with `node:crypto` instead of the `hash-sum`
   dependency, which has been removed. Generated `[hash]` filenames and the dev
   cache-busting token change once after upgrading ([#121]).
+- A single-icon change during dev no longer regenerates everything: unchanged
+  icons keep their encoded data URI, the style template is read from disk once
+  per language, and the styles and types files are only rewritten when their
+  content actually changed ([#122]).
 
 ### Removed
 
@@ -395,4 +399,5 @@ so early releases summarise the most user-facing changes rather than every commi
 [#118]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/118
 [#119]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/119
 [#121]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/121
+[#122]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/122
 [#123]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/123
