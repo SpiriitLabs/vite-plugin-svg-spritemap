@@ -303,3 +303,10 @@ bun add -D @oxvg/napi-linux-x64-gnu #Linux x64 (GNU)
 bun add -D @oxvg/napi-win32-x64-msvc #Windows x64 (MSVC)
 ```
 :::
+
+::: warning Platform support
+Prebuilt bindings only exist for the four platforms listed above: no musl (Alpine),
+ARM Linux or Windows ARM. There, OXVG cannot load and icons are served **unoptimized**
+with a warning (the build does not fail). Use [SVGO](#svgo) instead, or set `oxvg: false`
+to silence the warning.
+:::

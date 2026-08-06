@@ -41,6 +41,10 @@ so early releases summarise the most user-facing changes rather than every commi
 - Vue-rendered references now carry the dev cache-busting hash that HTML and
   other modules already received, so an edited icon is no longer served from the
   browser cache ([#118]).
+- When the OXVG native binding fails to load (no prebuilt binding exists for
+  musl/Alpine or ARM Linux), the warning now names the platform and suggests
+  SVGO or `oxvg: false`, instead of a raw loader error. The supported platforms
+  are documented in the `oxvg` option section ([#123]).
 
 ## [7.1.0] - 2026-07-27
 
@@ -391,3 +395,4 @@ so early releases summarise the most user-facing changes rather than every commi
 [#118]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/118
 [#119]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/119
 [#121]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/121
+[#123]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/123
