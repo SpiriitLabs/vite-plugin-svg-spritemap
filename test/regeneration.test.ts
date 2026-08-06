@@ -1,7 +1,7 @@
 import type { ResolvedConfig } from 'vite'
 import { promises as fsp } from 'node:fs'
 import svgToMiniDataURI from 'mini-svg-data-uri'
-import { createLogger } from 'vite'
+import { createLogger, normalizePath } from 'vite'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { SVGManager } from '../src/core/svgManager'
 import { createOptions } from '../src/helpers/options'
@@ -54,7 +54,7 @@ describe('regeneration on HMR updates', () => {
     const manager = createManager()
     const spy = vi.spyOn(fsp, 'writeFile')
     const writesTo = (path: string) =>
-      spy.mock.calls.filter(([target]) => String(target) === path).length
+      spy.mock.calls.filter(([target]) => normalizePath(String(target)) === path).length
 
     await manager.updateAll()
     expect(writesTo(stylesPath)).toBe(1)
