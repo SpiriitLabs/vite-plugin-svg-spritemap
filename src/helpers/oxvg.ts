@@ -1,6 +1,7 @@
 import type { Jobs as OxvgConfig } from '@oxvg/napi'
 import type { Logger } from 'vite'
 import type { Options } from '@/types'
+import process from 'node:process'
 import { log } from '@helpers/log'
 import { defaultDisabledPlugins } from '@helpers/svgo'
 
@@ -39,8 +40,10 @@ export async function getOptimize(logger: Logger): Promise<((svg: string, config
     return optimise
   }
   catch (error: any) {
-    if (error.code !== 'ERR_MODULE_NOT_FOUND')
-      log({ level: 'error', message: `Error when loading OXVG: ${error.message}`, logger })
+    // not ERR_MODULE_NOT_FOUND: installed but no native binding for this platform
+    if (error.code !== 'ERR_MODULE_NOT_FOUND') {
+      log({ level: 'warn', message: `OXVG could not load its native binding on ${process.platform}-${process.arch} (${error.message}). Icons will not be optimized. Install SVGO as a fallback or set \`oxvg: false\` to silence this warning.`, logger })
+    }
     return false
   }
 }
