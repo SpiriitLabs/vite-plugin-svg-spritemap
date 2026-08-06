@@ -74,6 +74,8 @@ export class Styles {
   }
 
   private formatSize(value: number): string {
+    // Styles is only instantiated with a resolved styles object
+    /* v8 ignore if -- @preserve */
     if (!this._options.styles)
       return `${value}px`
     const { unit, base } = this._options.styles.sizes
@@ -253,6 +255,8 @@ export class Styles {
   }
 
   public async generate(): Promise<string> {
+    // Styles is only instantiated with a resolved styles object
+    /* v8 ignore if -- @preserve */
     if (!this._options.styles)
       return ''
     let insert: string

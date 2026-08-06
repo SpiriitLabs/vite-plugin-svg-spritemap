@@ -55,7 +55,7 @@ export default function VuePlugin(shared: Shared): Plugin {
         }
         else {
           const reference = `${routeUrl}#${options.prefix + svg.id}`
-          const hrefAttribute = options.output.hrefAttribute || 'xlink:href'
+          const hrefAttribute = options.output.hrefAttribute
           const attributes = [
             hrefAttribute !== 'xlink:href' ? `href="${reference}"` : '',
             hrefAttribute !== 'href' ? `xlink:href="${reference}"` : '',

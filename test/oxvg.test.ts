@@ -135,4 +135,23 @@ describe('oxvg', () => {
       })
     }
   }
+
+  // last: `doUnmock` does not restore the module for later dynamic imports
+  it('stays silent when oxvg is simply not installed', async () => {
+    const spy = vi.spyOn(console, 'warn')
+    // thrown from a getter, vitest wraps factory errors and loses `code`
+    vi.doMock('@oxvg/napi', () => ({
+      get optimise(): never {
+        const error: NodeJS.ErrnoException = new Error('Cannot find module \'@oxvg/napi\'')
+        error.code = 'ERR_MODULE_NOT_FOUND'
+        throw error
+      },
+    }))
+
+    expect(await getOptimize(createLogger())).toBe(false)
+    expect(spy.mock.calls.flat().some(message => String(message).includes('native binding'))).toBe(false)
+
+    vi.doUnmock('@oxvg/napi')
+    spy.mockRestore()
+  })
 })

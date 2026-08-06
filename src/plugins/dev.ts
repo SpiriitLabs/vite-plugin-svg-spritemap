@@ -41,6 +41,7 @@ export default function DevPlugin(shared: Shared): Plugin {
         id: virtualModuleId,
       },
       handler(id) {
+        /* v8 ignore else -- @preserve */
         if (id === virtualModuleId)
           return id
       },
@@ -50,6 +51,7 @@ export default function DevPlugin(shared: Shared): Plugin {
         id: virtualModuleId,
       },
       handler(id) {
+        /* v8 ignore else -- @preserve */
         if (shared.svgManager && id === virtualModuleId) {
           const optionsWithBase = {
             ...shared.options,
@@ -65,6 +67,8 @@ export default function DevPlugin(shared: Shared): Plugin {
     },
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
+        // req.url is always set on server requests
+        /* v8 ignore next 2 -- @preserve */
         if (req.method !== 'GET' || !isSpritemapRequest(req.url || ''))
           return next()
 

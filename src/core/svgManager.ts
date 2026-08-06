@@ -112,13 +112,11 @@ export class SVGManager {
    * @returns True if the SVG file was removed, false if it was not found
    */
   async delete(filePath: string): Promise<boolean> {
-    if (!this._svgs.has(filePath))
+    const svg = this._svgs.get(filePath)
+    if (!svg)
       return false
 
-    const svg = this._svgs.get(filePath)
-    if (svg)
-      this._ids.delete(svg.id)
-
+    this._ids.delete(svg.id)
     this._svgs.delete(filePath)
     this._invalidateSpritemap()
     this._sortSvgs()
@@ -189,7 +187,9 @@ export class SVGManager {
         const optimizedSvg = this._optimize(svg, this._optimizeConfig)
         if (typeof optimizedSvg === 'string')
           return optimizedSvg
-        else if ('data' in optimizedSvg)
+        // OXVG returns a string, SVGO an object with `data`
+        /* v8 ignore else -- @preserve */
+        if ('data' in optimizedSvg)
           return optimizedSvg.data
       }
       catch (error) {
@@ -304,7 +304,7 @@ export class SVGManager {
     const spritemap = DOM.createElement('svg')
     spritemap.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
 
-    if (this._options.output && this._options.output.use && (this._options.output.hrefAttribute || 'xlink:href') !== 'href')
+    if (this._options.output && this._options.output.use && this._options.output.hrefAttribute !== 'href')
       spritemap.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink')
 
     // return empty spritemap
@@ -319,6 +319,8 @@ export class SVGManager {
       const symbol = DOM.createElement('symbol')
       const document = this._parser.parseFromString(svg.source, 'image/svg+xml')
       const documentElement = document.documentElement
+      // svg.source already parsed once, the root element is always there
+      /* v8 ignore next 6 -- @preserve */
       let attributes = documentElement
         ? cleanAttributes(
             Array.from(documentElement.attributes),
@@ -327,6 +329,8 @@ export class SVGManager {
         : []
 
       // spritemap attributes
+      // unreachable while cleanAttributes strips namespaced attributes
+      /* v8 ignore next 4 -- @preserve */
       attributes.forEach((attr) => {
         if (attr.name.toLowerCase().startsWith('xmlns:'))
           spritemap.setAttribute(attr.name, attr.value)
@@ -340,10 +344,10 @@ export class SVGManager {
       symbol.setAttribute('viewBox', svg.viewBox.join(' '))
 
       // add childs
+      /* v8 ignore else -- @preserve */
       if (documentElement) {
         Array.from(documentElement.childNodes).forEach((child) => {
-          if (child)
-            symbol.appendChild(child)
+          symbol.appendChild(child)
         })
       }
 
@@ -353,7 +357,7 @@ export class SVGManager {
       // use
       if (this._options.output && this._options.output.use) {
         const use = DOM.createElement('use')
-        const hrefAttribute = this._options.output.hrefAttribute || 'xlink:href'
+        const hrefAttribute = this._options.output.hrefAttribute
         const reference = `#${this._options.prefix + svg.id}`
         if (hrefAttribute !== 'xlink:href')
           use.setAttribute('href', reference)
@@ -368,7 +372,8 @@ export class SVGManager {
       // view
       if (this._options.output && this._options.output.view) {
         const view = DOM.createElement('view')
-        attributes = documentElement && documentElement.attributes
+        /* v8 ignore next 6 -- @preserve */
+        attributes = documentElement
           ? cleanAttributes(
               Array.from(documentElement.attributes),
               'view',

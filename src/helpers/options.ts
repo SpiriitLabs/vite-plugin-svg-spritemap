@@ -119,7 +119,7 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
     route.name = route.url.startsWith('/') ? options.route.slice(1) : options.route
   }
   else if (typeof options.route === 'object' && options.route.url) {
-    route.url = options.route.url || route.url
+    route.url = options.route.url
     route.name = options.route.name || (route.url.startsWith('/') ? options.route.url.slice(1) : options.route.url)
   }
 

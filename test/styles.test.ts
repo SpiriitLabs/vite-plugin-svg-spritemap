@@ -289,4 +289,23 @@ describe('styles generation', () => {
       expect(result).not.toContain('__prefix__')
     },
   )
+
+  it('skips the bg-frag styles when output.view is disabled', async () => {
+    const filename = getPath('./fixtures/basic/styles/spritemap_bg-frag_no_view.css')
+
+    await buildVite({
+      name: 'styles_bg-frag_no_view',
+      options: {
+        output: { view: false },
+        styles: {
+          filename,
+          lang: 'css',
+          include: ['bg-frag'],
+        },
+      },
+    })
+
+    const result = await fs.readFile(filename, 'utf8')
+    expect(result).not.toContain('-frag')
+  })
 })

@@ -1,6 +1,9 @@
+import type { SvgMapObject } from '../src/types'
 import { promises as fs } from 'node:fs'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
+import { Types } from '../src/core/types'
 import { logMessage } from '../src/helpers/log'
+import { createOptions } from '../src/helpers/options'
 import { buildVite } from './helpers/build'
 import { getPath } from './helpers/path'
 
@@ -267,5 +270,31 @@ describe('types generation', () => {
       logMessage('Type group "my-icons" is not a valid TypeScript type name and was skipped.'),
     )
     spy.mockRestore()
+  })
+})
+
+describe('types class', () => {
+  const root = getPath('./fixtures/basic')
+
+  function svgEntry(id: string, filePath: string): [string, SvgMapObject] {
+    return [filePath, { id, filePath, width: 1, height: 1, viewBox: [0, 0, 1, 1], source: '<svg/>' }]
+  }
+
+  it('returns an empty string when types generation is disabled', () => {
+    const { options } = createOptions({ types: false })
+    expect(new Types(new Map(), options, root).generate()).toBe('')
+  })
+
+  it('sorts ids deterministically, duplicates included', () => {
+    const { options } = createOptions({ types: 'spritemap.d.ts' })
+    // unsorted with a duplicated id to hit every comparator outcome
+    const svgs = new Map<string, SvgMapObject>([
+      svgEntry('b', `${root}/svg/b.svg`),
+      svgEntry('a', `${root}/svg/a2.svg`),
+      svgEntry('a', `${root}/svg/a1.svg`),
+    ])
+
+    const result = new Types(svgs, options, root).generate()
+    expect(result).toContain('export type Icons = \'a\' | \'a\' | \'b\';')
   })
 })
