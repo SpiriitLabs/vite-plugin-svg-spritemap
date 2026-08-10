@@ -1,6 +1,9 @@
 import type { ExternalOption } from 'rollup'
+import type { ConfigEnv, UserConfig } from 'vite'
 import { describe, expect, it } from 'vitest'
+import VitePluginSvgSpritemap from '../src/index'
 import { buildVite } from './helpers/build'
+import { getPath } from './helpers/path'
 
 const configs: Record<string, ExternalOption | undefined> = {
   no_external: undefined,
@@ -12,7 +15,38 @@ const configs: Record<string, ExternalOption | undefined> = {
   },
 }
 
+// `buildVite` merges its config, and `mergeConfig` copies arrays, so the hook
+// is called directly here to keep the user's own array identity
+function callConfigHook(userConfig: UserConfig): UserConfig | null | void {
+  const plugin = VitePluginSvgSpritemap(getPath('./fixtures/basic/svg/*.svg'))
+    .find(item => item.name === 'vite-plugin-svg-spritemap:build')!
+  const hook = plugin.config!
+  const handler = typeof hook === 'function' ? hook : hook.handler
+
+  return handler.call(
+    undefined as never,
+    userConfig,
+    { command: 'build', mode: 'production' } satisfies ConfigEnv,
+  ) as UserConfig | null | void
+}
+
 describe('external', () => {
+  it('leaves the user external array untouched', () => {
+    const userExternal: ExternalOption = ['jquery']
+    const userConfig: UserConfig = {
+      build: { rollupOptions: { external: userExternal } },
+    }
+
+    const first = callConfigHook(userConfig)
+    const second = callConfigHook(userConfig)
+
+    expect(userExternal).toEqual(['jquery'])
+    expect(userConfig.build!.rollupOptions!.external).toBe(userExternal)
+    // the route matcher is contributed through the returned config instead
+    for (const result of [first, second])
+      expect(result!.build!.rollupOptions!.external).toHaveLength(2)
+  })
+
   for (const key in configs) {
     if (Object.hasOwn(configs, key)) {
       it.concurrent(key, async () => {

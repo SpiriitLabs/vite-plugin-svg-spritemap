@@ -20,8 +20,7 @@ export default function BuildPlugin(shared: Shared): Plugin {
       let finalExternal: ExternalOption = pluginExternal
 
       if (Array.isArray(configExternal)) {
-        configExternal.push(pluginExternal)
-        finalExternal = configExternal
+        finalExternal = [...configExternal, pluginExternal]
       }
       else if (typeof configExternal === 'string' || typeof configExternal === 'object') {
         finalExternal = [configExternal, pluginExternal]
