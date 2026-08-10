@@ -53,6 +53,9 @@ so early releases summarise the most user-facing changes rather than every commi
   icons deleted in between are dropped from the spritemap and every icon no
   longer warns about colliding with its own stale entry. Genuine collisions
   between two icons of the same run are still reported ([#124]).
+- An array passed to `build.rollupOptions.external` is no longer written to in
+  place. The route matcher is contributed through the config the plugin
+  returns, so the array you pass keeps its own entries ([#125]).
 
 ## [7.1.0] - 2026-07-27
 
@@ -406,3 +409,4 @@ so early releases summarise the most user-facing changes rather than every commi
 [#122]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/122
 [#123]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/123
 [#124]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/124
+[#125]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/125
