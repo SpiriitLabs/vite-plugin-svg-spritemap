@@ -6,6 +6,7 @@ import type { Options, SvgMapObject } from '@/types'
 import { promises as fs } from 'node:fs'
 import { basename, dirname, resolve } from 'node:path'
 import { hashContent } from '@helpers/hash'
+import { toUserUnits } from '@helpers/length'
 import { log } from '@helpers/log'
 import { getOptimize as getOptimiseOxvg, getOptions as getOptionsOxvg } from '@helpers/oxvg'
 import { getOptimize as getOptimizeSvgo, getOptions as getOptionsSvgo } from '@helpers/svgo'
@@ -185,10 +186,8 @@ export class SVGManager {
       .split(/[\s,]+/)
       .map(a => Number.parseFloat(a))
 
-    const widthAttr = documentElement?.getAttribute('width')
-    const heightAttr = documentElement?.getAttribute('height')
-    let width = widthAttr ? Number.parseFloat(widthAttr) : undefined
-    let height = heightAttr ? Number.parseFloat(heightAttr) : undefined
+    let width = toUserUnits(documentElement?.getAttribute('width'))
+    let height = toUserUnits(documentElement?.getAttribute('height'))
 
     const hasUsableViewBox
       = Array.isArray(viewBox) && viewBox.length === 4 && viewBox[2] > 0 && viewBox[3] > 0
