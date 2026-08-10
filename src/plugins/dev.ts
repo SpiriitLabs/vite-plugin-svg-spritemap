@@ -12,6 +12,7 @@ const filterSVG = /\.svg$/
 const filterQuery = /[?#].*$/
 // The cache-busting suffix appended to the route in dev
 const filterRouteHash = /^__[\w-]+$/
+const filterBodyClose = /<\/body\s*>/i
 
 export default function DevPlugin(shared: Shared): Plugin {
   const virtualModuleId = '/@vite-plugin-svg-spritemap/client'
@@ -100,10 +101,12 @@ export default function DevPlugin(shared: Shared): Plugin {
         )
 
         if (!html.includes(`src="${virtualModuleId}"`)) {
-          html = html.replace(
-            '</body>',
-            `<script type="module" src="${virtualModuleId}"></script></body>`,
-          )
+          const script = `<script type="module" src="${virtualModuleId}"></script>`
+          // End tags are case-insensitive and may hold whitespace before `>`.
+          // An entry that is a fragment has no body tag to sit in front of.
+          html = filterBodyClose.test(html)
+            ? html.replace(filterBodyClose, match => script + match)
+            : html + script
         }
 
         return html
