@@ -65,6 +65,12 @@ so early releases summarise the most user-facing changes rather than every commi
   the others still use it, and an icon whose `idify` result changes no longer
   leaves the previous id claimed forever. Both cases reported duplicate ids
   that were not duplicates, or stayed quiet about ones that were ([#127]).
+- A relative `width`/`height`, such as `100%` or `1.5em`, was read as that many
+  user units, so `width="100%"` became a 100x100 sprite and overrode a perfectly
+  good `viewBox`. Relative units and non-positive values now count as no
+  dimension at all: the `viewBox` is used when there is one, and the icon is
+  skipped with the usual warning when there is not. Absolute units are
+  unchanged ([#128]).
 
 ## [7.1.0] - 2026-07-27
 
@@ -421,3 +427,4 @@ so early releases summarise the most user-facing changes rather than every commi
 [#125]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/125
 [#126]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/126
 [#127]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/127
+[#128]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/128
