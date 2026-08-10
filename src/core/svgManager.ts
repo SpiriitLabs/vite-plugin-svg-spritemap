@@ -404,6 +404,32 @@ export class SVGManager {
   }
 
   /**
+   * Write a generated file. The cache alone cannot decide to skip: the file
+   * may have been removed since, and would then never come back.
+   */
+  private async _writeGenerated(path: string, content: string): Promise<void> {
+    if (this._written.get(path) === content && await this._isOnDisk(path))
+      return
+
+    await fs.mkdir(dirname(path), { recursive: true })
+    await fs.writeFile(path, content, 'utf8')
+    this._written.set(path, content)
+  }
+
+  /**
+   * Check if the file is present
+   */
+  private async _isOnDisk(path: string): Promise<boolean> {
+    try {
+      await fs.access(path)
+      return true
+    }
+    catch {
+      return false
+    }
+  }
+
+  /**
    * Generate and write CSS styles file
    */
   private async createFileStyle(): Promise<void> {
@@ -414,13 +440,7 @@ export class SVGManager {
       const styleGen: Styles = new Styles(this._svgs, this._options, this._routeUrl)
       const content = await styleGen.generate()
       const path = resolve(this._config.root, this._options.styles.filename)
-      if (this._written.get(path) === content)
-        return
-      const dir = dirname(path)
-      await fs.mkdir(dir, { recursive: true })
-
-      await fs.writeFile(path, content, 'utf8')
-      this._written.set(path, content)
+      await this._writeGenerated(path, content)
     }
     catch (error) {
       log({ level: 'error', message: `Failed to create style file: ${error}`, logger: this._config.logger })
@@ -438,13 +458,7 @@ export class SVGManager {
       const typesGen: Types = new Types(this._svgs, this._options, this._config.root)
       const content = typesGen.generate()
       const path = resolve(this._config.root, this._options.types.filename)
-      if (this._written.get(path) === content)
-        return
-      const dir = dirname(path)
-
-      await fs.mkdir(dir, { recursive: true })
-      await fs.writeFile(path, content, 'utf8')
-      this._written.set(path, content)
+      await this._writeGenerated(path, content)
     }
     catch (error) {
       log({ level: 'error', message: `Failed to create type file: ${error}`, logger: this._config.logger })

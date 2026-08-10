@@ -20,7 +20,8 @@ so early releases summarise the most user-facing changes rather than every commi
 - A single-icon change during dev no longer regenerates everything: unchanged
   icons keep their encoded data URI, the style template is read from disk once
   per language, and the styles and types files are only rewritten when their
-  content actually changed ([#122]).
+  content actually changed. A file that is missing from disk is always written
+  again, so removing a generated file still brings it back ([#122]).
 
 ### Removed
 

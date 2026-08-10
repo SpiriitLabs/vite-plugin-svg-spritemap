@@ -85,6 +85,20 @@ describe('regeneration on HMR updates', () => {
     expect(svgToMiniDataURI).toHaveBeenCalledTimes(1)
   })
 
+  it('rewrites a generated file that was deleted from disk', async () => {
+    const manager = createManager()
+    await manager.updateAll()
+
+    await fsp.rm(stylesPath)
+    await fsp.rm(typesPath)
+
+    // content-identical update: the cache on its own would skip both writes
+    await manager.update(`${iconsDir}/one.svg`, 'update')
+
+    await expect(fsp.access(stylesPath)).resolves.toBeUndefined()
+    await expect(fsp.access(typesPath)).resolves.toBeUndefined()
+  })
+
   it('reads the style template from disk only once per language', async () => {
     const manager = createManager('out/spritemap.scss')
     await manager.updateAll()
