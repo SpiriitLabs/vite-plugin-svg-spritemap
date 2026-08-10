@@ -251,6 +251,12 @@ export class SVGManager {
       log({ level: 'warn', message: `No SVG files found for pattern '${pattern}' on route '${this._options.route.name}'. The spritemap will be empty.`, logger: this._config.logger })
     }
 
+    // A second run (a watch rebuild) must not inherit the first one's state:
+    // deleted icons would linger and every id would collide with itself.
+    this._svgs.clear()
+    this._ids.clear()
+    this._invalidateSpritemap()
+
     // Initialize SVGO before parallel processing to avoid race conditions
     await this._initializeOptimizer()
 

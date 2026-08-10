@@ -49,6 +49,10 @@ so early releases summarise the most user-facing changes rather than every commi
   musl/Alpine or ARM Linux), the warning now names the platform and suggests
   SVGO or `oxvg: false`, instead of a raw loader error. The supported platforms
   are documented in the `oxvg` option section ([#123]).
+- Rebuilding the icon collection no longer keeps the previous run's state, so
+  icons deleted in between are dropped from the spritemap and every icon no
+  longer warns about colliding with its own stale entry. Genuine collisions
+  between two icons of the same run are still reported ([#124]).
 
 ## [7.1.0] - 2026-07-27
 
@@ -401,3 +405,4 @@ so early releases summarise the most user-facing changes rather than every commi
 [#121]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/121
 [#122]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/122
 [#123]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/123
+[#124]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/124
