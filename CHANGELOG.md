@@ -56,6 +56,10 @@ so early releases summarise the most user-facing changes rather than every commi
 - An array passed to `build.rollupOptions.external` is no longer written to in
   place. The route matcher is contributed through the config the plugin
   returns, so the array you pass keeps its own entries ([#125]).
+- `vite build --watch` never rebuilt when an icon changed, because the build
+  plugin did not register the icon directories with the watcher the way the dev
+  server already did. Editing, adding and deleting an icon now each trigger a
+  rebuild with a fresh spritemap ([#126]).
 
 ## [7.1.0] - 2026-07-27
 
@@ -410,3 +414,4 @@ so early releases summarise the most user-facing changes rather than every commi
 [#123]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/123
 [#124]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/124
 [#125]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/125
+[#126]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/126

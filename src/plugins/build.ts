@@ -52,6 +52,7 @@ export default function BuildPlugin(shared: Shared): Plugin {
         return
 
       await shared.svgManager.updateAll()
+      shared.svgManager.directories.forEach(directory => this.addWatchFile(directory))
 
       if (typeof shared.options.output === 'object') {
         fileName = getFileName(
