@@ -71,6 +71,19 @@ so early releases summarise the most user-facing changes rather than every commi
   dimension at all: the `viewBox` is used when there is one, and the icon is
   skipped with the usual warning when there is not. Absolute units are
   unchanged ([#128]).
+- The dev HMR client was only injected when the entry HTML contained a
+  lowercase `</body>`. An uppercase end tag, whitespace before its `>`, or an
+  entry with no body tag at all left the client out with no warning, so icons
+  rendered but never hot-updated ([#129]).
+- `injectSvgOnDev: false` was overridden by a leftover `injectSVGOnDev: true`,
+  so the deprecated option won over the current one during a migration
+  ([#130]).
+- A style filename with an uppercase extension, such as `out.SCSS`, produced
+  plain CSS and an "invalid styles lang" warning. Extensions are matched
+  case-insensitively now ([#131]).
+- A `route` of `/`, which `route: ''` also resolved to, made the dev server
+  answer the site root with the spritemap and hid the application. It now warns
+  and falls back to `/__spritemap` ([#132]).
 
 ## [7.1.0] - 2026-07-27
 
@@ -428,3 +441,7 @@ so early releases summarise the most user-facing changes rather than every commi
 [#126]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/126
 [#127]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/127
 [#128]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/128
+[#129]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/129
+[#130]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/130
+[#131]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/131
+[#132]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/132

@@ -14,7 +14,7 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
   let styles: Options['styles'] = false
   const stylesLang = ['css', 'scss', 'less', 'styl']
   if (typeof options.styles === 'string') {
-    let lang = options.styles.split('.').pop() as StylesLang | undefined
+    let lang = options.styles.split('.').pop()?.toLowerCase() as StylesLang | undefined
 
     if (typeof lang === 'undefined' || !stylesLang.includes(lang)) {
       lang = 'css'
@@ -51,7 +51,7 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
       base: options.styles.sizes?.base || 1,
     }
 
-    let lang = options.styles.filename.split('.').pop() as StylesLang | undefined
+    let lang = options.styles.filename.split('.').pop()?.toLowerCase() as StylesLang | undefined
     if (typeof lang === 'undefined' || !stylesLang.includes(lang)) {
       lang = 'css'
       logs.warn.push('Invalid styles lang, fallback to css')
@@ -102,7 +102,9 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
   if (typeof options.injectSVGOnDev !== 'undefined')
     logs.warn.push('The "injectSVGOnDev" option is deprecated. Use "injectSvgOnDev" instead.')
 
-  const injectSvgOnDev = options.injectSvgOnDev || options.injectSVGOnDev || false
+  // `??`, not `||`: an explicit `injectSvgOnDev: false` has to beat the
+  // deprecated spelling, which is only a fallback
+  const injectSvgOnDev = options.injectSvgOnDev ?? options.injectSVGOnDev ?? false
 
   // Idify
   let idify: UserOptions['idify'] = name => name
@@ -126,6 +128,15 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
   if (!route.url.startsWith('/')) {
     logs.warn.push(`Route option ${route.url} should start with a leading slash, automatically added.`)
     route.url = `/${route.url}`
+  }
+
+  // The dev middleware would answer the site root with the spritemap, leaving
+  // the application unreachable, so there is nothing to salvage here
+  if (route.url === '/') {
+    logs.warn.push(`Route option "/" would serve the spritemap at the site root and hide your application, falling back to "/__spritemap".`)
+    route.url = '/__spritemap'
+    if (!route.name)
+      route.name = 'spritemap'
   }
 
   const gutter = options.gutter || 0
