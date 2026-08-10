@@ -290,6 +290,32 @@ describe('styles generation', () => {
     },
   )
 
+  it('writes the callback output even when include is false #131', async () => {
+    const filename = getPath('./fixtures/basic/styles/spritemap_callback_no_include.scss')
+
+    await buildVite({
+      name: 'styles_callback_no_include',
+      options: {
+        styles: {
+          filename,
+          include: false,
+          callback: ({ content, createSpritemap }) => {
+            // nothing is generated, so the callback owns the whole file
+            expect(content).toBe('')
+            return createSpritemap(svg => `// ${svg.id}`)
+          },
+        },
+      },
+    })
+
+    const result = await fs.readFile(filename, 'utf8')
+
+    expect(result).toContain('// spiriit')
+    // still no variables and no mixin: `include: false` drops what we generate
+    expect(result).not.toContain('$sprites')
+    expect(result).not.toContain('@mixin')
+  })
+
   it('skips the bg-frag styles when output.view is disabled', async () => {
     const filename = getPath('./fixtures/basic/styles/spritemap_bg-frag_no_view.css')
 

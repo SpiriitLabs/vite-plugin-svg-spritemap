@@ -81,6 +81,10 @@ so early releases summarise the most user-facing changes rather than every commi
 - A style filename with an uppercase extension, such as `out.SCSS`, produced
   plain CSS and an "invalid styles lang" warning. Extensions are matched
   case-insensitively now ([#131]).
+- `styles.callback` output was thrown away when `styles.include` was `false`,
+  leaving an empty file. `include` selects which generated blocks are emitted,
+  so it no longer suppresses your own callback content. With no callback the
+  file stays empty, as before ([#131]).
 - A `route` of `/`, which `route: ''` also resolved to, made the dev server
   answer the site root with the spritemap and hid the application. It now warns
   and falls back to `/__spritemap` ([#132]).
