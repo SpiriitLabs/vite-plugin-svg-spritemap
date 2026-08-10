@@ -22,7 +22,8 @@ import { cleanAttributes } from '@/helpers/cleanAttributes'
 export class SVGManager {
   private _options: Options
   private _parser: DOMParser
-  private _ids: Set<string>
+  /** Files claiming each derived id, so one of them going away frees it only once none is left. */
+  private _ids: Map<string, Set<string>>
   private _svgs: Map<string, SvgMapObject>
   private _iconsPattern: Glob
   private _config: ResolvedConfig
@@ -41,7 +42,7 @@ export class SVGManager {
   constructor(iconsPattern: Glob, options: Options, config: ResolvedConfig, routeUrl: string) {
     this._parser = new DOMParser()
     this._options = options
-    this._ids = new Set()
+    this._ids = new Map()
     this._svgs = new Map()
     this._iconsPattern = iconsPattern
     this._config = config
@@ -86,11 +87,18 @@ export class SVGManager {
 
     const id = this._options.idify(name, svgData)
 
-    if (this._ids.has(id) && mode === 'create') {
+    // `idify` can derive a different id from the same file, so a re-update
+    // has to give the previous one back before claiming the new one
+    const previous = this._svgs.get(filePath)
+    if (previous && previous.id !== id)
+      this._releaseId(previous.id, filePath)
+
+    const owners = this._ids.get(id)
+    if (owners && !owners.has(filePath) && mode === 'create') {
       log({ level: 'warn', message: `Sprite '${filePath}' has the same id (${id}) as another sprite.`, logger: this._config.logger })
     }
 
-    this._ids.add(id)
+    this._claimId(id, filePath)
     this._svgs.set(filePath, {
       ...svgData,
       id,
@@ -116,13 +124,39 @@ export class SVGManager {
     if (!svg)
       return false
 
-    this._ids.delete(svg.id)
+    this._releaseId(svg.id, filePath)
     this._svgs.delete(filePath)
     this._invalidateSpritemap()
     this._sortSvgs()
     await this.createFileStyle()
     await this.createFileTypes()
     return true
+  }
+
+  /**
+   * Record that a file uses an id
+   */
+  private _claimId(id: string, filePath: string): void {
+    const owners = this._ids.get(id)
+    if (owners)
+      owners.add(filePath)
+    else
+      this._ids.set(id, new Set([filePath]))
+  }
+
+  /**
+   * Give up a file's claim on an id, freeing it once no file is left
+   */
+  private _releaseId(id: string, filePath: string): void {
+    const owners = this._ids.get(id)
+    /* v8 ignore next 3 -- @preserve */
+    // callers only release an id they just read off a tracked file
+    if (!owners)
+      return
+
+    owners.delete(filePath)
+    if (!owners.size)
+      this._ids.delete(id)
   }
 
   /**
