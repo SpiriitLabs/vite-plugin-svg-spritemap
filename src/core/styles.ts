@@ -84,13 +84,22 @@ export class Styles {
   }
 
   private async insert(insert: string): Promise<string> {
-    if (!this._options.styles || this._options.styles.include === false)
+    // Styles is only instantiated with a resolved styles object
+    /* v8 ignore if -- @preserve */
+    if (!this._options.styles)
       return ''
+
+    const { include } = this._options.styles
+
+    // `include: false` drops everything this class generates, but a callback's
+    // return value is the user's own content and is still written
+    if (include === false && !insert)
+      return ''
+
     let template = ''
     if (
       this._options.styles.lang !== 'css'
-      && (this._options.styles.include === true
-        || this._options.styles.include.includes('mixin'))
+      && (include === true || (include !== false && include.includes('mixin')))
     ) {
       const lang = this._options.styles.lang
       const cached = templateCache.get(lang)
