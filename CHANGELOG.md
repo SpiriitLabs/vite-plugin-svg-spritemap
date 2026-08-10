@@ -61,6 +61,10 @@ so early releases summarise the most user-facing changes rather than every commi
   plugin did not register the icon directories with the watcher the way the dev
   server already did. Editing, adding and deleting an icon now each trigger a
   rebuild with a fresh spritemap ([#126]).
+- Removing one of several icons sharing an id no longer frees that id while
+  the others still use it, and an icon whose `idify` result changes no longer
+  leaves the previous id claimed forever. Both cases reported duplicate ids
+  that were not duplicates, or stayed quiet about ones that were ([#127]).
 
 ## [7.1.0] - 2026-07-27
 
@@ -416,3 +420,4 @@ so early releases summarise the most user-facing changes rather than every commi
 [#124]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/124
 [#125]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/125
 [#126]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/126
+[#127]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/127
