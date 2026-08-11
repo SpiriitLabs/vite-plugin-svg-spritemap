@@ -3,7 +3,8 @@
 @use "sass:meta";
 @use "sass:string";
 
-$__mixin__-escapes: (
+// `-` prefixed members are private: `@use` never exposes them to a consumer
+$-__mixin__-escapes: (
   ('&', '&amp;'),
   ('<', '&lt;'),
   ("'", '&apos;'),
@@ -23,7 +24,7 @@ $__mixin__-escapes: (
   ('?', '%3f')
 );
 
-@function __mixin__-replace($string, $search, $replacement) {
+@function -__mixin__-replace($string, $search, $replacement) {
   $index: string.index($string, $search);
   $result: '';
   $rest: $string;
@@ -37,11 +38,11 @@ $__mixin__-escapes: (
   @return $result + $rest;
 }
 
-@function __mixin__-escape($value) {
+@function -__mixin__-escape($value) {
   $string: '#{$value}';
 
-  @each $escape in $__mixin__-escapes {
-    $string: __mixin__-replace($string, list.nth($escape, 1), list.nth($escape, 2));
+  @each $escape in $-__mixin__-escapes {
+    $string: -__mixin__-replace($string, list.nth($escape, 1), list.nth($escape, 2));
   }
 
   @return $string;
@@ -84,7 +85,7 @@ $__mixin__-escapes: (
               @warn '__mixin__(): "#{$key}" is set to "#{$value}", a css reference is inert inside a data uri.';
             }
 
-            $url: __mixin__-replace($url, '___#{$key}___', __mixin__-escape($value));
+            $url: -__mixin__-replace($url, '___#{$key}___', -__mixin__-escape($value));
           } @else {
             @warn '__mixin__(): "#{$name}" has no variable named "#{$key}", available: #{map.keys($defaults)}.';
           }
