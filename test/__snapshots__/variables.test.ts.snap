@@ -235,7 +235,8 @@ $sprites-variables: (
 @use "sass:meta";
 @use "sass:string";
 
-$sprite-escapes: (
+// \`-\` prefixed members are private: \`@use\` never exposes them to a consumer
+$-sprite-escapes: (
   ('&', '&amp;'),
   ('<', '&lt;'),
   ("'", '&apos;'),
@@ -255,7 +256,7 @@ $sprite-escapes: (
   ('?', '%3f')
 );
 
-@function sprite-replace($string, $search, $replacement) {
+@function -sprite-replace($string, $search, $replacement) {
   $index: string.index($string, $search);
   $result: '';
   $rest: $string;
@@ -269,11 +270,11 @@ $sprite-escapes: (
   @return $result + $rest;
 }
 
-@function sprite-escape($value) {
+@function -sprite-escape($value) {
   $string: '#{$value}';
 
-  @each $escape in $sprite-escapes {
-    $string: sprite-replace($string, list.nth($escape, 1), list.nth($escape, 2));
+  @each $escape in $-sprite-escapes {
+    $string: -sprite-replace($string, list.nth($escape, 1), list.nth($escape, 2));
   }
 
   @return $string;
@@ -316,7 +317,7 @@ $sprite-escapes: (
               @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference is inert inside a data uri.';
             }
 
-            $url: sprite-replace($url, '___#{$key}___', sprite-escape($value));
+            $url: -sprite-replace($url, '___#{$key}___', -sprite-escape($value));
           } @else {
             @warn 'sprite(): "#{$name}" has no variable named "#{$key}", available: #{map.keys($defaults)}.';
           }
@@ -425,18 +426,19 @@ $sprites-variables = {
 	}
 }
 
-$sprite-escapes = ('&' '&amp;'), ('<' '&lt;'), ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
-
-sprite-replace($string, $search, $replacement)
-	join($replacement, split($search, $string))
-
-sprite-escape($value)
-	$string = '' + $value
-	for $escape in $sprite-escapes
-		$string = sprite-replace($string, $escape[0], $escape[1])
-	$string
-
 sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route = '/__spritemap', $variables = {})
+	// nested definitions are lexically scoped: they stay out of the importer's scope
+	$sprite-escapes = ('&' '&amp;'), ('<' '&lt;'), ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
+
+	sprite-replace($string, $search, $replacement)
+		join($replacement, split($search, $string))
+
+	sprite-escape($value)
+		$string = '' + $value
+		for $escape in $sprite-escapes
+			$string = sprite-replace($string, $escape[0], $escape[1])
+		$string
+
 	$sprite = $sprites[$name]
 	$url = false
 

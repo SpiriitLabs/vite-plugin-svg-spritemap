@@ -1,15 +1,16 @@
-$__mixin__-escapes = ('&' '&amp;'), ('<' '&lt;'), ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
-
-__mixin__-replace($string, $search, $replacement)
-	join($replacement, split($search, $string))
-
-__mixin__-escape($value)
-	$string = '' + $value
-	for $escape in $__mixin__-escapes
-		$string = __mixin__-replace($string, $escape[0], $escape[1])
-	$string
-
 __mixin__($name, $include-size = false, $type = 'uri', $mode = 'background', $route = '__route__', $variables = {})
+	// nested definitions are lexically scoped: they stay out of the importer's scope
+	$__mixin__-escapes = ('&' '&amp;'), ('<' '&lt;'), ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
+
+	__mixin__-replace($string, $search, $replacement)
+		join($replacement, split($search, $string))
+
+	__mixin__-escape($value)
+		$string = '' + $value
+		for $escape in $__mixin__-escapes
+			$string = __mixin__-replace($string, $escape[0], $escape[1])
+		$string
+
 	$sprite = $__sprites__[$name]
 	$url = false
 
