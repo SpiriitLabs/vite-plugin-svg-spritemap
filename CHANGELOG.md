@@ -8,7 +8,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Entries prior to this file were reconstructed from git tags and commit history,
 so early releases summarise the most user-facing changes rather than every commit.
 
-## [Unreleased]
+## [7.2.0] - 2026-08-11
+
+### Added
+
+- Icon variables. A `var(--name, default)` in an svg presentation attribute
+  becomes a themable value: the generated SCSS, Stylus and Less mixin takes a
+  `$variables` map, a list of `'name' value` pairs in Less, to override it per
+  call site. Substitution happens at compile time, so each call site gets its own
+  copy of the icon with the values inlined. The emitted spritemap keeps the
+  `var()` as a real custom property, so a `<use>` element is themable at runtime
+  through the CSS cascade as well, external reference included. Adds the
+  `variables` and `variables.spritemap` options, plus a `styles.names.variables`
+  name for the generated defaults map. Inspired by the same feature in
+  [svg-spritemap-webpack-plugin], with a standard `var()` notation in place of
+  its `var:name.attribute` xml namespace.
+
+### Fixed
+
+- An icon carrying a `var()` was mangled by OXVG. Its
+  `removeUselessStrokeAndFill` job reads an unresolvable `var()` as "no stroke"
+  and deleted `stroke` along with every sibling `stroke-*`; worse, a `var()`
+  inside a `style` attribute or a `<style>` block made the job panic through the
+  native binding and abort the whole build or dev server. That job is now dropped
+  for icons containing a `var()`, user-supplied `oxvg` configurations included.
+- The Less mixin had no `@mode` parameter, so `.sprite('name', @mode: mask)`
+  failed with "no matching definition" while the SCSS and Stylus mixins both
+  accepted it.
+
+## [7.1.1] - 2026-08-10
 
 ### Changed
 
@@ -372,7 +400,8 @@ so early releases summarise the most user-facing changes rather than every commi
   matched by a glob, with optional SVGO optimization, stylesheet generation, and
   HMR in dev.
 
-[Unreleased]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/compare/v7.1.0...HEAD
+[7.2.0]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/compare/v7.1.1...v7.2.0
+[7.1.1]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/compare/v7.1.0...v7.1.1
 [7.1.0]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/compare/v7.0.1...v7.1.0
 [7.0.1]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/compare/v7.0.0...v7.0.1
 [7.0.0]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/compare/v6.0.0...v7.0.0
@@ -449,3 +478,4 @@ so early releases summarise the most user-facing changes rather than every commi
 [#130]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/130
 [#131]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/131
 [#132]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/132
+[svg-spritemap-webpack-plugin]: https://github.com/cascornelissen/svg-spritemap-webpack-plugin/blob/master/docs/variables.md

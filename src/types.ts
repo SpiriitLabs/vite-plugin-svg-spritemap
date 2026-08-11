@@ -26,12 +26,44 @@ export interface Shared {
   routeUrlBase: string
 }
 
+export type VariablesSpritemapMode = 'preserve' | 'resolve'
+
+export interface OptionsVariables {
+  /**
+   * How `var(--name, default)` values are written into the emitted spritemap.
+   * - `'preserve'`: keep `var(--color, #fff)` verbatim, so any `<use>` is themable
+   *   at runtime, external reference included. An `<img>`, a `background-image`
+   *   and a data uri are their own document and render the default.
+   * - `'resolve'`: bake each default in (`fill="#fff"`).
+   *
+   * Compile-time substitution in the generated stylesheet is unaffected either way.
+   * @default 'preserve'
+   */
+  spritemap: VariablesSpritemapMode
+}
+
+export interface SvgVariables {
+  /** Variable name to default value, longest name first to keep tokens distinct. */
+  defaults: Record<string, string>
+  /** The source code of the svg, each themable value replaced by a `___name___` token. */
+  sourceTemplate: string
+}
+
 export interface SvgDataUriMapObject {
   id: string
   width: number
   height: number
   viewbox: number[]
   svgDataUri?: string
+  /**
+   * Same data uri with each themable value replaced by its `___name___` token,
+   * for compile-time substitution. Only set when the svg has variables.
+   */
+  svgDataUriTemplate?: string
+  /**
+   * Variable name to default value. Only set when the svg has variables.
+   */
+  variableDefaults?: Record<string, string>
 }
 
 export interface UserOptions {
@@ -100,6 +132,14 @@ export interface UserOptions {
    * @default false
    */
   types?: TypesOptions
+  /**
+   * Icon variables: a `var(--name, default)` inside an svg presentation
+   * attribute becomes a themable value the `scss`/`styl`/`less` mixin can
+   * override at compile time, and that a `<use>` element can theme at runtime.
+   * Set to false to disable extraction entirely.
+   * @default { spritemap: 'preserve' }
+   */
+  variables?: false | Partial<OptionsVariables>
 }
 
 export interface TypesConfig {
@@ -232,6 +272,11 @@ interface OptionsStylesNames {
    * @default 'sprite'
    */
   mixin: string
+  /**
+   * Name of the map holding each sprite's variable defaults
+   * @default 'sprites-variables'
+   */
+  variables: string
 }
 
 export interface OptionsStylesSizes {
@@ -258,6 +303,7 @@ export interface Options {
   idify: (name: string, svg: Omit<SvgMapObject, 'id'>) => string
   route: OptionsRoute
   gutter: number
+  variables: OptionsVariables | false
 }
 
 export interface SvgMapObject {
@@ -282,9 +328,15 @@ export interface SvgMapObject {
    */
   id: string
   /**
-   * The source code of the svg
+   * The source code of the svg. Keeps `var(--name, default)` verbatim unless
+   * the `variables.spritemap` option is set to `'resolve'`.
    */
   source: string
+  /**
+   * Themable values of the svg. Only set when it declares at least one
+   * `var(--name)` in an attribute.
+   */
+  variables?: SvgVariables
 }
 
 export interface UserOptionsLogs {

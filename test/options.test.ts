@@ -67,3 +67,39 @@ describe('createOptions styles lang', () => {
     expect(logs.warn).toContainEqual(expect.stringContaining('Invalid styles lang'))
   })
 })
+
+describe('createOptions variables', () => {
+  it('defaults to preserving var() in the spritemap', () => {
+    expect(createOptions().options.variables).toEqual({ spritemap: 'preserve' })
+  })
+
+  it('accepts false as a full opt-out', () => {
+    expect(createOptions({ variables: false }).options.variables).toBe(false)
+  })
+
+  it.each(['preserve', 'resolve'] as const)('passes %s through', (spritemap) => {
+    expect(createOptions({ variables: { spritemap } }).options.variables).toEqual({ spritemap })
+  })
+
+  it('warns and falls back on an unknown spritemap mode', () => {
+    const { options, logs } = createOptions({
+      // deliberately outside the union, to cover a plain js caller
+      variables: { spritemap: 'nope' as 'preserve' },
+    })
+
+    expect(options.variables).toEqual({ spritemap: 'preserve' })
+    expect(logs.warn).toContainEqual(expect.stringContaining('Invalid variables.spritemap value'))
+  })
+
+  it('defaults the variables map name', () => {
+    for (const styles of ['out.scss', { filename: 'out.scss' }]) {
+      const { options } = createOptions({ styles })
+      expect(typeof options.styles === 'object' && options.styles.names.variables).toBe('sprites-variables')
+    }
+  })
+
+  it('takes a custom variables map name', () => {
+    const { options } = createOptions({ styles: { filename: 'out.scss', names: { variables: 'themes' } } })
+    expect(typeof options.styles === 'object' && options.styles.names.variables).toBe('themes')
+  })
+})

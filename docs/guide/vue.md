@@ -4,6 +4,12 @@
 
 To do that, import the icons loaded by `vite-svg-spritemap` and add the `?use` or `?view` query. The plugin will transform the component.
 
+::: tip Variables and these components
+`?use` renders a `<use>` element, so [variables](/guide/variables) can be themed at runtime by setting
+the custom property on the component. `?view` renders an `<img>`, which is its own document and always
+renders the defaults.
+:::
+
 ```vue
 <script setup lang="ts">
 import SpiriitUse from './icons/spiriit.svg?use'

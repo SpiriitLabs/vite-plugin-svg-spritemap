@@ -192,12 +192,21 @@ importers:
       kolorist:
         specifier: 'catalog:'
         version: 1.8.0
+      less:
+        specifier: 'catalog:'
+        version: 4.8.1(supports-color@10.2.2)
       playwright:
         specifier: 'catalog:'
         version: 1.62.1
       rollup:
         specifier: 'catalog:'
         version: 4.62.4
+      sass:
+        specifier: 'catalog:'
+        version: 1.102.0
+      stylus:
+        specifier: 'catalog:'
+        version: 0.64.0(supports-color@10.2.2)
       svg-element-attributes:
         specifier: 'catalog:'
         version: 2.2.0

@@ -157,6 +157,32 @@ export type UiPrefixed = `${Prefix}${Ui}`
 
 :::
 
+## variables
+
+- **Type:** `false | { spritemap?: 'preserve' | 'resolve' }`
+- **Default:** `{ spritemap: 'preserve' }`
+
+Controls icon variables: a `var(--name, default)` inside an SVG presentation attribute becomes a
+themable value your SCSS/Stylus/Less mixin can override per call site. See the
+[Variables guide](/guide/variables).
+
+Set to `false` to skip parsing entirely and generate no defaults map.
+
+## variables.spritemap
+
+- **Type:** `'preserve' | 'resolve'`
+- **Default:** `'preserve'`
+
+How themable values are written into the generated spritemap (the `<symbol>`/`<view>` content served at
+the route and emitted as an asset).
+
+- `'preserve'` keeps `fill="var(--color, #fff)"` verbatim, so any `<use>` element can be themed at
+  runtime with real CSS custom properties, an external reference included.
+- `'resolve'` bakes each default in (`fill="#fff"`), for maximum tooling compatibility.
+
+This does not affect the generated stylesheet: the data URI there always has its defaults baked in, and
+compile-time substitution through the mixin works either way.
+
 ## prefix
 
 - **Type:** `string | false`

@@ -15,6 +15,8 @@ export default defineConfig({
   },
   test: {
     testTimeout: 15000,
+    // browser and dev server launches in `beforeAll` exceed the 10s default
+    hookTimeout: 15000,
     globalSetup: ['./test/globalSetup.ts'],
     coverage: {
       include: ['src/*'],

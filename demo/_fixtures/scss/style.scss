@@ -80,3 +80,28 @@ h2 {
     }
   }
 }
+
+.variables {
+  &__default {
+    @include sprite('spiriit');
+  }
+
+  &__red {
+    @include sprite('spiriit', $variables: ('color': #ff5f5f));
+  }
+
+  &__two-tone {
+    @include sprite('spiriit', $variables: ('color': #a484f8, 'accent': #00d99b));
+  }
+}
+
+.variables-runtime {
+  &__red {
+    --color: #ff5f5f;
+  }
+
+  &__two-tone {
+    --color: #a484f8;
+    --accent: #00d99b;
+  }
+}

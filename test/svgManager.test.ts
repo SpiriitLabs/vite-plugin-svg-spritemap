@@ -144,3 +144,45 @@ describe('sVGManager', () => {
     expect(spy).toHaveBeenCalledWith(expect.stringContaining('Failed to create type file'))
   })
 })
+
+describe('sVGManager variables', () => {
+  const mismatchPath = getPath('./fixtures/basic/variables/mismatch.svg')
+
+  it('warns once per sprite across re-updates', async () => {
+    const { manager, logger } = createManager({}, mismatchPath)
+    const spy = vi.spyOn(logger, 'warn')
+
+    await manager.updateAll()
+    await manager.update(mismatchPath, 'update')
+    await manager.update(mismatchPath, 'update')
+
+    const conflicts = spy.mock.calls
+      .flat()
+      .filter(message => String(message).includes('Conflicting defaults'))
+
+    expect(conflicts).toHaveLength(1)
+  })
+
+  it('warns again after the sprite was deleted and re-added', async () => {
+    const { manager, logger } = createManager({}, mismatchPath)
+    await manager.updateAll()
+
+    const spy = vi.spyOn(logger, 'warn')
+    await manager.delete(mismatchPath)
+    await manager.update(mismatchPath, 'create')
+
+    expect(spy.mock.calls.flat().filter(message => String(message).includes('Conflicting defaults'))).toHaveLength(1)
+  })
+
+  it('exposes the parsed defaults and the source template', async () => {
+    const { manager } = createManager({}, getPath('./fixtures/basic/variables/themable.svg'))
+    await manager.updateAll()
+
+    const svg = manager.svgs.get(getPath('./fixtures/basic/variables/themable.svg'))
+
+    expect(svg?.variables?.defaults).toEqual({ color: '#fff', weight: '2' })
+    expect(svg?.variables?.sourceTemplate).toContain('fill="___color___"')
+    // `preserve` is the default, so the spritemap keeps the authored var()
+    expect(svg?.source).toContain('fill="var(--color, #fff)"')
+  })
+})

@@ -2,7 +2,7 @@ import type { Jobs as OxvgConfig } from '@oxvg/napi'
 import type { Glob } from 'picomatch'
 import type { Config as SvgoConfig } from 'svgo'
 import type { ResolvedConfig } from 'vite'
-import type { Options, SvgMapObject } from '@/types'
+import type { Options, SvgMapObject, SvgVariables } from '@/types'
 import { promises as fs } from 'node:fs'
 import { basename, dirname, resolve } from 'node:path'
 import { hashContent } from '@helpers/hash'
@@ -10,6 +10,7 @@ import { toUserUnits } from '@helpers/length'
 import { log } from '@helpers/log'
 import { getOptimize as getOptimiseOxvg, getOptions as getOptionsOxvg } from '@helpers/oxvg'
 import { getOptimize as getOptimizeSvgo, getOptions as getOptionsSvgo } from '@helpers/svgo'
+import { extractSvgVariables, resolveVariableTokens, sortVariableDefaults, VAR_CALL } from '@helpers/variables'
 import { DOMImplementation, DOMParser, XMLSerializer } from '@xmldom/xmldom'
 import { glob } from 'tinyglobby'
 import { Styles } from '@/core/styles'
@@ -36,8 +37,13 @@ export class SVGManager {
   private _optimize: Awaited<ReturnType<typeof getOptimizeSvgo | typeof getOptimiseOxvg>> | null = null
   /** Built once alongside `_optimize`, it does not vary per file. */
   private _optimizeConfig: SvgoConfig | OxvgConfig | undefined
+  /** Same config with the jobs that mangle `var()` dropped. OXVG only. */
+  private _optimizeConfigVariables: OxvgConfig | undefined
   /** Last content written per file, to skip byte-identical rewrites. */
   private _written = new Map<string, string>()
+  /** Last variable warnings logged per file, so a re-save stays silent. */
+  private _warned = new Map<string, string>()
+  private _variablesLangWarned = false
   private _routeUrl: string
 
   constructor(iconsPattern: Glob, options: Options, config: ResolvedConfig, routeUrl: string) {
@@ -78,12 +84,28 @@ export class SVGManager {
 
     svg = await this._optimizeSvg(svg)
 
+    const extracted = this._options.variables === false ? null : extractSvgVariables(svg)
+    if (extracted)
+      this._logVariableWarnings(filePath, extracted.warnings)
+
+    let source = svg
+    let variables: SvgVariables | undefined
+    if (extracted && extracted.defaults.size > 0) {
+      variables = {
+        defaults: sortVariableDefaults(extracted.defaults),
+        sourceTemplate: extracted.template,
+      }
+      if (this._options.variables !== false && this._options.variables.spritemap === 'resolve')
+        source = resolveVariableTokens(variables.sourceTemplate, variables.defaults)
+    }
+
     const svgData = {
       width,
       height,
       viewBox,
       filePath,
-      source: svg,
+      source,
+      ...(variables && { variables }),
     }
 
     const id = this._options.idify(name, svgData)
@@ -127,6 +149,7 @@ export class SVGManager {
 
     this._releaseId(svg.id, filePath)
     this._svgs.delete(filePath)
+    this._warned.delete(filePath)
     this._invalidateSpritemap()
     this._sortSvgs()
     await this.createFileStyle()
@@ -209,6 +232,17 @@ export class SVGManager {
     return { width, height, viewBox }
   }
 
+  /** Skips a set already logged: the dev server re-processes an icon per save. */
+  private _logVariableWarnings(filePath: string, warnings: string[]): void {
+    const key = warnings.join('\n')
+    if (this._warned.get(filePath) === key)
+      return
+
+    this._warned.set(filePath, key)
+    for (const warning of warnings)
+      log({ level: 'warn', message: `Sprite '${filePath}': ${warning}`, logger: this._config.logger })
+  }
+
   /**
    * Optimize SVG using SVGO or OXVG if available
    * @param svg - The SVG content as a string
@@ -216,8 +250,13 @@ export class SVGManager {
    */
   private async _optimizeSvg(svg: string): Promise<string> {
     if (this._optimize && this._optimizeType) {
+      // OXVG corrupts `var()` values, and aborts outright on one in a `style`
+      const config = typeof this._optimizeConfigVariables !== 'undefined' && svg.includes(VAR_CALL)
+        ? this._optimizeConfigVariables
+        : this._optimizeConfig
+
       try {
-        const optimizedSvg = this._optimize(svg, this._optimizeConfig)
+        const optimizedSvg = this._optimize(svg, config)
         if (typeof optimizedSvg === 'string')
           return optimizedSvg
         // OXVG returns a string, SVGO an object with `data`
@@ -261,6 +300,8 @@ export class SVGManager {
       log({ level: 'info', message: `Using OXVG for SVG optimization on ${this._options.route.name}.`, logger: this._config.logger })
       this._optimizeType = 'oxvg'
       this._optimizeConfig = await getOptionsOxvg(this._options.oxvg, this._options.prefix)
+      // not gated on the `variables` option: the corruption happens regardless
+      this._optimizeConfigVariables = await getOptionsOxvg(this._options.oxvg, this._options.prefix, true)
     }
     if (this._options.oxvg && !this._optimize) {
       log({ level: 'warn', message: `You need to install OXVG to be able to optimize your SVG with it.`, logger: this._config.logger })
@@ -468,6 +509,16 @@ export class SVGManager {
   private async createFileStyle(): Promise<void> {
     if (typeof this._options.styles !== 'object')
       return
+
+    const { lang } = this._options.styles
+    if (
+      !this._variablesLangWarned
+      && lang === 'css'
+      && [...this._svgs.values()].some(svg => svg.variables)
+    ) {
+      this._variablesLangWarned = true
+      log({ level: 'warn', message: `Icon variables cannot be substituted with \`styles.lang: 'css'\`, the default values are used. Use \`scss\`, \`styl\` or \`less\` for themable icons.`, logger: this._config.logger })
+    }
 
     try {
       const styleGen: Styles = new Styles(this._svgs, this._options, this._routeUrl)

@@ -12,6 +12,14 @@ export const defaultDisabledPlugins = {
 } as const
 
 /**
+ * Disabled for icons carrying a `var()`: OXVG reads an unresolvable one as "no
+ * stroke", deleting `stroke` and every sibling `stroke-*`. SVGO is unaffected.
+ */
+export const variablesDisabledPlugins = {
+  removeUselessStrokeAndFill: false,
+} as const
+
+/**
  * Get SVGO Options
  */
 export function getOptions(svgoOptions: Options['svgo'] | undefined, prefix: string): SvgoConfig | undefined {
