@@ -30,10 +30,12 @@ This allows you to choose what to include in the styles output payload.
 
 ## styles.names
 
-- **Type:** `{ prefix: string, sprites: string, mixin: string }`
-- **Default:** `{ prefix: 'sprites-prefix', sprites: 'sprites', mixin: 'sprite' }`
+- **Type:** `{ prefix: string, sprites: string, mixin: string, variables: string }`
+- **Default:** `{ prefix: 'sprites-prefix', sprites: 'sprites', mixin: 'sprite', variables: 'sprites-variables' }`
 
 Allows you to customize the variables/mixin names of the generated Sass/Less/Stylus.
+
+`variables` names the map holding each sprite's [variable](/guide/variables) defaults.
 
 ## styles.sizes
 

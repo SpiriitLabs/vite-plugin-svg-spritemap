@@ -35,6 +35,8 @@ export default {
 
 The `createSpritemap` helper iterates over every icon and calls your generator with `(svg, isLast)`: `svg` exposes `id`, `width`, `height`, `viewbox` and `svgDataUri`, while `isLast` is `true` on the final icon (handy for separators).
 
+Icons that declare [variables](/guide/variables) also expose `svgDataUriTemplate`, the same data URI with each themable value replaced by a `___name___` token, and `variableDefaults`, a map of variable name to its default. Both are `undefined` otherwise.
+
 You can use the [`styles.include`](/options/styles.html#styles-include) option to control exactly what to include inside your style. If you want only variables with `['variables']` for SCSS/Less/Stylus or `['bg']` in CSS, only background css class generation for example.
 
 You can also control the names, via the [`styles.names`](/options/styles.html#styles-names) option, of the `mixin`, the variables `sprites` and `prefix`.

@@ -1,13 +1,46 @@
-__mixin__($name, $include-size = false, $type = 'uri', $mode = 'background', $route = '__route__')
+$__mixin__-escapes = ('&' '&amp;'), ('<' '&lt;'), ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
+
+__mixin__-replace($string, $search, $replacement)
+	join($replacement, split($search, $string))
+
+__mixin__-escape($value)
+	$string = '' + $value
+	for $escape in $__mixin__-escapes
+		$string = __mixin__-replace($string, $escape[0], $escape[1])
+	$string
+
+__mixin__($name, $include-size = false, $type = 'uri', $mode = 'background', $route = '__route__', $variables = {})
 	$sprite = $__sprites__[$name]
 	$url = false
 
 	if $type == 'fragment'
 		$url = $route + '#' + $__prefix__ + $name + '-view'
+
+		if length($variables) > 0
+			warn('__mixin__(): $variables cannot be applied to the "fragment" type, ignored')
 	else if $type == 'uri'
 		$url = $sprite[uri]
+
+		if length($variables) > 0
+			$defaults = {}
+			if type($__variables__) == 'object' and $__variables__[$name] != null
+				$defaults = $__variables__[$name]
+
+			if length($defaults) == 0
+				warn('__mixin__(): "' + $name + '" does not declare any variable, $variables is ignored')
+			else
+				$url = $sprite['uri-template']
+				$merged = {}
+				merge($merged, $defaults)
+				merge($merged, $variables)
+
+				for $key, $value in $merged
+					if $key in $defaults
+						$url = __mixin__-replace($url, '___' + $key + '___', __mixin__-escape($value))
+					else
+						warn('__mixin__(): "' + $name + '" has no variable named "' + $key + '"')
 	else
-		error('sprite(): $type must be either "fragment" or "uri"')
+		error('__mixin__(): $type must be either "fragment" or "uri"')
 
 	if $url
 		{$mode}: url($url) center no-repeat

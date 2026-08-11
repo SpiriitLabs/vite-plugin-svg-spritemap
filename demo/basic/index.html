@@ -60,6 +60,37 @@
       </div>
     </div>
 
+    <div class="example variables">
+      <h2>Variables (background-image data uri)</h2>
+
+      <p>
+        One <code>spiriit.svg</code> file, three renderings. Each rule passes its own
+        <code>$variables</code> map to the <code>sprite()</code> mixin.
+      </p>
+
+      <div class="example__svgs">
+        <span class="icon icon-spiriit variables__default"></span>
+        <span class="icon icon-spiriit variables__red"></span>
+        <span class="icon icon-spiriit variables__two-tone"></span>
+      </div>
+    </div>
+
+    <div class="example variables-runtime">
+      <h2>Variables at runtime (CSS custom properties on &lt;use>)</h2>
+
+      <p>
+        The same file again, themed by the browser instead of at build time. A custom property set on the
+        <code>&lt;svg></code> inherits into the shadow tree the <code>&lt;use></code> creates, so even this
+        external spritemap reference is themable with no extra work.
+      </p>
+
+      <div class="example__svgs">
+        <svg class="icon icon-spiriit"><use xlink:href="/__spritemap#icon-spiriit"></use></svg>
+        <svg class="icon icon-spiriit variables-runtime__red"><use xlink:href="/__spritemap#icon-spiriit"></use></svg>
+        <svg class="icon icon-spiriit variables-runtime__two-tone"><use xlink:href="/__spritemap#icon-spiriit"></use></svg>
+      </div>
+    </div>
+
     <div class="example">
       <h2>Spritemap Flags with &lt;use></h2>
 

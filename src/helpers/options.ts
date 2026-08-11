@@ -29,6 +29,7 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
         prefix: 'sprites-prefix',
         sprites: 'sprites',
         mixin: 'sprite',
+        variables: 'sprites-variables',
       },
       sizes: {
         unit: 'px',
@@ -44,6 +45,7 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
       prefix: options.styles.names?.prefix || 'sprites-prefix',
       sprites: options.styles.names?.sprites || 'sprites',
       mixin: options.styles.names?.mixin || 'sprite',
+      variables: options.styles.names?.variables || 'sprites-variables',
     }
 
     const stylesSizes: OptionsStylesSizes = {
@@ -160,6 +162,18 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
     }
   }
 
+  let variables: Options['variables'] = { spritemap: 'preserve' }
+  if (options.variables === false) {
+    variables = false
+  }
+  else if (typeof options.variables === 'object' && options.variables !== null) {
+    const spritemap = options.variables.spritemap
+    if (typeof spritemap !== 'undefined' && spritemap !== 'preserve' && spritemap !== 'resolve')
+      logs.warn.push(`Invalid variables.spritemap value "${spritemap}", fallback to "preserve".`)
+
+    variables = { spritemap: spritemap === 'resolve' ? 'resolve' : 'preserve' }
+  }
+
   const finalOptions = {
     svgo: options.svgo,
     oxvg: options.oxvg,
@@ -171,6 +185,7 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
     idify,
     route,
     gutter,
+    variables,
   } satisfies Options
 
   return {

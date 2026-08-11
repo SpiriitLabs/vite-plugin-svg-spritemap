@@ -23,6 +23,7 @@ export default defineConfig({
           items: [
             { text: 'Getting started', link: '/guide/' },
             { text: 'Styles', link: '/guide/styles' },
+            { text: 'Variables', link: '/guide/variables' },
           ],
         },
         {

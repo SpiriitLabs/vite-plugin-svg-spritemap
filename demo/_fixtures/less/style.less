@@ -88,3 +88,30 @@ h2 {
     .sprite('spiriit', @mode: mask);
   }
 }
+
+// Less parses a comma inside a mixin call as an argument separator, so a list
+// of pairs needs `;` between the arguments. A single pair works with either.
+.variables {
+  &__default {
+    .sprite('spiriit');
+  }
+
+  &__red {
+    .sprite('spiriit', @variables: 'color' '#ff5f5f');
+  }
+
+  &__two-tone {
+    .sprite('spiriit'; @variables: 'color' '#a484f8', 'accent' '#00d99b');
+  }
+}
+
+.variables-runtime {
+  &__red {
+    --color: #ff5f5f;
+  }
+
+  &__two-tone {
+    --color: #a484f8;
+    --accent: #00d99b;
+  }
+}

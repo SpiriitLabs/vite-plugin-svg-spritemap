@@ -59,3 +59,20 @@ h2
       animation: rainbow-bg infinite 1s alternate
       sprite($name, $mode: 'mask')
 
+.variables
+	&__default
+		sprite('spiriit')
+
+	&__red
+		sprite('spiriit', $variables: { 'color': #ff5f5f })
+
+	&__two-tone
+		sprite('spiriit', $variables: { 'color': #a484f8, 'accent': #00d99b })
+
+.variables-runtime
+	&__red
+		--color #ff5f5f
+
+	&__two-tone
+		--color #a484f8
+		--accent #00d99b

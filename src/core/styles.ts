@@ -1,11 +1,12 @@
 import type { Options, StylesLang, SvgDataUriMapObject, SvgMapObject } from '../types'
 import { promises } from 'node:fs'
 import path from 'node:path'
+import { resolveVariableTokens } from '@helpers/variables'
 import svgToMiniDataURI from 'mini-svg-data-uri'
 
 // SVGManager replaces the SvgMapObject on every icon change, so a stale entry
 // can never be hit: an edited icon arrives as a new object
-const dataUriCache = new WeakMap<SvgMapObject, string>()
+const dataUriCache = new WeakMap<SvgMapObject, { svgDataUri: string, svgDataUriTemplate?: string }>()
 // raw template.<lang> contents, immutable at runtime
 const templateCache = new Map<StylesLang, string>()
 
@@ -20,12 +21,21 @@ export class Styles {
     this._routeUrl = routeUrl
 
     svgs.forEach((svg, filePath) => {
-      let svgDataUri = dataUriCache.get(svg)
-      if (svgDataUri === undefined) {
-        svgDataUri = Styles.encodeInnerUrlReferences(
-          svgToMiniDataURI(svg.source),
-        )
-        dataUriCache.set(svg, svgDataUri)
+      let uris = dataUriCache.get(svg)
+      if (typeof uris === 'undefined') {
+        // a `var()` in a data uri can only ever resolve to its own fallback
+        const source = svg.variables
+          ? resolveVariableTokens(svg.variables.sourceTemplate, svg.variables.defaults)
+          : svg.source
+
+        uris = {
+          svgDataUri: Styles.encodeInnerUrlReferences(svgToMiniDataURI(source)),
+          // tokenize first: `mini-svg-data-uri` rewrites `#` and shortens colors
+          svgDataUriTemplate: svg.variables
+            ? Styles.encodeInnerUrlReferences(svgToMiniDataURI(svg.variables.sourceTemplate))
+            : undefined,
+        }
+        dataUriCache.set(svg, uris)
       }
 
       this._svgs.set(filePath, {
@@ -33,7 +43,9 @@ export class Styles {
         width: svg.width,
         height: svg.height,
         viewbox: svg.viewBox,
-        svgDataUri,
+        svgDataUri: uris.svgDataUri,
+        svgDataUriTemplate: uris.svgDataUriTemplate,
+        variableDefaults: svg.variables?.defaults,
       })
     })
   }
@@ -73,6 +85,18 @@ export class Styles {
     return spriteMap
   }
 
+  /** Values come from the svg verbatim, so a quote would end the string early. */
+  private static formatVariableValue(value: string): string {
+    return `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`
+  }
+
+  /** `'name': "value"` entries of one sprite, shared by the scss and styl maps. */
+  private static formatVariablePairs(svg: SvgDataUriMapObject): string {
+    return Object.entries(svg.variableDefaults ?? {})
+      .map(([name, value]) => `\n\t\t'${name}': ${Styles.formatVariableValue(value)}`)
+      .join(',')
+  }
+
   private formatSize(value: number): string {
     // Styles is only instantiated with a resolved styles object
     /* v8 ignore if -- @preserve */
@@ -103,7 +127,7 @@ export class Styles {
     ) {
       const lang = this._options.styles.lang
       const cached = templateCache.get(lang)
-      if (cached !== undefined) {
+      if (typeof cached !== 'undefined') {
         template = cached
       }
       else {
@@ -122,6 +146,7 @@ export class Styles {
       route: this._routeUrl,
       prefix: this._options.styles.names.prefix,
       sprites: this._options.styles.names.sprites,
+      variables: this._options.styles.names.variables,
     }
 
     for (const [key, value] of Object.entries(findAndReplaceObject)) {
@@ -152,12 +177,22 @@ export class Styles {
       let sprite = ''
       sprite = `\t'${svg.id}': (`
       sprite += `\n\t\turi: "${svg.svgDataUri}",`
+      if (svg.svgDataUriTemplate)
+        sprite += `\n\t\turi-template: "${svg.svgDataUriTemplate}",`
       sprite += `\n\t\twidth: ${this.formatSize(svg.width)},`
       sprite += `\n\t\theight: ${this.formatSize(svg.height)}`
       sprite += `\n\t${!isLast ? '),' : ')'}`
       return sprite
     })
     insert += ');\n'
+
+    // an entry per sprite, empty ones included: the mixin looks every sprite up
+    if (this._options.variables !== false) {
+      insert += `\n$${this._options.styles.names.variables}: (\n`
+      insert += this.createSpriteMap((svg, isLast) =>
+        `\t'${svg.id}': (${Styles.formatVariablePairs(svg)}\n\t${isLast ? ')' : '),'}`)
+      insert += ');\n'
+    }
 
     return insert
   }
@@ -179,12 +214,22 @@ export class Styles {
       let sprite = ''
       sprite = `\t'${svg.id}': {`
       sprite += `\n\t\turi: "${svg.svgDataUri}",`
+      if (svg.svgDataUriTemplate)
+        sprite += `\n\t\turi-template: "${svg.svgDataUriTemplate}",`
       sprite += `\n\t\twidth: ${this.formatSize(svg.width)},`
       sprite += `\n\t\theight: ${this.formatSize(svg.height)}`
       sprite += `\n\t${!isLast ? '},' : '}'}`
       return sprite
     })
     insert += '}\n'
+
+    // an entry per sprite, empty ones included: the mixin looks every sprite up
+    if (this._options.variables !== false) {
+      insert += `\n$${this._options.styles.names.variables} = {\n`
+      insert += this.createSpriteMap((svg, isLast) =>
+        `\t'${svg.id}': {${Styles.formatVariablePairs(svg)}\n\t${isLast ? '}' : '},'}`)
+      insert += '}\n'
+    }
 
     return insert
   }
@@ -206,12 +251,26 @@ export class Styles {
       let sprite = ''
       sprite = `\t@${svg.id}: {`
       sprite += `\n\t\turi: "${svg.svgDataUri}";`
+      if (svg.svgDataUriTemplate)
+        sprite += `\n\t\turi-template: "${svg.svgDataUriTemplate}";`
       sprite += `\n\t\twidth: ${this.formatSize(svg.width)};`
       sprite += `\n\t\theight: ${this.formatSize(svg.height)};`
       sprite += '\n\t};'
       return sprite
     })
     insert += '}\n'
+
+    // the leading count is what tells a lone `'a' 1` pair from a list of pairs,
+    // which Less cannot otherwise distinguish
+    if (this._options.variables !== false) {
+      insert += `\n@${this._options.styles.names.variables}: {\n`
+      insert += this.createSpriteMap((svg) => {
+        const entries = Object.entries(svg.variableDefaults ?? {})
+        const pairs = entries.map(([name, value]) => `'${name}' ${Styles.formatVariableValue(value)}`)
+        return `\t@${svg.id}: ${[entries.length, ...pairs].join(', ')};`
+      })
+      insert += '}\n'
+    }
 
     return insert
   }

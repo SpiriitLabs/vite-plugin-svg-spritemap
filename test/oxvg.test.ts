@@ -3,7 +3,7 @@ import { createLogger } from 'vite'
 import { describe, expect, it, vi } from 'vitest'
 import { logMessage } from '../src/helpers/log'
 import { getOptimize, getOptions } from '../src/helpers/oxvg'
-import { defaultDisabledPlugins } from '../src/helpers/svgo'
+import { defaultDisabledPlugins, variablesDisabledPlugins } from '../src/helpers/svgo'
 import { buildVite } from './helpers/build'
 
 const oxvgConfigs: Record<string, UserOptions['oxvg']> = {
@@ -153,5 +153,68 @@ describe('oxvg', () => {
 
     vi.doUnmock('@oxvg/napi')
     spy.mockRestore()
+  })
+})
+
+describe('oxvg variables', () => {
+  it('drops the jobs that mangle var() only when asked', async () => {
+    const plain = await getOptions(true, 'sprite-')
+    const forVariables = await getOptions(true, 'sprite-', true)
+
+    for (const plugin of Object.keys(variablesDisabledPlugins)) {
+      expect(plain).toHaveProperty(plugin)
+      expect(forVariables).not.toHaveProperty(plugin)
+    }
+  })
+
+  // honoured verbatim otherwise, but the copy for `var()` sprites drops the job
+  it('protects a user supplied config without mutating it', async () => {
+    const config = { ...oxvgConfigs.custom as object, removeUselessStrokeAndFill: {} } as Exclude<UserOptions['oxvg'], boolean | undefined>
+
+    expect(await getOptions(config, 'sprite-')).toEqual(config)
+
+    const mitigated = await getOptions(config, 'sprite-', true)
+    expect(mitigated).not.toHaveProperty('removeUselessStrokeAndFill')
+    expect(mitigated).toHaveProperty('prefixIds')
+    expect(config).toHaveProperty('removeUselessStrokeAndFill')
+  })
+
+  // the corruption is independent of the value being themable, so
+  // `variables: false` needs protecting too
+  it.each([undefined, false] as const)('keeps a var() stroke and its siblings (variables: %s)', async (variables) => {
+    const result = await buildVite({
+      name: `oxvg_variables_stroke_${variables}`,
+      path: './fixtures/basic/variables/themable.svg',
+      options: { oxvg: true, svgo: false, variables },
+    })
+
+    if (!('output' in result))
+      return
+
+    const asset = result.output.find(chunk => chunk.fileName.endsWith('.svg'))
+    const source = asset && 'source' in asset ? String(asset.source) : ''
+
+    expect(source).toContain('stroke="var(--color, #fff)"')
+    expect(source).toContain('stroke-width="var(--weight, 2)"')
+  })
+
+  // ⚠️ this aborts the process (SIGABRT) without the mitigation, so a regression
+  // kills the vitest worker instead of failing the assertion
+  it('optimizes a var() in a style declaration instead of crashing', async () => {
+    const result = await buildVite({
+      name: 'oxvg_variables_style',
+      path: './fixtures/basic/variables-style/*.svg',
+      options: { oxvg: true, svgo: false },
+    })
+
+    if (!('output' in result))
+      return
+
+    const asset = result.output.find(chunk => chunk.fileName.endsWith('.svg'))
+    const source = asset && 'source' in asset ? String(asset.source) : ''
+
+    expect(source).toContain('var(--color')
+    // still optimized: the redundant closing `z` of the path is gone
+    expect(source).not.toContain('h20v20H2z')
   })
 })

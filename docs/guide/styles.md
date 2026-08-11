@@ -47,6 +47,8 @@ If you use regular CSS, you will only access to generated classes.
 
 You can see the usage with the [examples](/examples).
 
+To make an icon's colors or stroke widths overridable per call site, check the [variables](/guide/variables) guide.
+
 For advanced usage like customize styles output, check this [page](/guide/customize-styles-output.md)
 
 ## Using background-image directly

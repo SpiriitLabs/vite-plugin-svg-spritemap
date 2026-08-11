@@ -14,7 +14,7 @@ export const filterSvgQuery: RegExp = /\.svg\?/
  */
 export function parseSvgQuery(id: string): { path: string, query: 'use' | 'view' } | null {
   const [path, rawQuery] = id.split('?', 2)
-  if (rawQuery === undefined || !path.endsWith('.svg'))
+  if (typeof rawQuery === 'undefined' || !path.endsWith('.svg'))
     return null
 
   const params = new URLSearchParams(rawQuery.replace(/#.*$/, ''))
