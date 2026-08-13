@@ -6,6 +6,8 @@ export const VAR_CALL = 'var('
 
 const ATTRIBUTE_RE = /([a-z_:][\w:.-]*)\s*=\s*(?:"([^"]*)"|'([^']*)')/gi
 const VAR_NAME_RE = /^--([a-z][\w-]*)$/i
+const STYLE_ATTRIBUTE_RE = /\bstyle\s*=\s*(?:"([^"]*)"|'([^']*)')/gi
+const STYLE_ELEMENT_RE = /<style\b[^>]*>([\s\S]*?)<\/style\s*>/gi
 
 interface VarOccurrence {
   start: number
@@ -120,7 +122,82 @@ function scanVarFunctions(value: string): { occurrences: VarOccurrence[], unbala
   return { occurrences, unbalanced: false }
 }
 
-/** Parse `var(--name, default)` out of the attributes of an svg, `null` if none. */
+function hasStyleAttributeVariable(source: string): boolean {
+  for (const match of source.matchAll(STYLE_ATTRIBUTE_RE)) {
+    if ((match[1] ?? match[2] ?? '').includes(VAR_CALL))
+      return true
+  }
+
+  return false
+}
+
+function hasStyleElementVariable(source: string): boolean {
+  for (const match of source.matchAll(STYLE_ELEMENT_RE)) {
+    if (match[1].includes(VAR_CALL))
+      return true
+  }
+
+  return false
+}
+
+/**
+ * A `var()` inside a `style` attribute or a `<style>` element, which OXVG cannot
+ * optimize without aborting the process.
+ */
+export function hasStyleVariable(source: string): boolean {
+  return source.includes(VAR_CALL)
+    && (hasStyleAttributeVariable(source) || hasStyleElementVariable(source))
+}
+
+/** A stretch of `source` a `var()` may live in, in source order. */
+interface VarSite {
+  /** Offset of `value` in the source, so an occurrence maps back to it. */
+  start: number
+  value: string
+  /** Names the site in a warning. */
+  label: string
+}
+
+/**
+ * Attribute values and `<style>` element contents, in source order. CSS rules need no
+ * parsing: replacing a `var()` with its token is textual, and which elements a selector
+ * matches is the browser's problem once it renders.
+ */
+function collectVarSites(source: string): VarSite[] {
+  const sites: VarSite[] = []
+  const styleContents: Array<[number, number]> = []
+
+  for (const match of source.matchAll(STYLE_ELEMENT_RE)) {
+    // the content starts past the open tag, which the pattern forbids a `>` inside
+    const start = match.index + match[0].indexOf('>') + 1
+    styleContents.push([start, start + match[1].length])
+
+    if (match[1].includes(VAR_CALL))
+      sites.push({ start, value: match[1], label: '`<style>`' })
+  }
+
+  for (const match of source.matchAll(ATTRIBUTE_RE)) {
+    const value = match[2] ?? match[3]
+
+    if (!value.includes(VAR_CALL) || /^xmlns(?:$|:)/i.test(match[1]))
+      continue
+
+    // a css attribute selector inside `<style>` is not an attribute of the document
+    if (styleContents.some(([start, end]) => match.index >= start && match.index < end))
+      continue
+
+    sites.push({
+      // match[0] ends with the closing quote, so the value starts that far back
+      start: match.index + match[0].length - value.length - 1,
+      value,
+      label: `\`${match[1]}\``,
+    })
+  }
+
+  return sites.sort((a, b) => a.start - b.start)
+}
+
+/** Parse `var(--name, default)` out of the attributes and styles of an svg. */
 export function extractSvgVariables(source: string): SvgVariablesResult | null {
   if (!source.includes(VAR_CALL))
     return null
@@ -130,33 +207,18 @@ export function extractSvgVariables(source: string): SvgVariablesResult | null {
   let template = ''
   let cursor = 0
 
-  for (const match of source.matchAll(ATTRIBUTE_RE)) {
-    const attribute = match[1]
-    const raw = match[2] ?? match[3]
-
-    if (!raw.includes(VAR_CALL))
-      continue
-
-    if (/^xmlns(?:$|:)/i.test(attribute))
-      continue
-
-    if (attribute.toLowerCase() === 'style') {
-      warnings.push('`style` declarations are not supported, use a presentation attribute instead (e.g. `fill="var(--color, #fff)"`).')
-      continue
-    }
-
-    // match[0] ends with the closing quote, so the value starts that far back
-    const valueStart = match.index + match[0].length - raw.length - 1
-    const { occurrences, unbalanced } = scanVarFunctions(raw)
+  for (const site of collectVarSites(source)) {
+    const valueStart = site.start
+    const { occurrences, unbalanced } = scanVarFunctions(site.value)
 
     if (unbalanced)
-      warnings.push(`Unbalanced \`var(\` in \`${attribute}\`, left as-is.`)
+      warnings.push(`Unbalanced \`var(\` in ${site.label}, left as-is.`)
 
     for (const occurrence of occurrences) {
       const name = VAR_NAME_RE.exec(occurrence.name)?.[1]
 
       if (!name) {
-        warnings.push(`Invalid variable name \`${occurrence.name}\` in \`${attribute}\`, left as-is. A name must start with a letter and contain only letters, digits, \`-\` and \`_\`.`)
+        warnings.push(`Invalid variable name \`${occurrence.name}\` in ${site.label}, left as-is. A name must start with a letter and contain only letters, digits, \`-\` and \`_\`.`)
         continue
       }
 

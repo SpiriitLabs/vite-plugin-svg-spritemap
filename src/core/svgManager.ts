@@ -10,7 +10,7 @@ import { toUserUnits } from '@helpers/length'
 import { log } from '@helpers/log'
 import { getOptimize as getOptimiseOxvg, getOptions as getOptionsOxvg } from '@helpers/oxvg'
 import { getOptimize as getOptimizeSvgo, getOptions as getOptionsSvgo } from '@helpers/svgo'
-import { extractSvgVariables, resolveVariableTokens, sortVariableDefaults, VAR_CALL } from '@helpers/variables'
+import { extractSvgVariables, hasStyleVariable, resolveVariableTokens, sortVariableDefaults, VAR_CALL } from '@helpers/variables'
 import { DOMImplementation, DOMParser, XMLSerializer } from '@xmldom/xmldom'
 import { glob } from 'tinyglobby'
 import { Styles } from '@/core/styles'
@@ -39,6 +39,8 @@ export class SVGManager {
   private _optimizeConfig: SvgoConfig | OxvgConfig | undefined
   /** Same config with the jobs that mangle `var()` dropped. OXVG only. */
   private _optimizeConfigVariables: OxvgConfig | undefined
+  /** Same, for a `var()` in a style declaration, which needs more dropped. */
+  private _optimizeConfigStyleVariables: OxvgConfig | undefined
   /** Last content written per file, to skip byte-identical rewrites. */
   private _written = new Map<string, string>()
   /** Last variable warnings logged per file, so a re-save stays silent. */
@@ -251,9 +253,16 @@ export class SVGManager {
   private async _optimizeSvg(svg: string): Promise<string> {
     if (this._optimize && this._optimizeType) {
       // OXVG corrupts `var()` values, and aborts outright on one in a `style`
-      const config = typeof this._optimizeConfigVariables !== 'undefined' && svg.includes(VAR_CALL)
-        ? this._optimizeConfigVariables
-        : this._optimizeConfig
+      let config = this._optimizeConfig
+      if (svg.includes(VAR_CALL)) {
+        const mitigated = hasStyleVariable(svg)
+          ? this._optimizeConfigStyleVariables
+          : this._optimizeConfigVariables
+
+        // undefined outside OXVG, where it would mean "run everything" and abort
+        if (typeof mitigated !== 'undefined')
+          config = mitigated
+      }
 
       try {
         const optimizedSvg = this._optimize(svg, config)
@@ -301,7 +310,8 @@ export class SVGManager {
       this._optimizeType = 'oxvg'
       this._optimizeConfig = await getOptionsOxvg(this._options.oxvg, this._options.prefix)
       // not gated on the `variables` option: the corruption happens regardless
-      this._optimizeConfigVariables = await getOptionsOxvg(this._options.oxvg, this._options.prefix, true)
+      this._optimizeConfigVariables = await getOptionsOxvg(this._options.oxvg, this._options.prefix, 'attribute')
+      this._optimizeConfigStyleVariables = await getOptionsOxvg(this._options.oxvg, this._options.prefix, 'style')
     }
     if (this._options.oxvg && !this._optimize) {
       log({ level: 'warn', message: `You need to install OXVG to be able to optimize your SVG with it.`, logger: this._config.logger })

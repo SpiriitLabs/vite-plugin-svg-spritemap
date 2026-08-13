@@ -3,7 +3,7 @@ import { createLogger } from 'vite'
 import { describe, expect, it, vi } from 'vitest'
 import { logMessage } from '../src/helpers/log'
 import { getOptimize, getOptions } from '../src/helpers/oxvg'
-import { defaultDisabledPlugins, variablesDisabledPlugins } from '../src/helpers/svgo'
+import { defaultDisabledPlugins, styleVariablesDisabledPlugins, variablesDisabledPlugins } from '../src/helpers/svgo'
 import { buildVite } from './helpers/build'
 
 const oxvgConfigs: Record<string, UserOptions['oxvg']> = {
@@ -159,12 +159,19 @@ describe('oxvg', () => {
 describe('oxvg variables', () => {
   it('drops the jobs that mangle var() only when asked', async () => {
     const plain = await getOptions(true, 'sprite-')
-    const forVariables = await getOptions(true, 'sprite-', true)
+    const forVariables = await getOptions(true, 'sprite-', 'attribute')
+    const forStyleVariables = await getOptions(true, 'sprite-', 'style')
 
     for (const plugin of Object.keys(variablesDisabledPlugins)) {
       expect(plain).toHaveProperty(plugin)
       expect(forVariables).not.toHaveProperty(plugin)
     }
+
+    // a `var()` in a style declaration needs the wider set
+    for (const plugin of Object.keys(styleVariablesDisabledPlugins))
+      expect(forStyleVariables).not.toHaveProperty(plugin)
+
+    expect(forVariables).toHaveProperty('convertPathData')
   })
 
   // honoured verbatim otherwise, but the copy for `var()` sprites drops the job
@@ -173,7 +180,7 @@ describe('oxvg variables', () => {
 
     expect(await getOptions(config, 'sprite-')).toEqual(config)
 
-    const mitigated = await getOptions(config, 'sprite-', true)
+    const mitigated = await getOptions(config, 'sprite-', 'attribute')
     expect(mitigated).not.toHaveProperty('removeUselessStrokeAndFill')
     expect(mitigated).toHaveProperty('prefixIds')
     expect(config).toHaveProperty('removeUselessStrokeAndFill')
@@ -214,7 +221,14 @@ describe('oxvg variables', () => {
     const source = asset && 'source' in asset ? String(asset.source) : ''
 
     expect(source).toContain('var(--color')
-    // still optimized: the redundant closing `z` of the path is gone
-    expect(source).not.toContain('h20v20H2z')
+    // still optimized: minifyStyles dropped the space after the comma
+    expect(source).toContain('style="fill:var(--color,#fff)"')
+    // a stroke declaration survives too, in a `style` attribute and in `<style>`
+    expect(source).toContain('style="stroke:var(--color,#fff);stroke-width:2px"')
+    expect(source).toContain('style="stroke:var(--color,#fff)"')
+    // one aborting job each: removeHiddenElems, then mergePaths
+    expect(source).toContain('style="opacity:var(--fade,1)"')
+    expect(source).toContain('<path d="M2 2h8v8H2Z" style="fill:var(--twin,red)"/>')
+    expect(source).toContain('<path d="M14 14h8v8h-8Z" style="fill:var(--twin,red)"/>')
   })
 })
