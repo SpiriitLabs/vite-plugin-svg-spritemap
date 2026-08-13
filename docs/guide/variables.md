@@ -72,6 +72,8 @@ The mixin takes a `$variables` map (a list of pairs in Less). Every variable the
 
 ::: warning Less takes a list of pairs, separated by `;`
 Less has no map literal, so variables are passed as a comma-separated list of `'name' value` pairs. Less also parses a comma inside a mixin call as an **argument** separator, so as soon as you pass more than one pair you must separate the mixin arguments with `;` — `.sprite('alert'; @variables: 'color' '#f00', 'weight' 3)`. A single pair works with either separator. Quote your keys. A value containing a space works either way, quoted (`'dash' '2 4'`) or not (`'dash' 2 4`): everything past the name is folded back into one value.
+
+**A value containing a comma must be quoted.** An unquoted one starts the next pair, and since Less has no `@warn` everything past the comma is dropped in silence: `'font' Arial, sans-serif` substitutes `Arial` alone. Write `'font' 'Arial, sans-serif'`.
 :::
 
 `$variables` is the last argument, so it composes with the others:

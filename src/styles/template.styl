@@ -41,7 +41,8 @@ __mixin__($name, $include-size = false, $type = 'uri', $mode = 'background', $ro
 
 				for $key, $value in $merged
 					if $key in $defaults
-						if $key in $variables and match('(var|url)[(]', '' + $value)
+						// case-insensitively, as css matches a function name
+						if $key in $variables and match('(var|url)[(]', '' + $value, 'i')
 							warn('__mixin__(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri')
 						$url = __mixin__-replace($url, '___' + $key + '___', __mixin__-escape($value, $key in $variables))
 					else
