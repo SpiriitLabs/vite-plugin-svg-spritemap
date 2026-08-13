@@ -70,20 +70,18 @@ exports[`styles generation > custom less names 1`] = `
 	};
 }
 
-@sprites-variables: {
-	@no_viewbox: 0;
-	@no_width_height: 0;
-	@spiriit: 0;
-	@vite: 0;
+.icon-sprite-entities(@value; @entities) when (@entities) {
+  @spritemap-entities: replace(replace(~'@{value}', '&', '&amp;', 'g'), '<', '&lt;', 'g');
 }
 
-.icon-sprite-escape(@value) {
-  @spritemap-xml: replace(replace(replace(replace(~'@{value}', '&', '&amp;', 'g'), '<', '&lt;', 'g'), "'", '&apos;', 'g'), '"', '&quot;', 'g');
+.icon-sprite-entities(@value; @entities) when not (@entities) {
+  @spritemap-entities: ~'@{value}';
+}
+
+.icon-sprite-pair(@uri; @key; @value; @entities) {
+  .icon-sprite-entities(@value; @entities);
+  @spritemap-xml: replace(replace(~'@{spritemap-entities}', "'", '&apos;', 'g'), '"', '&quot;', 'g');
   @spritemap-escaped: replace(replace(replace(replace(replace(escape(@spritemap-xml), '&', '%26', 'g'), ',', '%2c', 'g'), '[+]', '%2b', 'g'), '[$]', '%24', 'g'), '[?]', '%3f', 'g');
-}
-
-.icon-sprite-pair(@uri; @key; @value) {
-  .icon-sprite-escape(@value);
   @spritemap-uri: replace(@uri, '___@{key}___', @spritemap-escaped, 'g');
 }
 
@@ -104,18 +102,30 @@ exports[`styles generation > custom less names 1`] = `
 
 .icon-sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i > @to) {
   @spritemap-value: @fallback;
+  @spritemap-overridden: false;
 }
 
 .icon-sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i <= @to) {
-  .icon-sprite-value-step(@pairs; @key; @fallback; @i; @to; extract(extract(@pairs, @i), 1); extract(extract(@pairs, @i), 2));
+  .icon-sprite-value-step(@pairs; @key; @fallback; @i; @to; extract(extract(@pairs, @i), 1));
 }
 
-.icon-sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when (@name = @key) {
-  @spritemap-value: @value;
+.icon-sprite-value-step(@pairs; @key; @fallback; @i; @to; @name) when (@name = @key) {
+  .icon-sprite-value-join(extract(@pairs, @i); 3; extract(extract(@pairs, @i), 2));
+  @spritemap-value: @spritemap-joined;
+  @spritemap-overridden: true;
 }
 
-.icon-sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when not (@name = @key) {
+.icon-sprite-value-step(@pairs; @key; @fallback; @i; @to; @name) when not (@name = @key) {
   .icon-sprite-value-scan(@pairs; @key; @fallback; @i + 1; @to);
+}
+
+.icon-sprite-value-join(@pair; @i; @accumulator) when (@i > length(@pair)) {
+  @spritemap-joined: @accumulator;
+}
+
+.icon-sprite-value-join(@pair; @i; @accumulator) when (@i <= length(@pair)) {
+  @spritemap-next: extract(@pair, @i);
+  .icon-sprite-value-join(@pair; @i + 1; ~'@{accumulator} @{spritemap-next}');
 }
 
 // Walk the defaults, which come ordered longest name first so a short token can
@@ -127,7 +137,7 @@ exports[`styles generation > custom less names 1`] = `
 
 .icon-sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i <= @to) {
   .icon-sprite-value(@variables; extract(extract(@defaults, @i), 1); extract(extract(@defaults, @i), 2));
-  .icon-sprite-pair(@uri; extract(extract(@defaults, @i), 1); @spritemap-value);
+  .icon-sprite-pair(@uri; extract(extract(@defaults, @i), 1); @spritemap-value; @spritemap-overridden);
   .icon-sprite-subst(@mode; @spritemap-uri; @variables; @defaults; @i + 1; @to);
 }
 
@@ -204,20 +214,18 @@ exports[`styles generation > custom less sizes with em unit 1`] = `
 	};
 }
 
-@sprites-variables: {
-	@no_viewbox: 0;
-	@no_width_height: 0;
-	@spiriit: 0;
-	@vite: 0;
+.sprite-entities(@value; @entities) when (@entities) {
+  @spritemap-entities: replace(replace(~'@{value}', '&', '&amp;', 'g'), '<', '&lt;', 'g');
 }
 
-.sprite-escape(@value) {
-  @spritemap-xml: replace(replace(replace(replace(~'@{value}', '&', '&amp;', 'g'), '<', '&lt;', 'g'), "'", '&apos;', 'g'), '"', '&quot;', 'g');
+.sprite-entities(@value; @entities) when not (@entities) {
+  @spritemap-entities: ~'@{value}';
+}
+
+.sprite-pair(@uri; @key; @value; @entities) {
+  .sprite-entities(@value; @entities);
+  @spritemap-xml: replace(replace(~'@{spritemap-entities}', "'", '&apos;', 'g'), '"', '&quot;', 'g');
   @spritemap-escaped: replace(replace(replace(replace(replace(escape(@spritemap-xml), '&', '%26', 'g'), ',', '%2c', 'g'), '[+]', '%2b', 'g'), '[$]', '%24', 'g'), '[?]', '%3f', 'g');
-}
-
-.sprite-pair(@uri; @key; @value) {
-  .sprite-escape(@value);
   @spritemap-uri: replace(@uri, '___@{key}___', @spritemap-escaped, 'g');
 }
 
@@ -238,18 +246,30 @@ exports[`styles generation > custom less sizes with em unit 1`] = `
 
 .sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i > @to) {
   @spritemap-value: @fallback;
+  @spritemap-overridden: false;
 }
 
 .sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i <= @to) {
-  .sprite-value-step(@pairs; @key; @fallback; @i; @to; extract(extract(@pairs, @i), 1); extract(extract(@pairs, @i), 2));
+  .sprite-value-step(@pairs; @key; @fallback; @i; @to; extract(extract(@pairs, @i), 1));
 }
 
-.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when (@name = @key) {
-  @spritemap-value: @value;
+.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name) when (@name = @key) {
+  .sprite-value-join(extract(@pairs, @i); 3; extract(extract(@pairs, @i), 2));
+  @spritemap-value: @spritemap-joined;
+  @spritemap-overridden: true;
 }
 
-.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when not (@name = @key) {
+.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name) when not (@name = @key) {
   .sprite-value-scan(@pairs; @key; @fallback; @i + 1; @to);
+}
+
+.sprite-value-join(@pair; @i; @accumulator) when (@i > length(@pair)) {
+  @spritemap-joined: @accumulator;
+}
+
+.sprite-value-join(@pair; @i; @accumulator) when (@i <= length(@pair)) {
+  @spritemap-next: extract(@pair, @i);
+  .sprite-value-join(@pair; @i + 1; ~'@{accumulator} @{spritemap-next}');
 }
 
 // Walk the defaults, which come ordered longest name first so a short token can
@@ -261,7 +281,7 @@ exports[`styles generation > custom less sizes with em unit 1`] = `
 
 .sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i <= @to) {
   .sprite-value(@variables; extract(extract(@defaults, @i), 1); extract(extract(@defaults, @i), 2));
-  .sprite-pair(@uri; extract(extract(@defaults, @i), 1); @spritemap-value);
+  .sprite-pair(@uri; extract(extract(@defaults, @i), 1); @spritemap-value; @spritemap-overridden);
   .sprite-subst(@mode; @spritemap-uri; @variables; @defaults; @i + 1; @to);
 }
 
@@ -338,20 +358,18 @@ exports[`styles generation > custom less sizes with rem unit and base 10 1`] = `
 	};
 }
 
-@sprites-variables: {
-	@no_viewbox: 0;
-	@no_width_height: 0;
-	@spiriit: 0;
-	@vite: 0;
+.sprite-entities(@value; @entities) when (@entities) {
+  @spritemap-entities: replace(replace(~'@{value}', '&', '&amp;', 'g'), '<', '&lt;', 'g');
 }
 
-.sprite-escape(@value) {
-  @spritemap-xml: replace(replace(replace(replace(~'@{value}', '&', '&amp;', 'g'), '<', '&lt;', 'g'), "'", '&apos;', 'g'), '"', '&quot;', 'g');
+.sprite-entities(@value; @entities) when not (@entities) {
+  @spritemap-entities: ~'@{value}';
+}
+
+.sprite-pair(@uri; @key; @value; @entities) {
+  .sprite-entities(@value; @entities);
+  @spritemap-xml: replace(replace(~'@{spritemap-entities}', "'", '&apos;', 'g'), '"', '&quot;', 'g');
   @spritemap-escaped: replace(replace(replace(replace(replace(escape(@spritemap-xml), '&', '%26', 'g'), ',', '%2c', 'g'), '[+]', '%2b', 'g'), '[$]', '%24', 'g'), '[?]', '%3f', 'g');
-}
-
-.sprite-pair(@uri; @key; @value) {
-  .sprite-escape(@value);
   @spritemap-uri: replace(@uri, '___@{key}___', @spritemap-escaped, 'g');
 }
 
@@ -372,18 +390,30 @@ exports[`styles generation > custom less sizes with rem unit and base 10 1`] = `
 
 .sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i > @to) {
   @spritemap-value: @fallback;
+  @spritemap-overridden: false;
 }
 
 .sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i <= @to) {
-  .sprite-value-step(@pairs; @key; @fallback; @i; @to; extract(extract(@pairs, @i), 1); extract(extract(@pairs, @i), 2));
+  .sprite-value-step(@pairs; @key; @fallback; @i; @to; extract(extract(@pairs, @i), 1));
 }
 
-.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when (@name = @key) {
-  @spritemap-value: @value;
+.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name) when (@name = @key) {
+  .sprite-value-join(extract(@pairs, @i); 3; extract(extract(@pairs, @i), 2));
+  @spritemap-value: @spritemap-joined;
+  @spritemap-overridden: true;
 }
 
-.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when not (@name = @key) {
+.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name) when not (@name = @key) {
   .sprite-value-scan(@pairs; @key; @fallback; @i + 1; @to);
+}
+
+.sprite-value-join(@pair; @i; @accumulator) when (@i > length(@pair)) {
+  @spritemap-joined: @accumulator;
+}
+
+.sprite-value-join(@pair; @i; @accumulator) when (@i <= length(@pair)) {
+  @spritemap-next: extract(@pair, @i);
+  .sprite-value-join(@pair; @i + 1; ~'@{accumulator} @{spritemap-next}');
 }
 
 // Walk the defaults, which come ordered longest name first so a short token can
@@ -395,7 +425,7 @@ exports[`styles generation > custom less sizes with rem unit and base 10 1`] = `
 
 .sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i <= @to) {
   .sprite-value(@variables; extract(extract(@defaults, @i), 1); extract(extract(@defaults, @i), 2));
-  .sprite-pair(@uri; extract(extract(@defaults, @i), 1); @spritemap-value);
+  .sprite-pair(@uri; extract(extract(@defaults, @i), 1); @spritemap-value; @spritemap-overridden);
   .sprite-subst(@mode; @spritemap-uri; @variables; @defaults; @i + 1; @to);
 }
 
@@ -472,26 +502,18 @@ $icons: (
 	)
 );
 
-$sprites-variables: (
-	'no_viewbox': (
-	),
-	'no_width_height': (
-	),
-	'spiriit': (
-	),
-	'vite': (
-	)
-);
-
 @use "sass:list";
 @use "sass:map";
 @use "sass:meta";
 @use "sass:string";
 
 // \`-\` prefixed members are private: \`@use\` never exposes them to a consumer
-$-icon-sprite-escapes: (
+$-icon-sprite-entities: (
   ('&', '&amp;'),
-  ('<', '&lt;'),
+  ('<', '&lt;')
+);
+
+$-icon-sprite-escapes: (
   ("'", '&apos;'),
   ('"', '&quot;'),
   ('%', '%25'),
@@ -523,8 +545,14 @@ $-icon-sprite-escapes: (
   @return $result + $rest;
 }
 
-@function -icon-sprite-escape($value) {
+@function -icon-sprite-escape($value, $entities: true) {
   $string: '#{$value}';
+
+  @if $entities {
+    @each $escape in $-icon-sprite-entities {
+      $string: -icon-sprite-replace($string, list.nth($escape, 1), list.nth($escape, 2));
+    }
+  }
 
   @each $escape in $-icon-sprite-escapes {
     $string: -icon-sprite-replace($string, list.nth($escape, 1), list.nth($escape, 2));
@@ -566,11 +594,13 @@ $-icon-sprite-escapes: (
 
         @each $key, $value in map.merge($defaults, $variables) {
           @if map.has-key($defaults, $key) {
-            @if string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(') {
+            $overridden: map.has-key($variables, $key);
+
+            @if $overridden and (string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(')) {
               @warn 'icon-sprite(): "#{$key}" is set to "#{$value}", a css reference is inert inside a data uri.';
             }
 
-            $url: -icon-sprite-replace($url, '___#{$key}___', -icon-sprite-escape($value));
+            $url: -icon-sprite-replace($url, '___#{$key}___', -icon-sprite-escape($value, $overridden));
           } @else {
             @warn 'icon-sprite(): "#{$name}" has no variable named "#{$key}", available: #{map.keys($defaults)}.';
           }
@@ -624,26 +654,18 @@ $sprites: (
 	)
 );
 
-$sprites-variables: (
-	'no_viewbox': (
-	),
-	'no_width_height': (
-	),
-	'spiriit': (
-	),
-	'vite': (
-	)
-);
-
 @use "sass:list";
 @use "sass:map";
 @use "sass:meta";
 @use "sass:string";
 
 // \`-\` prefixed members are private: \`@use\` never exposes them to a consumer
-$-sprite-escapes: (
+$-sprite-entities: (
   ('&', '&amp;'),
-  ('<', '&lt;'),
+  ('<', '&lt;')
+);
+
+$-sprite-escapes: (
   ("'", '&apos;'),
   ('"', '&quot;'),
   ('%', '%25'),
@@ -675,8 +697,14 @@ $-sprite-escapes: (
   @return $result + $rest;
 }
 
-@function -sprite-escape($value) {
+@function -sprite-escape($value, $entities: true) {
   $string: '#{$value}';
+
+  @if $entities {
+    @each $escape in $-sprite-entities {
+      $string: -sprite-replace($string, list.nth($escape, 1), list.nth($escape, 2));
+    }
+  }
 
   @each $escape in $-sprite-escapes {
     $string: -sprite-replace($string, list.nth($escape, 1), list.nth($escape, 2));
@@ -718,11 +746,13 @@ $-sprite-escapes: (
 
         @each $key, $value in map.merge($defaults, $variables) {
           @if map.has-key($defaults, $key) {
-            @if string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(') {
+            $overridden: map.has-key($variables, $key);
+
+            @if $overridden and (string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(')) {
               @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference is inert inside a data uri.';
             }
 
-            $url: -sprite-replace($url, '___#{$key}___', -sprite-escape($value));
+            $url: -sprite-replace($url, '___#{$key}___', -sprite-escape($value, $overridden));
           } @else {
             @warn 'sprite(): "#{$name}" has no variable named "#{$key}", available: #{map.keys($defaults)}.';
           }
@@ -776,26 +806,18 @@ $sprites: (
 	)
 );
 
-$sprites-variables: (
-	'no_viewbox': (
-	),
-	'no_width_height': (
-	),
-	'spiriit': (
-	),
-	'vite': (
-	)
-);
-
 @use "sass:list";
 @use "sass:map";
 @use "sass:meta";
 @use "sass:string";
 
 // \`-\` prefixed members are private: \`@use\` never exposes them to a consumer
-$-sprite-escapes: (
+$-sprite-entities: (
   ('&', '&amp;'),
-  ('<', '&lt;'),
+  ('<', '&lt;')
+);
+
+$-sprite-escapes: (
   ("'", '&apos;'),
   ('"', '&quot;'),
   ('%', '%25'),
@@ -827,8 +849,14 @@ $-sprite-escapes: (
   @return $result + $rest;
 }
 
-@function -sprite-escape($value) {
+@function -sprite-escape($value, $entities: true) {
   $string: '#{$value}';
+
+  @if $entities {
+    @each $escape in $-sprite-entities {
+      $string: -sprite-replace($string, list.nth($escape, 1), list.nth($escape, 2));
+    }
+  }
 
   @each $escape in $-sprite-escapes {
     $string: -sprite-replace($string, list.nth($escape, 1), list.nth($escape, 2));
@@ -870,11 +898,13 @@ $-sprite-escapes: (
 
         @each $key, $value in map.merge($defaults, $variables) {
           @if map.has-key($defaults, $key) {
-            @if string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(') {
+            $overridden: map.has-key($variables, $key);
+
+            @if $overridden and (string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(')) {
               @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference is inert inside a data uri.';
             }
 
-            $url: -sprite-replace($url, '___#{$key}___', -sprite-escape($value));
+            $url: -sprite-replace($url, '___#{$key}___', -sprite-escape($value, $overridden));
           } @else {
             @warn 'sprite(): "#{$name}" has no variable named "#{$key}", available: #{map.keys($defaults)}.';
           }
@@ -928,26 +958,19 @@ $icons = {
 	}
 }
 
-$sprites-variables = {
-	'no_viewbox': {
-	},
-	'no_width_height': {
-	},
-	'spiriit': {
-	},
-	'vite': {
-	}
-}
-
 icon-sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route = '/__spritemap', $variables = {})
 	// nested definitions are lexically scoped: they stay out of the importer's scope
-	$icon-sprite-escapes = ('&' '&amp;'), ('<' '&lt;'), ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
+	$icon-sprite-entities = ('&' '&amp;'), ('<' '&lt;')
+	$icon-sprite-escapes = ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
 
 	icon-sprite-replace($string, $search, $replacement)
 		join($replacement, split($search, $string))
 
-	icon-sprite-escape($value)
+	icon-sprite-escape($value, $entities = true)
 		$string = '' + $value
+		if $entities
+			for $escape in $icon-sprite-entities
+				$string = icon-sprite-replace($string, $escape[0], $escape[1])
 		for $escape in $icon-sprite-escapes
 			$string = icon-sprite-replace($string, $escape[0], $escape[1])
 		$string
@@ -978,7 +1001,9 @@ icon-sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $
 
 				for $key, $value in $merged
 					if $key in $defaults
-						$url = icon-sprite-replace($url, '___' + $key + '___', icon-sprite-escape($value))
+						if $key in $variables and match('(var|url)[(]', '' + $value)
+							warn('icon-sprite(): "' + $key + '" is set to "' + $value + '", a css reference is inert inside a data uri')
+						$url = icon-sprite-replace($url, '___' + $key + '___', icon-sprite-escape($value, $key in $variables))
 					else
 						warn('icon-sprite(): "' + $name + '" has no variable named "' + $key + '"')
 	else
@@ -1023,26 +1048,19 @@ $sprites = {
 	}
 }
 
-$sprites-variables = {
-	'no_viewbox': {
-	},
-	'no_width_height': {
-	},
-	'spiriit': {
-	},
-	'vite': {
-	}
-}
-
 sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route = '/__spritemap', $variables = {})
 	// nested definitions are lexically scoped: they stay out of the importer's scope
-	$sprite-escapes = ('&' '&amp;'), ('<' '&lt;'), ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
+	$sprite-entities = ('&' '&amp;'), ('<' '&lt;')
+	$sprite-escapes = ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
 
 	sprite-replace($string, $search, $replacement)
 		join($replacement, split($search, $string))
 
-	sprite-escape($value)
+	sprite-escape($value, $entities = true)
 		$string = '' + $value
+		if $entities
+			for $escape in $sprite-entities
+				$string = sprite-replace($string, $escape[0], $escape[1])
 		for $escape in $sprite-escapes
 			$string = sprite-replace($string, $escape[0], $escape[1])
 		$string
@@ -1073,7 +1091,9 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 
 				for $key, $value in $merged
 					if $key in $defaults
-						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value))
+						if $key in $variables and match('(var|url)[(]', '' + $value)
+							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference is inert inside a data uri')
+						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value, $key in $variables))
 					else
 						warn('sprite(): "' + $name + '" has no variable named "' + $key + '"')
 	else
@@ -1118,26 +1138,19 @@ $sprites = {
 	}
 }
 
-$sprites-variables = {
-	'no_viewbox': {
-	},
-	'no_width_height': {
-	},
-	'spiriit': {
-	},
-	'vite': {
-	}
-}
-
 sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route = '/__spritemap', $variables = {})
 	// nested definitions are lexically scoped: they stay out of the importer's scope
-	$sprite-escapes = ('&' '&amp;'), ('<' '&lt;'), ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
+	$sprite-entities = ('&' '&amp;'), ('<' '&lt;')
+	$sprite-escapes = ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
 
 	sprite-replace($string, $search, $replacement)
 		join($replacement, split($search, $string))
 
-	sprite-escape($value)
+	sprite-escape($value, $entities = true)
 		$string = '' + $value
+		if $entities
+			for $escape in $sprite-entities
+				$string = sprite-replace($string, $escape[0], $escape[1])
 		for $escape in $sprite-escapes
 			$string = sprite-replace($string, $escape[0], $escape[1])
 		$string
@@ -1168,7 +1181,9 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 
 				for $key, $value in $merged
 					if $key in $defaults
-						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value))
+						if $key in $variables and match('(var|url)[(]', '' + $value)
+							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference is inert inside a data uri')
+						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value, $key in $variables))
 					else
 						warn('sprite(): "' + $name + '" has no variable named "' + $key + '"')
 	else
@@ -1370,20 +1385,18 @@ exports[`styles generation > include less ["mixin","variables"] 1`] = `
 	};
 }
 
-@sprites-variables: {
-	@no_viewbox: 0;
-	@no_width_height: 0;
-	@spiriit: 0;
-	@vite: 0;
+.sprite-entities(@value; @entities) when (@entities) {
+  @spritemap-entities: replace(replace(~'@{value}', '&', '&amp;', 'g'), '<', '&lt;', 'g');
 }
 
-.sprite-escape(@value) {
-  @spritemap-xml: replace(replace(replace(replace(~'@{value}', '&', '&amp;', 'g'), '<', '&lt;', 'g'), "'", '&apos;', 'g'), '"', '&quot;', 'g');
+.sprite-entities(@value; @entities) when not (@entities) {
+  @spritemap-entities: ~'@{value}';
+}
+
+.sprite-pair(@uri; @key; @value; @entities) {
+  .sprite-entities(@value; @entities);
+  @spritemap-xml: replace(replace(~'@{spritemap-entities}', "'", '&apos;', 'g'), '"', '&quot;', 'g');
   @spritemap-escaped: replace(replace(replace(replace(replace(escape(@spritemap-xml), '&', '%26', 'g'), ',', '%2c', 'g'), '[+]', '%2b', 'g'), '[$]', '%24', 'g'), '[?]', '%3f', 'g');
-}
-
-.sprite-pair(@uri; @key; @value) {
-  .sprite-escape(@value);
   @spritemap-uri: replace(@uri, '___@{key}___', @spritemap-escaped, 'g');
 }
 
@@ -1404,18 +1417,30 @@ exports[`styles generation > include less ["mixin","variables"] 1`] = `
 
 .sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i > @to) {
   @spritemap-value: @fallback;
+  @spritemap-overridden: false;
 }
 
 .sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i <= @to) {
-  .sprite-value-step(@pairs; @key; @fallback; @i; @to; extract(extract(@pairs, @i), 1); extract(extract(@pairs, @i), 2));
+  .sprite-value-step(@pairs; @key; @fallback; @i; @to; extract(extract(@pairs, @i), 1));
 }
 
-.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when (@name = @key) {
-  @spritemap-value: @value;
+.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name) when (@name = @key) {
+  .sprite-value-join(extract(@pairs, @i); 3; extract(extract(@pairs, @i), 2));
+  @spritemap-value: @spritemap-joined;
+  @spritemap-overridden: true;
 }
 
-.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when not (@name = @key) {
+.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name) when not (@name = @key) {
   .sprite-value-scan(@pairs; @key; @fallback; @i + 1; @to);
+}
+
+.sprite-value-join(@pair; @i; @accumulator) when (@i > length(@pair)) {
+  @spritemap-joined: @accumulator;
+}
+
+.sprite-value-join(@pair; @i; @accumulator) when (@i <= length(@pair)) {
+  @spritemap-next: extract(@pair, @i);
+  .sprite-value-join(@pair; @i + 1; ~'@{accumulator} @{spritemap-next}');
 }
 
 // Walk the defaults, which come ordered longest name first so a short token can
@@ -1427,7 +1452,7 @@ exports[`styles generation > include less ["mixin","variables"] 1`] = `
 
 .sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i <= @to) {
   .sprite-value(@variables; extract(extract(@defaults, @i), 1); extract(extract(@defaults, @i), 2));
-  .sprite-pair(@uri; extract(extract(@defaults, @i), 1); @spritemap-value);
+  .sprite-pair(@uri; extract(extract(@defaults, @i), 1); @spritemap-value; @spritemap-overridden);
   .sprite-subst(@mode; @spritemap-uri; @variables; @defaults; @i + 1; @to);
 }
 
@@ -1481,13 +1506,18 @@ exports[`styles generation > include less ["mixin"] 1`] = `
 "/* Generated by vite-plugin-svg-spritemap */
 
 
-.sprite-escape(@value) {
-  @spritemap-xml: replace(replace(replace(replace(~'@{value}', '&', '&amp;', 'g'), '<', '&lt;', 'g'), "'", '&apos;', 'g'), '"', '&quot;', 'g');
-  @spritemap-escaped: replace(replace(replace(replace(replace(escape(@spritemap-xml), '&', '%26', 'g'), ',', '%2c', 'g'), '[+]', '%2b', 'g'), '[$]', '%24', 'g'), '[?]', '%3f', 'g');
+.sprite-entities(@value; @entities) when (@entities) {
+  @spritemap-entities: replace(replace(~'@{value}', '&', '&amp;', 'g'), '<', '&lt;', 'g');
 }
 
-.sprite-pair(@uri; @key; @value) {
-  .sprite-escape(@value);
+.sprite-entities(@value; @entities) when not (@entities) {
+  @spritemap-entities: ~'@{value}';
+}
+
+.sprite-pair(@uri; @key; @value; @entities) {
+  .sprite-entities(@value; @entities);
+  @spritemap-xml: replace(replace(~'@{spritemap-entities}', "'", '&apos;', 'g'), '"', '&quot;', 'g');
+  @spritemap-escaped: replace(replace(replace(replace(replace(escape(@spritemap-xml), '&', '%26', 'g'), ',', '%2c', 'g'), '[+]', '%2b', 'g'), '[$]', '%24', 'g'), '[?]', '%3f', 'g');
   @spritemap-uri: replace(@uri, '___@{key}___', @spritemap-escaped, 'g');
 }
 
@@ -1508,18 +1538,30 @@ exports[`styles generation > include less ["mixin"] 1`] = `
 
 .sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i > @to) {
   @spritemap-value: @fallback;
+  @spritemap-overridden: false;
 }
 
 .sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i <= @to) {
-  .sprite-value-step(@pairs; @key; @fallback; @i; @to; extract(extract(@pairs, @i), 1); extract(extract(@pairs, @i), 2));
+  .sprite-value-step(@pairs; @key; @fallback; @i; @to; extract(extract(@pairs, @i), 1));
 }
 
-.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when (@name = @key) {
-  @spritemap-value: @value;
+.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name) when (@name = @key) {
+  .sprite-value-join(extract(@pairs, @i); 3; extract(extract(@pairs, @i), 2));
+  @spritemap-value: @spritemap-joined;
+  @spritemap-overridden: true;
 }
 
-.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when not (@name = @key) {
+.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name) when not (@name = @key) {
   .sprite-value-scan(@pairs; @key; @fallback; @i + 1; @to);
+}
+
+.sprite-value-join(@pair; @i; @accumulator) when (@i > length(@pair)) {
+  @spritemap-joined: @accumulator;
+}
+
+.sprite-value-join(@pair; @i; @accumulator) when (@i <= length(@pair)) {
+  @spritemap-next: extract(@pair, @i);
+  .sprite-value-join(@pair; @i + 1; ~'@{accumulator} @{spritemap-next}');
 }
 
 // Walk the defaults, which come ordered longest name first so a short token can
@@ -1531,7 +1573,7 @@ exports[`styles generation > include less ["mixin"] 1`] = `
 
 .sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i <= @to) {
   .sprite-value(@variables; extract(extract(@defaults, @i), 1); extract(extract(@defaults, @i), 2));
-  .sprite-pair(@uri; extract(extract(@defaults, @i), 1); @spritemap-value);
+  .sprite-pair(@uri; extract(extract(@defaults, @i), 1); @spritemap-value; @spritemap-overridden);
   .sprite-subst(@mode; @spritemap-uri; @variables; @defaults; @i + 1; @to);
 }
 
@@ -1610,20 +1652,18 @@ exports[`styles generation > include less true 1`] = `
 	};
 }
 
-@sprites-variables: {
-	@no_viewbox: 0;
-	@no_width_height: 0;
-	@spiriit: 0;
-	@vite: 0;
+.sprite-entities(@value; @entities) when (@entities) {
+  @spritemap-entities: replace(replace(~'@{value}', '&', '&amp;', 'g'), '<', '&lt;', 'g');
 }
 
-.sprite-escape(@value) {
-  @spritemap-xml: replace(replace(replace(replace(~'@{value}', '&', '&amp;', 'g'), '<', '&lt;', 'g'), "'", '&apos;', 'g'), '"', '&quot;', 'g');
+.sprite-entities(@value; @entities) when not (@entities) {
+  @spritemap-entities: ~'@{value}';
+}
+
+.sprite-pair(@uri; @key; @value; @entities) {
+  .sprite-entities(@value; @entities);
+  @spritemap-xml: replace(replace(~'@{spritemap-entities}', "'", '&apos;', 'g'), '"', '&quot;', 'g');
   @spritemap-escaped: replace(replace(replace(replace(replace(escape(@spritemap-xml), '&', '%26', 'g'), ',', '%2c', 'g'), '[+]', '%2b', 'g'), '[$]', '%24', 'g'), '[?]', '%3f', 'g');
-}
-
-.sprite-pair(@uri; @key; @value) {
-  .sprite-escape(@value);
   @spritemap-uri: replace(@uri, '___@{key}___', @spritemap-escaped, 'g');
 }
 
@@ -1644,18 +1684,30 @@ exports[`styles generation > include less true 1`] = `
 
 .sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i > @to) {
   @spritemap-value: @fallback;
+  @spritemap-overridden: false;
 }
 
 .sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i <= @to) {
-  .sprite-value-step(@pairs; @key; @fallback; @i; @to; extract(extract(@pairs, @i), 1); extract(extract(@pairs, @i), 2));
+  .sprite-value-step(@pairs; @key; @fallback; @i; @to; extract(extract(@pairs, @i), 1));
 }
 
-.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when (@name = @key) {
-  @spritemap-value: @value;
+.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name) when (@name = @key) {
+  .sprite-value-join(extract(@pairs, @i); 3; extract(extract(@pairs, @i), 2));
+  @spritemap-value: @spritemap-joined;
+  @spritemap-overridden: true;
 }
 
-.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when not (@name = @key) {
+.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name) when not (@name = @key) {
   .sprite-value-scan(@pairs; @key; @fallback; @i + 1; @to);
+}
+
+.sprite-value-join(@pair; @i; @accumulator) when (@i > length(@pair)) {
+  @spritemap-joined: @accumulator;
+}
+
+.sprite-value-join(@pair; @i; @accumulator) when (@i <= length(@pair)) {
+  @spritemap-next: extract(@pair, @i);
+  .sprite-value-join(@pair; @i + 1; ~'@{accumulator} @{spritemap-next}');
 }
 
 // Walk the defaults, which come ordered longest name first so a short token can
@@ -1667,7 +1719,7 @@ exports[`styles generation > include less true 1`] = `
 
 .sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i <= @to) {
   .sprite-value(@variables; extract(extract(@defaults, @i), 1); extract(extract(@defaults, @i), 2));
-  .sprite-pair(@uri; extract(extract(@defaults, @i), 1); @spritemap-value);
+  .sprite-pair(@uri; extract(extract(@defaults, @i), 1); @spritemap-value; @spritemap-overridden);
   .sprite-subst(@mode; @spritemap-uri; @variables; @defaults; @i + 1; @to);
 }
 
@@ -1744,26 +1796,18 @@ $sprites: (
 	)
 );
 
-$sprites-variables: (
-	'no_viewbox': (
-	),
-	'no_width_height': (
-	),
-	'spiriit': (
-	),
-	'vite': (
-	)
-);
-
 @use "sass:list";
 @use "sass:map";
 @use "sass:meta";
 @use "sass:string";
 
 // \`-\` prefixed members are private: \`@use\` never exposes them to a consumer
-$-sprite-escapes: (
+$-sprite-entities: (
   ('&', '&amp;'),
-  ('<', '&lt;'),
+  ('<', '&lt;')
+);
+
+$-sprite-escapes: (
   ("'", '&apos;'),
   ('"', '&quot;'),
   ('%', '%25'),
@@ -1795,8 +1839,14 @@ $-sprite-escapes: (
   @return $result + $rest;
 }
 
-@function -sprite-escape($value) {
+@function -sprite-escape($value, $entities: true) {
   $string: '#{$value}';
+
+  @if $entities {
+    @each $escape in $-sprite-entities {
+      $string: -sprite-replace($string, list.nth($escape, 1), list.nth($escape, 2));
+    }
+  }
 
   @each $escape in $-sprite-escapes {
     $string: -sprite-replace($string, list.nth($escape, 1), list.nth($escape, 2));
@@ -1838,11 +1888,13 @@ $-sprite-escapes: (
 
         @each $key, $value in map.merge($defaults, $variables) {
           @if map.has-key($defaults, $key) {
-            @if string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(') {
+            $overridden: map.has-key($variables, $key);
+
+            @if $overridden and (string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(')) {
               @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference is inert inside a data uri.';
             }
 
-            $url: -sprite-replace($url, '___#{$key}___', -sprite-escape($value));
+            $url: -sprite-replace($url, '___#{$key}___', -sprite-escape($value, $overridden));
           } @else {
             @warn 'sprite(): "#{$name}" has no variable named "#{$key}", available: #{map.keys($defaults)}.';
           }
@@ -1879,9 +1931,12 @@ exports[`styles generation > include scss ["mixin"] 1`] = `
 @use "sass:string";
 
 // \`-\` prefixed members are private: \`@use\` never exposes them to a consumer
-$-sprite-escapes: (
+$-sprite-entities: (
   ('&', '&amp;'),
-  ('<', '&lt;'),
+  ('<', '&lt;')
+);
+
+$-sprite-escapes: (
   ("'", '&apos;'),
   ('"', '&quot;'),
   ('%', '%25'),
@@ -1913,8 +1968,14 @@ $-sprite-escapes: (
   @return $result + $rest;
 }
 
-@function -sprite-escape($value) {
+@function -sprite-escape($value, $entities: true) {
   $string: '#{$value}';
+
+  @if $entities {
+    @each $escape in $-sprite-entities {
+      $string: -sprite-replace($string, list.nth($escape, 1), list.nth($escape, 2));
+    }
+  }
 
   @each $escape in $-sprite-escapes {
     $string: -sprite-replace($string, list.nth($escape, 1), list.nth($escape, 2));
@@ -1956,11 +2017,13 @@ $-sprite-escapes: (
 
         @each $key, $value in map.merge($defaults, $variables) {
           @if map.has-key($defaults, $key) {
-            @if string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(') {
+            $overridden: map.has-key($variables, $key);
+
+            @if $overridden and (string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(')) {
               @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference is inert inside a data uri.';
             }
 
-            $url: -sprite-replace($url, '___#{$key}___', -sprite-escape($value));
+            $url: -sprite-replace($url, '___#{$key}___', -sprite-escape($value, $overridden));
           } @else {
             @warn 'sprite(): "#{$name}" has no variable named "#{$key}", available: #{map.keys($defaults)}.';
           }
@@ -2016,26 +2079,18 @@ $sprites: (
 	)
 );
 
-$sprites-variables: (
-	'no_viewbox': (
-	),
-	'no_width_height': (
-	),
-	'spiriit': (
-	),
-	'vite': (
-	)
-);
-
 @use "sass:list";
 @use "sass:map";
 @use "sass:meta";
 @use "sass:string";
 
 // \`-\` prefixed members are private: \`@use\` never exposes them to a consumer
-$-sprite-escapes: (
+$-sprite-entities: (
   ('&', '&amp;'),
-  ('<', '&lt;'),
+  ('<', '&lt;')
+);
+
+$-sprite-escapes: (
   ("'", '&apos;'),
   ('"', '&quot;'),
   ('%', '%25'),
@@ -2067,8 +2122,14 @@ $-sprite-escapes: (
   @return $result + $rest;
 }
 
-@function -sprite-escape($value) {
+@function -sprite-escape($value, $entities: true) {
   $string: '#{$value}';
+
+  @if $entities {
+    @each $escape in $-sprite-entities {
+      $string: -sprite-replace($string, list.nth($escape, 1), list.nth($escape, 2));
+    }
+  }
 
   @each $escape in $-sprite-escapes {
     $string: -sprite-replace($string, list.nth($escape, 1), list.nth($escape, 2));
@@ -2110,11 +2171,13 @@ $-sprite-escapes: (
 
         @each $key, $value in map.merge($defaults, $variables) {
           @if map.has-key($defaults, $key) {
-            @if string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(') {
+            $overridden: map.has-key($variables, $key);
+
+            @if $overridden and (string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(')) {
               @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference is inert inside a data uri.';
             }
 
-            $url: -sprite-replace($url, '___#{$key}___', -sprite-escape($value));
+            $url: -sprite-replace($url, '___#{$key}___', -sprite-escape($value, $overridden));
           } @else {
             @warn 'sprite(): "#{$name}" has no variable named "#{$key}", available: #{map.keys($defaults)}.';
           }
@@ -2168,26 +2231,19 @@ $sprites = {
 	}
 }
 
-$sprites-variables = {
-	'no_viewbox': {
-	},
-	'no_width_height': {
-	},
-	'spiriit': {
-	},
-	'vite': {
-	}
-}
-
 sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route = '/__spritemap', $variables = {})
 	// nested definitions are lexically scoped: they stay out of the importer's scope
-	$sprite-escapes = ('&' '&amp;'), ('<' '&lt;'), ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
+	$sprite-entities = ('&' '&amp;'), ('<' '&lt;')
+	$sprite-escapes = ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
 
 	sprite-replace($string, $search, $replacement)
 		join($replacement, split($search, $string))
 
-	sprite-escape($value)
+	sprite-escape($value, $entities = true)
 		$string = '' + $value
+		if $entities
+			for $escape in $sprite-entities
+				$string = sprite-replace($string, $escape[0], $escape[1])
 		for $escape in $sprite-escapes
 			$string = sprite-replace($string, $escape[0], $escape[1])
 		$string
@@ -2218,7 +2274,9 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 
 				for $key, $value in $merged
 					if $key in $defaults
-						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value))
+						if $key in $variables and match('(var|url)[(]', '' + $value)
+							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference is inert inside a data uri')
+						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value, $key in $variables))
 					else
 						warn('sprite(): "' + $name + '" has no variable named "' + $key + '"')
 	else
@@ -2242,13 +2300,17 @@ exports[`styles generation > include styl ["mixin"] 1`] = `
 
 sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route = '/__spritemap', $variables = {})
 	// nested definitions are lexically scoped: they stay out of the importer's scope
-	$sprite-escapes = ('&' '&amp;'), ('<' '&lt;'), ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
+	$sprite-entities = ('&' '&amp;'), ('<' '&lt;')
+	$sprite-escapes = ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
 
 	sprite-replace($string, $search, $replacement)
 		join($replacement, split($search, $string))
 
-	sprite-escape($value)
+	sprite-escape($value, $entities = true)
 		$string = '' + $value
+		if $entities
+			for $escape in $sprite-entities
+				$string = sprite-replace($string, $escape[0], $escape[1])
 		for $escape in $sprite-escapes
 			$string = sprite-replace($string, $escape[0], $escape[1])
 		$string
@@ -2279,7 +2341,9 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 
 				for $key, $value in $merged
 					if $key in $defaults
-						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value))
+						if $key in $variables and match('(var|url)[(]', '' + $value)
+							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference is inert inside a data uri')
+						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value, $key in $variables))
 					else
 						warn('sprite(): "' + $name + '" has no variable named "' + $key + '"')
 	else
@@ -2326,26 +2390,19 @@ $sprites = {
 	}
 }
 
-$sprites-variables = {
-	'no_viewbox': {
-	},
-	'no_width_height': {
-	},
-	'spiriit': {
-	},
-	'vite': {
-	}
-}
-
 sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route = '/__spritemap', $variables = {})
 	// nested definitions are lexically scoped: they stay out of the importer's scope
-	$sprite-escapes = ('&' '&amp;'), ('<' '&lt;'), ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
+	$sprite-entities = ('&' '&amp;'), ('<' '&lt;')
+	$sprite-escapes = ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
 
 	sprite-replace($string, $search, $replacement)
 		join($replacement, split($search, $string))
 
-	sprite-escape($value)
+	sprite-escape($value, $entities = true)
 		$string = '' + $value
+		if $entities
+			for $escape in $sprite-entities
+				$string = sprite-replace($string, $escape[0], $escape[1])
 		for $escape in $sprite-escapes
 			$string = sprite-replace($string, $escape[0], $escape[1])
 		$string
@@ -2376,7 +2433,9 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 
 				for $key, $value in $merged
 					if $key in $defaults
-						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value))
+						if $key in $variables and match('(var|url)[(]', '' + $value)
+							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference is inert inside a data uri')
+						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value, $key in $variables))
 					else
 						warn('sprite(): "' + $name + '" has no variable named "' + $key + '"')
 	else
@@ -2421,20 +2480,18 @@ exports[`styles generation > less 1`] = `
 	};
 }
 
-@sprites-variables: {
-	@no_viewbox: 0;
-	@no_width_height: 0;
-	@spiriit: 0;
-	@vite: 0;
+.sprite-entities(@value; @entities) when (@entities) {
+  @spritemap-entities: replace(replace(~'@{value}', '&', '&amp;', 'g'), '<', '&lt;', 'g');
 }
 
-.sprite-escape(@value) {
-  @spritemap-xml: replace(replace(replace(replace(~'@{value}', '&', '&amp;', 'g'), '<', '&lt;', 'g'), "'", '&apos;', 'g'), '"', '&quot;', 'g');
+.sprite-entities(@value; @entities) when not (@entities) {
+  @spritemap-entities: ~'@{value}';
+}
+
+.sprite-pair(@uri; @key; @value; @entities) {
+  .sprite-entities(@value; @entities);
+  @spritemap-xml: replace(replace(~'@{spritemap-entities}', "'", '&apos;', 'g'), '"', '&quot;', 'g');
   @spritemap-escaped: replace(replace(replace(replace(replace(escape(@spritemap-xml), '&', '%26', 'g'), ',', '%2c', 'g'), '[+]', '%2b', 'g'), '[$]', '%24', 'g'), '[?]', '%3f', 'g');
-}
-
-.sprite-pair(@uri; @key; @value) {
-  .sprite-escape(@value);
   @spritemap-uri: replace(@uri, '___@{key}___', @spritemap-escaped, 'g');
 }
 
@@ -2455,18 +2512,30 @@ exports[`styles generation > less 1`] = `
 
 .sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i > @to) {
   @spritemap-value: @fallback;
+  @spritemap-overridden: false;
 }
 
 .sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i <= @to) {
-  .sprite-value-step(@pairs; @key; @fallback; @i; @to; extract(extract(@pairs, @i), 1); extract(extract(@pairs, @i), 2));
+  .sprite-value-step(@pairs; @key; @fallback; @i; @to; extract(extract(@pairs, @i), 1));
 }
 
-.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when (@name = @key) {
-  @spritemap-value: @value;
+.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name) when (@name = @key) {
+  .sprite-value-join(extract(@pairs, @i); 3; extract(extract(@pairs, @i), 2));
+  @spritemap-value: @spritemap-joined;
+  @spritemap-overridden: true;
 }
 
-.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when not (@name = @key) {
+.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name) when not (@name = @key) {
   .sprite-value-scan(@pairs; @key; @fallback; @i + 1; @to);
+}
+
+.sprite-value-join(@pair; @i; @accumulator) when (@i > length(@pair)) {
+  @spritemap-joined: @accumulator;
+}
+
+.sprite-value-join(@pair; @i; @accumulator) when (@i <= length(@pair)) {
+  @spritemap-next: extract(@pair, @i);
+  .sprite-value-join(@pair; @i + 1; ~'@{accumulator} @{spritemap-next}');
 }
 
 // Walk the defaults, which come ordered longest name first so a short token can
@@ -2478,7 +2547,7 @@ exports[`styles generation > less 1`] = `
 
 .sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i <= @to) {
   .sprite-value(@variables; extract(extract(@defaults, @i), 1); extract(extract(@defaults, @i), 2));
-  .sprite-pair(@uri; extract(extract(@defaults, @i), 1); @spritemap-value);
+  .sprite-pair(@uri; extract(extract(@defaults, @i), 1); @spritemap-value; @spritemap-overridden);
   .sprite-subst(@mode; @spritemap-uri; @variables; @defaults; @i + 1; @to);
 }
 
@@ -2555,26 +2624,18 @@ $sprites: (
 	)
 );
 
-$sprites-variables: (
-	'no_viewbox': (
-	),
-	'no_width_height': (
-	),
-	'spiriit': (
-	),
-	'vite': (
-	)
-);
-
 @use "sass:list";
 @use "sass:map";
 @use "sass:meta";
 @use "sass:string";
 
 // \`-\` prefixed members are private: \`@use\` never exposes them to a consumer
-$-sprite-escapes: (
+$-sprite-entities: (
   ('&', '&amp;'),
-  ('<', '&lt;'),
+  ('<', '&lt;')
+);
+
+$-sprite-escapes: (
   ("'", '&apos;'),
   ('"', '&quot;'),
   ('%', '%25'),
@@ -2606,8 +2667,14 @@ $-sprite-escapes: (
   @return $result + $rest;
 }
 
-@function -sprite-escape($value) {
+@function -sprite-escape($value, $entities: true) {
   $string: '#{$value}';
+
+  @if $entities {
+    @each $escape in $-sprite-entities {
+      $string: -sprite-replace($string, list.nth($escape, 1), list.nth($escape, 2));
+    }
+  }
 
   @each $escape in $-sprite-escapes {
     $string: -sprite-replace($string, list.nth($escape, 1), list.nth($escape, 2));
@@ -2649,11 +2716,13 @@ $-sprite-escapes: (
 
         @each $key, $value in map.merge($defaults, $variables) {
           @if map.has-key($defaults, $key) {
-            @if string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(') {
+            $overridden: map.has-key($variables, $key);
+
+            @if $overridden and (string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(')) {
               @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference is inert inside a data uri.';
             }
 
-            $url: -sprite-replace($url, '___#{$key}___', -sprite-escape($value));
+            $url: -sprite-replace($url, '___#{$key}___', -sprite-escape($value, $overridden));
           } @else {
             @warn 'sprite(): "#{$name}" has no variable named "#{$key}", available: #{map.keys($defaults)}.';
           }
@@ -2707,26 +2776,19 @@ $sprites = {
 	}
 }
 
-$sprites-variables = {
-	'no_viewbox': {
-	},
-	'no_width_height': {
-	},
-	'spiriit': {
-	},
-	'vite': {
-	}
-}
-
 sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route = '/__spritemap', $variables = {})
 	// nested definitions are lexically scoped: they stay out of the importer's scope
-	$sprite-escapes = ('&' '&amp;'), ('<' '&lt;'), ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
+	$sprite-entities = ('&' '&amp;'), ('<' '&lt;')
+	$sprite-escapes = ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
 
 	sprite-replace($string, $search, $replacement)
 		join($replacement, split($search, $string))
 
-	sprite-escape($value)
+	sprite-escape($value, $entities = true)
 		$string = '' + $value
+		if $entities
+			for $escape in $sprite-entities
+				$string = sprite-replace($string, $escape[0], $escape[1])
 		for $escape in $sprite-escapes
 			$string = sprite-replace($string, $escape[0], $escape[1])
 		$string
@@ -2757,7 +2819,9 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 
 				for $key, $value in $merged
 					if $key in $defaults
-						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value))
+						if $key in $variables and match('(var|url)[(]', '' + $value)
+							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference is inert inside a data uri')
+						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value, $key in $variables))
 					else
 						warn('sprite(): "' + $name + '" has no variable named "' + $key + '"')
 	else

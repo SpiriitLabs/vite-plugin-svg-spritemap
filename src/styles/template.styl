@@ -1,12 +1,16 @@
 __mixin__($name, $include-size = false, $type = 'uri', $mode = 'background', $route = '__route__', $variables = {})
 	// nested definitions are lexically scoped: they stay out of the importer's scope
-	$__mixin__-escapes = ('&' '&amp;'), ('<' '&lt;'), ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
+	$__mixin__-entities = ('&' '&amp;'), ('<' '&lt;')
+	$__mixin__-escapes = ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
 
 	__mixin__-replace($string, $search, $replacement)
 		join($replacement, split($search, $string))
 
-	__mixin__-escape($value)
+	__mixin__-escape($value, $entities = true)
 		$string = '' + $value
+		if $entities
+			for $escape in $__mixin__-entities
+				$string = __mixin__-replace($string, $escape[0], $escape[1])
 		for $escape in $__mixin__-escapes
 			$string = __mixin__-replace($string, $escape[0], $escape[1])
 		$string
@@ -37,7 +41,9 @@ __mixin__($name, $include-size = false, $type = 'uri', $mode = 'background', $ro
 
 				for $key, $value in $merged
 					if $key in $defaults
-						$url = __mixin__-replace($url, '___' + $key + '___', __mixin__-escape($value))
+						if $key in $variables and match('(var|url)[(]', '' + $value)
+							warn('__mixin__(): "' + $key + '" is set to "' + $value + '", a css reference is inert inside a data uri')
+						$url = __mixin__-replace($url, '___' + $key + '___', __mixin__-escape($value, $key in $variables))
 					else
 						warn('__mixin__(): "' + $name + '" has no variable named "' + $key + '"')
 	else

@@ -4,9 +4,12 @@
 @use "sass:string";
 
 // `-` prefixed members are private: `@use` never exposes them to a consumer
-$-__mixin__-escapes: (
+$-__mixin__-entities: (
   ('&', '&amp;'),
-  ('<', '&lt;'),
+  ('<', '&lt;')
+);
+
+$-__mixin__-escapes: (
   ("'", '&apos;'),
   ('"', '&quot;'),
   ('%', '%25'),
@@ -38,8 +41,14 @@ $-__mixin__-escapes: (
   @return $result + $rest;
 }
 
-@function -__mixin__-escape($value) {
+@function -__mixin__-escape($value, $entities: true) {
   $string: '#{$value}';
+
+  @if $entities {
+    @each $escape in $-__mixin__-entities {
+      $string: -__mixin__-replace($string, list.nth($escape, 1), list.nth($escape, 2));
+    }
+  }
 
   @each $escape in $-__mixin__-escapes {
     $string: -__mixin__-replace($string, list.nth($escape, 1), list.nth($escape, 2));
@@ -81,11 +90,13 @@ $-__mixin__-escapes: (
 
         @each $key, $value in map.merge($defaults, $variables) {
           @if map.has-key($defaults, $key) {
-            @if string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(') {
+            $overridden: map.has-key($variables, $key);
+
+            @if $overridden and (string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(')) {
               @warn '__mixin__(): "#{$key}" is set to "#{$value}", a css reference is inert inside a data uri.';
             }
 
-            $url: -__mixin__-replace($url, '___#{$key}___', -__mixin__-escape($value));
+            $url: -__mixin__-replace($url, '___#{$key}___', -__mixin__-escape($value, $overridden));
           } @else {
             @warn '__mixin__(): "#{$name}" has no variable named "#{$key}", available: #{map.keys($defaults)}.';
           }

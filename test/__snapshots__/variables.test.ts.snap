@@ -64,13 +64,18 @@ exports[`variables generation > emits a template uri and a defaults map (less) 1
 	@themable: 2, 'weight' "2", 'color' "#fff";
 }
 
-.sprite-escape(@value) {
-  @spritemap-xml: replace(replace(replace(replace(~'@{value}', '&', '&amp;', 'g'), '<', '&lt;', 'g'), "'", '&apos;', 'g'), '"', '&quot;', 'g');
-  @spritemap-escaped: replace(replace(replace(replace(replace(escape(@spritemap-xml), '&', '%26', 'g'), ',', '%2c', 'g'), '[+]', '%2b', 'g'), '[$]', '%24', 'g'), '[?]', '%3f', 'g');
+.sprite-entities(@value; @entities) when (@entities) {
+  @spritemap-entities: replace(replace(~'@{value}', '&', '&amp;', 'g'), '<', '&lt;', 'g');
 }
 
-.sprite-pair(@uri; @key; @value) {
-  .sprite-escape(@value);
+.sprite-entities(@value; @entities) when not (@entities) {
+  @spritemap-entities: ~'@{value}';
+}
+
+.sprite-pair(@uri; @key; @value; @entities) {
+  .sprite-entities(@value; @entities);
+  @spritemap-xml: replace(replace(~'@{spritemap-entities}', "'", '&apos;', 'g'), '"', '&quot;', 'g');
+  @spritemap-escaped: replace(replace(replace(replace(replace(escape(@spritemap-xml), '&', '%26', 'g'), ',', '%2c', 'g'), '[+]', '%2b', 'g'), '[$]', '%24', 'g'), '[?]', '%3f', 'g');
   @spritemap-uri: replace(@uri, '___@{key}___', @spritemap-escaped, 'g');
 }
 
@@ -91,18 +96,30 @@ exports[`variables generation > emits a template uri and a defaults map (less) 1
 
 .sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i > @to) {
   @spritemap-value: @fallback;
+  @spritemap-overridden: false;
 }
 
 .sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i <= @to) {
-  .sprite-value-step(@pairs; @key; @fallback; @i; @to; extract(extract(@pairs, @i), 1); extract(extract(@pairs, @i), 2));
+  .sprite-value-step(@pairs; @key; @fallback; @i; @to; extract(extract(@pairs, @i), 1));
 }
 
-.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when (@name = @key) {
-  @spritemap-value: @value;
+.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name) when (@name = @key) {
+  .sprite-value-join(extract(@pairs, @i); 3; extract(extract(@pairs, @i), 2));
+  @spritemap-value: @spritemap-joined;
+  @spritemap-overridden: true;
 }
 
-.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when not (@name = @key) {
+.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name) when not (@name = @key) {
   .sprite-value-scan(@pairs; @key; @fallback; @i + 1; @to);
+}
+
+.sprite-value-join(@pair; @i; @accumulator) when (@i > length(@pair)) {
+  @spritemap-joined: @accumulator;
+}
+
+.sprite-value-join(@pair; @i; @accumulator) when (@i <= length(@pair)) {
+  @spritemap-next: extract(@pair, @i);
+  .sprite-value-join(@pair; @i + 1; ~'@{accumulator} @{spritemap-next}');
 }
 
 // Walk the defaults, which come ordered longest name first so a short token can
@@ -114,7 +131,7 @@ exports[`variables generation > emits a template uri and a defaults map (less) 1
 
 .sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i <= @to) {
   .sprite-value(@variables; extract(extract(@defaults, @i), 1); extract(extract(@defaults, @i), 2));
-  .sprite-pair(@uri; extract(extract(@defaults, @i), 1); @spritemap-value);
+  .sprite-pair(@uri; extract(extract(@defaults, @i), 1); @spritemap-value; @spritemap-overridden);
   .sprite-subst(@mode; @spritemap-uri; @variables; @defaults; @i + 1; @to);
 }
 
@@ -252,9 +269,12 @@ $sprites-variables: (
 @use "sass:string";
 
 // \`-\` prefixed members are private: \`@use\` never exposes them to a consumer
-$-sprite-escapes: (
+$-sprite-entities: (
   ('&', '&amp;'),
-  ('<', '&lt;'),
+  ('<', '&lt;')
+);
+
+$-sprite-escapes: (
   ("'", '&apos;'),
   ('"', '&quot;'),
   ('%', '%25'),
@@ -286,8 +306,14 @@ $-sprite-escapes: (
   @return $result + $rest;
 }
 
-@function -sprite-escape($value) {
+@function -sprite-escape($value, $entities: true) {
   $string: '#{$value}';
+
+  @if $entities {
+    @each $escape in $-sprite-entities {
+      $string: -sprite-replace($string, list.nth($escape, 1), list.nth($escape, 2));
+    }
+  }
 
   @each $escape in $-sprite-escapes {
     $string: -sprite-replace($string, list.nth($escape, 1), list.nth($escape, 2));
@@ -329,11 +355,13 @@ $-sprite-escapes: (
 
         @each $key, $value in map.merge($defaults, $variables) {
           @if map.has-key($defaults, $key) {
-            @if string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(') {
+            $overridden: map.has-key($variables, $key);
+
+            @if $overridden and (string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(')) {
               @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference is inert inside a data uri.';
             }
 
-            $url: -sprite-replace($url, '___#{$key}___', -sprite-escape($value));
+            $url: -sprite-replace($url, '___#{$key}___', -sprite-escape($value, $overridden));
           } @else {
             @warn 'sprite(): "#{$name}" has no variable named "#{$key}", available: #{map.keys($defaults)}.';
           }
@@ -444,13 +472,17 @@ $sprites-variables = {
 
 sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route = '/__spritemap', $variables = {})
 	// nested definitions are lexically scoped: they stay out of the importer's scope
-	$sprite-escapes = ('&' '&amp;'), ('<' '&lt;'), ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
+	$sprite-entities = ('&' '&amp;'), ('<' '&lt;')
+	$sprite-escapes = ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
 
 	sprite-replace($string, $search, $replacement)
 		join($replacement, split($search, $string))
 
-	sprite-escape($value)
+	sprite-escape($value, $entities = true)
 		$string = '' + $value
+		if $entities
+			for $escape in $sprite-entities
+				$string = sprite-replace($string, $escape[0], $escape[1])
 		for $escape in $sprite-escapes
 			$string = sprite-replace($string, $escape[0], $escape[1])
 		$string
@@ -481,7 +513,9 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 
 				for $key, $value in $merged
 					if $key in $defaults
-						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value))
+						if $key in $variables and match('(var|url)[(]', '' + $value)
+							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference is inert inside a data uri')
+						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value, $key in $variables))
 					else
 						warn('sprite(): "' + $name + '" has no variable named "' + $key + '"')
 	else

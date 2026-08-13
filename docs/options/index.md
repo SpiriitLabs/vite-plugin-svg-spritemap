@@ -285,6 +285,9 @@ So unlike [svgo](#svgo), you cannot keep the default and tweak a single job. OXV
 ::: warning
 You need to install `@oxvg/napi` **0.0.7**. Earlier versions are not supported: they either ship no `convertSvgoConfig` at all, or translate the SVGO config differently.
 
+The native binding for your platform comes with it, you do not have to add it yourself: `@oxvg/napi` lists all of them as optional dependencies and your package manager keeps the one that matches.
+:::
+
 ::: code-group
 
 ```bash [npm]
@@ -303,6 +306,4 @@ pnpm add -D @oxvg/napi
 bun add -D @oxvg/napi
 ```
 :::
-
-The native binding for your platform comes with it, you do not have to add it yourself: `@oxvg/napi` lists all of them as optional dependencies and your package manager keeps the one that matches.
 

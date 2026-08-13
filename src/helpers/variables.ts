@@ -15,9 +15,9 @@ const VAR_CALL_SCAN_RE = new RegExp(VAR_CALL_RE.source, 'gi')
 const URL_CALL_RE = /(?<![\w-])url\(/i
 
 const ATTRIBUTE_RE = /([a-z_:][\w:.-]*)\s*=\s*(?:"([^"]*)"|'([^']*)')/gi
-const COMMENT_RE = /<!--[\s\S]*?-->/g
+const TAG_NAME_RE = /^<\s*([a-z_:][\w:.-]*)/i
+const STYLE_CLOSE_RE = /<\/style\s*>/i
 const VAR_NAME_RE = /^--([a-z][\w-]*)$/i
-const TOKEN_RE = new RegExp(`${TOKEN_DELIMITER}([a-z][\\w-]*)${TOKEN_DELIMITER}`, 'gi')
 export const STYLE_ELEMENT_RE: RegExp = /<style\b[^>]*>([\s\S]*?)<\/style\s*>/gi
 
 interface VarOccurrence {
@@ -48,14 +48,23 @@ export function resolvesSpritemap(variables: Options['variables']): boolean {
  * One pass, so a substituted value is never itself scanned for tokens and the
  * order of `defaults` does not matter. A function replacement also keeps a `$&`
  * in a default literal.
+ *
+ * The pattern is built from the names themselves, longest first, so two adjacent
+ * tokens (`___a______b___`) read as `a` then `b` rather than as one greedy
+ * `a______b` name that matches nothing.
  */
 export function resolveVariableTokens(template: string, defaults: Record<string, string>): string {
-  return template.replace(TOKEN_RE, (token, name) => {
-    // a name may collide with a prototype member (`--constructor`), which is
-    // never a string and so never mistaken for a default
-    const value = defaults[name]
-    return typeof value === 'string' ? value : token
-  })
+  const names = Object.keys(defaults)
+    .filter(name => typeof defaults[name] === 'string')
+    .sort((a, b) => b.length - a.length || a.localeCompare(b))
+
+  if (!names.length)
+    return template
+
+  const alternation = names.map(name => name.replace(/[$()*+.?[\\\]^{|}]/g, '\\$&')).join('|')
+  const pattern = new RegExp(`${TOKEN_DELIMITER}(${alternation})${TOKEN_DELIMITER}`, 'g')
+
+  return template.replace(pattern, (_, name: string) => defaults[name])
 }
 
 /**
@@ -82,7 +91,10 @@ function scanCall(value: string, open: number): { close: number, comma: number }
     const char = value[index]
 
     if (quote) {
-      if (char === quote)
+      // a css string escapes its own delimiter, so `"a\")b"` closes on the last quote
+      if (char === '\\')
+        index++
+      else if (char === quote)
         quote = ''
       continue
     }
@@ -134,50 +146,91 @@ interface VarSite {
   label: string
 }
 
+/** End of the markup that opens at `open`, past its `>`. A quoted value may hold one. */
+function scanMarkup(source: string, open: number): number {
+  let quote = ''
+
+  for (let index = open + 1; index < source.length; index++) {
+    const char = source[index]
+
+    if (quote) {
+      if (char === quote)
+        quote = ''
+    }
+    else if (char === '"' || char === '\'') {
+      quote = char
+    }
+    else if (char === '>') {
+      return index + 1
+    }
+  }
+
+  return source.length
+}
+
+/** Index past `close`, or the end of the source when it never comes. */
+function scanTo(source: string, from: number, close: string): number {
+  const index = source.indexOf(close, from)
+  return index === -1 ? source.length : index + close.length
+}
+
 /**
- * Attribute values and `<style>` element contents, in source order. A `<style>` is
- * scanned as one stretch of text: its rules need no parsing, replacing a `var()` with
- * its token is textual, and which elements a selector matches is the browser's problem
- * once it renders.
+ * Attribute values and `<style>` element contents, in source order. The source is
+ * walked once rather than matched for attributes anywhere, so text that merely reads
+ * like one (`<desc>fill="var(--x, red)"</desc>`), a commented-out attribute and a css
+ * attribute selector are all left alone. A `<style>` is taken as one stretch of text:
+ * its rules need no parsing, replacing a `var()` with its token is textual, and which
+ * elements a selector matches is the browser's problem once it renders.
  */
 function collectVarSites(source: string): VarSite[] {
   const sites: VarSite[] = []
-  // ranges an attribute match cannot be a real attribute in. A commented-out one is
-  // only reachable with both optimizers off, since either strips comments first
-  const skipped: Array<[number, number]> = [...source.matchAll(COMMENT_RE)]
-    .map(match => [match.index, match.index + match[0].length])
+  let cursor = 0
 
-  const isSkipped = (index: number): boolean =>
-    skipped.some(([start, end]) => index >= start && index < end)
+  while (cursor < source.length) {
+    const open = source.indexOf('<', cursor)
+    if (open === -1)
+      break
 
-  for (const match of source.matchAll(STYLE_ELEMENT_RE)) {
-    // the content starts past the open tag, which the pattern forbids a `>` inside
-    const start = match.index + match[0].indexOf('>') + 1
-    skipped.push([start, start + match[1].length])
+    if (source.startsWith('<!--', open)) {
+      cursor = scanTo(source, open + 4, '-->')
+      continue
+    }
 
-    if (!isSkipped(match.index) && VAR_CALL_RE.test(match[1]))
-      sites.push({ start, value: match[1], label: '`<style>`' })
-  }
+    if (source.startsWith('<![CDATA[', open)) {
+      cursor = scanTo(source, open + 9, ']]>')
+      continue
+    }
 
-  for (const match of source.matchAll(ATTRIBUTE_RE)) {
-    const value = match[2] ?? match[3]
+    const end = scanMarkup(source, open)
+    const tag = source.slice(open, end)
+    cursor = end
 
-    if (!VAR_CALL_RE.test(value) || /^xmlns(?:$|:)/i.test(match[1]))
+    for (const match of tag.matchAll(ATTRIBUTE_RE)) {
+      const value = match[2] ?? match[3]
+
+      if (!VAR_CALL_RE.test(value) || /^xmlns(?:$|:)/i.test(match[1]))
+        continue
+
+      sites.push({
+        // match[0] ends with the closing quote, so the value starts that far back
+        start: open + match.index + match[0].length - value.length - 1,
+        value,
+        label: `\`${match[1]}\``,
+      })
+    }
+
+    if (TAG_NAME_RE.exec(tag)?.[1].toLowerCase() !== 'style' || tag.endsWith('/>'))
       continue
 
-    // a css attribute selector inside `<style>` is not an attribute either
-    if (isSkipped(match.index))
-      continue
+    const close = STYLE_CLOSE_RE.exec(source.slice(end))
+    const content = source.slice(end, close ? end + close.index : source.length)
+    cursor = close ? end + close.index + close[0].length : source.length
 
-    sites.push({
-      // match[0] ends with the closing quote, so the value starts that far back
-      start: match.index + match[0].length - value.length - 1,
-      value,
-      label: `\`${match[1]}\``,
-    })
+    if (VAR_CALL_RE.test(content))
+      sites.push({ start: end, value: content, label: '`<style>`' })
   }
 
-  return sites.sort((a, b) => a.start - b.start)
+  return sites
 }
 
 /** Parse `var(--name, default)` out of the attributes and styles of an svg. */
