@@ -174,10 +174,10 @@ describe('oxvg variables', () => {
     expect(hasStyleVariable(source)).toBe(expected)
   })
 
-  it('drops the jobs that mangle var() only when asked', async () => {
+  it('drops the jobs that mangle the var() the sprite carries', async () => {
     const plain = await getOptions(true, 'sprite-')
-    const forVariables = withoutVariablesJobs(plain, 'attribute')
-    const forStyleVariables = withoutVariablesJobs(plain, 'style')
+    const forVariables = withoutVariablesJobs('<svg fill="var(--c, red)"/>', plain)
+    const forStyleVariables = withoutVariablesJobs('<svg style="fill:var(--c, red)"/>', plain)
 
     for (const plugin of Object.keys(variablesDisabledPlugins)) {
       expect(plain).toHaveProperty(plugin)
@@ -191,8 +191,14 @@ describe('oxvg variables', () => {
     expect(forVariables).toHaveProperty('convertPathData')
   })
 
+  it('hands the config straight back for a sprite without a var()', () => {
+    const config = { removeUselessStrokeAndFill: {} }
+    expect(withoutVariablesJobs('<svg fill="red"/>', config)).toBe(config)
+  })
+
+  // no config means "run OXVG's own preset", which a stripped copy cannot express
   it('leaves a disabled optimizer disabled', () => {
-    expect(withoutVariablesJobs(undefined, 'style')).toBeUndefined()
+    expect(withoutVariablesJobs('<svg style="fill:var(--c, red)"/>', undefined)).toBeUndefined()
   })
 
   // honoured verbatim otherwise, but the copy for `var()` sprites drops the job
@@ -201,7 +207,7 @@ describe('oxvg variables', () => {
 
     expect(await getOptions(config, 'sprite-')).toEqual(config)
 
-    const mitigated = withoutVariablesJobs(await getOptions(config, 'sprite-'), 'attribute')
+    const mitigated = withoutVariablesJobs('<svg stroke="var(--c, red)"/>', await getOptions(config, 'sprite-'))
     expect(mitigated).not.toHaveProperty('removeUselessStrokeAndFill')
     expect(mitigated).toHaveProperty('prefixIds')
     expect(config).toHaveProperty('removeUselessStrokeAndFill')

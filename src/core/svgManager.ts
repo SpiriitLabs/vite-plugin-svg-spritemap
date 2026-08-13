@@ -8,7 +8,7 @@ import { basename, dirname, resolve } from 'node:path'
 import { hashContent } from '@helpers/hash'
 import { toUserUnits } from '@helpers/length'
 import { log } from '@helpers/log'
-import { getOptimize as getOptimiseOxvg, getOptions as getOptionsOxvg, selectVariablesConfig, withoutVariablesJobs } from '@helpers/oxvg'
+import { getOptimize as getOptimiseOxvg, getOptions as getOptionsOxvg, withoutVariablesJobs } from '@helpers/oxvg'
 import { getOptimize as getOptimizeSvgo, getOptions as getOptionsSvgo } from '@helpers/svgo'
 import { extractSvgVariables, resolvesSpritemap, resolveVariableTokens, sortVariableDefaults } from '@helpers/variables'
 import { DOMImplementation, DOMParser, XMLSerializer } from '@xmldom/xmldom'
@@ -37,10 +37,6 @@ export class SVGManager {
   private _optimize: Awaited<ReturnType<typeof getOptimizeSvgo | typeof getOptimiseOxvg>> | null = null
   /** Built once alongside `_optimize`, it does not vary per file. */
   private _optimizeConfig: SvgoConfig | OxvgConfig | undefined
-  /** Same config with the jobs that mangle `var()` dropped. OXVG only. */
-  private _optimizeConfigVariables: OxvgConfig | undefined
-  /** Same, for a `var()` in a style declaration, which needs more dropped. */
-  private _optimizeConfigStyleVariables: OxvgConfig | undefined
   /** Last content written per file, to skip byte-identical rewrites. */
   private _written = new Map<string, string>()
   /** Last variable warnings logged per file, so a re-save stays silent. */
@@ -252,12 +248,12 @@ export class SVGManager {
    */
   private async _optimizeSvg(svg: string): Promise<string> {
     if (this._optimize && this._optimizeType) {
-      const config = selectVariablesConfig(
-        svg,
-        this._optimizeConfig,
-        this._optimizeConfigVariables,
-        this._optimizeConfigStyleVariables,
-      )
+      // OXVG mangles a `var()` it cannot resolve and aborts the process on one in a
+      // style declaration, so those icons run a reduced set of jobs. Not gated on the
+      // `variables` option: the corruption happens regardless. SVGO is unaffected.
+      const config = this._optimizeType === 'oxvg'
+        ? withoutVariablesJobs(svg, this._optimizeConfig)
+        : this._optimizeConfig
 
       try {
         const optimizedSvg = this._optimize(svg, config)
@@ -303,11 +299,7 @@ export class SVGManager {
     if (this._optimize) {
       log({ level: 'info', message: `Using OXVG for SVG optimization on ${this._options.route.name}.`, logger: this._config.logger })
       this._optimizeType = 'oxvg'
-      const config = await getOptionsOxvg(this._options.oxvg, this._options.prefix)
-      this._optimizeConfig = config
-      // not gated on the `variables` option: the corruption happens regardless
-      this._optimizeConfigVariables = withoutVariablesJobs(config, 'attribute')
-      this._optimizeConfigStyleVariables = withoutVariablesJobs(config, 'style')
+      this._optimizeConfig = await getOptionsOxvg(this._options.oxvg, this._options.prefix)
     }
     if (this._options.oxvg && !this._optimize) {
       log({ level: 'warn', message: `You need to install OXVG to be able to optimize your SVG with it.`, logger: this._config.logger })
