@@ -6,8 +6,8 @@ export const VAR_CALL = 'var('
 
 const ATTRIBUTE_RE = /([a-z_:][\w:.-]*)\s*=\s*(?:"([^"]*)"|'([^']*)')/gi
 const VAR_NAME_RE = /^--([a-z][\w-]*)$/i
-const STYLE_ATTRIBUTE_RE = /\bstyle\s*=\s*(?:"([^"]*)"|'([^']*)')/gi
-const STYLE_ELEMENT_RE = /<style\b[^>]*>([\s\S]*?)<\/style\s*>/gi
+const TOKEN_RE = new RegExp(`${TOKEN_DELIMITER}([a-z][\\w-]*)${TOKEN_DELIMITER}`, 'gi')
+export const STYLE_ELEMENT_RE: RegExp = /<style\b[^>]*>([\s\S]*?)<\/style\s*>/gi
 
 interface VarOccurrence {
   start: number
@@ -28,27 +28,39 @@ export function variableToken(name: string): string {
   return `${TOKEN_DELIMITER}${name}${TOKEN_DELIMITER}`
 }
 
-/** `defaults` has to be ordered as {@link sortVariableDefaults} returns it. */
+/**
+ * One pass, so a substituted value is never itself scanned for tokens and the
+ * order of `defaults` does not matter. A function replacement also keeps a `$&`
+ * in a default literal.
+ */
 export function resolveVariableTokens(template: string, defaults: Record<string, string>): string {
-  let resolved = template
-
-  // split/join, not `replace`: a `$&` in a default is literal text
-  for (const [name, value] of Object.entries(defaults))
-    resolved = resolved.split(variableToken(name)).join(value)
-
-  return resolved
+  return template.replace(TOKEN_RE, (token, name) => {
+    // a name may collide with a prototype member (`--constructor`), which is
+    // never a string and so never mistaken for a default
+    const value = defaults[name]
+    return typeof value === 'string' ? value : token
+  })
 }
 
-/** Longest name first, so `___a___` cannot shadow `___a____b___` when replaced. */
+/**
+ * Longest name first, so `___a___` cannot shadow `___a____b___` when replaced.
+ * The scss/styl/less mixins substitute one name at a time and rely on this.
+ */
 export function sortVariableDefaults(defaults: Map<string, string>): Record<string, string> {
   return Object.fromEntries(
     [...defaults].sort(([a], [b]) => b.length - a.length || a.localeCompare(b)),
   )
 }
 
-function findClosingParen(value: string, open: number): number {
+/**
+ * Walk a `var(` from its opening paren to the matching one, reporting the first
+ * comma that separates the name from the default along the way. Both indexes are
+ * absolute; `close` is -1 when the call is never closed.
+ */
+function scanCall(value: string, open: number): { close: number, comma: number } {
   let depth = 0
   let quote = ''
+  let comma = -1
 
   for (let index = open; index < value.length; index++) {
     const char = value[index]
@@ -64,36 +76,12 @@ function findClosingParen(value: string, open: number): number {
     else if (char === '(')
       depth++
     else if (char === ')' && --depth === 0)
-      return index
+      return { close: index, comma }
+    else if (char === ',' && depth === 1 && comma === -1)
+      comma = index
   }
 
-  return -1
-}
-
-function indexOfTopLevelComma(value: string): number {
-  let depth = 0
-  let quote = ''
-
-  for (let index = 0; index < value.length; index++) {
-    const char = value[index]
-
-    if (quote) {
-      if (char === quote)
-        quote = ''
-      continue
-    }
-
-    if (char === '"' || char === '\'')
-      quote = char
-    else if (char === '(')
-      depth++
-    else if (char === ')')
-      depth--
-    else if (char === ',' && depth === 0)
-      return index
-  }
-
-  return -1
+  return { close: -1, comma }
 }
 
 function scanVarFunctions(value: string): { occurrences: VarOccurrence[], unbalanced: boolean } {
@@ -101,18 +89,16 @@ function scanVarFunctions(value: string): { occurrences: VarOccurrence[], unbala
   let index = value.indexOf(VAR_CALL)
 
   while (index !== -1) {
-    const close = findClosingParen(value, index + 3)
+    const open = index + VAR_CALL.length - 1
+    const { close, comma } = scanCall(value, open)
     if (close === -1)
       return { occurrences, unbalanced: true }
-
-    const inner = value.slice(index + 4, close)
-    const comma = indexOfTopLevelComma(inner)
 
     occurrences.push({
       start: index,
       end: close + 1,
-      name: (comma === -1 ? inner : inner.slice(0, comma)).trim(),
-      fallback: (comma === -1 ? '' : inner.slice(comma + 1)).trim(),
+      name: value.slice(open + 1, comma === -1 ? close : comma).trim(),
+      fallback: comma === -1 ? '' : value.slice(comma + 1, close).trim(),
     })
 
     // resume past the whole call so a nested var() is not visited twice
@@ -120,33 +106,6 @@ function scanVarFunctions(value: string): { occurrences: VarOccurrence[], unbala
   }
 
   return { occurrences, unbalanced: false }
-}
-
-function hasStyleAttributeVariable(source: string): boolean {
-  for (const match of source.matchAll(STYLE_ATTRIBUTE_RE)) {
-    if ((match[1] ?? match[2] ?? '').includes(VAR_CALL))
-      return true
-  }
-
-  return false
-}
-
-function hasStyleElementVariable(source: string): boolean {
-  for (const match of source.matchAll(STYLE_ELEMENT_RE)) {
-    if (match[1].includes(VAR_CALL))
-      return true
-  }
-
-  return false
-}
-
-/**
- * A `var()` inside a `style` attribute or a `<style>` element, which OXVG cannot
- * optimize without aborting the process.
- */
-export function hasStyleVariable(source: string): boolean {
-  return source.includes(VAR_CALL)
-    && (hasStyleAttributeVariable(source) || hasStyleElementVariable(source))
 }
 
 /** A stretch of `source` a `var()` may live in, in source order. */

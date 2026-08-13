@@ -8,9 +8,9 @@ import { basename, dirname, resolve } from 'node:path'
 import { hashContent } from '@helpers/hash'
 import { toUserUnits } from '@helpers/length'
 import { log } from '@helpers/log'
-import { getOptimize as getOptimiseOxvg, getOptions as getOptionsOxvg } from '@helpers/oxvg'
+import { getOptimize as getOptimiseOxvg, getOptions as getOptionsOxvg, selectVariablesConfig } from '@helpers/oxvg'
 import { getOptimize as getOptimizeSvgo, getOptions as getOptionsSvgo } from '@helpers/svgo'
-import { extractSvgVariables, hasStyleVariable, resolveVariableTokens, sortVariableDefaults, VAR_CALL } from '@helpers/variables'
+import { extractSvgVariables, resolveVariableTokens, sortVariableDefaults } from '@helpers/variables'
 import { DOMImplementation, DOMParser, XMLSerializer } from '@xmldom/xmldom'
 import { glob } from 'tinyglobby'
 import { Styles } from '@/core/styles'
@@ -252,17 +252,12 @@ export class SVGManager {
    */
   private async _optimizeSvg(svg: string): Promise<string> {
     if (this._optimize && this._optimizeType) {
-      // OXVG corrupts `var()` values, and aborts outright on one in a `style`
-      let config = this._optimizeConfig
-      if (svg.includes(VAR_CALL)) {
-        const mitigated = hasStyleVariable(svg)
-          ? this._optimizeConfigStyleVariables
-          : this._optimizeConfigVariables
-
-        // undefined outside OXVG, where it would mean "run everything" and abort
-        if (typeof mitigated !== 'undefined')
-          config = mitigated
-      }
+      const config = selectVariablesConfig(
+        svg,
+        this._optimizeConfig,
+        this._optimizeConfigVariables,
+        this._optimizeConfigStyleVariables,
+      )
 
       try {
         const optimizedSvg = this._optimize(svg, config)
@@ -339,6 +334,7 @@ export class SVGManager {
     // deleted icons would linger and every id would collide with itself.
     this._svgs.clear()
     this._ids.clear()
+    this._warned.clear()
     this._invalidateSpritemap()
 
     // Initialize SVGO before parallel processing to avoid race conditions

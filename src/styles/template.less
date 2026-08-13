@@ -3,45 +3,61 @@
   @spritemap-escaped: replace(replace(replace(replace(replace(escape(@spritemap-xml), '&', '%26', 'g'), ',', '%2c', 'g'), '[+]', '%2b', 'g'), '[$]', '%24', 'g'), '[?]', '%3f', 'g');
 }
 
-.__mixin__-pair(@uri; @pair) {
-  @spritemap-key: extract(@pair, 1);
-  .__mixin__-escape(extract(@pair, 2));
-  @spritemap-uri: replace(@uri, '___@{spritemap-key}___', @spritemap-escaped, 'g');
+.__mixin__-pair(@uri; @key; @value) {
+  .__mixin__-escape(@value);
+  @spritemap-uri: replace(@uri, '___@{key}___', @spritemap-escaped, 'g');
 }
 
 .__mixin__-emit(@mode; @uri) {
   @{mode}: url(@uri) center no-repeat;
 }
 
-.__mixin__-user(@mode; @uri; @pairs; @i; @to; @defaults) when (@i <= @to) {
-  .__mixin__-pair(@uri; extract(@pairs, @i));
-  .__mixin__-user(@mode; @spritemap-uri; @pairs; @i + 1; @to; @defaults);
+// The user's override for @key, or @fallback when they passed none. Less has no
+// one-element list, so a lone `'name' value` pair is doubled to keep the scan
+// uniform: both copies carry the same key, so either one matching is the same.
+.__mixin__-value(@variables; @key; @fallback) when (length(extract(@variables, 1)) < 2) {
+  .__mixin__-value-scan(@variables, @variables; @key; @fallback; 1; 2);
 }
 
-.__mixin__-user(@mode; @uri; @pairs; @i; @to; @defaults) when (@i > @to) {
-  .__mixin__-defaults(@mode; @uri; @defaults; 2; extract(@defaults, 1) + 1);
+.__mixin__-value(@variables; @key; @fallback) when (length(extract(@variables, 1)) >= 2) {
+  .__mixin__-value-scan(@variables; @key; @fallback; 1; length(@variables));
 }
 
-.__mixin__-defaults(@mode; @uri; @pairs; @i; @to) when (@i <= @to) {
-  .__mixin__-pair(@uri; extract(@pairs, @i));
-  .__mixin__-defaults(@mode; @spritemap-uri; @pairs; @i + 1; @to);
+.__mixin__-value-scan(@pairs; @key; @fallback; @i; @to) when (@i > @to) {
+  @spritemap-value: @fallback;
 }
 
-.__mixin__-defaults(@mode; @uri; @pairs; @i; @to) when (@i > @to) {
+.__mixin__-value-scan(@pairs; @key; @fallback; @i; @to) when (@i <= @to) {
+  .__mixin__-value-step(@pairs; @key; @fallback; @i; @to; extract(extract(@pairs, @i), 1); extract(extract(@pairs, @i), 2));
+}
+
+.__mixin__-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when (@name = @key) {
+  @spritemap-value: @value;
+}
+
+.__mixin__-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when not (@name = @key) {
+  .__mixin__-value-scan(@pairs; @key; @fallback; @i + 1; @to);
+}
+
+// Walk the defaults, which come ordered longest name first so a short token can
+// never shadow a longer one, and take the user's override per name. Replaying
+// the user list in its own order instead would break that ordering.
+.__mixin__-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i > @to) {
   .__mixin__-emit(@mode; @uri);
+}
+
+.__mixin__-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i <= @to) {
+  .__mixin__-value(@variables; extract(extract(@defaults, @i), 1); extract(extract(@defaults, @i), 2));
+  .__mixin__-pair(@uri; extract(extract(@defaults, @i), 1); @spritemap-value);
+  .__mixin__-subst(@mode; @spritemap-uri; @variables; @defaults; @i + 1; @to);
 }
 
 .__mixin__-apply(@mode; @uri; @sprite; @variables; @defaults) when (extract(@defaults, 1) = 0) {
   .__mixin__-emit(@mode; @uri);
 }
 
-.__mixin__-apply(@mode; @uri; @sprite; @variables; @defaults) when not (extract(@defaults, 1) = 0) and (length(extract(@variables, 1)) < 2) {
-  .__mixin__-pair(@sprite[uri-template]; @variables);
-  .__mixin__-defaults(@mode; @spritemap-uri; @defaults; 2; extract(@defaults, 1) + 1);
-}
-
-.__mixin__-apply(@mode; @uri; @sprite; @variables; @defaults) when not (extract(@defaults, 1) = 0) and (length(extract(@variables, 1)) >= 2) {
-  .__mixin__-user(@mode; @sprite[uri-template]; @variables; 1; length(@variables); @defaults);
+.__mixin__-apply(@mode; @uri; @sprite; @variables; @defaults) when not (extract(@defaults, 1) = 0) {
+  .__mixin__-subst(@mode; @sprite[uri-template]; @variables; @defaults; 2; extract(@defaults, 1) + 1);
 }
 
 .__mixin__-vars(@mode; @uri; @sprite; @name; @variables) when (@variables = false) {
