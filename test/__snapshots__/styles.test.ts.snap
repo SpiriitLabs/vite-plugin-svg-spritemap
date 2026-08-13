@@ -70,6 +70,13 @@ exports[`styles generation > custom less names 1`] = `
 	};
 }
 
+@sprites-variables: {
+	@no_viewbox: 0;
+	@no_width_height: 0;
+	@spiriit: 0;
+	@vite: 0;
+}
+
 .icon-sprite-entities(@value; @entities) when (@entities) {
   @spritemap-entities: replace(replace(~'@{value}', '&', '&amp;', 'g'), '<', '&lt;', 'g');
 }
@@ -214,6 +221,13 @@ exports[`styles generation > custom less sizes with em unit 1`] = `
 	};
 }
 
+@sprites-variables: {
+	@no_viewbox: 0;
+	@no_width_height: 0;
+	@spiriit: 0;
+	@vite: 0;
+}
+
 .sprite-entities(@value; @entities) when (@entities) {
   @spritemap-entities: replace(replace(~'@{value}', '&', '&amp;', 'g'), '<', '&lt;', 'g');
 }
@@ -356,6 +370,13 @@ exports[`styles generation > custom less sizes with rem unit and base 10 1`] = `
 		width: 3.1879999999999997rem;
 		height: 3.2rem;
 	};
+}
+
+@sprites-variables: {
+	@no_viewbox: 0;
+	@no_width_height: 0;
+	@spiriit: 0;
+	@vite: 0;
 }
 
 .sprite-entities(@value; @entities) when (@entities) {
@@ -597,7 +618,7 @@ $-icon-sprite-escapes: (
             $overridden: map.has-key($variables, $key);
 
             @if $overridden and (string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(')) {
-              @warn 'icon-sprite(): "#{$key}" is set to "#{$value}", a css reference is inert inside a data uri.';
+              @warn 'icon-sprite(): "#{$key}" is set to "#{$value}", a css reference cannot see the page from inside a data uri.';
             }
 
             $url: -icon-sprite-replace($url, '___#{$key}___', -icon-sprite-escape($value, $overridden));
@@ -749,7 +770,7 @@ $-sprite-escapes: (
             $overridden: map.has-key($variables, $key);
 
             @if $overridden and (string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(')) {
-              @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference is inert inside a data uri.';
+              @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference cannot see the page from inside a data uri.';
             }
 
             $url: -sprite-replace($url, '___#{$key}___', -sprite-escape($value, $overridden));
@@ -901,7 +922,7 @@ $-sprite-escapes: (
             $overridden: map.has-key($variables, $key);
 
             @if $overridden and (string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(')) {
-              @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference is inert inside a data uri.';
+              @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference cannot see the page from inside a data uri.';
             }
 
             $url: -sprite-replace($url, '___#{$key}___', -sprite-escape($value, $overridden));
@@ -1002,7 +1023,7 @@ icon-sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $
 				for $key, $value in $merged
 					if $key in $defaults
 						if $key in $variables and match('(var|url)[(]', '' + $value)
-							warn('icon-sprite(): "' + $key + '" is set to "' + $value + '", a css reference is inert inside a data uri')
+							warn('icon-sprite(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri')
 						$url = icon-sprite-replace($url, '___' + $key + '___', icon-sprite-escape($value, $key in $variables))
 					else
 						warn('icon-sprite(): "' + $name + '" has no variable named "' + $key + '"')
@@ -1092,7 +1113,7 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 				for $key, $value in $merged
 					if $key in $defaults
 						if $key in $variables and match('(var|url)[(]', '' + $value)
-							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference is inert inside a data uri')
+							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri')
 						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value, $key in $variables))
 					else
 						warn('sprite(): "' + $name + '" has no variable named "' + $key + '"')
@@ -1182,7 +1203,7 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 				for $key, $value in $merged
 					if $key in $defaults
 						if $key in $variables and match('(var|url)[(]', '' + $value)
-							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference is inert inside a data uri')
+							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri')
 						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value, $key in $variables))
 					else
 						warn('sprite(): "' + $name + '" has no variable named "' + $key + '"')
@@ -1383,6 +1404,13 @@ exports[`styles generation > include less ["mixin","variables"] 1`] = `
 		width: 31.88px;
 		height: 32px;
 	};
+}
+
+@sprites-variables: {
+	@no_viewbox: 0;
+	@no_width_height: 0;
+	@spiriit: 0;
+	@vite: 0;
 }
 
 .sprite-entities(@value; @entities) when (@entities) {
@@ -1652,6 +1680,13 @@ exports[`styles generation > include less true 1`] = `
 	};
 }
 
+@sprites-variables: {
+	@no_viewbox: 0;
+	@no_width_height: 0;
+	@spiriit: 0;
+	@vite: 0;
+}
+
 .sprite-entities(@value; @entities) when (@entities) {
   @spritemap-entities: replace(replace(~'@{value}', '&', '&amp;', 'g'), '<', '&lt;', 'g');
 }
@@ -1891,7 +1926,7 @@ $-sprite-escapes: (
             $overridden: map.has-key($variables, $key);
 
             @if $overridden and (string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(')) {
-              @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference is inert inside a data uri.';
+              @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference cannot see the page from inside a data uri.';
             }
 
             $url: -sprite-replace($url, '___#{$key}___', -sprite-escape($value, $overridden));
@@ -2020,7 +2055,7 @@ $-sprite-escapes: (
             $overridden: map.has-key($variables, $key);
 
             @if $overridden and (string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(')) {
-              @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference is inert inside a data uri.';
+              @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference cannot see the page from inside a data uri.';
             }
 
             $url: -sprite-replace($url, '___#{$key}___', -sprite-escape($value, $overridden));
@@ -2174,7 +2209,7 @@ $-sprite-escapes: (
             $overridden: map.has-key($variables, $key);
 
             @if $overridden and (string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(')) {
-              @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference is inert inside a data uri.';
+              @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference cannot see the page from inside a data uri.';
             }
 
             $url: -sprite-replace($url, '___#{$key}___', -sprite-escape($value, $overridden));
@@ -2275,7 +2310,7 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 				for $key, $value in $merged
 					if $key in $defaults
 						if $key in $variables and match('(var|url)[(]', '' + $value)
-							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference is inert inside a data uri')
+							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri')
 						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value, $key in $variables))
 					else
 						warn('sprite(): "' + $name + '" has no variable named "' + $key + '"')
@@ -2342,7 +2377,7 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 				for $key, $value in $merged
 					if $key in $defaults
 						if $key in $variables and match('(var|url)[(]', '' + $value)
-							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference is inert inside a data uri')
+							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri')
 						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value, $key in $variables))
 					else
 						warn('sprite(): "' + $name + '" has no variable named "' + $key + '"')
@@ -2434,7 +2469,7 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 				for $key, $value in $merged
 					if $key in $defaults
 						if $key in $variables and match('(var|url)[(]', '' + $value)
-							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference is inert inside a data uri')
+							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri')
 						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value, $key in $variables))
 					else
 						warn('sprite(): "' + $name + '" has no variable named "' + $key + '"')
@@ -2478,6 +2513,13 @@ exports[`styles generation > less 1`] = `
 		width: 31.88px;
 		height: 32px;
 	};
+}
+
+@sprites-variables: {
+	@no_viewbox: 0;
+	@no_width_height: 0;
+	@spiriit: 0;
+	@vite: 0;
 }
 
 .sprite-entities(@value; @entities) when (@entities) {
@@ -2719,7 +2761,7 @@ $-sprite-escapes: (
             $overridden: map.has-key($variables, $key);
 
             @if $overridden and (string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(')) {
-              @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference is inert inside a data uri.';
+              @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference cannot see the page from inside a data uri.';
             }
 
             $url: -sprite-replace($url, '___#{$key}___', -sprite-escape($value, $overridden));
@@ -2820,7 +2862,7 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 				for $key, $value in $merged
 					if $key in $defaults
 						if $key in $variables and match('(var|url)[(]', '' + $value)
-							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference is inert inside a data uri')
+							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri')
 						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value, $key in $variables))
 					else
 						warn('sprite(): "' + $name + '" has no variable named "' + $key + '"')

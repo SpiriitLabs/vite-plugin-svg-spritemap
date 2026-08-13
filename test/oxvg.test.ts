@@ -170,6 +170,8 @@ describe('oxvg variables', () => {
     ['<svg><style>.a{fill:Var(--c, red)}</style></svg>', true],
     // not a var() call, so the icon keeps the full optimizer config
     ['<svg style="font-family:myvar(x)"/>', false],
+    // a presentation attribute merely ending in `style` is not a style declaration
+    ['<svg><text font-style="var(--s, italic)"/></svg>', false],
   ])('detects a var() in a style declaration: %s', (source, expected) => {
     expect(hasStyleVariable(source)).toBe(expected)
   })
@@ -196,7 +198,6 @@ describe('oxvg variables', () => {
     expect(withoutVariablesJobs('<svg fill="red"/>', config)).toBe(config)
   })
 
-  // no config means "run OXVG's own preset", which a stripped copy cannot express
   it('leaves a disabled optimizer disabled', () => {
     expect(withoutVariablesJobs('<svg style="fill:var(--c, red)"/>', undefined)).toBeUndefined()
   })

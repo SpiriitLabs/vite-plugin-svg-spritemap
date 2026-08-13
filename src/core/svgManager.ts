@@ -248,9 +248,7 @@ export class SVGManager {
    */
   private async _optimizeSvg(svg: string): Promise<string> {
     if (this._optimize && this._optimizeType) {
-      // OXVG mangles a `var()` it cannot resolve and aborts the process on one in a
-      // style declaration, so those icons run a reduced set of jobs. Not gated on the
-      // `variables` option: the corruption happens regardless. SVGO is unaffected.
+      // not gated on the `variables` option: OXVG corrupts a `var()` regardless
       const config = this._optimizeType === 'oxvg'
         ? withoutVariablesJobs(svg, this._optimizeConfig)
         : this._optimizeConfig

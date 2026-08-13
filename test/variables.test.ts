@@ -117,9 +117,18 @@ describe('variables parsing', () => {
     expect(result?.warnings).toEqual([expect.stringContaining('nested `var()`')])
   })
 
-  it('warns on a url() default', () => {
-    const result = extractSvgVariables('<svg fill="var(--a, url(#grad))"/>')
-    expect(result?.warnings).toEqual([expect.stringContaining('`url()`')])
+  it('warns on an external url() default', () => {
+    const result = extractSvgVariables('<svg fill="var(--a, url(paint.svg))"/>')
+    expect(result?.warnings).toEqual([expect.stringContaining('external `url()`')])
+  })
+
+  // it resolves against the icon's own document, which the data uri carries along
+  it.each([
+    ['bare', '<svg fill="var(--a, url(#grad))"/>'],
+    ['quoted', '<svg fill=\'var(--a, url("#grad"))\'/>'],
+    ['spaced', '<svg fill="var(--a, url( #grad ))"/>'],
+  ])('stays quiet on a %s url(#id) default', (_name, source) => {
+    expect(extractSvgVariables(source)?.warnings).toEqual([])
   })
 
   // a style declaration wins over a presentation attribute, and some properties
@@ -287,6 +296,28 @@ describe('variables generation', () => {
     expect(plain).not.toContain('uri-template:')
   })
 
+  // the mixin is the only thing that can substitute a token
+  it('skips the template uri when no mixin is emitted', async () => {
+    async function withInclude(name: string, include: string[]): Promise<string> {
+      const filename = getPath(`./fixtures/basic/styles/spritemap_${name}.scss`)
+      await buildVite({
+        name: `variables_${name}`,
+        path: VARIABLES_GLOB,
+        options: { styles: { filename, lang: 'scss', include } },
+      })
+      return fs.readFile(filename, 'utf8')
+    }
+
+    const withMixin = await withInclude('tpl_mixin', ['variables', 'mixin'])
+    const without = await withInclude('tpl_nomixin', ['variables'])
+
+    expect(withMixin).toContain('uri-template:')
+    // the defaults map stays, only the uri nothing can read is dropped
+    expect(without).toContain('$sprites-variables: (')
+    expect(without).not.toContain('uri-template:')
+    expect(without.length).toBeLessThan(withMixin.length)
+  })
+
   it('bakes the defaults into the directly usable uri', async () => {
     const result = await generate('baked', 'css')
     const themable = result.match(/\.sprite-themable \{[^}]*\}/)?.[0] ?? ''
@@ -314,10 +345,16 @@ describe('variables generation', () => {
   it.each([
     ['scss', '$sprites-variables: ('],
     ['styl', '$sprites-variables = {'],
-    ['less', '@sprites-variables: {'],
   ] as const)('writes the defaults map only for a themable set (%s)', async (lang, declaration) => {
     expect(await generate('map_on', lang)).toContain(declaration)
     expect(await generate('map_off', lang, {}, './fixtures/basic/svg/*.svg')).not.toContain(declaration)
+  })
+
+  // scss and styl guard their lookup and warn, Less has no way to, so its map is
+  // written whenever the mixin is: without it the lookup is a compile error
+  it('writes the defaults map for less even when nothing is themable', async () => {
+    expect(await generate('map_on', 'less')).toContain('@sprites-variables: {')
+    expect(await generate('map_off', 'less', {}, './fixtures/basic/svg/*.svg')).toContain('@sprites-variables: {')
   })
 })
 
@@ -420,12 +457,12 @@ describe('variables substitution', () => {
 
     try {
       renderStylus([generated, '.a', '\tsprite(\'themable\', $variables: { \'color\': \'var(--x, red)\' })'].join('\n'))
-      expect(spy.mock.calls.flat().join('\n')).toContain('inert inside a data uri')
+      expect(spy.mock.calls.flat().join('\n')).toContain('cannot see the page from inside a data uri')
 
       // `weight` keeps its default, which is not a reference and must stay quiet
       spy.mockClear()
       renderStylus([generated, '.a', '\tsprite(\'themable\', $variables: { \'color\': red })'].join('\n'))
-      expect(spy.mock.calls.flat().join('\n')).not.toContain('inert inside a data uri')
+      expect(spy.mock.calls.flat().join('\n')).not.toContain('cannot see the page from inside a data uri')
     }
     finally {
       spy.mockRestore()
@@ -523,7 +560,7 @@ describe('variables substitution', () => {
   it.each([
     ['an unknown variable name', '.a { @include sprite(\'themable\', $variables: (\'nope\': red)); }', 'has no variable named'],
     ['a sprite without variables', '.a { @include sprite(\'plain\', $variables: (\'color\': red)); }', 'does not declare any variable'],
-    ['a css reference', '.a { @include sprite(\'themable\', $variables: (\'color\': \'var(--x, red)\')); }', 'inert inside a data uri'],
+    ['a css reference', '.a { @include sprite(\'themable\', $variables: (\'color\': \'var(--x, red)\')); }', 'cannot see the page from inside a data uri'],
   ])('warns on %s', async (_name, call, expected) => {
     const generated = await generate('warn', 'scss')
     const warnings: string[] = []
@@ -582,6 +619,19 @@ describe('variables substitution (less)', () => {
     expect(unknown).toContain('fill=\'#fff\'')
     expect(unknown).not.toContain('___')
     expect(none).toContain('fill=\'lime\'')
+  })
+
+  // Less cannot test a variable for existence, so the map has to exist for the
+  // mixin's lookup to resolve even when nothing at all is themable
+  it('compiles when nothing declares a variable', async () => {
+    const generated = await generate('lessnomap', 'less', { variables: false })
+    expect(generated).toContain('@sprites-variables: {')
+
+    const css = await renderLess(`${generated}
+.a { .sprite('themable', @variables: 'color' red); }`)
+
+    // nothing was extracted, so the authored `var()` survives verbatim
+    expect(decodeUri(urls(css)[0])).toContain('fill=\'var(--color, white)\'')
   })
 
   it('keeps the substituted uri a valid, well-formed document', async () => {

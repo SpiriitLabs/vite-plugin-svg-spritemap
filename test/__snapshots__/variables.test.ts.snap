@@ -358,7 +358,7 @@ $-sprite-escapes: (
             $overridden: map.has-key($variables, $key);
 
             @if $overridden and (string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(')) {
-              @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference is inert inside a data uri.';
+              @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference cannot see the page from inside a data uri.';
             }
 
             $url: -sprite-replace($url, '___#{$key}___', -sprite-escape($value, $overridden));
@@ -514,7 +514,7 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 				for $key, $value in $merged
 					if $key in $defaults
 						if $key in $variables and match('(var|url)[(]', '' + $value)
-							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference is inert inside a data uri')
+							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri')
 						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value, $key in $variables))
 					else
 						warn('sprite(): "' + $name + '" has no variable named "' + $key + '"')

@@ -7,14 +7,13 @@ import { defaultDisabledPlugins } from '@helpers/svgo'
 import { STYLE_ELEMENT_RE, VAR_CALL_RE } from '@helpers/variables'
 
 // ---------------------------------------------------------------------------
-// `var()` mitigations. OXVG mangles a value it cannot resolve, so an icon
-// carrying one is optimized with a reduced set of jobs. This block and its single
-// call in `SVGManager._optimizeSvg()` exist only for
-// https://github.com/noahbald/oxvg/issues/264 and are meant to be deleted together
-// once it is fixed and released.
+// `var()` mitigations for https://github.com/noahbald/oxvg/issues/264. This block
+// and its call in `SVGManager._optimizeSvg()` are deleted together once it is fixed.
 // ---------------------------------------------------------------------------
 
-const STYLE_ATTRIBUTE_RE = /\bstyle\s*=\s*(?:"([^"]*)"|'([^']*)')/gi
+// left-guarded like `VAR_CALL_RE`: a `\b` matches after a hyphen too, which would
+// read `font-style="var(--s, italic)"` as a style declaration
+const STYLE_ATTRIBUTE_RE = /(?<![\w-])style\s*=\s*(?:"([^"]*)"|'([^']*)')/gi
 
 /**
  * Disabled for icons carrying a `var()`: OXVG reads an unresolvable one as "no
@@ -42,10 +41,12 @@ export const styleVariablesDisabledPlugins: Record<string, false> = {
  * A `var()` inside a `style` attribute or a `<style>` element, which OXVG cannot
  * optimize without aborting the process.
  *
- * Deliberately broader than the aborting cases: only a plain or `@media` rule
- * feeds the static computed style and aborts, while `:hover`, `:focus`,
- * `@supports` and `@keyframes` are safe, and telling them apart would mean
- * parsing CSS to avoid a hard crash.
+ * Deliberately broader than the aborting cases, on two counts. Only a plain or
+ * `@media` rule feeds the static computed style and aborts, while `:hover`, `:focus`,
+ * `@supports` and `@keyframes` are safe, and telling them apart would mean parsing
+ * CSS to avoid a hard crash. And unlike `collectVarSites()`, this matches anywhere in
+ * the source, so text that merely reads like a declaration counts too. Both cost an
+ * icon some optimization, which is the cheap side of the trade.
  */
 export function hasStyleVariable(source: string): boolean {
   if (!VAR_CALL_RE.test(source))
@@ -65,14 +66,9 @@ export function hasStyleVariable(source: string): boolean {
 }
 
 /**
- * Copy of `config` without the jobs that mangle or abort on a `var()` carried by `svg`:
- * the wider set when it sits in a style declaration, the narrow one otherwise. Runs on
- * the source before optimization, which is why it scans for a `var()` itself instead of
- * reusing what {@link extractSvgVariables} collects from the optimized output.
- *
- * Generic so it can take the shared config field as-is: only OXVG needs this, and
- * `undefined` is returned untouched since it means "run OXVG's own preset", which a
- * copy stripped of jobs cannot express.
+ * Copy of `config` without the jobs that mangle or abort on the `var()` `svg` carries,
+ * the wider set for one in a style declaration. `undefined` stays `undefined`: it means
+ * "run OXVG's own preset", which a stripped copy cannot express.
  */
 export function withoutVariablesJobs<Config>(svg: string, config: Config): Config {
   if (!config || !VAR_CALL_RE.test(svg))
