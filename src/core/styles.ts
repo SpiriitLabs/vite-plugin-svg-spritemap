@@ -1,4 +1,4 @@
-import type { Options, StylesLang, SvgDataUriMapObject, SvgMapObject } from '../types'
+import type { Options, OptionsStyles, StylesLang, SvgDataUriMapObject, SvgMapObject } from '../types'
 import { promises } from 'node:fs'
 import path from 'node:path'
 import { resolveVariableTokens } from '@helpers/variables'
@@ -20,11 +20,14 @@ export class Styles {
     this._options = options
     this._routeUrl = routeUrl
 
+    const spritemapResolved = options.variables !== false && options.variables.spritemap === 'resolve'
+
     svgs.forEach((svg, filePath) => {
       let uris = dataUriCache.get(svg)
       if (typeof uris === 'undefined') {
-        // a `var()` in a data uri can only ever resolve to its own fallback
-        const source = svg.variables
+        // a `var()` in a data uri can only ever resolve to its own fallback,
+        // which `spritemap: 'resolve'` already baked into the source
+        const source = svg.variables && !spritemapResolved
           ? resolveVariableTokens(svg.variables.sourceTemplate, svg.variables.defaults)
           : svg.source
 
@@ -160,19 +163,29 @@ export class Styles {
     return `${doNotEditThisFile + insert}\n${template}`
   }
 
-  // SCSS generation
-  private _generate_scss() {
+  /** The maps every preprocessor lang emits, all gated on the same `include` entry. */
+  private _stylesForVariables(): OptionsStyles | null {
+    const styles = this._options.styles
     if (
-      !this._options.styles
-      || this._options.styles.include === false
-      || (Array.isArray(this._options.styles.include) && !this._options.styles.include.includes('variables'))
+      !styles
+      || styles.include === false
+      || (Array.isArray(styles.include) && !styles.include.includes('variables'))
     ) {
-      return ''
+      return null
     }
 
-    let insert = `$${this._options.styles.names.prefix}: '${this._options.prefix}';\n`
+    return styles
+  }
 
-    insert += `$${this._options.styles.names.sprites}: (\n`
+  // SCSS generation
+  private _generate_scss() {
+    const styles = this._stylesForVariables()
+    if (!styles)
+      return ''
+
+    let insert = `$${styles.names.prefix}: '${this._options.prefix}';\n`
+
+    insert += `$${styles.names.sprites}: (\n`
     insert += this.createSpriteMap((svg, isLast) => {
       let sprite = ''
       sprite = `\t'${svg.id}': (`
@@ -188,7 +201,7 @@ export class Styles {
 
     // an entry per sprite, empty ones included: the mixin looks every sprite up
     if (this._options.variables !== false) {
-      insert += `\n$${this._options.styles.names.variables}: (\n`
+      insert += `\n$${styles.names.variables}: (\n`
       insert += this.createSpriteMap((svg, isLast) =>
         `\t'${svg.id}': (${Styles.formatVariablePairs(svg)}\n\t${isLast ? ')' : '),'}`)
       insert += ');\n'
@@ -199,17 +212,13 @@ export class Styles {
 
   // Styl generation
   private _generate_styl() {
-    if (
-      !this._options.styles
-      || this._options.styles.include === false
-      || (Array.isArray(this._options.styles.include) && !this._options.styles.include.includes('variables'))
-    ) {
+    const styles = this._stylesForVariables()
+    if (!styles)
       return ''
-    }
 
-    let insert = `$${this._options.styles.names.prefix} = '${this._options.prefix}'\n`
+    let insert = `$${styles.names.prefix} = '${this._options.prefix}'\n`
 
-    insert += `$${this._options.styles.names.sprites} = {\n`
+    insert += `$${styles.names.sprites} = {\n`
     insert += this.createSpriteMap((svg, isLast) => {
       let sprite = ''
       sprite = `\t'${svg.id}': {`
@@ -225,7 +234,7 @@ export class Styles {
 
     // an entry per sprite, empty ones included: the mixin looks every sprite up
     if (this._options.variables !== false) {
-      insert += `\n$${this._options.styles.names.variables} = {\n`
+      insert += `\n$${styles.names.variables} = {\n`
       insert += this.createSpriteMap((svg, isLast) =>
         `\t'${svg.id}': {${Styles.formatVariablePairs(svg)}\n\t${isLast ? '}' : '},'}`)
       insert += '}\n'
@@ -236,17 +245,13 @@ export class Styles {
 
   // Less generation
   private _generate_less() {
-    if (
-      !this._options.styles
-      || this._options.styles.include === false
-      || (Array.isArray(this._options.styles.include) && !this._options.styles.include.includes('variables'))
-    ) {
+    const styles = this._stylesForVariables()
+    if (!styles)
       return ''
-    }
 
-    let insert = `@${this._options.styles.names.prefix}: '${this._options.prefix}';\n`
+    let insert = `@${styles.names.prefix}: '${this._options.prefix}';\n`
 
-    insert += `@${this._options.styles.names.sprites}: {\n`
+    insert += `@${styles.names.sprites}: {\n`
     insert += this.createSpriteMap((svg) => {
       let sprite = ''
       sprite = `\t@${svg.id}: {`
@@ -263,7 +268,7 @@ export class Styles {
     // the leading count is what tells a lone `'a' 1` pair from a list of pairs,
     // which Less cannot otherwise distinguish
     if (this._options.variables !== false) {
-      insert += `\n@${this._options.styles.names.variables}: {\n`
+      insert += `\n@${styles.names.variables}: {\n`
       insert += this.createSpriteMap((svg) => {
         const entries = Object.entries(svg.variableDefaults ?? {})
         const pairs = entries.map(([name, value]) => `'${name}' ${Styles.formatVariableValue(value)}`)

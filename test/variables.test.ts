@@ -4,17 +4,19 @@ import less from 'less'
 import * as sass from 'sass'
 import stylus from 'stylus'
 import { describe, expect, it, vi } from 'vitest'
-import { extractSvgVariables, hasStyleVariable, resolveVariableTokens, sortVariableDefaults, variableToken } from '../src/helpers/variables'
+import { extractSvgVariables, resolveVariableTokens, sortVariableDefaults, variableToken } from '../src/helpers/variables'
 import { buildVite } from './helpers/build'
 import { getPath } from './helpers/path'
 
 const VARIABLES_GLOB = './fixtures/basic/variables/*.svg'
+/** `--a` and `--a___b`: the token of the first is a prefix of the token of the second. */
+const SHADOW_GLOB = './fixtures/basic/variables-shadow/*.svg'
 
-function generate(name: string, lang: 'scss' | 'styl' | 'less' | 'css', options: Record<string, unknown> = {}) {
+function generate(name: string, lang: 'scss' | 'styl' | 'less' | 'css', options: Record<string, unknown> = {}, path = VARIABLES_GLOB) {
   const filename = getPath(`./fixtures/basic/styles/spritemap_${name}.${lang}`)
   return buildVite({
     name: `variables_${name}_${lang}`,
-    path: VARIABLES_GLOB,
+    path,
     options: { styles: { filename, lang }, ...options },
   }).then(() => fs.readFile(filename, 'utf8'))
 }
@@ -178,18 +180,6 @@ describe('variables parsing', () => {
 
   it('builds the token the templates replace', () => {
     expect(variableToken('color')).toBe('___color___')
-  })
-
-  // OXVG aborts on these, so they take a narrower optimizer config
-  it.each([
-    ['<svg fill="var(--c, red)"/>', false],
-    ['<svg/>', false],
-    ['<svg style="fill:var(--c, red)"/>', true],
-    ['<svg style=\'fill:var(--c, red)\'/>', true],
-    ['<svg><style>.a{fill:var(--c, red)}</style></svg>', true],
-    ['<svg><style type="text/css">.a{fill:var(--c, red)}</style ></svg>', true],
-  ])('detects a var() in a style declaration: %s', (source, expected) => {
-    expect(hasStyleVariable(source)).toBe(expected)
   })
 })
 
@@ -568,5 +558,29 @@ describe('variables cross-language equivalence', () => {
     expect(decoded[2]).toBe(decoded[0])
     expect(decoded[0]).toContain('fill=\'#f00\'')
     expect(decoded[0]).toContain('a%b&apos;c&amp;d&lt;e>f?g+h')
+  })
+
+  // the shortest name is written first on purpose: substituting `___a___` before
+  // `___a___b___` would eat its prefix and leave a `_b___` behind, so every lang
+  // has to walk the defaults (longest name first) rather than the user's list
+  it('substitutes a name whose token is a prefix of another', async () => {
+    const scssCss = sass.compileString(`${await generate('shadow', 'scss', {}, SHADOW_GLOB)}
+.a { @include sprite('shadow', $variables: ('a': 'green', 'a___b': 'yellow')); }`).css
+
+    const stylCss = renderStylus([
+      await generate('shadow', 'styl', {}, SHADOW_GLOB),
+      '.a',
+      '\tsprite(\'shadow\', $variables: { \'a\': \'green\', \'a___b\': \'yellow\' })',
+    ].join('\n'))
+
+    const lessCss = await renderLess(`${await generate('shadow', 'less', {}, SHADOW_GLOB)}
+.a { .sprite('shadow'; @variables: 'a' 'green', 'a___b' 'yellow'); }`)
+
+    for (const css of [scssCss, stylCss, lessCss]) {
+      const decoded = decodeUri(urls(css)[0])
+      expect(decoded).toContain('fill=\'green\'')
+      expect(decoded).toContain('stroke=\'yellow\'')
+      expect(decoded).not.toContain('___')
+    }
   })
 })

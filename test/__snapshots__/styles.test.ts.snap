@@ -82,45 +82,61 @@ exports[`styles generation > custom less names 1`] = `
   @spritemap-escaped: replace(replace(replace(replace(replace(escape(@spritemap-xml), '&', '%26', 'g'), ',', '%2c', 'g'), '[+]', '%2b', 'g'), '[$]', '%24', 'g'), '[?]', '%3f', 'g');
 }
 
-.icon-sprite-pair(@uri; @pair) {
-  @spritemap-key: extract(@pair, 1);
-  .icon-sprite-escape(extract(@pair, 2));
-  @spritemap-uri: replace(@uri, '___@{spritemap-key}___', @spritemap-escaped, 'g');
+.icon-sprite-pair(@uri; @key; @value) {
+  .icon-sprite-escape(@value);
+  @spritemap-uri: replace(@uri, '___@{key}___', @spritemap-escaped, 'g');
 }
 
 .icon-sprite-emit(@mode; @uri) {
   @{mode}: url(@uri) center no-repeat;
 }
 
-.icon-sprite-user(@mode; @uri; @pairs; @i; @to; @defaults) when (@i <= @to) {
-  .icon-sprite-pair(@uri; extract(@pairs, @i));
-  .icon-sprite-user(@mode; @spritemap-uri; @pairs; @i + 1; @to; @defaults);
+// The user's override for @key, or @fallback when they passed none. Less has no
+// one-element list, so a lone \`'name' value\` pair is doubled to keep the scan
+// uniform: both copies carry the same key, so either one matching is the same.
+.icon-sprite-value(@variables; @key; @fallback) when (length(extract(@variables, 1)) < 2) {
+  .icon-sprite-value-scan(@variables, @variables; @key; @fallback; 1; 2);
 }
 
-.icon-sprite-user(@mode; @uri; @pairs; @i; @to; @defaults) when (@i > @to) {
-  .icon-sprite-defaults(@mode; @uri; @defaults; 2; extract(@defaults, 1) + 1);
+.icon-sprite-value(@variables; @key; @fallback) when (length(extract(@variables, 1)) >= 2) {
+  .icon-sprite-value-scan(@variables; @key; @fallback; 1; length(@variables));
 }
 
-.icon-sprite-defaults(@mode; @uri; @pairs; @i; @to) when (@i <= @to) {
-  .icon-sprite-pair(@uri; extract(@pairs, @i));
-  .icon-sprite-defaults(@mode; @spritemap-uri; @pairs; @i + 1; @to);
+.icon-sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i > @to) {
+  @spritemap-value: @fallback;
 }
 
-.icon-sprite-defaults(@mode; @uri; @pairs; @i; @to) when (@i > @to) {
+.icon-sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i <= @to) {
+  .icon-sprite-value-step(@pairs; @key; @fallback; @i; @to; extract(extract(@pairs, @i), 1); extract(extract(@pairs, @i), 2));
+}
+
+.icon-sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when (@name = @key) {
+  @spritemap-value: @value;
+}
+
+.icon-sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when not (@name = @key) {
+  .icon-sprite-value-scan(@pairs; @key; @fallback; @i + 1; @to);
+}
+
+// Walk the defaults, which come ordered longest name first so a short token can
+// never shadow a longer one, and take the user's override per name. Replaying
+// the user list in its own order instead would break that ordering.
+.icon-sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i > @to) {
   .icon-sprite-emit(@mode; @uri);
+}
+
+.icon-sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i <= @to) {
+  .icon-sprite-value(@variables; extract(extract(@defaults, @i), 1); extract(extract(@defaults, @i), 2));
+  .icon-sprite-pair(@uri; extract(extract(@defaults, @i), 1); @spritemap-value);
+  .icon-sprite-subst(@mode; @spritemap-uri; @variables; @defaults; @i + 1; @to);
 }
 
 .icon-sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when (extract(@defaults, 1) = 0) {
   .icon-sprite-emit(@mode; @uri);
 }
 
-.icon-sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when not (extract(@defaults, 1) = 0) and (length(extract(@variables, 1)) < 2) {
-  .icon-sprite-pair(@sprite[uri-template]; @variables);
-  .icon-sprite-defaults(@mode; @spritemap-uri; @defaults; 2; extract(@defaults, 1) + 1);
-}
-
-.icon-sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when not (extract(@defaults, 1) = 0) and (length(extract(@variables, 1)) >= 2) {
-  .icon-sprite-user(@mode; @sprite[uri-template]; @variables; 1; length(@variables); @defaults);
+.icon-sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when not (extract(@defaults, 1) = 0) {
+  .icon-sprite-subst(@mode; @sprite[uri-template]; @variables; @defaults; 2; extract(@defaults, 1) + 1);
 }
 
 .icon-sprite-vars(@mode; @uri; @sprite; @name; @variables) when (@variables = false) {
@@ -200,45 +216,61 @@ exports[`styles generation > custom less sizes with em unit 1`] = `
   @spritemap-escaped: replace(replace(replace(replace(replace(escape(@spritemap-xml), '&', '%26', 'g'), ',', '%2c', 'g'), '[+]', '%2b', 'g'), '[$]', '%24', 'g'), '[?]', '%3f', 'g');
 }
 
-.sprite-pair(@uri; @pair) {
-  @spritemap-key: extract(@pair, 1);
-  .sprite-escape(extract(@pair, 2));
-  @spritemap-uri: replace(@uri, '___@{spritemap-key}___', @spritemap-escaped, 'g');
+.sprite-pair(@uri; @key; @value) {
+  .sprite-escape(@value);
+  @spritemap-uri: replace(@uri, '___@{key}___', @spritemap-escaped, 'g');
 }
 
 .sprite-emit(@mode; @uri) {
   @{mode}: url(@uri) center no-repeat;
 }
 
-.sprite-user(@mode; @uri; @pairs; @i; @to; @defaults) when (@i <= @to) {
-  .sprite-pair(@uri; extract(@pairs, @i));
-  .sprite-user(@mode; @spritemap-uri; @pairs; @i + 1; @to; @defaults);
+// The user's override for @key, or @fallback when they passed none. Less has no
+// one-element list, so a lone \`'name' value\` pair is doubled to keep the scan
+// uniform: both copies carry the same key, so either one matching is the same.
+.sprite-value(@variables; @key; @fallback) when (length(extract(@variables, 1)) < 2) {
+  .sprite-value-scan(@variables, @variables; @key; @fallback; 1; 2);
 }
 
-.sprite-user(@mode; @uri; @pairs; @i; @to; @defaults) when (@i > @to) {
-  .sprite-defaults(@mode; @uri; @defaults; 2; extract(@defaults, 1) + 1);
+.sprite-value(@variables; @key; @fallback) when (length(extract(@variables, 1)) >= 2) {
+  .sprite-value-scan(@variables; @key; @fallback; 1; length(@variables));
 }
 
-.sprite-defaults(@mode; @uri; @pairs; @i; @to) when (@i <= @to) {
-  .sprite-pair(@uri; extract(@pairs, @i));
-  .sprite-defaults(@mode; @spritemap-uri; @pairs; @i + 1; @to);
+.sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i > @to) {
+  @spritemap-value: @fallback;
 }
 
-.sprite-defaults(@mode; @uri; @pairs; @i; @to) when (@i > @to) {
+.sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i <= @to) {
+  .sprite-value-step(@pairs; @key; @fallback; @i; @to; extract(extract(@pairs, @i), 1); extract(extract(@pairs, @i), 2));
+}
+
+.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when (@name = @key) {
+  @spritemap-value: @value;
+}
+
+.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when not (@name = @key) {
+  .sprite-value-scan(@pairs; @key; @fallback; @i + 1; @to);
+}
+
+// Walk the defaults, which come ordered longest name first so a short token can
+// never shadow a longer one, and take the user's override per name. Replaying
+// the user list in its own order instead would break that ordering.
+.sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i > @to) {
   .sprite-emit(@mode; @uri);
+}
+
+.sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i <= @to) {
+  .sprite-value(@variables; extract(extract(@defaults, @i), 1); extract(extract(@defaults, @i), 2));
+  .sprite-pair(@uri; extract(extract(@defaults, @i), 1); @spritemap-value);
+  .sprite-subst(@mode; @spritemap-uri; @variables; @defaults; @i + 1; @to);
 }
 
 .sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when (extract(@defaults, 1) = 0) {
   .sprite-emit(@mode; @uri);
 }
 
-.sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when not (extract(@defaults, 1) = 0) and (length(extract(@variables, 1)) < 2) {
-  .sprite-pair(@sprite[uri-template]; @variables);
-  .sprite-defaults(@mode; @spritemap-uri; @defaults; 2; extract(@defaults, 1) + 1);
-}
-
-.sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when not (extract(@defaults, 1) = 0) and (length(extract(@variables, 1)) >= 2) {
-  .sprite-user(@mode; @sprite[uri-template]; @variables; 1; length(@variables); @defaults);
+.sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when not (extract(@defaults, 1) = 0) {
+  .sprite-subst(@mode; @sprite[uri-template]; @variables; @defaults; 2; extract(@defaults, 1) + 1);
 }
 
 .sprite-vars(@mode; @uri; @sprite; @name; @variables) when (@variables = false) {
@@ -318,45 +350,61 @@ exports[`styles generation > custom less sizes with rem unit and base 10 1`] = `
   @spritemap-escaped: replace(replace(replace(replace(replace(escape(@spritemap-xml), '&', '%26', 'g'), ',', '%2c', 'g'), '[+]', '%2b', 'g'), '[$]', '%24', 'g'), '[?]', '%3f', 'g');
 }
 
-.sprite-pair(@uri; @pair) {
-  @spritemap-key: extract(@pair, 1);
-  .sprite-escape(extract(@pair, 2));
-  @spritemap-uri: replace(@uri, '___@{spritemap-key}___', @spritemap-escaped, 'g');
+.sprite-pair(@uri; @key; @value) {
+  .sprite-escape(@value);
+  @spritemap-uri: replace(@uri, '___@{key}___', @spritemap-escaped, 'g');
 }
 
 .sprite-emit(@mode; @uri) {
   @{mode}: url(@uri) center no-repeat;
 }
 
-.sprite-user(@mode; @uri; @pairs; @i; @to; @defaults) when (@i <= @to) {
-  .sprite-pair(@uri; extract(@pairs, @i));
-  .sprite-user(@mode; @spritemap-uri; @pairs; @i + 1; @to; @defaults);
+// The user's override for @key, or @fallback when they passed none. Less has no
+// one-element list, so a lone \`'name' value\` pair is doubled to keep the scan
+// uniform: both copies carry the same key, so either one matching is the same.
+.sprite-value(@variables; @key; @fallback) when (length(extract(@variables, 1)) < 2) {
+  .sprite-value-scan(@variables, @variables; @key; @fallback; 1; 2);
 }
 
-.sprite-user(@mode; @uri; @pairs; @i; @to; @defaults) when (@i > @to) {
-  .sprite-defaults(@mode; @uri; @defaults; 2; extract(@defaults, 1) + 1);
+.sprite-value(@variables; @key; @fallback) when (length(extract(@variables, 1)) >= 2) {
+  .sprite-value-scan(@variables; @key; @fallback; 1; length(@variables));
 }
 
-.sprite-defaults(@mode; @uri; @pairs; @i; @to) when (@i <= @to) {
-  .sprite-pair(@uri; extract(@pairs, @i));
-  .sprite-defaults(@mode; @spritemap-uri; @pairs; @i + 1; @to);
+.sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i > @to) {
+  @spritemap-value: @fallback;
 }
 
-.sprite-defaults(@mode; @uri; @pairs; @i; @to) when (@i > @to) {
+.sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i <= @to) {
+  .sprite-value-step(@pairs; @key; @fallback; @i; @to; extract(extract(@pairs, @i), 1); extract(extract(@pairs, @i), 2));
+}
+
+.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when (@name = @key) {
+  @spritemap-value: @value;
+}
+
+.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when not (@name = @key) {
+  .sprite-value-scan(@pairs; @key; @fallback; @i + 1; @to);
+}
+
+// Walk the defaults, which come ordered longest name first so a short token can
+// never shadow a longer one, and take the user's override per name. Replaying
+// the user list in its own order instead would break that ordering.
+.sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i > @to) {
   .sprite-emit(@mode; @uri);
+}
+
+.sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i <= @to) {
+  .sprite-value(@variables; extract(extract(@defaults, @i), 1); extract(extract(@defaults, @i), 2));
+  .sprite-pair(@uri; extract(extract(@defaults, @i), 1); @spritemap-value);
+  .sprite-subst(@mode; @spritemap-uri; @variables; @defaults; @i + 1; @to);
 }
 
 .sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when (extract(@defaults, 1) = 0) {
   .sprite-emit(@mode; @uri);
 }
 
-.sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when not (extract(@defaults, 1) = 0) and (length(extract(@variables, 1)) < 2) {
-  .sprite-pair(@sprite[uri-template]; @variables);
-  .sprite-defaults(@mode; @spritemap-uri; @defaults; 2; extract(@defaults, 1) + 1);
-}
-
-.sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when not (extract(@defaults, 1) = 0) and (length(extract(@variables, 1)) >= 2) {
-  .sprite-user(@mode; @sprite[uri-template]; @variables; 1; length(@variables); @defaults);
+.sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when not (extract(@defaults, 1) = 0) {
+  .sprite-subst(@mode; @sprite[uri-template]; @variables; @defaults; 2; extract(@defaults, 1) + 1);
 }
 
 .sprite-vars(@mode; @uri; @sprite; @name; @variables) when (@variables = false) {
@@ -1334,45 +1382,61 @@ exports[`styles generation > include less ["mixin","variables"] 1`] = `
   @spritemap-escaped: replace(replace(replace(replace(replace(escape(@spritemap-xml), '&', '%26', 'g'), ',', '%2c', 'g'), '[+]', '%2b', 'g'), '[$]', '%24', 'g'), '[?]', '%3f', 'g');
 }
 
-.sprite-pair(@uri; @pair) {
-  @spritemap-key: extract(@pair, 1);
-  .sprite-escape(extract(@pair, 2));
-  @spritemap-uri: replace(@uri, '___@{spritemap-key}___', @spritemap-escaped, 'g');
+.sprite-pair(@uri; @key; @value) {
+  .sprite-escape(@value);
+  @spritemap-uri: replace(@uri, '___@{key}___', @spritemap-escaped, 'g');
 }
 
 .sprite-emit(@mode; @uri) {
   @{mode}: url(@uri) center no-repeat;
 }
 
-.sprite-user(@mode; @uri; @pairs; @i; @to; @defaults) when (@i <= @to) {
-  .sprite-pair(@uri; extract(@pairs, @i));
-  .sprite-user(@mode; @spritemap-uri; @pairs; @i + 1; @to; @defaults);
+// The user's override for @key, or @fallback when they passed none. Less has no
+// one-element list, so a lone \`'name' value\` pair is doubled to keep the scan
+// uniform: both copies carry the same key, so either one matching is the same.
+.sprite-value(@variables; @key; @fallback) when (length(extract(@variables, 1)) < 2) {
+  .sprite-value-scan(@variables, @variables; @key; @fallback; 1; 2);
 }
 
-.sprite-user(@mode; @uri; @pairs; @i; @to; @defaults) when (@i > @to) {
-  .sprite-defaults(@mode; @uri; @defaults; 2; extract(@defaults, 1) + 1);
+.sprite-value(@variables; @key; @fallback) when (length(extract(@variables, 1)) >= 2) {
+  .sprite-value-scan(@variables; @key; @fallback; 1; length(@variables));
 }
 
-.sprite-defaults(@mode; @uri; @pairs; @i; @to) when (@i <= @to) {
-  .sprite-pair(@uri; extract(@pairs, @i));
-  .sprite-defaults(@mode; @spritemap-uri; @pairs; @i + 1; @to);
+.sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i > @to) {
+  @spritemap-value: @fallback;
 }
 
-.sprite-defaults(@mode; @uri; @pairs; @i; @to) when (@i > @to) {
+.sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i <= @to) {
+  .sprite-value-step(@pairs; @key; @fallback; @i; @to; extract(extract(@pairs, @i), 1); extract(extract(@pairs, @i), 2));
+}
+
+.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when (@name = @key) {
+  @spritemap-value: @value;
+}
+
+.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when not (@name = @key) {
+  .sprite-value-scan(@pairs; @key; @fallback; @i + 1; @to);
+}
+
+// Walk the defaults, which come ordered longest name first so a short token can
+// never shadow a longer one, and take the user's override per name. Replaying
+// the user list in its own order instead would break that ordering.
+.sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i > @to) {
   .sprite-emit(@mode; @uri);
+}
+
+.sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i <= @to) {
+  .sprite-value(@variables; extract(extract(@defaults, @i), 1); extract(extract(@defaults, @i), 2));
+  .sprite-pair(@uri; extract(extract(@defaults, @i), 1); @spritemap-value);
+  .sprite-subst(@mode; @spritemap-uri; @variables; @defaults; @i + 1; @to);
 }
 
 .sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when (extract(@defaults, 1) = 0) {
   .sprite-emit(@mode; @uri);
 }
 
-.sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when not (extract(@defaults, 1) = 0) and (length(extract(@variables, 1)) < 2) {
-  .sprite-pair(@sprite[uri-template]; @variables);
-  .sprite-defaults(@mode; @spritemap-uri; @defaults; 2; extract(@defaults, 1) + 1);
-}
-
-.sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when not (extract(@defaults, 1) = 0) and (length(extract(@variables, 1)) >= 2) {
-  .sprite-user(@mode; @sprite[uri-template]; @variables; 1; length(@variables); @defaults);
+.sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when not (extract(@defaults, 1) = 0) {
+  .sprite-subst(@mode; @sprite[uri-template]; @variables; @defaults; 2; extract(@defaults, 1) + 1);
 }
 
 .sprite-vars(@mode; @uri; @sprite; @name; @variables) when (@variables = false) {
@@ -1422,45 +1486,61 @@ exports[`styles generation > include less ["mixin"] 1`] = `
   @spritemap-escaped: replace(replace(replace(replace(replace(escape(@spritemap-xml), '&', '%26', 'g'), ',', '%2c', 'g'), '[+]', '%2b', 'g'), '[$]', '%24', 'g'), '[?]', '%3f', 'g');
 }
 
-.sprite-pair(@uri; @pair) {
-  @spritemap-key: extract(@pair, 1);
-  .sprite-escape(extract(@pair, 2));
-  @spritemap-uri: replace(@uri, '___@{spritemap-key}___', @spritemap-escaped, 'g');
+.sprite-pair(@uri; @key; @value) {
+  .sprite-escape(@value);
+  @spritemap-uri: replace(@uri, '___@{key}___', @spritemap-escaped, 'g');
 }
 
 .sprite-emit(@mode; @uri) {
   @{mode}: url(@uri) center no-repeat;
 }
 
-.sprite-user(@mode; @uri; @pairs; @i; @to; @defaults) when (@i <= @to) {
-  .sprite-pair(@uri; extract(@pairs, @i));
-  .sprite-user(@mode; @spritemap-uri; @pairs; @i + 1; @to; @defaults);
+// The user's override for @key, or @fallback when they passed none. Less has no
+// one-element list, so a lone \`'name' value\` pair is doubled to keep the scan
+// uniform: both copies carry the same key, so either one matching is the same.
+.sprite-value(@variables; @key; @fallback) when (length(extract(@variables, 1)) < 2) {
+  .sprite-value-scan(@variables, @variables; @key; @fallback; 1; 2);
 }
 
-.sprite-user(@mode; @uri; @pairs; @i; @to; @defaults) when (@i > @to) {
-  .sprite-defaults(@mode; @uri; @defaults; 2; extract(@defaults, 1) + 1);
+.sprite-value(@variables; @key; @fallback) when (length(extract(@variables, 1)) >= 2) {
+  .sprite-value-scan(@variables; @key; @fallback; 1; length(@variables));
 }
 
-.sprite-defaults(@mode; @uri; @pairs; @i; @to) when (@i <= @to) {
-  .sprite-pair(@uri; extract(@pairs, @i));
-  .sprite-defaults(@mode; @spritemap-uri; @pairs; @i + 1; @to);
+.sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i > @to) {
+  @spritemap-value: @fallback;
 }
 
-.sprite-defaults(@mode; @uri; @pairs; @i; @to) when (@i > @to) {
+.sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i <= @to) {
+  .sprite-value-step(@pairs; @key; @fallback; @i; @to; extract(extract(@pairs, @i), 1); extract(extract(@pairs, @i), 2));
+}
+
+.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when (@name = @key) {
+  @spritemap-value: @value;
+}
+
+.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when not (@name = @key) {
+  .sprite-value-scan(@pairs; @key; @fallback; @i + 1; @to);
+}
+
+// Walk the defaults, which come ordered longest name first so a short token can
+// never shadow a longer one, and take the user's override per name. Replaying
+// the user list in its own order instead would break that ordering.
+.sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i > @to) {
   .sprite-emit(@mode; @uri);
+}
+
+.sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i <= @to) {
+  .sprite-value(@variables; extract(extract(@defaults, @i), 1); extract(extract(@defaults, @i), 2));
+  .sprite-pair(@uri; extract(extract(@defaults, @i), 1); @spritemap-value);
+  .sprite-subst(@mode; @spritemap-uri; @variables; @defaults; @i + 1; @to);
 }
 
 .sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when (extract(@defaults, 1) = 0) {
   .sprite-emit(@mode; @uri);
 }
 
-.sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when not (extract(@defaults, 1) = 0) and (length(extract(@variables, 1)) < 2) {
-  .sprite-pair(@sprite[uri-template]; @variables);
-  .sprite-defaults(@mode; @spritemap-uri; @defaults; 2; extract(@defaults, 1) + 1);
-}
-
-.sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when not (extract(@defaults, 1) = 0) and (length(extract(@variables, 1)) >= 2) {
-  .sprite-user(@mode; @sprite[uri-template]; @variables; 1; length(@variables); @defaults);
+.sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when not (extract(@defaults, 1) = 0) {
+  .sprite-subst(@mode; @sprite[uri-template]; @variables; @defaults; 2; extract(@defaults, 1) + 1);
 }
 
 .sprite-vars(@mode; @uri; @sprite; @name; @variables) when (@variables = false) {
@@ -1542,45 +1622,61 @@ exports[`styles generation > include less true 1`] = `
   @spritemap-escaped: replace(replace(replace(replace(replace(escape(@spritemap-xml), '&', '%26', 'g'), ',', '%2c', 'g'), '[+]', '%2b', 'g'), '[$]', '%24', 'g'), '[?]', '%3f', 'g');
 }
 
-.sprite-pair(@uri; @pair) {
-  @spritemap-key: extract(@pair, 1);
-  .sprite-escape(extract(@pair, 2));
-  @spritemap-uri: replace(@uri, '___@{spritemap-key}___', @spritemap-escaped, 'g');
+.sprite-pair(@uri; @key; @value) {
+  .sprite-escape(@value);
+  @spritemap-uri: replace(@uri, '___@{key}___', @spritemap-escaped, 'g');
 }
 
 .sprite-emit(@mode; @uri) {
   @{mode}: url(@uri) center no-repeat;
 }
 
-.sprite-user(@mode; @uri; @pairs; @i; @to; @defaults) when (@i <= @to) {
-  .sprite-pair(@uri; extract(@pairs, @i));
-  .sprite-user(@mode; @spritemap-uri; @pairs; @i + 1; @to; @defaults);
+// The user's override for @key, or @fallback when they passed none. Less has no
+// one-element list, so a lone \`'name' value\` pair is doubled to keep the scan
+// uniform: both copies carry the same key, so either one matching is the same.
+.sprite-value(@variables; @key; @fallback) when (length(extract(@variables, 1)) < 2) {
+  .sprite-value-scan(@variables, @variables; @key; @fallback; 1; 2);
 }
 
-.sprite-user(@mode; @uri; @pairs; @i; @to; @defaults) when (@i > @to) {
-  .sprite-defaults(@mode; @uri; @defaults; 2; extract(@defaults, 1) + 1);
+.sprite-value(@variables; @key; @fallback) when (length(extract(@variables, 1)) >= 2) {
+  .sprite-value-scan(@variables; @key; @fallback; 1; length(@variables));
 }
 
-.sprite-defaults(@mode; @uri; @pairs; @i; @to) when (@i <= @to) {
-  .sprite-pair(@uri; extract(@pairs, @i));
-  .sprite-defaults(@mode; @spritemap-uri; @pairs; @i + 1; @to);
+.sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i > @to) {
+  @spritemap-value: @fallback;
 }
 
-.sprite-defaults(@mode; @uri; @pairs; @i; @to) when (@i > @to) {
+.sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i <= @to) {
+  .sprite-value-step(@pairs; @key; @fallback; @i; @to; extract(extract(@pairs, @i), 1); extract(extract(@pairs, @i), 2));
+}
+
+.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when (@name = @key) {
+  @spritemap-value: @value;
+}
+
+.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when not (@name = @key) {
+  .sprite-value-scan(@pairs; @key; @fallback; @i + 1; @to);
+}
+
+// Walk the defaults, which come ordered longest name first so a short token can
+// never shadow a longer one, and take the user's override per name. Replaying
+// the user list in its own order instead would break that ordering.
+.sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i > @to) {
   .sprite-emit(@mode; @uri);
+}
+
+.sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i <= @to) {
+  .sprite-value(@variables; extract(extract(@defaults, @i), 1); extract(extract(@defaults, @i), 2));
+  .sprite-pair(@uri; extract(extract(@defaults, @i), 1); @spritemap-value);
+  .sprite-subst(@mode; @spritemap-uri; @variables; @defaults; @i + 1; @to);
 }
 
 .sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when (extract(@defaults, 1) = 0) {
   .sprite-emit(@mode; @uri);
 }
 
-.sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when not (extract(@defaults, 1) = 0) and (length(extract(@variables, 1)) < 2) {
-  .sprite-pair(@sprite[uri-template]; @variables);
-  .sprite-defaults(@mode; @spritemap-uri; @defaults; 2; extract(@defaults, 1) + 1);
-}
-
-.sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when not (extract(@defaults, 1) = 0) and (length(extract(@variables, 1)) >= 2) {
-  .sprite-user(@mode; @sprite[uri-template]; @variables; 1; length(@variables); @defaults);
+.sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when not (extract(@defaults, 1) = 0) {
+  .sprite-subst(@mode; @sprite[uri-template]; @variables; @defaults; 2; extract(@defaults, 1) + 1);
 }
 
 .sprite-vars(@mode; @uri; @sprite; @name; @variables) when (@variables = false) {
@@ -2337,45 +2433,61 @@ exports[`styles generation > less 1`] = `
   @spritemap-escaped: replace(replace(replace(replace(replace(escape(@spritemap-xml), '&', '%26', 'g'), ',', '%2c', 'g'), '[+]', '%2b', 'g'), '[$]', '%24', 'g'), '[?]', '%3f', 'g');
 }
 
-.sprite-pair(@uri; @pair) {
-  @spritemap-key: extract(@pair, 1);
-  .sprite-escape(extract(@pair, 2));
-  @spritemap-uri: replace(@uri, '___@{spritemap-key}___', @spritemap-escaped, 'g');
+.sprite-pair(@uri; @key; @value) {
+  .sprite-escape(@value);
+  @spritemap-uri: replace(@uri, '___@{key}___', @spritemap-escaped, 'g');
 }
 
 .sprite-emit(@mode; @uri) {
   @{mode}: url(@uri) center no-repeat;
 }
 
-.sprite-user(@mode; @uri; @pairs; @i; @to; @defaults) when (@i <= @to) {
-  .sprite-pair(@uri; extract(@pairs, @i));
-  .sprite-user(@mode; @spritemap-uri; @pairs; @i + 1; @to; @defaults);
+// The user's override for @key, or @fallback when they passed none. Less has no
+// one-element list, so a lone \`'name' value\` pair is doubled to keep the scan
+// uniform: both copies carry the same key, so either one matching is the same.
+.sprite-value(@variables; @key; @fallback) when (length(extract(@variables, 1)) < 2) {
+  .sprite-value-scan(@variables, @variables; @key; @fallback; 1; 2);
 }
 
-.sprite-user(@mode; @uri; @pairs; @i; @to; @defaults) when (@i > @to) {
-  .sprite-defaults(@mode; @uri; @defaults; 2; extract(@defaults, 1) + 1);
+.sprite-value(@variables; @key; @fallback) when (length(extract(@variables, 1)) >= 2) {
+  .sprite-value-scan(@variables; @key; @fallback; 1; length(@variables));
 }
 
-.sprite-defaults(@mode; @uri; @pairs; @i; @to) when (@i <= @to) {
-  .sprite-pair(@uri; extract(@pairs, @i));
-  .sprite-defaults(@mode; @spritemap-uri; @pairs; @i + 1; @to);
+.sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i > @to) {
+  @spritemap-value: @fallback;
 }
 
-.sprite-defaults(@mode; @uri; @pairs; @i; @to) when (@i > @to) {
+.sprite-value-scan(@pairs; @key; @fallback; @i; @to) when (@i <= @to) {
+  .sprite-value-step(@pairs; @key; @fallback; @i; @to; extract(extract(@pairs, @i), 1); extract(extract(@pairs, @i), 2));
+}
+
+.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when (@name = @key) {
+  @spritemap-value: @value;
+}
+
+.sprite-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when not (@name = @key) {
+  .sprite-value-scan(@pairs; @key; @fallback; @i + 1; @to);
+}
+
+// Walk the defaults, which come ordered longest name first so a short token can
+// never shadow a longer one, and take the user's override per name. Replaying
+// the user list in its own order instead would break that ordering.
+.sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i > @to) {
   .sprite-emit(@mode; @uri);
+}
+
+.sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i <= @to) {
+  .sprite-value(@variables; extract(extract(@defaults, @i), 1); extract(extract(@defaults, @i), 2));
+  .sprite-pair(@uri; extract(extract(@defaults, @i), 1); @spritemap-value);
+  .sprite-subst(@mode; @spritemap-uri; @variables; @defaults; @i + 1; @to);
 }
 
 .sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when (extract(@defaults, 1) = 0) {
   .sprite-emit(@mode; @uri);
 }
 
-.sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when not (extract(@defaults, 1) = 0) and (length(extract(@variables, 1)) < 2) {
-  .sprite-pair(@sprite[uri-template]; @variables);
-  .sprite-defaults(@mode; @spritemap-uri; @defaults; 2; extract(@defaults, 1) + 1);
-}
-
-.sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when not (extract(@defaults, 1) = 0) and (length(extract(@variables, 1)) >= 2) {
-  .sprite-user(@mode; @sprite[uri-template]; @variables; 1; length(@variables); @defaults);
+.sprite-apply(@mode; @uri; @sprite; @variables; @defaults) when not (extract(@defaults, 1) = 0) {
+  .sprite-subst(@mode; @sprite[uri-template]; @variables; @defaults; 2; extract(@defaults, 1) + 1);
 }
 
 .sprite-vars(@mode; @uri; @sprite; @name; @variables) when (@variables = false) {

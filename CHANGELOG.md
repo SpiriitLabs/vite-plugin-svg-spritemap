@@ -12,11 +12,15 @@ so early releases summarise the most user-facing changes rather than every commi
 
 ### Added
 
-- Icon variables. A `var(--name, default)` in an svg presentation attribute
-  becomes a themable value: the generated SCSS, Stylus and Less mixin takes a
-  `$variables` map, a list of `'name' value` pairs in Less, to override it per
-  call site. Substitution happens at compile time, so each call site gets its own
-  copy of the icon with the values inlined. The emitted spritemap keeps the
+- Icon variables. A `var(--name, default)` in an svg presentation attribute, a
+  `style` attribute or a `<style>` element becomes a themable value: the
+  generated SCSS, Stylus and Less mixin takes a `$variables` map, a list of
+  `'name' value` pairs in Less, to override it per call site. A `style`
+  attribute reaches a property with no presentation attribute of its own
+  (`mix-blend-mode`, `transform-origin`), and a `<style>` element is the only way
+  to theme a state or a media query. Substitution happens at compile time, so
+  each call site gets its own copy of the icon with the values inlined. The
+  emitted spritemap keeps the
   `var()` as a real custom property, so a `<use>` element is themable at runtime
   through the CSS cascade as well, external reference included. Adds the
   `variables` and `variables.spritemap` options, plus a `styles.names.variables`
@@ -29,9 +33,13 @@ so early releases summarise the most user-facing changes rather than every commi
 - An icon carrying a `var()` was mangled by OXVG. Its
   `removeUselessStrokeAndFill` job reads an unresolvable `var()` as "no stroke"
   and deleted `stroke` along with every sibling `stroke-*`; worse, a `var()`
-  inside a `style` attribute or a `<style>` block made the job panic through the
-  native binding and abort the whole build or dev server. That job is now dropped
-  for icons containing a `var()`, user-supplied `oxvg` configurations included.
+  inside a `style` attribute or a `<style>` element made four jobs panic through
+  the native binding, aborting the whole build or dev server with a signal no
+  `try`/`catch` could intercept. `removeUselessStrokeAndFill` is now dropped for
+  any icon containing a `var()`, plus `convertPathData`, `removeHiddenElems` and
+  `mergePaths` when that `var()` sits in a style declaration, user-supplied
+  `oxvg` configurations included. Those icons are optimized slightly less until
+  [oxvg#264] is fixed upstream.
 - The Less mixin had no `@mode` parameter, so `.sprite('name', @mode: mask)`
   failed with "no matching definition" while the SCSS and Stylus mixins both
   accepted it.
@@ -478,4 +486,5 @@ so early releases summarise the most user-facing changes rather than every commi
 [#130]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/130
 [#131]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/131
 [#132]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/132
+[oxvg#264]: https://github.com/noahbald/oxvg/issues/264
 [svg-spritemap-webpack-plugin]: https://github.com/cascornelissen/svg-spritemap-webpack-plugin/blob/master/docs/variables.md

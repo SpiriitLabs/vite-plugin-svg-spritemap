@@ -2,8 +2,8 @@ import type { UserOptions } from '../src/types'
 import { createLogger } from 'vite'
 import { describe, expect, it, vi } from 'vitest'
 import { logMessage } from '../src/helpers/log'
-import { getOptimize, getOptions } from '../src/helpers/oxvg'
-import { defaultDisabledPlugins, styleVariablesDisabledPlugins, variablesDisabledPlugins } from '../src/helpers/svgo'
+import { getOptimize, getOptions, hasStyleVariable, styleVariablesDisabledPlugins, variablesDisabledPlugins } from '../src/helpers/oxvg'
+import { defaultDisabledPlugins } from '../src/helpers/svgo'
 import { buildVite } from './helpers/build'
 
 const oxvgConfigs: Record<string, UserOptions['oxvg']> = {
@@ -157,6 +157,18 @@ describe('oxvg', () => {
 })
 
 describe('oxvg variables', () => {
+  // OXVG aborts on these, so they take a narrower optimizer config
+  it.each([
+    ['<svg fill="var(--c, red)"/>', false],
+    ['<svg/>', false],
+    ['<svg style="fill:var(--c, red)"/>', true],
+    ['<svg style=\'fill:var(--c, red)\'/>', true],
+    ['<svg><style>.a{fill:var(--c, red)}</style></svg>', true],
+    ['<svg><style type="text/css">.a{fill:var(--c, red)}</style ></svg>', true],
+  ])('detects a var() in a style declaration: %s', (source, expected) => {
+    expect(hasStyleVariable(source)).toBe(expected)
+  })
+
   it('drops the jobs that mangle var() only when asked', async () => {
     const plain = await getOptions(true, 'sprite-')
     const forVariables = await getOptions(true, 'sprite-', 'attribute')

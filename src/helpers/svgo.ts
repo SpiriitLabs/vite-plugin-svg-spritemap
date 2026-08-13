@@ -12,30 +12,6 @@ export const defaultDisabledPlugins = {
 } as const
 
 /**
- * Disabled for icons carrying a `var()`: OXVG reads an unresolvable one as "no
- * stroke", deleting `stroke` and every sibling `stroke-*`. SVGO is unaffected.
- */
-export const variablesDisabledPlugins = {
-  removeUselessStrokeAndFill: false,
-} as const
-
-/**
- * Also disabled when the `var()` sits in a style declaration: these panic on the
- * unresolvable value, which aborts the process (SIGABRT) instead of throwing, so no
- * `try`/`catch` can save the build. Found by running every job of the default preset
- * against a `var()` in each SVG presentation property; the four below are the only ones
- * that abort. Keep it a superset of {@link variablesDisabledPlugins}.
- *
- * @see https://github.com/noahbald/oxvg/issues/264
- */
-export const styleVariablesDisabledPlugins: Record<string, false> = {
-  ...variablesDisabledPlugins,
-  convertPathData: false,
-  removeHiddenElems: false,
-  mergePaths: false,
-}
-
-/**
  * Get SVGO Options
  */
 export function getOptions(svgoOptions: Options['svgo'] | undefined, prefix: string): SvgoConfig | undefined {
