@@ -29,7 +29,7 @@ A `style` attribute works the same way, which is how you theme a property that h
 </svg>
 ```
 
-Only the `var()` inside a declaration is replaced. Selectors are never interpreted, so which elements a rule applies to stays up to the browser.
+A `<style>` element is scanned as one stretch of text: its rules are never parsed, so which elements a rule applies to stays up to the browser. A `var()` written inside a selector rather than a declaration is substituted just the same, since nothing tells the two apart.
 
 ## Overriding from the mixin
 
@@ -121,7 +121,9 @@ All three preprocessors produce a byte-identical document once the data URI is d
 - **One name can be reused across attributes and elements.** Declare the same default each time; if the defaults disagree, the first one wins and the plugin warns.
 - **Names must start with a letter** and contain only letters, digits, `-` and `_`. Anything else is left untouched and warned about.
 - **A `style` attribute works too**, and is the only option for a property with no usable presentation attribute (`transform-origin`, `mix-blend-mode`). `style="mix-blend-mode:var(--blend, normal)"` is extracted and overridable like any other attribute, and a style declaration also beats a presentation attribute in the cascade. Note the icon is optimized less: OXVG cannot read an unresolvable value in a style declaration without aborting, so `convertPathData`, `mergePaths`, `removeHiddenElems` and `removeUselessStrokeAndFill` are skipped for it ([oxvg#264](https://github.com/noahbald/oxvg/issues/264)).
-- **A `<style>` element works as well**, which is the only way to theme a state or a media query: `.icon:hover { fill: var(--hover, red) }` cannot be written as an attribute, and the optimizers leave such a rule in place instead of inlining it. An internal `<style>` applies inside a data URI, so compile-time substitution reaches it like any attribute. Selectors are not interpreted, only the `var()` inside a declaration is replaced, so the cascade stays the browser's job.
+- **A `<style>` element works as well**, which is the only way to theme a state or a media query: `.icon:hover { fill: var(--hover, red) }` cannot be written as an attribute, and the optimizers leave such a rule in place instead of inlining it. An internal `<style>` applies inside a data URI, so compile-time substitution reaches it like any attribute. Rules are not parsed, so the cascade stays the browser's job.
+- **`var()` is matched case-insensitively**, as CSS matches a function name, so `VAR(--color, #fff)` is picked up like any other. A name ending in `var`, such as `myvar(…)`, is not a `var()` call and is left alone.
+- **A literal `___name___` in the source collides with the token of that name.** Substitution is textual all the way through, in the plugin and in the mixins alike, so an `id="___color___"` sitting next to a `var(--color, red)` is rewritten too. Avoid triple underscores in an icon's own ids and class names.
 - **Values are escaped for you.** A `#`, `%`, quote or `&` in an override is encoded so the data URI stays valid, so you can pass `#f00` directly. All three preprocessors apply the same escaping.
 - **A `;` or a `}` in an override is not inert in CSS.** The escaping keeps the data URI valid, not the declaration isolated, so `$variables: ('color': 'red;stroke:blue')` compiles to `style="fill:red;stroke:blue"` and adds a declaration, and the same applies inside a `<style>` rule. In a presentation attribute the value would simply be invalid. Harmless either way since the values come from your own stylesheet, but do not count on those characters being literal.
 - **`var()` and `url()` as override values are inert.** They would land inside the data URI, which cannot see the page's custom properties or paint servers. The SCSS and Stylus mixins warn.

@@ -10,7 +10,7 @@ import { toUserUnits } from '@helpers/length'
 import { log } from '@helpers/log'
 import { getOptimize as getOptimiseOxvg, getOptions as getOptionsOxvg, selectVariablesConfig } from '@helpers/oxvg'
 import { getOptimize as getOptimizeSvgo, getOptions as getOptionsSvgo } from '@helpers/svgo'
-import { extractSvgVariables, resolveVariableTokens, sortVariableDefaults } from '@helpers/variables'
+import { extractSvgVariables, resolvesSpritemap, resolveVariableTokens, sortVariableDefaults } from '@helpers/variables'
 import { DOMImplementation, DOMParser, XMLSerializer } from '@xmldom/xmldom'
 import { glob } from 'tinyglobby'
 import { Styles } from '@/core/styles'
@@ -97,7 +97,7 @@ export class SVGManager {
         defaults: sortVariableDefaults(extracted.defaults),
         sourceTemplate: extracted.template,
       }
-      if (this._options.variables !== false && this._options.variables.spritemap === 'resolve')
+      if (resolvesSpritemap(this._options.variables))
         source = resolveVariableTokens(variables.sourceTemplate, variables.defaults)
     }
 

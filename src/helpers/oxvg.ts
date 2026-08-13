@@ -4,7 +4,7 @@ import type { Options } from '@/types'
 import process from 'node:process'
 import { log } from '@helpers/log'
 import { defaultDisabledPlugins } from '@helpers/svgo'
-import { STYLE_ELEMENT_RE, VAR_CALL } from '@helpers/variables'
+import { STYLE_ELEMENT_RE, VAR_CALL_RE } from '@helpers/variables'
 
 // ---------------------------------------------------------------------------
 // `var()` mitigations. OXVG mangles a value it cannot resolve, so an icon
@@ -48,16 +48,16 @@ export const styleVariablesDisabledPlugins: Record<string, false> = {
  * parsing CSS to avoid a hard crash.
  */
 export function hasStyleVariable(source: string): boolean {
-  if (!source.includes(VAR_CALL))
+  if (!VAR_CALL_RE.test(source))
     return false
 
   for (const match of source.matchAll(STYLE_ATTRIBUTE_RE)) {
-    if ((match[1] ?? match[2] ?? '').includes(VAR_CALL))
+    if (VAR_CALL_RE.test(match[1] ?? match[2] ?? ''))
       return true
   }
 
   for (const match of source.matchAll(STYLE_ELEMENT_RE)) {
-    if (match[1].includes(VAR_CALL))
+    if (VAR_CALL_RE.test(match[1]))
       return true
   }
 
@@ -66,8 +66,10 @@ export function hasStyleVariable(source: string): boolean {
 
 /**
  * Pick the config `svg` has to be optimized with, given the base one and the two
- * mitigated variants. `attribute` and `style` are undefined outside OXVG, where
- * they would mean "run every job" and take an icon straight into the abort.
+ * mitigated variants. Runs on the source before optimization, which is why it scans
+ * for a `var()` itself instead of reusing what {@link extractSvgVariables} collects
+ * from the optimized output. `attribute` and `style` are undefined outside OXVG,
+ * where they would mean "run every job" and take an icon straight into the abort.
  */
 export function selectVariablesConfig<Base>(
   svg: string,
@@ -75,7 +77,7 @@ export function selectVariablesConfig<Base>(
   attribute: OxvgConfig | undefined,
   style: OxvgConfig | undefined,
 ): Base | OxvgConfig {
-  if (!svg.includes(VAR_CALL))
+  if (!VAR_CALL_RE.test(svg))
     return base
 
   const mitigated = hasStyleVariable(svg) ? style : attribute

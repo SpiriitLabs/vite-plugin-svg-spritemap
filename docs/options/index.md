@@ -306,6 +306,3 @@ bun add -D @oxvg/napi
 
 The native binding for your platform comes with it, you do not have to add it yourself: `@oxvg/napi` lists all of them as optional dependencies and your package manager keeps the one that matches.
 
-::: warning Platform support
-Prebuilt bindings exist for macOS (x64, ARM64), Linux (x64 and ARM64, GNU and musl) and Windows (x64, ARM64). Anywhere else, OXVG cannot load and icons are served **unoptimized** with a warning (the build does not fail). Use [SVGO](#svgo) instead, or set `oxvg: false` to silence the warning.
-:::

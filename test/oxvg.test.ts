@@ -165,6 +165,11 @@ describe('oxvg variables', () => {
     ['<svg style=\'fill:var(--c, red)\'/>', true],
     ['<svg><style>.a{fill:var(--c, red)}</style></svg>', true],
     ['<svg><style type="text/css">.a{fill:var(--c, red)}</style ></svg>', true],
+    // a css function name is case-insensitive, and missing one aborts the process
+    ['<svg style="fill:VAR(--c, red)"/>', true],
+    ['<svg><style>.a{fill:Var(--c, red)}</style></svg>', true],
+    // not a var() call, so the icon keeps the full optimizer config
+    ['<svg style="font-family:myvar(x)"/>', false],
   ])('detects a var() in a style declaration: %s', (source, expected) => {
     expect(hasStyleVariable(source)).toBe(expected)
   })
