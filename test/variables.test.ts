@@ -11,6 +11,8 @@ import { getPath } from './helpers/path'
 const VARIABLES_GLOB = './fixtures/basic/variables/*.svg'
 /** `--a` and `--a___b`: the token of the first is a prefix of the token of the second. */
 const SHADOW_GLOB = './fixtures/basic/variables-shadow/*.svg'
+/** A default holding an xml entity, next to one made of several tokens. */
+const ENTITY_GLOB = './fixtures/basic/variables-entity/*.svg'
 
 function generate(name: string, lang: 'scss' | 'styl' | 'less' | 'css', options: Record<string, unknown> = {}, path = VARIABLES_GLOB) {
   const filename = getPath(`./fixtures/basic/styles/spritemap_${name}.${lang}`)
@@ -190,6 +192,49 @@ describe('variables parsing', () => {
     expect(result?.template).toBe('<svg><!-- <path fill="var(--ghost, red)"/> --><path fill="___c___"/></svg>')
   })
 
+  it('closes the call past a quoted delimiter escaped with a backslash', () => {
+    const result = extractSvgVariables('<svg><path fill=\'var(--a, "x\\")y")\'/></svg>')
+    expect(result?.defaults).toEqual(new Map([['a', '"x\\")y"']]))
+    expect(result?.template).toBe('<svg><path fill=\'___a___\'/></svg>')
+  })
+
+  // text content is not markup, whatever it reads like
+  it('ignores an attribute written inside a text node', () => {
+    const source = '<svg><desc>fill="var(--ghost, red)"</desc><path fill="var(--c, blue)"/></svg>'
+    const result = extractSvgVariables(source)
+    expect(result?.defaults).toEqual(new Map([['c', 'blue']]))
+    expect(result?.template).toBe('<svg><desc>fill="var(--ghost, red)"</desc><path fill="___c___"/></svg>')
+  })
+
+  it('keeps scanning past an attribute value holding a closing bracket', () => {
+    const result = extractSvgVariables('<svg><path data-x="a>b" fill="var(--c, red)"/></svg>')
+    expect(result?.defaults).toEqual(new Map([['c', 'red']]))
+    expect(result?.template).toBe('<svg><path data-x="a>b" fill="___c___"/></svg>')
+  })
+
+  it('resolves two tokens that sit next to each other', () => {
+    const defaults = sortVariableDefaults(new Map([['a', '1'], ['b', '2']]))
+    expect(resolveVariableTokens('___a______b___', defaults)).toBe('12')
+  })
+
+  it('leaves a token alone when nothing declares it', () => {
+    expect(resolveVariableTokens('___a___', {})).toBe('___a___')
+  })
+
+  // css, not markup: an optimizer strips the section but both may be off
+  it('ignores an attribute written inside a cdata section', () => {
+    const source = '<svg><![CDATA[fill="var(--ghost, red)"]]><path fill="var(--c, blue)"/></svg>'
+    const result = extractSvgVariables(source)
+    expect(result?.defaults).toEqual(new Map([['c', 'blue']]))
+    expect(result?.template).toBe('<svg><![CDATA[fill="var(--ghost, red)"]]><path fill="___c___"/></svg>')
+  })
+
+  it('still reads the attributes of a tag that is never closed', () => {
+    const result = extractSvgVariables('<svg fill="var(--c, red)"')
+    expect(result?.defaults).toEqual(new Map([['c', 'red']]))
+    expect(result?.template).toBe('<svg fill="___c___"')
+  })
+
   it('orders defaults longest name first so tokens cannot shadow one another', () => {
     const defaults = new Map([['a', '1'], ['a-b', '2'], ['b', '3']])
     expect(Object.keys(sortVariableDefaults(defaults))).toEqual(['a-b', 'a', 'b'])
@@ -261,8 +306,18 @@ describe('variables generation', () => {
     const withFeature = await fs.readFile(on, 'utf8')
     const withoutFeature = await fs.readFile(off, 'utf8')
 
-    // the only difference is the added, all-empty defaults map
-    expect(withFeature.replace(/\n\$sprites-variables: \([\s\S]*?\);\n/, '')).toBe(withoutFeature)
+    // an all-empty defaults map would be dead weight, so it is not written at all
+    expect(withFeature).toBe(withoutFeature)
+  })
+
+  // the mixin always mentions the map, only its declaration is conditional
+  it.each([
+    ['scss', '$sprites-variables: ('],
+    ['styl', '$sprites-variables = {'],
+    ['less', '@sprites-variables: {'],
+  ] as const)('writes the defaults map only for a themable set (%s)', async (lang, declaration) => {
+    expect(await generate('map_on', lang)).toContain(declaration)
+    expect(await generate('map_off', lang, {}, './fixtures/basic/svg/*.svg')).not.toContain(declaration)
   })
 })
 
@@ -357,6 +412,24 @@ describe('variables substitution', () => {
     expect(unthemed).toContain('style=\'fill:white\'')
     expect(unthemed).not.toContain('___')
     expect(themed).toContain('style=\'fill:red\'')
+  })
+
+  it('warns on a css reference, and only for an override (styl)', async () => {
+    const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const generated = await generate('stylwarn', 'styl')
+
+    try {
+      renderStylus([generated, '.a', '\tsprite(\'themable\', $variables: { \'color\': \'var(--x, red)\' })'].join('\n'))
+      expect(spy.mock.calls.flat().join('\n')).toContain('inert inside a data uri')
+
+      // `weight` keeps its default, which is not a reference and must stay quiet
+      spy.mockClear()
+      renderStylus([generated, '.a', '\tsprite(\'themable\', $variables: { \'color\': red })'].join('\n'))
+      expect(spy.mock.calls.flat().join('\n')).not.toContain('inert inside a data uri')
+    }
+    finally {
+      spy.mockRestore()
+    }
   })
 
   it('substitutes overrides and defaults (styl)', async () => {
@@ -598,6 +671,36 @@ describe('variables cross-language equivalence', () => {
       expect(decoded).toContain('fill=\'green\'')
       expect(decoded).toContain('stroke=\'yellow\'')
       expect(decoded).not.toContain('___')
+    }
+  })
+
+  // a default comes out of the svg source, where `&` is already written as an
+  // entity: escaping it like a call site value would render `&quot;` as literal text
+  it('leaves a default holding an entity alone when a sibling is overridden', async () => {
+    const scssCss = sass.compileString(`${await generate('entity', 'scss', {}, ENTITY_GLOB)}
+.a { @include sprite('entity', $variables: ('dash': '8 3')); }
+.b { @include sprite('entity'); }`).css
+
+    const stylCss = renderStylus([
+      await generate('entity', 'styl', {}, ENTITY_GLOB),
+      '.a',
+      '\tsprite(\'entity\', $variables: { \'dash\': \'8 3\' })',
+      '.b',
+      '\tsprite(\'entity\')',
+    ].join('\n'))
+
+    // the override is deliberately unquoted, so it spans two list items in Less
+    const lessCss = await renderLess(`${await generate('entity', 'less', {}, ENTITY_GLOB)}
+.a { .sprite('entity'; @variables: 'dash' 8 3); }
+.b { .sprite('entity'); }`)
+
+    for (const css of [scssCss, stylCss, lessCss]) {
+      const [themed, untouched] = urls(css).map(decodeUri)
+
+      expect(themed).toContain('font-family=\'&quot;Fira Sans&quot;, serif\'')
+      expect(themed).toContain('stroke-dasharray=\'8 3\'')
+      expect(untouched).toContain('font-family=\'&quot;Fira Sans&quot;, serif\'')
+      expect(untouched).toContain('stroke-dasharray=\'4 2\'')
     }
   })
 })

@@ -31,6 +31,12 @@ A `style` attribute works the same way, which is how you theme a property that h
 
 A `<style>` element is scanned as one stretch of text: its rules are never parsed, so which elements a rule applies to stays up to the browser. A `var()` written inside a selector rather than a declaration is substituted just the same, since nothing tells the two apart.
 
+::: warning A `<style>` element is not scoped to its icon
+The spritemap is a single SVG document and a `<style>` element styles the whole of it, wherever it sits, `<symbol>` included. A rule from one icon therefore applies to **every** sprite whose elements match its selector, and editors export class names that collide by default (Illustrator's `.cls-1`, Figma's `.st0`). Name the class after the icon (`.alert-shape`) rather than relying on the `<symbol>` to contain it.
+
+This only affects the spritemap: the generated stylesheet inlines each icon into its own data URI, which is an independent document.
+:::
+
 ## Overriding from the mixin
 
 The mixin takes a `$variables` map (a list of pairs in Less). Every variable the icon declares and you do not override keeps its default.
@@ -65,7 +71,7 @@ The mixin takes a `$variables` map (a list of pairs in Less). Every variable the
 :::
 
 ::: warning Less takes a list of pairs, separated by `;`
-Less has no map literal, so variables are passed as a comma-separated list of `'name' value` pairs. Less also parses a comma inside a mixin call as an **argument** separator, so as soon as you pass more than one pair you must separate the mixin arguments with `;` — `.sprite('alert'; @variables: 'color' '#f00', 'weight' 3)`. A single pair works with either separator. Quote your keys, and quote any value containing a space (`'dash' '2 4'`), since an unquoted one would be read as several list items.
+Less has no map literal, so variables are passed as a comma-separated list of `'name' value` pairs. Less also parses a comma inside a mixin call as an **argument** separator, so as soon as you pass more than one pair you must separate the mixin arguments with `;` — `.sprite('alert'; @variables: 'color' '#f00', 'weight' 3)`. A single pair works with either separator. Quote your keys. A value containing a space works either way, quoted (`'dash' '2 4'`) or not (`'dash' 2 4`): everything past the name is folded back into one value.
 :::
 
 `$variables` is the last argument, so it composes with the others:
@@ -76,7 +82,7 @@ Less has no map literal, so variables are passed as a comma-separated list of `'
 }
 ```
 
-Substitution happens **at compile time**: each call site gets its own copy of the icon with the values already inlined. Nothing is resolved in the browser, so this works everywhere, but every themed call site adds one more copy of the icon to your CSS bundle.
+Substitution happens **at compile time**: each call site gets its own copy of the icon with the values already inlined. Nothing is resolved in the browser, so this works everywhere, but every themed call site adds one more copy of the icon to your CSS bundle. A themable icon also carries a second data URI in the generated stylesheet, the tokenised template the mixin substitutes into, so its entry there is about twice the size of a plain one. Icons that declare nothing cost nothing: no template URI and no defaults map are written for a set where nothing is themable.
 
 ## Runtime theming with real CSS custom properties
 
@@ -111,7 +117,7 @@ So the two mechanisms cover each other: `<use>` gets runtime theming for free, a
 | `less` | full, but a list of pairs instead of a map, and no warnings |
 | `css` | defaults only, there is no mixin to pass values to |
 
-All three preprocessors produce a byte-identical document once the data URI is decoded. Less is the one that cannot warn you about mistakes: it has no `@warn`, so an unknown variable name is silently a no-op and passing variables alongside `@type: 'fragment'` is silently ignored.
+All three preprocessors produce a byte-identical document once the data URI is decoded. Less is the one that cannot warn you about mistakes: it has no `@warn`, so an unknown variable name is silently a no-op and passing variables alongside `@type: 'fragment'` is silently ignored. In a set where **no** icon declares a variable, the defaults map is not written at all: SCSS and Stylus then warn and fall back to the untouched icon, while Less fails to compile on `@sprites-variables is undefined`.
 
 ## Rules and edge cases
 
@@ -124,7 +130,7 @@ All three preprocessors produce a byte-identical document once the data URI is d
 - **A `<style>` element works as well**, which is the only way to theme a state or a media query: `.icon:hover { fill: var(--hover, red) }` cannot be written as an attribute, and the optimizers leave such a rule in place instead of inlining it. An internal `<style>` applies inside a data URI, so compile-time substitution reaches it like any attribute. Rules are not parsed, so the cascade stays the browser's job.
 - **`var()` is matched case-insensitively**, as CSS matches a function name, so `VAR(--color, #fff)` is picked up like any other. A name ending in `var`, such as `myvar(…)`, is not a `var()` call and is left alone.
 - **A literal `___name___` in the source collides with the token of that name.** Substitution is textual all the way through, in the plugin and in the mixins alike, so an `id="___color___"` sitting next to a `var(--color, red)` is rewritten too. Avoid triple underscores in an icon's own ids and class names.
-- **Values are escaped for you.** A `#`, `%`, quote or `&` in an override is encoded so the data URI stays valid, so you can pass `#f00` directly. All three preprocessors apply the same escaping.
+- **Values are escaped for you.** A `#`, `%`, quote or `&` in an override is encoded so the data URI stays valid, so you can pass `#f00` directly. All three preprocessors apply the same escaping. A default is escaped a little less: it comes out of the SVG source, where an `&` or a `<` is already written as an entity, so `var(--font, &quot;Fira Sans&quot;, serif)` keeps rendering as `"Fira Sans", serif` whether you override a sibling variable or not.
 - **A `;` or a `}` in an override is not inert in CSS.** The escaping keeps the data URI valid, not the declaration isolated, so `$variables: ('color': 'red;stroke:blue')` compiles to `style="fill:red;stroke:blue"` and adds a declaration, and the same applies inside a `<style>` rule. In a presentation attribute the value would simply be invalid. Harmless either way since the values come from your own stylesheet, but do not count on those characters being literal.
 - **`var()` and `url()` as override values are inert.** They would land inside the data URI, which cannot see the page's custom properties or paint servers. The SCSS and Stylus mixins warn.
 

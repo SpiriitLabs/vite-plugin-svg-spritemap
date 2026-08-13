@@ -2,7 +2,7 @@ import type { UserOptions } from '../src/types'
 import { createLogger } from 'vite'
 import { describe, expect, it, vi } from 'vitest'
 import { logMessage } from '../src/helpers/log'
-import { getOptimize, getOptions, hasStyleVariable, styleVariablesDisabledPlugins, variablesDisabledPlugins } from '../src/helpers/oxvg'
+import { getOptimize, getOptions, hasStyleVariable, styleVariablesDisabledPlugins, variablesDisabledPlugins, withoutVariablesJobs } from '../src/helpers/oxvg'
 import { defaultDisabledPlugins } from '../src/helpers/svgo'
 import { buildVite } from './helpers/build'
 
@@ -176,8 +176,8 @@ describe('oxvg variables', () => {
 
   it('drops the jobs that mangle var() only when asked', async () => {
     const plain = await getOptions(true, 'sprite-')
-    const forVariables = await getOptions(true, 'sprite-', 'attribute')
-    const forStyleVariables = await getOptions(true, 'sprite-', 'style')
+    const forVariables = withoutVariablesJobs(plain, 'attribute')
+    const forStyleVariables = withoutVariablesJobs(plain, 'style')
 
     for (const plugin of Object.keys(variablesDisabledPlugins)) {
       expect(plain).toHaveProperty(plugin)
@@ -191,13 +191,17 @@ describe('oxvg variables', () => {
     expect(forVariables).toHaveProperty('convertPathData')
   })
 
+  it('leaves a disabled optimizer disabled', () => {
+    expect(withoutVariablesJobs(undefined, 'style')).toBeUndefined()
+  })
+
   // honoured verbatim otherwise, but the copy for `var()` sprites drops the job
   it('protects a user supplied config without mutating it', async () => {
     const config = { ...oxvgConfigs.custom as object, removeUselessStrokeAndFill: {} } as Exclude<UserOptions['oxvg'], boolean | undefined>
 
     expect(await getOptions(config, 'sprite-')).toEqual(config)
 
-    const mitigated = await getOptions(config, 'sprite-', 'attribute')
+    const mitigated = withoutVariablesJobs(await getOptions(config, 'sprite-'), 'attribute')
     expect(mitigated).not.toHaveProperty('removeUselessStrokeAndFill')
     expect(mitigated).toHaveProperty('prefixIds')
     expect(config).toHaveProperty('removeUselessStrokeAndFill')

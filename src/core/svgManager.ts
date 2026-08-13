@@ -8,7 +8,7 @@ import { basename, dirname, resolve } from 'node:path'
 import { hashContent } from '@helpers/hash'
 import { toUserUnits } from '@helpers/length'
 import { log } from '@helpers/log'
-import { getOptimize as getOptimiseOxvg, getOptions as getOptionsOxvg, selectVariablesConfig } from '@helpers/oxvg'
+import { getOptimize as getOptimiseOxvg, getOptions as getOptionsOxvg, selectVariablesConfig, withoutVariablesJobs } from '@helpers/oxvg'
 import { getOptimize as getOptimizeSvgo, getOptions as getOptionsSvgo } from '@helpers/svgo'
 import { extractSvgVariables, resolvesSpritemap, resolveVariableTokens, sortVariableDefaults } from '@helpers/variables'
 import { DOMImplementation, DOMParser, XMLSerializer } from '@xmldom/xmldom'
@@ -303,10 +303,11 @@ export class SVGManager {
     if (this._optimize) {
       log({ level: 'info', message: `Using OXVG for SVG optimization on ${this._options.route.name}.`, logger: this._config.logger })
       this._optimizeType = 'oxvg'
-      this._optimizeConfig = await getOptionsOxvg(this._options.oxvg, this._options.prefix)
+      const config = await getOptionsOxvg(this._options.oxvg, this._options.prefix)
+      this._optimizeConfig = config
       // not gated on the `variables` option: the corruption happens regardless
-      this._optimizeConfigVariables = await getOptionsOxvg(this._options.oxvg, this._options.prefix, 'attribute')
-      this._optimizeConfigStyleVariables = await getOptionsOxvg(this._options.oxvg, this._options.prefix, 'style')
+      this._optimizeConfigVariables = withoutVariablesJobs(config, 'attribute')
+      this._optimizeConfigStyleVariables = withoutVariablesJobs(config, 'style')
     }
     if (this._options.oxvg && !this._optimize) {
       log({ level: 'warn', message: `You need to install OXVG to be able to optimize your SVG with it.`, logger: this._config.logger })

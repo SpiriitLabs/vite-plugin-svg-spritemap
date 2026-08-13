@@ -1,10 +1,15 @@
-.__mixin__-escape(@value) {
-  @spritemap-xml: replace(replace(replace(replace(~'@{value}', '&', '&amp;', 'g'), '<', '&lt;', 'g'), "'", '&apos;', 'g'), '"', '&quot;', 'g');
-  @spritemap-escaped: replace(replace(replace(replace(replace(escape(@spritemap-xml), '&', '%26', 'g'), ',', '%2c', 'g'), '[+]', '%2b', 'g'), '[$]', '%24', 'g'), '[?]', '%3f', 'g');
+.__mixin__-entities(@value; @entities) when (@entities) {
+  @spritemap-entities: replace(replace(~'@{value}', '&', '&amp;', 'g'), '<', '&lt;', 'g');
 }
 
-.__mixin__-pair(@uri; @key; @value) {
-  .__mixin__-escape(@value);
+.__mixin__-entities(@value; @entities) when not (@entities) {
+  @spritemap-entities: ~'@{value}';
+}
+
+.__mixin__-pair(@uri; @key; @value; @entities) {
+  .__mixin__-entities(@value; @entities);
+  @spritemap-xml: replace(replace(~'@{spritemap-entities}', "'", '&apos;', 'g'), '"', '&quot;', 'g');
+  @spritemap-escaped: replace(replace(replace(replace(replace(escape(@spritemap-xml), '&', '%26', 'g'), ',', '%2c', 'g'), '[+]', '%2b', 'g'), '[$]', '%24', 'g'), '[?]', '%3f', 'g');
   @spritemap-uri: replace(@uri, '___@{key}___', @spritemap-escaped, 'g');
 }
 
@@ -25,18 +30,30 @@
 
 .__mixin__-value-scan(@pairs; @key; @fallback; @i; @to) when (@i > @to) {
   @spritemap-value: @fallback;
+  @spritemap-overridden: false;
 }
 
 .__mixin__-value-scan(@pairs; @key; @fallback; @i; @to) when (@i <= @to) {
-  .__mixin__-value-step(@pairs; @key; @fallback; @i; @to; extract(extract(@pairs, @i), 1); extract(extract(@pairs, @i), 2));
+  .__mixin__-value-step(@pairs; @key; @fallback; @i; @to; extract(extract(@pairs, @i), 1));
 }
 
-.__mixin__-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when (@name = @key) {
-  @spritemap-value: @value;
+.__mixin__-value-step(@pairs; @key; @fallback; @i; @to; @name) when (@name = @key) {
+  .__mixin__-value-join(extract(@pairs, @i); 3; extract(extract(@pairs, @i), 2));
+  @spritemap-value: @spritemap-joined;
+  @spritemap-overridden: true;
 }
 
-.__mixin__-value-step(@pairs; @key; @fallback; @i; @to; @name; @value) when not (@name = @key) {
+.__mixin__-value-step(@pairs; @key; @fallback; @i; @to; @name) when not (@name = @key) {
   .__mixin__-value-scan(@pairs; @key; @fallback; @i + 1; @to);
+}
+
+.__mixin__-value-join(@pair; @i; @accumulator) when (@i > length(@pair)) {
+  @spritemap-joined: @accumulator;
+}
+
+.__mixin__-value-join(@pair; @i; @accumulator) when (@i <= length(@pair)) {
+  @spritemap-next: extract(@pair, @i);
+  .__mixin__-value-join(@pair; @i + 1; ~'@{accumulator} @{spritemap-next}');
 }
 
 // Walk the defaults, which come ordered longest name first so a short token can
@@ -48,7 +65,7 @@
 
 .__mixin__-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i <= @to) {
   .__mixin__-value(@variables; extract(extract(@defaults, @i), 1); extract(extract(@defaults, @i), 2));
-  .__mixin__-pair(@uri; extract(extract(@defaults, @i), 1); @spritemap-value);
+  .__mixin__-pair(@uri; extract(extract(@defaults, @i), 1); @spritemap-value; @spritemap-overridden);
   .__mixin__-subst(@mode; @spritemap-uri; @variables; @defaults; @i + 1; @to);
 }
 

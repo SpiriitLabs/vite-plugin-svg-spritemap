@@ -6,6 +6,7 @@ import type { Config as SvgoConfig } from 'svgo'
 type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
 export type StylesLang = 'less' | 'scss' | 'styl' | 'css'
+export type StylesInclude = 'variables' | 'mixin' | 'bg' | 'mask' | 'bg-frag'
 
 export interface Shared {
   svgManager: SVGManager | null
@@ -213,7 +214,7 @@ export interface OptionsStyles {
    * Styles includes
    * @default true
    */
-  include: boolean | Array<'variables' | 'mixin' | 'bg' | 'mask' | 'bg-frag'>
+  include: boolean | StylesInclude[]
   /**
    * Names of variables/mixin inside the stylesheet
    */

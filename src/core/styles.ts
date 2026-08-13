@@ -1,4 +1,4 @@
-import type { Options, OptionsStyles, StylesLang, SvgDataUriMapObject, SvgMapObject } from '../types'
+import type { Options, OptionsStyles, StylesInclude, StylesLang, SvgDataUriMapObject, SvgMapObject } from '../types'
 import { promises } from 'node:fs'
 import path from 'node:path'
 import { resolvesSpritemap, resolveVariableTokens } from '@helpers/variables'
@@ -13,16 +13,30 @@ const templateCache = new Map<StylesLang, string>()
 export class Styles {
   private _svgs: Map<string, SvgDataUriMapObject>
   private _options: Options
+  /** Narrowed once here, so no method has to re-check `styles` is not `false`. */
+  private _styles: OptionsStyles
   private _routeUrl: string
+  /** Whether to write the defaults map: an all-empty one is dead weight. */
   private _variablesEnabled: boolean
 
   constructor(svgs: Map<string, SvgMapObject>, options: Options, routeUrl: string) {
+    // SVGManager only builds a Styles once `styles` resolved to an object, and it
+    // logs whatever this constructor throws
+    /* v8 ignore if -- @preserve */
+    if (typeof options.styles !== 'object')
+      throw new TypeError('Styles needs a resolved styles object.')
+
     this._svgs = new Map()
     this._options = options
+    this._styles = options.styles
     this._routeUrl = routeUrl
     this._variablesEnabled = options.variables !== false
+      && [...svgs.values()].some(svg => svg.variables)
 
     const spritemapResolved = resolvesSpritemap(options.variables)
+    // nothing can read a token when no map is written, or when `css` gets no mixin
+    const maps = this._stylesForMaps()
+    const templatable = this._variablesEnabled && maps !== null && maps.lang !== 'css'
 
     svgs.forEach((svg, filePath) => {
       let uris = dataUriCache.get(svg)
@@ -33,14 +47,15 @@ export class Styles {
           ? resolveVariableTokens(svg.variables.sourceTemplate, svg.variables.defaults)
           : svg.source
 
-        uris = {
-          svgDataUri: Styles.encodeInnerUrlReferences(svgToMiniDataURI(source)),
-          // tokenize first: `mini-svg-data-uri` rewrites `#` and shortens colors
-          svgDataUriTemplate: svg.variables
-            ? Styles.encodeInnerUrlReferences(svgToMiniDataURI(svg.variables.sourceTemplate))
-            : undefined,
-        }
+        uris = { svgDataUri: Styles.encodeInnerUrlReferences(svgToMiniDataURI(source)) }
         dataUriCache.set(svg, uris)
+      }
+
+      // filled in on demand rather than in the branch above, so a cached entry made
+      // for a lang that cannot read a token does not deny it to one that can
+      if (templatable && svg.variables && typeof uris.svgDataUriTemplate === 'undefined') {
+        // tokenize first: `mini-svg-data-uri` rewrites `#` and shortens colors
+        uris.svgDataUriTemplate = Styles.encodeInnerUrlReferences(svgToMiniDataURI(svg.variables.sourceTemplate))
       }
 
       this._svgs.set(filePath, {
@@ -103,34 +118,20 @@ export class Styles {
   }
 
   private formatSize(value: number): string {
-    // Styles is only instantiated with a resolved styles object
-    /* v8 ignore if -- @preserve */
-    if (!this._options.styles)
-      return `${value}px`
-    const { unit, base } = this._options.styles.sizes
+    const { unit, base } = this._styles.sizes
     const computedValue = value / base
     return `${computedValue}${unit}`
   }
 
   private async insert(insert: string): Promise<string> {
-    // Styles is only instantiated with a resolved styles object
-    /* v8 ignore if -- @preserve */
-    if (!this._options.styles)
-      return ''
-
-    const { include } = this._options.styles
-
     // `include: false` drops everything this class generates, but a callback's
     // return value is the user's own content and is still written
-    if (include === false && !insert)
+    if (this._styles.include === false && !insert)
       return ''
 
     let template = ''
-    if (
-      this._options.styles.lang !== 'css'
-      && (include === true || (include !== false && include.includes('mixin')))
-    ) {
-      const lang = this._options.styles.lang
+    if (this._styles.lang !== 'css' && this._includes('mixin')) {
+      const lang = this._styles.lang
       const cached = templateCache.get(lang)
       if (typeof cached !== 'undefined') {
         template = cached
@@ -147,11 +148,11 @@ export class Styles {
 
     // Apply names/mixins changes
     const findAndReplaceObject: Record<string, string> = {
-      mixin: this._options.styles.names.mixin,
+      mixin: this._styles.names.mixin,
       route: this._routeUrl,
-      prefix: this._options.styles.names.prefix,
-      sprites: this._options.styles.names.sprites,
-      variables: this._options.styles.names.variables,
+      prefix: this._styles.names.prefix,
+      sprites: this._styles.names.sprites,
+      variables: this._styles.names.variables,
     }
 
     for (const [key, value] of Object.entries(findAndReplaceObject)) {
@@ -165,21 +166,18 @@ export class Styles {
     return `${doNotEditThisFile + insert}\n${template}`
   }
 
+  /** Whether `styles.include` asks for `entry`. */
+  private _includes(entry: StylesInclude): boolean {
+    const { include } = this._styles
+    return include === true || (include !== false && include.includes(entry))
+  }
+
   /**
    * The maps every preprocessor lang emits, all gated on the `'variables'` entry of
    * `styles.include`: the sass/less/stylus variables, not the icon ones.
    */
   private _stylesForMaps(): OptionsStyles | null {
-    const styles = this._options.styles
-    if (
-      !styles
-      || styles.include === false
-      || (Array.isArray(styles.include) && !styles.include.includes('variables'))
-    ) {
-      return null
-    }
-
-    return styles
+    return this._includes('variables') ? this._styles : null
   }
 
   // SCSS generation
@@ -289,10 +287,7 @@ export class Styles {
   private _generate_css() {
     let insert = ''
 
-    if (!this._options.styles || this._options.styles.include === false)
-      return insert
-
-    if (this._options.styles.include === true || this._options.styles.include.includes('bg')) {
+    if (this._includes('bg')) {
       insert = this.createSpriteMap((svg) => {
         const selector = `.${this._options.prefix + svg.id}`
         let sprite = ''
@@ -303,7 +298,7 @@ export class Styles {
       })
     }
 
-    if (this._options.styles.include === true || this._options.styles.include.includes('mask')) {
+    if (this._includes('mask')) {
       insert += this.createSpriteMap((svg) => {
         const selector = `.${this._options.prefix + svg.id}-mask`
         let sprite = ''
@@ -314,7 +309,7 @@ export class Styles {
       })
     }
 
-    if (this._options.styles.include === true || this._options.styles.include.includes('bg-frag')) {
+    if (this._includes('bg-frag')) {
       if (this._options.output && this._options.output.view) {
         insert += this.createSpriteMap((svg) => {
           const selector = `.${this._options.prefix + svg.id}-frag`
@@ -333,13 +328,9 @@ export class Styles {
   }
 
   public async generate(): Promise<string> {
-    // Styles is only instantiated with a resolved styles object
-    /* v8 ignore if -- @preserve */
-    if (!this._options.styles)
-      return ''
     let insert: string
 
-    switch (this._options.styles.lang) {
+    switch (this._styles.lang) {
       case 'scss':
         insert = this._generate_scss()
         break
@@ -354,8 +345,8 @@ export class Styles {
         insert = this._generate_css()
     }
 
-    if (this._options.styles.callback) {
-      insert = this._options.styles.callback({
+    if (this._styles.callback) {
+      insert = this._styles.callback({
         content: insert,
         options: this._options,
         createSpritemap: this.createSpriteMap.bind(this),

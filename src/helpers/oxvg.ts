@@ -8,10 +8,10 @@ import { STYLE_ELEMENT_RE, VAR_CALL_RE } from '@helpers/variables'
 
 // ---------------------------------------------------------------------------
 // `var()` mitigations. OXVG mangles a value it cannot resolve, so an icon
-// carrying one is optimized with a reduced set of jobs. This block, its use in
-// `getOptions` and `_optimizeConfigVariables`/`_optimizeConfigStyleVariables` in
-// SVGManager all exist only for https://github.com/noahbald/oxvg/issues/264 and
-// are meant to be deleted together once it is fixed and released.
+// carrying one is optimized with a reduced set of jobs. This block and
+// `_optimizeConfigVariables`/`_optimizeConfigStyleVariables` in SVGManager all
+// exist only for https://github.com/noahbald/oxvg/issues/264 and are meant to be
+// deleted together once it is fixed and released.
 // ---------------------------------------------------------------------------
 
 const STYLE_ATTRIBUTE_RE = /\bstyle\s*=\s*(?:"([^"]*)"|'([^']*)')/gi
@@ -85,15 +85,30 @@ export function selectVariablesConfig<Base>(
 }
 
 /**
+ * Copy of `config` without the jobs that mangle a `var()` in a presentation attribute
+ * (`'attribute'`), or without the wider set a style declaration needs (`'style'`).
+ * `undefined` in, `undefined` out: outside OXVG a config means "run every job", which
+ * would take an icon straight into the abort.
+ */
+export function withoutVariablesJobs(config: OxvgConfig | undefined, variables: 'attribute' | 'style'): OxvgConfig | undefined {
+  if (!config)
+    return undefined
+
+  const disabled = variables === 'style' ? styleVariablesDisabledPlugins : variablesDisabledPlugins
+  const mitigated = { ...config }
+  for (const plugin of Object.keys(disabled))
+    delete mitigated[plugin as keyof OxvgConfig]
+
+  return mitigated
+}
+
+/**
  * Get OXVG Options
  *
  * @param oxvgOptions - User supplied OXVG option
  * @param prefix - Sprite id prefix, preserved by `cleanupIds`
- * @param variables - Also drop the jobs that mangle a `var()` in a presentation
- * attribute (`'attribute'`), or the wider set needed for one in a style
- * declaration (`'style'`)
  */
-export async function getOptions(oxvgOptions: Options['oxvg'] | undefined, prefix: string, variables?: 'attribute' | 'style'): Promise<OxvgConfig | undefined> {
+export async function getOptions(oxvgOptions: Options['oxvg'] | undefined, prefix: string): Promise<OxvgConfig | undefined> {
   const { convertSvgoConfig } = await import('@oxvg/napi')
 
   // Translate the SVGO default config into jobs so both optimizers behave the same.
@@ -112,14 +127,6 @@ export async function getOptions(oxvgOptions: Options['oxvg'] | undefined, prefi
     oxvg = oxvgOptions
   else if (oxvgOptions === false)
     oxvg = undefined
-
-  // last, so a user supplied config is covered too. Copied, never mutated.
-  if (variables && oxvg) {
-    const disabled = variables === 'style' ? styleVariablesDisabledPlugins : variablesDisabledPlugins
-    oxvg = { ...oxvg }
-    for (const plugin of Object.keys(disabled))
-      delete oxvg[plugin as keyof OxvgConfig]
-  }
 
   return oxvg
 }
