@@ -459,6 +459,11 @@ describe('variables substitution', () => {
       renderStylus([generated, '.a', '\tsprite(\'themable\', $variables: { \'color\': \'var(--x, red)\' })'].join('\n'))
       expect(spy.mock.calls.flat().join('\n')).toContain('cannot see the page from inside a data uri')
 
+      // a css function name is case-insensitive, and an uppercase call is just as inert
+      spy.mockClear()
+      renderStylus([generated, '.a', '\tsprite(\'themable\', $variables: { \'color\': \'VAR(--x, red)\' })'].join('\n'))
+      expect(spy.mock.calls.flat().join('\n')).toContain('cannot see the page from inside a data uri')
+
       // `weight` keeps its default, which is not a reference and must stay quiet
       spy.mockClear()
       renderStylus([generated, '.a', '\tsprite(\'themable\', $variables: { \'color\': red })'].join('\n'))
@@ -561,6 +566,9 @@ describe('variables substitution', () => {
     ['an unknown variable name', '.a { @include sprite(\'themable\', $variables: (\'nope\': red)); }', 'has no variable named'],
     ['a sprite without variables', '.a { @include sprite(\'plain\', $variables: (\'color\': red)); }', 'does not declare any variable'],
     ['a css reference', '.a { @include sprite(\'themable\', $variables: (\'color\': \'var(--x, red)\')); }', 'cannot see the page from inside a data uri'],
+    // a css function name is case-insensitive, and an uppercase call is just as inert
+    ['an uppercase css reference', '.a { @include sprite(\'themable\', $variables: (\'color\': \'VAR(--x, red)\')); }', 'cannot see the page from inside a data uri'],
+    ['an uppercase url reference', '.a { @include sprite(\'themable\', $variables: (\'color\': \'URL(#a)\')); }', 'cannot see the page from inside a data uri'],
   ])('warns on %s', async (_name, call, expected) => {
     const generated = await generate('warn', 'scss')
     const warnings: string[] = []
@@ -652,6 +660,18 @@ describe('variables substitution (less)', () => {
     const errors: string[] = []
     new DOMParser({ onError: message => errors.push(String(message)) }).parseFromString(decoded, 'image/svg+xml')
     expect(errors).toEqual([])
+  })
+
+  // Less parses the comma as the start of the next pair and has no `@warn` to say so
+  it('drops what follows an unquoted comma, and keeps a quoted one whole', async () => {
+    const generated = await generate('lesscomma', 'less')
+    const css = await renderLess(`${generated}
+.a { .sprite('escape'; @variables: 'font' Arial, sans-serif); }
+.b { .sprite('escape'; @variables: 'font' 'Arial, sans-serif'); }`)
+
+    const [unquoted, quoted] = urls(css).map(decodeUri)
+    expect(unquoted).toContain('font-family=\'Arial\'')
+    expect(quoted).toContain('font-family=\'Arial, sans-serif\'')
   })
 
   it('handles hyphenated names and partial attribute values', async () => {

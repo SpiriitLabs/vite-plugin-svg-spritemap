@@ -89,24 +89,25 @@ export function withoutVariablesJobs<Config>(svg: string, config: Config): Confi
  * @param prefix - Sprite id prefix, preserved by `cleanupIds`
  */
 export async function getOptions(oxvgOptions: Options['oxvg'] | undefined, prefix: string): Promise<OxvgConfig | undefined> {
+  // a user config is honoured verbatim, so the default one is never built for it
+  if (typeof oxvgOptions === 'object')
+    return oxvgOptions
+  if (oxvgOptions === false)
+    return undefined
+
   const { convertSvgoConfig } = await import('@oxvg/napi')
 
   // Translate the SVGO default config into jobs so both optimizers behave the same.
   // OXVG reads an omitted job as disabled, so dropping a job is how it gets disabled.
   // An unsupported OXVG converting nothing leaves `{}`, kept as-is on purpose: passing
   // `undefined` would run OXVG's own preset, aborting on `var()` in a style declaration.
-  let oxvg: OxvgConfig | undefined = convertSvgoConfig(['preset-default'])
+  const oxvg: OxvgConfig = convertSvgoConfig(['preset-default'])
   for (const plugin of Object.keys(defaultDisabledPlugins))
     delete oxvg[plugin as keyof OxvgConfig]
 
   /* v8 ignore else -- @preserve */
   if (oxvg.cleanupIds)
     oxvg.cleanupIds.preservePrefixes = [prefix]
-
-  if (typeof oxvgOptions === 'object')
-    oxvg = oxvgOptions
-  else if (oxvgOptions === false)
-    oxvg = undefined
 
   return oxvg
 }

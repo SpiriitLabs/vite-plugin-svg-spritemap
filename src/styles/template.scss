@@ -57,6 +57,14 @@ $-__mixin__-escapes: (
   @return $string;
 }
 
+// case-insensitively, as css matches a function name: an uppercase `VAR(` reaches
+// the data uri exactly like a lowercase one
+@function -__mixin__-references($value) {
+  $string: string.to-lower-case('#{$value}');
+
+  @return string.index($string, 'var(') or string.index($string, 'url(');
+}
+
 @mixin __mixin__(
   $name,
   $include-size: false,
@@ -92,7 +100,7 @@ $-__mixin__-escapes: (
           @if map.has-key($defaults, $key) {
             $overridden: map.has-key($variables, $key);
 
-            @if $overridden and (string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(')) {
+            @if $overridden and -__mixin__-references($value) {
               @warn '__mixin__(): "#{$key}" is set to "#{$value}", a css reference cannot see the page from inside a data uri.';
             }
 

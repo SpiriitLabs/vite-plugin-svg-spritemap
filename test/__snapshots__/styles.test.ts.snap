@@ -582,6 +582,14 @@ $-icon-sprite-escapes: (
   @return $string;
 }
 
+// case-insensitively, as css matches a function name: an uppercase \`VAR(\` reaches
+// the data uri exactly like a lowercase one
+@function -icon-sprite-references($value) {
+  $string: string.to-lower-case('#{$value}');
+
+  @return string.index($string, 'var(') or string.index($string, 'url(');
+}
+
 @mixin icon-sprite(
   $name,
   $include-size: false,
@@ -617,7 +625,7 @@ $-icon-sprite-escapes: (
           @if map.has-key($defaults, $key) {
             $overridden: map.has-key($variables, $key);
 
-            @if $overridden and (string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(')) {
+            @if $overridden and -icon-sprite-references($value) {
               @warn 'icon-sprite(): "#{$key}" is set to "#{$value}", a css reference cannot see the page from inside a data uri.';
             }
 
@@ -734,6 +742,14 @@ $-sprite-escapes: (
   @return $string;
 }
 
+// case-insensitively, as css matches a function name: an uppercase \`VAR(\` reaches
+// the data uri exactly like a lowercase one
+@function -sprite-references($value) {
+  $string: string.to-lower-case('#{$value}');
+
+  @return string.index($string, 'var(') or string.index($string, 'url(');
+}
+
 @mixin sprite(
   $name,
   $include-size: false,
@@ -769,7 +785,7 @@ $-sprite-escapes: (
           @if map.has-key($defaults, $key) {
             $overridden: map.has-key($variables, $key);
 
-            @if $overridden and (string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(')) {
+            @if $overridden and -sprite-references($value) {
               @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference cannot see the page from inside a data uri.';
             }
 
@@ -886,6 +902,14 @@ $-sprite-escapes: (
   @return $string;
 }
 
+// case-insensitively, as css matches a function name: an uppercase \`VAR(\` reaches
+// the data uri exactly like a lowercase one
+@function -sprite-references($value) {
+  $string: string.to-lower-case('#{$value}');
+
+  @return string.index($string, 'var(') or string.index($string, 'url(');
+}
+
 @mixin sprite(
   $name,
   $include-size: false,
@@ -921,7 +945,7 @@ $-sprite-escapes: (
           @if map.has-key($defaults, $key) {
             $overridden: map.has-key($variables, $key);
 
-            @if $overridden and (string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(')) {
+            @if $overridden and -sprite-references($value) {
               @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference cannot see the page from inside a data uri.';
             }
 
@@ -1022,7 +1046,8 @@ icon-sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $
 
 				for $key, $value in $merged
 					if $key in $defaults
-						if $key in $variables and match('(var|url)[(]', '' + $value)
+						// case-insensitively, as css matches a function name
+						if $key in $variables and match('(var|url)[(]', '' + $value, 'i')
 							warn('icon-sprite(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri')
 						$url = icon-sprite-replace($url, '___' + $key + '___', icon-sprite-escape($value, $key in $variables))
 					else
@@ -1112,7 +1137,8 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 
 				for $key, $value in $merged
 					if $key in $defaults
-						if $key in $variables and match('(var|url)[(]', '' + $value)
+						// case-insensitively, as css matches a function name
+						if $key in $variables and match('(var|url)[(]', '' + $value, 'i')
 							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri')
 						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value, $key in $variables))
 					else
@@ -1202,7 +1228,8 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 
 				for $key, $value in $merged
 					if $key in $defaults
-						if $key in $variables and match('(var|url)[(]', '' + $value)
+						// case-insensitively, as css matches a function name
+						if $key in $variables and match('(var|url)[(]', '' + $value, 'i')
 							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri')
 						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value, $key in $variables))
 					else
@@ -1890,6 +1917,14 @@ $-sprite-escapes: (
   @return $string;
 }
 
+// case-insensitively, as css matches a function name: an uppercase \`VAR(\` reaches
+// the data uri exactly like a lowercase one
+@function -sprite-references($value) {
+  $string: string.to-lower-case('#{$value}');
+
+  @return string.index($string, 'var(') or string.index($string, 'url(');
+}
+
 @mixin sprite(
   $name,
   $include-size: false,
@@ -1925,7 +1960,7 @@ $-sprite-escapes: (
           @if map.has-key($defaults, $key) {
             $overridden: map.has-key($variables, $key);
 
-            @if $overridden and (string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(')) {
+            @if $overridden and -sprite-references($value) {
               @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference cannot see the page from inside a data uri.';
             }
 
@@ -2019,6 +2054,14 @@ $-sprite-escapes: (
   @return $string;
 }
 
+// case-insensitively, as css matches a function name: an uppercase \`VAR(\` reaches
+// the data uri exactly like a lowercase one
+@function -sprite-references($value) {
+  $string: string.to-lower-case('#{$value}');
+
+  @return string.index($string, 'var(') or string.index($string, 'url(');
+}
+
 @mixin sprite(
   $name,
   $include-size: false,
@@ -2054,7 +2097,7 @@ $-sprite-escapes: (
           @if map.has-key($defaults, $key) {
             $overridden: map.has-key($variables, $key);
 
-            @if $overridden and (string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(')) {
+            @if $overridden and -sprite-references($value) {
               @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference cannot see the page from inside a data uri.';
             }
 
@@ -2173,6 +2216,14 @@ $-sprite-escapes: (
   @return $string;
 }
 
+// case-insensitively, as css matches a function name: an uppercase \`VAR(\` reaches
+// the data uri exactly like a lowercase one
+@function -sprite-references($value) {
+  $string: string.to-lower-case('#{$value}');
+
+  @return string.index($string, 'var(') or string.index($string, 'url(');
+}
+
 @mixin sprite(
   $name,
   $include-size: false,
@@ -2208,7 +2259,7 @@ $-sprite-escapes: (
           @if map.has-key($defaults, $key) {
             $overridden: map.has-key($variables, $key);
 
-            @if $overridden and (string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(')) {
+            @if $overridden and -sprite-references($value) {
               @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference cannot see the page from inside a data uri.';
             }
 
@@ -2309,7 +2360,8 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 
 				for $key, $value in $merged
 					if $key in $defaults
-						if $key in $variables and match('(var|url)[(]', '' + $value)
+						// case-insensitively, as css matches a function name
+						if $key in $variables and match('(var|url)[(]', '' + $value, 'i')
 							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri')
 						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value, $key in $variables))
 					else
@@ -2376,7 +2428,8 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 
 				for $key, $value in $merged
 					if $key in $defaults
-						if $key in $variables and match('(var|url)[(]', '' + $value)
+						// case-insensitively, as css matches a function name
+						if $key in $variables and match('(var|url)[(]', '' + $value, 'i')
 							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri')
 						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value, $key in $variables))
 					else
@@ -2468,7 +2521,8 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 
 				for $key, $value in $merged
 					if $key in $defaults
-						if $key in $variables and match('(var|url)[(]', '' + $value)
+						// case-insensitively, as css matches a function name
+						if $key in $variables and match('(var|url)[(]', '' + $value, 'i')
 							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri')
 						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value, $key in $variables))
 					else
@@ -2725,6 +2779,14 @@ $-sprite-escapes: (
   @return $string;
 }
 
+// case-insensitively, as css matches a function name: an uppercase \`VAR(\` reaches
+// the data uri exactly like a lowercase one
+@function -sprite-references($value) {
+  $string: string.to-lower-case('#{$value}');
+
+  @return string.index($string, 'var(') or string.index($string, 'url(');
+}
+
 @mixin sprite(
   $name,
   $include-size: false,
@@ -2760,7 +2822,7 @@ $-sprite-escapes: (
           @if map.has-key($defaults, $key) {
             $overridden: map.has-key($variables, $key);
 
-            @if $overridden and (string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(')) {
+            @if $overridden and -sprite-references($value) {
               @warn 'sprite(): "#{$key}" is set to "#{$value}", a css reference cannot see the page from inside a data uri.';
             }
 
@@ -2861,7 +2923,8 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 
 				for $key, $value in $merged
 					if $key in $defaults
-						if $key in $variables and match('(var|url)[(]', '' + $value)
+						// case-insensitively, as css matches a function name
+						if $key in $variables and match('(var|url)[(]', '' + $value, 'i')
 							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri')
 						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value, $key in $variables))
 					else
