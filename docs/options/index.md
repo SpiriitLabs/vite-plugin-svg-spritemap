@@ -162,9 +162,7 @@ export type UiPrefixed = `${Prefix}${Ui}`
 - **Type:** `false | { spritemap?: 'preserve' | 'resolve' }`
 - **Default:** `{ spritemap: 'preserve' }`
 
-Controls icon variables: a `var(--name, default)` inside an SVG presentation attribute becomes a
-themable value your SCSS/Stylus/Less mixin can override per call site. See the
-[Variables guide](/guide/variables).
+Controls icon variables: a `var(--name, default)` inside an SVG presentation attribute, a `style` attribute or a `<style>` element becomes a themable value your SCSS/Stylus/Less mixin can override per call site. See the [Variables guide](/guide/variables).
 
 Set to `false` to skip parsing entirely and generate no defaults map.
 
@@ -173,23 +171,19 @@ Set to `false` to skip parsing entirely and generate no defaults map.
 - **Type:** `'preserve' | 'resolve'`
 - **Default:** `'preserve'`
 
-How themable values are written into the generated spritemap (the `<symbol>`/`<view>` content served at
-the route and emitted as an asset).
+How themable values are written into the generated spritemap (the `<symbol>`/`<view>` content served at the route and emitted as an asset).
 
-- `'preserve'` keeps `fill="var(--color, #fff)"` verbatim, so any `<use>` element can be themed at
-  runtime with real CSS custom properties, an external reference included.
+- `'preserve'` keeps `fill="var(--color, #fff)"` verbatim, so any `<use>` element can be themed at runtime with real CSS custom properties, an external reference included.
 - `'resolve'` bakes each default in (`fill="#fff"`), for maximum tooling compatibility.
 
-This does not affect the generated stylesheet: the data URI there always has its defaults baked in, and
-compile-time substitution through the mixin works either way.
+This does not affect the generated stylesheet: the data URI there always has its defaults baked in, and compile-time substitution through the mixin works either way.
 
 ## prefix
 
 - **Type:** `string | false`
 - **Default:** `'sprite-'`
 
-Define the prefix used for sprite id in `<symbol>`/`<use>`/`<view>`.
-You can set this option to false to disable the prefix.
+Define the prefix used for sprite id in `<symbol>`/`<use>`/`<view>`. You can set this option to false to disable the prefix.
 
 This option is recommended to prevent conflict with other SVG or ids in your project.
 
@@ -198,8 +192,7 @@ This option is recommended to prevent conflict with other SVG or ids in your pro
 - **Type:** `boolean | object`
 - **Default:** `false` if SVGO not installed, `true` if SVGO is installed
 
-Take an SVGO Options object.
-If `true`, it will use the [default SVGO preset](https://github.com/svg/svgo#default-preset), if `false`, it will disable SVGO optimization.
+Take an SVGO Options object. If `true`, it will use the [default SVGO preset](https://github.com/svg/svgo#default-preset), if `false`, it will disable SVGO optimization.
 
 ::: warning
 Since the version 3.0, you need to install `svgo` manually as a dependency of your project if you want `vite-plugin-svg-spritemap` to process SVG file with it.
@@ -268,18 +261,16 @@ Gutter (in pixels) between each sprite to help prevent overlap.
 
 Take an OXVG Options object. If `false`, it will disable OXVG optimization.
 
-If `true`, it runs the same configuration as the [svgo](#svgo) option, translated to
-OXVG jobs, so switching optimizer does not change the output. That translation needs
-`@oxvg/napi` **0.0.6** or above; below that it falls back to the OXVG default preset.
+If `true`, it runs the same configuration as the [svgo](#svgo) option, translated to OXVG jobs, so both optimizers enable the same set of jobs and disable the same ones.
+
+The two optimizers are configured alike, but they do not produce byte-identical files: OXVG writes path data differently (uppercase `Z`, arcs rewritten more aggressively) and minifies some values SVGO leaves alone. The rendered icon is the same, the bytes are not, so a snapshot taken with one optimizer will not match the other.
 
 ::: tip
-SVGO takes precedence over OXVG: OXVG is only used when SVGO is not installed, or when
-[svgo](#svgo) is set to `false`.
+SVGO takes precedence over OXVG: OXVG is only used when SVGO is not installed, or when [svgo](#svgo) is set to `false`.
 :::
 
 ::: warning
-An options object is the **complete list of jobs to run**, it does not extend the default
-described above. Any job missing from your object is not run at all:
+An options object is the **complete list of jobs to run**, it does not extend the default described above. Any job missing from your object is not run at all:
 
 ```js
 svgSpritemap('./src/icons/*.svg', {
@@ -288,51 +279,33 @@ svgSpritemap('./src/icons/*.svg', {
 })
 ```
 
-So unlike [svgo](#svgo), you cannot keep the default and tweak a single job. OXVG has no
-equivalent of SVGO's `preset-default` overrides, and passing an object starts from nothing.
+So unlike [svgo](#svgo), you cannot keep the default and tweak a single job. OXVG has no equivalent of SVGO's `preset-default` overrides, and passing an object starts from nothing.
 :::
 
 ::: warning
-You need to install `@oxvg/napi` (**0.0.4-1** or above) and the corresponding native binding dependency for your platform.
+You need to install `@oxvg/napi` **0.0.7**. Earlier versions are not supported: they either ship no `convertSvgoConfig` at all, or translate the SVGO config differently.
 
 ::: code-group
 
 ```bash [npm]
 npm i -D @oxvg/napi
-npm i -D @oxvg/napi-darwin-arm64 #macOS ARM64 (Apple Silicon)
-npm i -D @oxvg/napi-darwin-x64 #macOS x64 (Intel)
-npm i -D @oxvg/napi-linux-x64-gnu #Linux x64 (GNU)
-npm i -D @oxvg/napi-win32-x64-msvc #Windows x64 (MSVC)
 ```
 
 ```bash [Yarn]
 yarn add -D @oxvg/napi
-yarn add -D @oxvg/napi-darwin-arm64 #macOS ARM64 (Apple Silicon)
-yarn add -D @oxvg/napi-darwin-x64 #macOS x64 (Intel)
-yarn add -D @oxvg/napi-linux-x64-gnu #Linux x64 (GNU)
-yarn add -D @oxvg/napi-win32-x64-msvc #Windows x64 (MSVC)
 ```
 
 ```bash [pnpm]
 pnpm add -D @oxvg/napi
-pnpm add -D @oxvg/napi-darwin-arm64 #macOS ARM64 (Apple Silicon)
-pnpm add -D @oxvg/napi-darwin-x64 #macOS x64 (Intel)
-pnpm add -D @oxvg/napi-linux-x64-gnu #Linux x64 (GNU)
-pnpm add -D @oxvg/napi-win32-x64-msvc #Windows x64 (MSVC)
 ```
 
 ```bash [Bun]
 bun add -D @oxvg/napi
-bun add -D @oxvg/napi-darwin-arm64 #macOS ARM64 (Apple Silicon)
-bun add -D @oxvg/napi-darwin-x64 #macOS x64 (Intel)
-bun add -D @oxvg/napi-linux-x64-gnu #Linux x64 (GNU)
-bun add -D @oxvg/napi-win32-x64-msvc #Windows x64 (MSVC)
 ```
 :::
 
+The native binding for your platform comes with it, you do not have to add it yourself: `@oxvg/napi` lists all of them as optional dependencies and your package manager keeps the one that matches.
+
 ::: warning Platform support
-Prebuilt bindings only exist for the four platforms listed above: no musl (Alpine),
-ARM Linux or Windows ARM. There, OXVG cannot load and icons are served **unoptimized**
-with a warning (the build does not fail). Use [SVGO](#svgo) instead, or set `oxvg: false`
-to silence the warning.
+Prebuilt bindings exist for macOS (x64, ARM64), Linux (x64 and ARM64, GNU and musl) and Windows (x64, ARM64). Anywhere else, OXVG cannot load and icons are served **unoptimized** with a warning (the build does not fail). Use [SVGO](#svgo) instead, or set `oxvg: false` to silence the warning.
 :::

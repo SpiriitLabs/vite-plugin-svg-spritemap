@@ -33,8 +33,10 @@ minimumReleaseAgeExclude:
   - nuxt@4.5.1
   - rollup@4.62.3
   - less@4.8.1
-  - svelte-check@4.7.4
+  - svelte-check@4.7.4 || 4.7.6
   - svg-element-attributes@2.2.0
+  - '@xmldom/xmldom@0.9.11'
+  - svelte@5.56.9
 shellEmulator: true
 
 trustPolicy: no-downgrade
@@ -45,38 +47,39 @@ trustPolicyExclude:
 packages:
   - demo/*
 
+catalogMode: strict
+
 catalog:
-  '@antfu/eslint-config': 9.2.0
-  '@oxvg/napi': 0.0.6
-  '@oxvg/napi-darwin-arm64': 0.0.6
-  '@oxvg/napi-linux-x64-gnu': 0.0.6
-  '@oxvg/napi-win32-x64-msvc': 0.0.6
+  '@antfu/eslint-config': 9.3.0
+  '@oxvg/napi': 0.0.7
   '@sveltejs/adapter-auto': ^7.0.1
   '@sveltejs/kit': ^2.70.2
-  '@sveltejs/vite-plugin-svelte': ^7.2.0
+  '@sveltejs/vite-plugin-svelte': ^7.3.0
   '@tsconfig/svelte': ^5.0.8
+  '@types/less': ^3.0.8
   '@types/node': ^24.13.3
   '@types/picomatch': ^4.0.3
+  '@types/stylus': ^0.48.43
   '@vitejs/plugin-vue': ^6.0.8
   '@vitest/coverage-v8': ^4.1.10
-  '@xmldom/xmldom': ^0.9.10
+  '@xmldom/xmldom': ^0.9.11
   autoprefixer: ^10.5.4
   concurrently: ^10.0.4
-  eslint: ^10.8.0
+  eslint: ^10.8.1
   kolorist: ^1.8.0
   less: ^4.8.1
   mini-svg-data-uri: ^1.4.4
   nitropack: ^2.13.4
-  nuxt: ^4.5.1
+  nuxt: ^4.5.2
   picomatch: ^4.0.5
   playwright: ^1.62.1
-  postcss: ^8.5.25
+  postcss: ^8.5.26
   pug: ^3.0.4
   rollup: ^4.62.4
   sass: ^1.102.0
   stylus: ^0.64.0
-  svelte: ^5.56.8
-  svelte-check: ^4.7.4
+  svelte: ^5.56.9
+  svelte-check: ^4.7.6
   svg-element-attributes: ^2.2.0
   svgo: ^4.0.2
   tinyglobby: ^0.2.17
@@ -87,7 +90,7 @@ catalog:
   vite-plugin-inspect: ^12.0.2
   vitepress: ^2.0.0-alpha.19
   vitest: ^4.1.10
-  vue: ^3.5.40
+  vue: ^3.5.41
   vue-router: ^5.2.0
   vue-tsc: ^3.3.9
 

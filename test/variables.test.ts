@@ -4,7 +4,7 @@ import less from 'less'
 import * as sass from 'sass'
 import stylus from 'stylus'
 import { describe, expect, it, vi } from 'vitest'
-import { extractSvgVariables, resolveVariableTokens, sortVariableDefaults, variableToken } from '../src/helpers/variables'
+import { extractSvgVariables, hasStyleVariable, resolveVariableTokens, sortVariableDefaults, variableToken } from '../src/helpers/variables'
 import { buildVite } from './helpers/build'
 import { getPath } from './helpers/path'
 
@@ -118,15 +118,51 @@ describe('variables parsing', () => {
     expect(result?.warnings).toEqual([expect.stringContaining('`url()`')])
   })
 
-  it('refuses style declarations', () => {
-    const result = extractSvgVariables('<svg style="fill:var(--color, #fff)"/>')
-    expect(result?.defaults.size).toBe(0)
-    expect(result?.warnings).toEqual([expect.stringContaining('`style` declarations are not supported')])
+  // a style declaration wins over a presentation attribute, and some properties
+  // (`transform-origin`, `mix-blend-mode`) have no usable attribute form
+  it('extracts a style attribute like any other', () => {
+    const result = extractSvgVariables('<svg style="mix-blend-mode:var(--blend, normal)"/>')
+    expect(result?.defaults).toEqual(new Map([['blend', 'normal']]))
+    expect(result?.template).toBe('<svg style="mix-blend-mode:___blend___"/>')
+    expect(result?.warnings).toEqual([])
+  })
+
+  it('extracts several declarations of one style attribute', () => {
+    const result = extractSvgVariables('<svg style="fill:var(--color, #fff);stroke-width:var(--weight, 2)"/>')
+    expect(result?.defaults).toEqual(new Map([['color', '#fff'], ['weight', '2']]))
+    expect(result?.template).toBe('<svg style="fill:___color___;stroke-width:___weight___"/>')
+  })
+
+  // `inlineStyles` hoists a plain rule into an attribute, but a `:hover` or an
+  // `@media` rule survives, and a `<style>` element is the only way to write one
+  it('extracts a var() from a style element', () => {
+    const result = extractSvgVariables('<svg><style>.a:hover{fill:var(--hover, #f00)}</style><path class="a"/></svg>')
+    expect(result?.defaults).toEqual(new Map([['hover', '#f00']]))
+    expect(result?.template).toBe('<svg><style>.a:hover{fill:___hover___}</style><path class="a"/></svg>')
+    expect(result?.warnings).toEqual([])
+  })
+
+  it('extracts from a style element and an attribute in source order', () => {
+    const result = extractSvgVariables('<svg><style>.a{stroke:var(--edge, blue)}</style><path fill="var(--color, #fff)"/></svg>')
+    expect(result?.template).toBe('<svg><style>.a{stroke:___edge___}</style><path fill="___color___"/></svg>')
+    expect(result?.defaults).toEqual(new Map([['edge', 'blue'], ['color', '#fff']]))
+  })
+
+  it('names the style element in a warning', () => {
+    const result = extractSvgVariables('<svg><style>.a{fill:var(--1bad, red)}</style></svg>')
+    expect(result?.warnings).toEqual([expect.stringContaining('in `<style>`')])
+  })
+
+  // it is css there, not an attribute of the document
+  it('ignores an attribute selector inside a style element', () => {
+    const source = '<svg><style>[data-x="var(--c, red)"]{fill:blue}</style></svg>'
+    const result = extractSvgVariables(source)
+    expect(result?.defaults).toEqual(new Map([['c', 'red']]))
+    expect(result?.template).toBe('<svg><style>[data-x="___c___"]{fill:blue}</style></svg>')
   })
 
   it('ignores var() outside of an attribute value', () => {
     expect(extractSvgVariables('<svg><title>var(--color, #fff)</title></svg>')?.defaults.size).toBe(0)
-    expect(extractSvgVariables('<svg><style>.a{fill:var(--color, #fff)}</style></svg>')?.defaults.size).toBe(0)
   })
 
   it('skips the var namespace declaration', () => {
@@ -142,6 +178,18 @@ describe('variables parsing', () => {
 
   it('builds the token the templates replace', () => {
     expect(variableToken('color')).toBe('___color___')
+  })
+
+  // OXVG aborts on these, so they take a narrower optimizer config
+  it.each([
+    ['<svg fill="var(--c, red)"/>', false],
+    ['<svg/>', false],
+    ['<svg style="fill:var(--c, red)"/>', true],
+    ['<svg style=\'fill:var(--c, red)\'/>', true],
+    ['<svg><style>.a{fill:var(--c, red)}</style></svg>', true],
+    ['<svg><style type="text/css">.a{fill:var(--c, red)}</style ></svg>', true],
+  ])('detects a var() in a style declaration: %s', (source, expected) => {
+    expect(hasStyleVariable(source)).toBe(expected)
   })
 })
 
@@ -261,6 +309,47 @@ describe('variables substitution', () => {
     expect(partial).toContain('stroke-width=\'2\'')
 
     expect(plain).toContain('fill=\'lime\'')
+  })
+
+  // a `:hover` rule cannot be inlined into an attribute, so this is the only way to
+  // theme it, and an internal `<style>` does apply inside a data uri
+  it('substitutes a variable declared in a style element (scss)', async () => {
+    const filename = getPath('./fixtures/basic/styles/spritemap_style_element.scss')
+    await buildVite({
+      name: 'variables_style_element',
+      path: './fixtures/basic/variables-style/hover-element.svg',
+      options: { styles: { filename, lang: 'scss' } },
+    })
+
+    const { css } = sass.compileString(`${await fs.readFile(filename, 'utf8')}
+.unthemed { @include sprite('hover-element'); }
+.themed { @include sprite('hover-element', $variables: ('hover': blue)); }`)
+
+    const [unthemed, themed] = urls(css).map(decodeUri)
+
+    expect(unthemed).toContain(':hover{fill:red}')
+    expect(unthemed).not.toContain('___')
+    expect(themed).toContain(':hover{fill:blue}')
+  })
+
+  // the point of supporting them: a property with no usable attribute form
+  it('substitutes a variable declared in a style attribute (scss)', async () => {
+    const filename = getPath('./fixtures/basic/styles/spritemap_style_attr.scss')
+    await buildVite({
+      name: 'variables_style_attr',
+      path: './fixtures/basic/variables-style/style-attr.svg',
+      options: { styles: { filename, lang: 'scss' } },
+    })
+
+    const { css } = sass.compileString(`${await fs.readFile(filename, 'utf8')}
+.unthemed { @include sprite('style-attr'); }
+.themed { @include sprite('style-attr', $variables: ('color': red)); }`)
+
+    const [unthemed, themed] = urls(css).map(decodeUri)
+
+    expect(unthemed).toContain('style=\'fill:white\'')
+    expect(unthemed).not.toContain('___')
+    expect(themed).toContain('style=\'fill:red\'')
   })
 
   it('substitutes overrides and defaults (styl)', async () => {
