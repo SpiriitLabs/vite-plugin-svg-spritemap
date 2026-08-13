@@ -8,10 +8,10 @@ import { STYLE_ELEMENT_RE, VAR_CALL_RE } from '@helpers/variables'
 
 // ---------------------------------------------------------------------------
 // `var()` mitigations. OXVG mangles a value it cannot resolve, so an icon
-// carrying one is optimized with a reduced set of jobs. This block and
-// `_optimizeConfigVariables`/`_optimizeConfigStyleVariables` in SVGManager all
-// exist only for https://github.com/noahbald/oxvg/issues/264 and are meant to be
-// deleted together once it is fixed and released.
+// carrying one is optimized with a reduced set of jobs. This block and its single
+// call in `SVGManager._optimizeSvg()` exist only for
+// https://github.com/noahbald/oxvg/issues/264 and are meant to be deleted together
+// once it is fixed and released.
 // ---------------------------------------------------------------------------
 
 const STYLE_ATTRIBUTE_RE = /\bstyle\s*=\s*(?:"([^"]*)"|'([^']*)')/gi
@@ -65,41 +65,25 @@ export function hasStyleVariable(source: string): boolean {
 }
 
 /**
- * Pick the config `svg` has to be optimized with, given the base one and the two
- * mitigated variants. Runs on the source before optimization, which is why it scans
- * for a `var()` itself instead of reusing what {@link extractSvgVariables} collects
- * from the optimized output. `attribute` and `style` are undefined outside OXVG,
- * where they would mean "run every job" and take an icon straight into the abort.
+ * Copy of `config` without the jobs that mangle or abort on a `var()` carried by `svg`:
+ * the wider set when it sits in a style declaration, the narrow one otherwise. Runs on
+ * the source before optimization, which is why it scans for a `var()` itself instead of
+ * reusing what {@link extractSvgVariables} collects from the optimized output.
+ *
+ * Generic so it can take the shared config field as-is: only OXVG needs this, and
+ * `undefined` is returned untouched since it means "run OXVG's own preset", which a
+ * copy stripped of jobs cannot express.
  */
-export function selectVariablesConfig<Base>(
-  svg: string,
-  base: Base,
-  attribute: OxvgConfig | undefined,
-  style: OxvgConfig | undefined,
-): Base | OxvgConfig {
-  if (!VAR_CALL_RE.test(svg))
-    return base
+export function withoutVariablesJobs<Config>(svg: string, config: Config): Config {
+  if (!config || !VAR_CALL_RE.test(svg))
+    return config
 
-  const mitigated = hasStyleVariable(svg) ? style : attribute
-  return typeof mitigated === 'undefined' ? base : mitigated
-}
-
-/**
- * Copy of `config` without the jobs that mangle a `var()` in a presentation attribute
- * (`'attribute'`), or without the wider set a style declaration needs (`'style'`).
- * `undefined` in, `undefined` out: outside OXVG a config means "run every job", which
- * would take an icon straight into the abort.
- */
-export function withoutVariablesJobs(config: OxvgConfig | undefined, variables: 'attribute' | 'style'): OxvgConfig | undefined {
-  if (!config)
-    return undefined
-
-  const disabled = variables === 'style' ? styleVariablesDisabledPlugins : variablesDisabledPlugins
-  const mitigated = { ...config }
+  const disabled = hasStyleVariable(svg) ? styleVariablesDisabledPlugins : variablesDisabledPlugins
+  const mitigated: Record<string, unknown> = { ...config }
   for (const plugin of Object.keys(disabled))
-    delete mitigated[plugin as keyof OxvgConfig]
+    delete mitigated[plugin]
 
-  return mitigated
+  return mitigated as Config
 }
 
 /**
