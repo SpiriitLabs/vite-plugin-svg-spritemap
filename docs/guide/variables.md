@@ -82,7 +82,7 @@ Less has no map literal, so variables are passed as a comma-separated list of `'
 }
 ```
 
-Substitution happens **at compile time**: each call site gets its own copy of the icon with the values already inlined. Nothing is resolved in the browser, so this works everywhere, but every themed call site adds one more copy of the icon to your CSS bundle. A themable icon also carries a second data URI in the generated stylesheet, the tokenised template the mixin substitutes into, so its entry there is about twice the size of a plain one. Icons that declare nothing cost nothing: no template URI and no defaults map are written for a set where nothing is themable.
+Substitution happens **at compile time**: each call site gets its own copy of the icon with the values already inlined. Nothing is resolved in the browser, so this works everywhere, but every themed call site adds one more copy of the icon to your CSS bundle. A themable icon also carries a second data URI in the generated stylesheet, the tokenised template the mixin substitutes into, so its entry there is about twice the size of a plain one. Icons that declare nothing cost nothing: no template URI and no defaults map are written for a set where nothing is themable. The mixin is the only thing that can read a template URI, so [`styles.include`](/options/styles) without `'mixin'` drops it too.
 
 ## Runtime theming with real CSS custom properties
 
@@ -117,7 +117,7 @@ So the two mechanisms cover each other: `<use>` gets runtime theming for free, a
 | `less` | full, but a list of pairs instead of a map, and no warnings |
 | `css` | defaults only, there is no mixin to pass values to |
 
-All three preprocessors produce a byte-identical document once the data URI is decoded. Less is the one that cannot warn you about mistakes: it has no `@warn`, so an unknown variable name is silently a no-op and passing variables alongside `@type: 'fragment'` is silently ignored. In a set where **no** icon declares a variable, the defaults map is not written at all: SCSS and Stylus then warn and fall back to the untouched icon, while Less fails to compile on `@sprites-variables is undefined`.
+All three preprocessors produce a byte-identical document once the data URI is decoded. Less is the one that cannot warn you about mistakes: it has no `@warn`, so an unknown variable name is silently a no-op and passing variables alongside `@type: 'fragment'` is silently ignored. In a set where **no** icon declares a variable, SCSS and Stylus skip the defaults map and warn if you pass variables anyway; Less cannot test a variable for existence, so its map is written either way, holding a `0` per sprite, and the mixin quietly falls back to the untouched icon.
 
 ## Rules and edge cases
 
@@ -132,7 +132,8 @@ All three preprocessors produce a byte-identical document once the data URI is d
 - **A literal `___name___` in the source collides with the token of that name.** Substitution is textual all the way through, in the plugin and in the mixins alike, so an `id="___color___"` sitting next to a `var(--color, red)` is rewritten too. Avoid triple underscores in an icon's own ids and class names.
 - **Values are escaped for you.** A `#`, `%`, quote or `&` in an override is encoded so the data URI stays valid, so you can pass `#f00` directly. All three preprocessors apply the same escaping. A default is escaped a little less: it comes out of the SVG source, where an `&` or a `<` is already written as an entity, so `var(--font, &quot;Fira Sans&quot;, serif)` keeps rendering as `"Fira Sans", serif` whether you override a sibling variable or not.
 - **A `;` or a `}` in an override is not inert in CSS.** The escaping keeps the data URI valid, not the declaration isolated, so `$variables: ('color': 'red;stroke:blue')` compiles to `style="fill:red;stroke:blue"` and adds a declaration, and the same applies inside a `<style>` rule. In a presentation attribute the value would simply be invalid. Harmless either way since the values come from your own stylesheet, but do not count on those characters being literal.
-- **`var()` and `url()` as override values are inert.** They would land inside the data URI, which cannot see the page's custom properties or paint servers. The SCSS and Stylus mixins warn.
+- **`var()` and `url()` as override values do not reach the page.** They land inside the data URI, which is its own document: a `var()` there falls back to its own default rather than reading the page's custom property, and a `url(#id)` points at whatever the icon itself happens to contain, under the id the optimizer gave it. The SCSS and Stylus mixins warn.
+- **A `url(#id)` *default* is fine.** It travels through the optimizer with the rest of the source, so `cleanupIds` renames it along with the element it points at, and the reference still resolves once the icon is inlined. Only a default pointing at an external file is warned about, since a data URI cannot load one.
 
 ## Disabling
 

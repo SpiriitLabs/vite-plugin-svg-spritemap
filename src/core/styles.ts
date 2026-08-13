@@ -34,9 +34,13 @@ export class Styles {
       && [...svgs.values()].some(svg => svg.variables)
 
     const spritemapResolved = resolvesSpritemap(options.variables)
-    // nothing can read a token when no map is written, or when `css` gets no mixin
+    // the mixin is the only consumer of a token, so without one the template uri is
+    // dead weight: it roughly doubles a themable sprite's entry
     const maps = this._stylesForMaps()
-    const templatable = this._variablesEnabled && maps !== null && maps.lang !== 'css'
+    const templatable = this._variablesEnabled
+      && maps !== null
+      && maps.lang !== 'css'
+      && this._includes('mixin')
 
     svgs.forEach((svg, filePath) => {
       let uris = dataUriCache.get(svg)
@@ -269,8 +273,11 @@ export class Styles {
     insert += '}\n'
 
     // the leading count is what tells a lone `'a' 1` pair from a list of pairs,
-    // which Less cannot otherwise distinguish
-    if (this._variablesEnabled) {
+    // which Less cannot otherwise distinguish.
+    // Emitted for the mixin even when nothing is themable, unlike the scss and styl
+    // maps: Less has no way to test a variable for existence, so a missing map is a
+    // compile error at the mixin's lookup rather than a warning it can recover from
+    if (this._variablesEnabled || this._includes('mixin')) {
       insert += `\n@${styles.names.variables}: {\n`
       insert += this.createSpriteMap((svg) => {
         const entries = Object.entries(svg.variableDefaults ?? {})

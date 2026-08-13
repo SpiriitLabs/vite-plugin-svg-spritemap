@@ -12,7 +12,14 @@ const TOKEN_DELIMITER = '___'
  */
 export const VAR_CALL_RE: RegExp = /(?<![\w-])var\(/i
 const VAR_CALL_SCAN_RE = new RegExp(VAR_CALL_RE.source, 'gi')
-const URL_CALL_RE = /(?<![\w-])url\(/i
+
+/**
+ * A `url()` pointing anywhere but at a fragment. A `url(#gradient)` resolves against
+ * the icon's own document, so it survives inlining: the reference goes through the
+ * optimizer with the rest of the source and `cleanupIds` renames it along with the
+ * element it points at. Anything else is an external file a data uri cannot load.
+ */
+const EXTERNAL_URL_CALL_RE = /(?<![\w-])url\((?!\s*(?:['"]\s*)?#)/i
 
 const ATTRIBUTE_RE = /([a-z_:][\w:.-]*)\s*=\s*(?:"([^"]*)"|'([^']*)')/gi
 const TAG_NAME_RE = /^<\s*([a-z_:][\w:.-]*)/i
@@ -39,6 +46,15 @@ export function variableToken(name: string): string {
   return `${TOKEN_DELIMITER}${name}${TOKEN_DELIMITER}`
 }
 
+/**
+ * Longest name first, so a shorter token can never shadow a longer one. Ties break on
+ * code points rather than `localeCompare`, whose collation would make the generated
+ * stylesheet depend on the host locale. Names are unique, so no pair ever compares equal.
+ */
+function byTokenLength(a: string, b: string): number {
+  return b.length - a.length || (a < b ? -1 : 1)
+}
+
 /** Whether the emitted spritemap bakes the defaults in rather than keeping the `var()`. */
 export function resolvesSpritemap(variables: Options['variables']): boolean {
   return variables !== false && variables.spritemap === 'resolve'
@@ -54,9 +70,7 @@ export function resolvesSpritemap(variables: Options['variables']): boolean {
  * `a______b` name that matches nothing.
  */
 export function resolveVariableTokens(template: string, defaults: Record<string, string>): string {
-  const names = Object.keys(defaults)
-    .filter(name => typeof defaults[name] === 'string')
-    .sort((a, b) => b.length - a.length || a.localeCompare(b))
+  const names = Object.keys(defaults).sort(byTokenLength)
 
   if (!names.length)
     return template
@@ -72,9 +86,7 @@ export function resolveVariableTokens(template: string, defaults: Record<string,
  * The scss/styl/less mixins substitute one name at a time and rely on this.
  */
 export function sortVariableDefaults(defaults: Map<string, string>): Record<string, string> {
-  return Object.fromEntries(
-    [...defaults].sort(([a], [b]) => b.length - a.length || a.localeCompare(b)),
-  )
+  return Object.fromEntries([...defaults].sort(([a], [b]) => byTokenLength(a, b)))
 }
 
 /**
@@ -259,10 +271,10 @@ export function extractSvgVariables(source: string): SvgVariablesResult | null {
       }
 
       if (VAR_CALL_RE.test(occurrence.fallback))
-        warnings.push(`The default of \`--${name}\` contains a nested \`var()\`, kept verbatim and not substituted at compile time.`)
+        warnings.push(`The default of \`--${name}\` contains a nested \`var()\`. It is kept as the default, but the inner name is not a variable of its own and cannot be overridden.`)
 
-      if (URL_CALL_RE.test(occurrence.fallback))
-        warnings.push(`The default of \`--${name}\` contains \`url()\`, which cannot be safely inlined into a data uri.`)
+      if (EXTERNAL_URL_CALL_RE.test(occurrence.fallback))
+        warnings.push(`The default of \`--${name}\` contains an external \`url()\`, which a data uri cannot load. Only a \`url(#id)\` reference to the icon's own content survives inlining.`)
 
       const previous = defaults.get(name)
       if (typeof previous === 'undefined' || previous === '')

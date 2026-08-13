@@ -93,7 +93,7 @@ $-__mixin__-escapes: (
             $overridden: map.has-key($variables, $key);
 
             @if $overridden and (string.index('#{$value}', 'var(') or string.index('#{$value}', 'url(')) {
-              @warn '__mixin__(): "#{$key}" is set to "#{$value}", a css reference is inert inside a data uri.';
+              @warn '__mixin__(): "#{$key}" is set to "#{$value}", a css reference cannot see the page from inside a data uri.';
             }
 
             $url: -__mixin__-replace($url, '___#{$key}___', -__mixin__-escape($value, $overridden));
