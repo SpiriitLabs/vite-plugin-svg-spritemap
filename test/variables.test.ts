@@ -173,6 +173,23 @@ describe('variables parsing', () => {
     expect(result?.warnings).toEqual([])
   })
 
+  it('matches the call case-insensitively, as css matches a function name', () => {
+    const result = extractSvgVariables('<svg><path fill="VAR(--color, #fff)"/></svg>')
+    expect(result?.defaults).toEqual(new Map([['color', '#fff']]))
+    expect(result?.template).toBe('<svg><path fill="___color___"/></svg>')
+  })
+
+  it('leaves a name that merely ends in var alone, without warning', () => {
+    expect(extractSvgVariables('<svg><path style="font-family:myvar(x)"/></svg>')).toBeNull()
+  })
+
+  it('ignores a commented out attribute', () => {
+    const source = '<svg><!-- <path fill="var(--ghost, red)"/> --><path fill="var(--c, blue)"/></svg>'
+    const result = extractSvgVariables(source)
+    expect(result?.defaults).toEqual(new Map([['c', 'blue']]))
+    expect(result?.template).toBe('<svg><!-- <path fill="var(--ghost, red)"/> --><path fill="___c___"/></svg>')
+  })
+
   it('orders defaults longest name first so tokens cannot shadow one another', () => {
     const defaults = new Map([['a', '1'], ['a-b', '2'], ['b', '3']])
     expect(Object.keys(sortVariableDefaults(defaults))).toEqual(['a-b', 'a', 'b'])

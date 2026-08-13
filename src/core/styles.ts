@@ -1,7 +1,7 @@
 import type { Options, OptionsStyles, StylesLang, SvgDataUriMapObject, SvgMapObject } from '../types'
 import { promises } from 'node:fs'
 import path from 'node:path'
-import { resolveVariableTokens } from '@helpers/variables'
+import { resolvesSpritemap, resolveVariableTokens } from '@helpers/variables'
 import svgToMiniDataURI from 'mini-svg-data-uri'
 
 // SVGManager replaces the SvgMapObject on every icon change, so a stale entry
@@ -14,13 +14,15 @@ export class Styles {
   private _svgs: Map<string, SvgDataUriMapObject>
   private _options: Options
   private _routeUrl: string
+  private _variablesEnabled: boolean
 
   constructor(svgs: Map<string, SvgMapObject>, options: Options, routeUrl: string) {
     this._svgs = new Map()
     this._options = options
     this._routeUrl = routeUrl
+    this._variablesEnabled = options.variables !== false
 
-    const spritemapResolved = options.variables !== false && options.variables.spritemap === 'resolve'
+    const spritemapResolved = resolvesSpritemap(options.variables)
 
     svgs.forEach((svg, filePath) => {
       let uris = dataUriCache.get(svg)
@@ -163,8 +165,11 @@ export class Styles {
     return `${doNotEditThisFile + insert}\n${template}`
   }
 
-  /** The maps every preprocessor lang emits, all gated on the same `include` entry. */
-  private _stylesForVariables(): OptionsStyles | null {
+  /**
+   * The maps every preprocessor lang emits, all gated on the `'variables'` entry of
+   * `styles.include`: the sass/less/stylus variables, not the icon ones.
+   */
+  private _stylesForMaps(): OptionsStyles | null {
     const styles = this._options.styles
     if (
       !styles
@@ -179,7 +184,7 @@ export class Styles {
 
   // SCSS generation
   private _generate_scss() {
-    const styles = this._stylesForVariables()
+    const styles = this._stylesForMaps()
     if (!styles)
       return ''
 
@@ -200,7 +205,7 @@ export class Styles {
     insert += ');\n'
 
     // an entry per sprite, empty ones included: the mixin looks every sprite up
-    if (this._options.variables !== false) {
+    if (this._variablesEnabled) {
       insert += `\n$${styles.names.variables}: (\n`
       insert += this.createSpriteMap((svg, isLast) =>
         `\t'${svg.id}': (${Styles.formatVariablePairs(svg)}\n\t${isLast ? ')' : '),'}`)
@@ -212,7 +217,7 @@ export class Styles {
 
   // Styl generation
   private _generate_styl() {
-    const styles = this._stylesForVariables()
+    const styles = this._stylesForMaps()
     if (!styles)
       return ''
 
@@ -233,7 +238,7 @@ export class Styles {
     insert += '}\n'
 
     // an entry per sprite, empty ones included: the mixin looks every sprite up
-    if (this._options.variables !== false) {
+    if (this._variablesEnabled) {
       insert += `\n$${styles.names.variables} = {\n`
       insert += this.createSpriteMap((svg, isLast) =>
         `\t'${svg.id}': {${Styles.formatVariablePairs(svg)}\n\t${isLast ? '}' : '},'}`)
@@ -245,7 +250,7 @@ export class Styles {
 
   // Less generation
   private _generate_less() {
-    const styles = this._stylesForVariables()
+    const styles = this._stylesForMaps()
     if (!styles)
       return ''
 
@@ -267,7 +272,7 @@ export class Styles {
 
     // the leading count is what tells a lone `'a' 1` pair from a list of pairs,
     // which Less cannot otherwise distinguish
-    if (this._options.variables !== false) {
+    if (this._variablesEnabled) {
       insert += `\n@${styles.names.variables}: {\n`
       insert += this.createSpriteMap((svg) => {
         const entries = Object.entries(svg.variableDefaults ?? {})
