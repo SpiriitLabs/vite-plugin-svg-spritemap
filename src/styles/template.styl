@@ -1,7 +1,9 @@
 __mixin__($name, $include-size = false, $type = 'uri', $mode = 'background', $route = '__route__', $variables = {})
 	// nested definitions are lexically scoped: they stay out of the importer's scope
 	$__mixin__-entities = ('&' '&amp;'), ('<' '&lt;')
-	$__mixin__-escapes = ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
+	// `\` sits after `%`, so the `%` it introduces is not encoded in turn. A raw `\`
+	// would open a css escape in the `url("...")` string the uri ends up inside
+	$__mixin__-escapes = ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('\' '%5c'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
 
 	__mixin__-replace($string, $search, $replacement)
 		join($replacement, split($search, $string))
