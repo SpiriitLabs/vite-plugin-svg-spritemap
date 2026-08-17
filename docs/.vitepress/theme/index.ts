@@ -2,6 +2,7 @@ import type { Theme } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
 // https://vitepress.dev/guide/custom-theme
 import { h } from 'vue'
+import { useCodeGroupSync } from './codeGroupSync'
 import './style.css'
 
 export default {
@@ -11,7 +12,7 @@ export default {
       // https://vitepress.dev/guide/extending-default-theme#layout-slots
     })
   },
-  // enhanceApp({ app, router, siteData }) {
-  //   // ...
-  // },
+  setup() {
+    useCodeGroupSync()
+  },
 } satisfies Theme
