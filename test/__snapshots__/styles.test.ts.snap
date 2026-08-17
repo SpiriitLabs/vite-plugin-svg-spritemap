@@ -1051,9 +1051,9 @@ icon-sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $
 				warn('icon-sprite(): "' + $name + '" does not declare any variable, $variables is ignored')
 			else
 				$url = $sprite['uri-template']
-				$merged = {}
-				merge($merged, $defaults)
-				merge($merged, $variables)
+				// into a fresh literal, so \`$defaults\` is left alone, and in one call:
+				// a bare \`merge()\` statement is emitted into the stylesheet as raw output
+				$merged = merge({}, $defaults, $variables)
 
 				for $key, $value in $merged
 					if $key in $defaults
@@ -1144,9 +1144,9 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 				warn('sprite(): "' + $name + '" does not declare any variable, $variables is ignored')
 			else
 				$url = $sprite['uri-template']
-				$merged = {}
-				merge($merged, $defaults)
-				merge($merged, $variables)
+				// into a fresh literal, so \`$defaults\` is left alone, and in one call:
+				// a bare \`merge()\` statement is emitted into the stylesheet as raw output
+				$merged = merge({}, $defaults, $variables)
 
 				for $key, $value in $merged
 					if $key in $defaults
@@ -1237,9 +1237,9 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 				warn('sprite(): "' + $name + '" does not declare any variable, $variables is ignored')
 			else
 				$url = $sprite['uri-template']
-				$merged = {}
-				merge($merged, $defaults)
-				merge($merged, $variables)
+				// into a fresh literal, so \`$defaults\` is left alone, and in one call:
+				// a bare \`merge()\` statement is emitted into the stylesheet as raw output
+				$merged = merge({}, $defaults, $variables)
 
 				for $key, $value in $merged
 					if $key in $defaults
@@ -2433,9 +2433,9 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 				warn('sprite(): "' + $name + '" does not declare any variable, $variables is ignored')
 			else
 				$url = $sprite['uri-template']
-				$merged = {}
-				merge($merged, $defaults)
-				merge($merged, $variables)
+				// into a fresh literal, so \`$defaults\` is left alone, and in one call:
+				// a bare \`merge()\` statement is emitted into the stylesheet as raw output
+				$merged = merge({}, $defaults, $variables)
 
 				for $key, $value in $merged
 					if $key in $defaults
@@ -2526,9 +2526,9 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 				warn('sprite(): "' + $name + '" does not declare any variable, $variables is ignored')
 			else
 				$url = $sprite['uri-template']
-				$merged = {}
-				merge($merged, $defaults)
-				merge($merged, $variables)
+				// into a fresh literal, so \`$defaults\` is left alone, and in one call:
+				// a bare \`merge()\` statement is emitted into the stylesheet as raw output
+				$merged = merge({}, $defaults, $variables)
 
 				for $key, $value in $merged
 					if $key in $defaults
@@ -2621,9 +2621,9 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 				warn('sprite(): "' + $name + '" does not declare any variable, $variables is ignored')
 			else
 				$url = $sprite['uri-template']
-				$merged = {}
-				merge($merged, $defaults)
-				merge($merged, $variables)
+				// into a fresh literal, so \`$defaults\` is left alone, and in one call:
+				// a bare \`merge()\` statement is emitted into the stylesheet as raw output
+				$merged = merge({}, $defaults, $variables)
 
 				for $key, $value in $merged
 					if $key in $defaults
@@ -3028,9 +3028,9 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 				warn('sprite(): "' + $name + '" does not declare any variable, $variables is ignored')
 			else
 				$url = $sprite['uri-template']
-				$merged = {}
-				merge($merged, $defaults)
-				merge($merged, $variables)
+				// into a fresh literal, so \`$defaults\` is left alone, and in one call:
+				// a bare \`merge()\` statement is emitted into the stylesheet as raw output
+				$merged = merge({}, $defaults, $variables)
 
 				for $key, $value in $merged
 					if $key in $defaults
