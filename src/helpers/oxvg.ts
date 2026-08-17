@@ -19,26 +19,29 @@ const STYLE_ATTRIBUTE_RE = /(?<![\w-])style\s*=\s*(?:"([^"]*)"|'([^']*)')/gi
 const STYLE_ELEMENT_RE = /<(?:[\w.-]+:)?style\b[^>]*>([\s\S]*?)<\/(?:[\w.-]+:)?style\s*>/gi
 
 /**
- * Disabled for icons carrying a `var()`: OXVG reads an unresolvable one as "no
+ * Dropped for icons carrying a `var()`: OXVG reads an unresolvable one as "no
  * stroke", deleting `stroke` and every sibling `stroke-*`. SVGO is unaffected.
  */
-export const variablesDisabledPlugins = {
-  removeUselessStrokeAndFill: false,
-} as const
+export const variablesDisabledJobs: readonly string[] = ['removeUselessStrokeAndFill']
 
 /**
- * Also disabled when the `var()` sits in a style declaration: these panic on the
+ * Also dropped when the `var()` sits in a style declaration: these panic on the
  * unresolvable value, which aborts the process (SIGABRT) instead of throwing, so no
  * `try`/`catch` can save the build. Found by running every job of the default preset
- * against a `var()` in each SVG presentation property; the four below are the only ones
- * that abort. Keep it a superset of {@link variablesDisabledPlugins}.
+ * against a `var()` in each SVG presentation property, written as a declaration; the
+ * three added below are the only other ones that abort.
+ *
+ * Re-running that sweep needs a fixture each job actually fires on, or it comes back
+ * clean: `mergePaths` only runs on two mergeable siblings, and no job aborts on a
+ * `var()` left in a presentation attribute. `test/fixtures/basic/variables-style/`
+ * holds one icon per job named here.
  */
-export const styleVariablesDisabledPlugins: Record<string, false> = {
-  ...variablesDisabledPlugins,
-  convertPathData: false,
-  removeHiddenElems: false,
-  mergePaths: false,
-}
+export const styleVariablesDisabledJobs: readonly string[] = [
+  ...variablesDisabledJobs,
+  'convertPathData',
+  'removeHiddenElems',
+  'mergePaths',
+]
 
 /**
  * A `var()` inside a `style` attribute or a `<style>` element, which OXVG cannot
@@ -56,7 +59,8 @@ export function hasStyleVariable(source: string): boolean {
     return false
 
   for (const match of source.matchAll(STYLE_ATTRIBUTE_RE)) {
-    if (VAR_CALL_RE.test(match[1] ?? match[2] ?? ''))
+    // one of the two quote alternatives always captured, as in `collectVarSites()`
+    if (VAR_CALL_RE.test(match[1] ?? match[2]))
       return true
   }
 
@@ -68,6 +72,17 @@ export function hasStyleVariable(source: string): boolean {
   return false
 }
 
+/** Both stripped copies of a config, derived once for the whole icon set. */
+const mitigatedConfigs = new WeakMap<object, { plain: object, style: object }>()
+
+function stripJobs(config: object, disabled: readonly string[]): object {
+  const mitigated: Record<string, unknown> = { ...config }
+  for (const job of disabled)
+    delete mitigated[job]
+
+  return mitigated
+}
+
 /**
  * Copy of `config` without the jobs that mangle or abort on the `var()` `svg` carries,
  * the wider set for one in a style declaration. `undefined` stays `undefined`: it means
@@ -77,12 +92,16 @@ export function withoutVariablesJobs<Config>(svg: string, config: Config): Confi
   if (!config || !VAR_CALL_RE.test(svg))
     return config
 
-  const disabled = hasStyleVariable(svg) ? styleVariablesDisabledPlugins : variablesDisabledPlugins
-  const mitigated: Record<string, unknown> = { ...config }
-  for (const plugin of Object.keys(disabled))
-    delete mitigated[plugin]
+  let mitigated = mitigatedConfigs.get(config as object)
+  if (typeof mitigated === 'undefined') {
+    mitigated = {
+      plain: stripJobs(config as object, variablesDisabledJobs),
+      style: stripJobs(config as object, styleVariablesDisabledJobs),
+    }
+    mitigatedConfigs.set(config as object, mitigated)
+  }
 
-  return mitigated as Config
+  return (hasStyleVariable(svg) ? mitigated.style : mitigated.plain) as Config
 }
 
 /**

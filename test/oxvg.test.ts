@@ -2,7 +2,7 @@ import type { UserOptions } from '../src/types'
 import { createLogger } from 'vite'
 import { describe, expect, it, vi } from 'vitest'
 import { logMessage } from '../src/helpers/log'
-import { getOptimize, getOptions, hasStyleVariable, styleVariablesDisabledPlugins, variablesDisabledPlugins, withoutVariablesJobs } from '../src/helpers/oxvg'
+import { getOptimize, getOptions, hasStyleVariable, styleVariablesDisabledJobs, variablesDisabledJobs, withoutVariablesJobs } from '../src/helpers/oxvg'
 import { defaultDisabledPlugins } from '../src/helpers/svgo'
 import { buildVite } from './helpers/build'
 
@@ -165,6 +165,10 @@ describe('oxvg variables', () => {
     ['<svg style=\'fill:var(--c, red)\'/>', true],
     ['<svg><style>.a{fill:var(--c, red)}</style></svg>', true],
     ['<svg><style type="text/css">.a{fill:var(--c, red)}</style ></svg>', true],
+    // an editor may write every element out with its namespace prefix, and OXVG
+    // reads `<svg:style>` as the style element it is: missing it aborts the process
+    ['<svg:svg><svg:style>.a{fill:var(--c, red)}</svg:style></svg:svg>', true],
+    ['<svg:path svg:style="fill:var(--c, red)"/>', true],
     // a css function name is case-insensitive, and missing one aborts the process
     ['<svg style="fill:VAR(--c, red)"/>', true],
     ['<svg><style>.a{fill:Var(--c, red)}</style></svg>', true],
@@ -172,6 +176,11 @@ describe('oxvg variables', () => {
     ['<svg style="font-family:myvar(x)"/>', false],
     // a presentation attribute merely ending in `style` is not a style declaration
     ['<svg><text font-style="var(--s, italic)"/></svg>', false],
+    // an unthemed style declaration next to a themed attribute: only the narrower
+    // set is dropped, so these icons keep convertPathData, mergePaths and
+    // removeHiddenElems
+    ['<svg fill="var(--c, red)"><path style="fill:red"/></svg>', false],
+    ['<svg fill="var(--c, red)"><style>.a{fill:red}</style></svg>', false],
   ])('detects a var() in a style declaration: %s', (source, expected) => {
     expect(hasStyleVariable(source)).toBe(expected)
   })
@@ -181,14 +190,14 @@ describe('oxvg variables', () => {
     const forVariables = withoutVariablesJobs('<svg fill="var(--c, red)"/>', plain)
     const forStyleVariables = withoutVariablesJobs('<svg style="fill:var(--c, red)"/>', plain)
 
-    for (const plugin of Object.keys(variablesDisabledPlugins)) {
-      expect(plain).toHaveProperty(plugin)
-      expect(forVariables).not.toHaveProperty(plugin)
+    for (const job of variablesDisabledJobs) {
+      expect(plain).toHaveProperty(job)
+      expect(forVariables).not.toHaveProperty(job)
     }
 
     // a `var()` in a style declaration needs the wider set
-    for (const plugin of Object.keys(styleVariablesDisabledPlugins))
-      expect(forStyleVariables).not.toHaveProperty(plugin)
+    for (const job of styleVariablesDisabledJobs)
+      expect(forStyleVariables).not.toHaveProperty(job)
 
     expect(forVariables).toHaveProperty('convertPathData')
   })
