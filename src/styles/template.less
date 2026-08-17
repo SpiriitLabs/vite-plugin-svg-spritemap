@@ -17,9 +17,6 @@
   @{mode}: url(@uri) center no-repeat;
 }
 
-// The user's override for @key, or @fallback when they passed none. Less has no
-// one-element list, so a lone `'name' value` pair is doubled to keep the scan
-// uniform: both copies carry the same key, so either one matching is the same.
 .__mixin__-value(@variables; @key; @fallback) when (length(extract(@variables, 1)) < 2) {
   .__mixin__-value-scan(@variables, @variables; @key; @fallback; 1; 2);
 }
@@ -56,9 +53,6 @@
   .__mixin__-value-join(@pair; @i + 1; ~'@{accumulator} @{spritemap-next}');
 }
 
-// Walk the defaults, which come ordered longest name first so a short token can
-// never shadow a longer one, and take the user's override per name. Replaying
-// the user list in its own order instead would break that ordering.
 .__mixin__-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i > @to) {
   .__mixin__-emit(@mode; @uri);
 }
@@ -87,8 +81,6 @@
 
 .__mixin__(@name, @include-size: false, @type: 'uri', @route: '__route__', @mode: background, @variables: false) {
   @sprite: @__sprites__[ @@name];
-  // `e()` so a quoted argument lands on the same guard as a bare one, which sass and
-  // stylus already compare equal: without it `@mode: 'mask'` emitted `'mask':`
   @spritemap-property: e(@mode);
   @spritemap-type: e(@type);
   @spritemap-size: e(@include-size);
