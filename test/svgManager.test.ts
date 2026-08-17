@@ -1,6 +1,7 @@
 import type { Glob } from 'picomatch'
 import type { ResolvedConfig } from 'vite'
 import type { UserOptions } from '../src/types'
+import { promises as fs } from 'node:fs'
 import { DOMParser } from '@xmldom/xmldom'
 import { createLogger } from 'vite'
 import { describe, expect, it, vi } from 'vitest'
@@ -172,6 +173,71 @@ describe('sVGManager variables', () => {
     await manager.update(mismatchPath, 'create')
 
     expect(spy.mock.calls.flat().filter(message => String(message).includes('Conflicting defaults'))).toHaveLength(1)
+  })
+
+  // the memo used to keep the last warned set for an icon that stopped declaring
+  // anything, so re-adding the same mistake stayed silent forever
+  it('warns again after the var() was removed and re-added', async () => {
+    const iconPath = getPath('./fixtures/basic/broken/rewritten.svg')
+    const broken = '<svg viewBox="0 0 10 10"><path fill="var(--c, red)" stroke="var(--c, blue)"/></svg>'
+    const clean = '<svg viewBox="0 0 10 10"><path fill="red"/></svg>'
+    const conflicts = (spy: ReturnType<typeof vi.spyOn>) =>
+      spy.mock.calls.flat().filter(message => String(message).includes('Conflicting defaults')).length
+
+    await fs.writeFile(iconPath, broken, 'utf8')
+    try {
+      const { manager, logger } = createManager({}, iconPath)
+      const spy = vi.spyOn(logger, 'warn')
+
+      await manager.updateAll()
+      expect(conflicts(spy)).toBe(1)
+
+      await fs.writeFile(iconPath, clean, 'utf8')
+      await manager.update(iconPath, 'update')
+
+      spy.mockClear()
+      await fs.writeFile(iconPath, broken, 'utf8')
+      await manager.update(iconPath, 'update')
+
+      expect(conflicts(spy)).toBe(1)
+    }
+    finally {
+      await fs.rm(iconPath, { force: true })
+    }
+  })
+
+  // the data uris are memoized against the `SvgMapObject`, so an edit only lands
+  // because `update()` replaces that object rather than mutating it
+  it('re-emits both uris and the defaults map when an edit changes a default', async () => {
+    const iconPath = getPath('./fixtures/basic/broken/edited.svg')
+    const stylesPath = getPath('./fixtures/basic/styles/edited.scss')
+    const icon = (color: string) =>
+      `<svg viewBox="0 0 10 10"><path fill="var(--c, ${color})" d="M0 0h1v1H0z"/></svg>`
+
+    await fs.writeFile(iconPath, icon('red'), 'utf8')
+    try {
+      const { manager } = createManager({ styles: { filename: stylesPath, lang: 'scss' } }, iconPath)
+
+      await manager.updateAll()
+      const before = await fs.readFile(stylesPath, 'utf8')
+      expect(before).toContain('\'c\': "red"')
+      expect(before).toContain('fill=\'red\'')
+      expect(before).toContain('fill=\'___c___\'')
+
+      await fs.writeFile(iconPath, icon('blue'), 'utf8')
+      await manager.update(iconPath, 'update')
+
+      const after = await fs.readFile(stylesPath, 'utf8')
+      expect(after).toContain('\'c\': "blue"')
+      expect(after).toContain('fill=\'blue\'')
+      expect(after).not.toContain('fill=\'red\'')
+      // the template is what the mixin substitutes into, and it must survive the edit
+      expect(after).toContain('fill=\'___c___\'')
+    }
+    finally {
+      await fs.rm(iconPath, { force: true })
+      await fs.rm(stylesPath, { force: true })
+    }
   })
 
   it('exposes the parsed defaults and the source template', async () => {

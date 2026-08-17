@@ -2,6 +2,7 @@ import type { OptionsStyles, StylesLang } from '../src/types'
 import { promises as fs } from 'node:fs'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 import { logMessage } from '../src/helpers/log'
+import VitePluginSvgSpritemap from '../src/index'
 import { buildVite } from './helpers/build'
 import { getPath } from './helpers/path'
 
@@ -121,6 +122,48 @@ describe('styles generation', () => {
       expect(resultWithString).toMatchSnapshot()
     })
   }
+
+  // the raw template is cached per lang across instances, and every name is
+  // substituted into a copy of it: sharing one build is what would surface a
+  // cache holding an already-substituted template
+  it('keeps two instances of one lang on their own names', async () => {
+    const first = getPath('./fixtures/basic/styles/spritemap_shared_first.scss')
+    const second = getPath('./fixtures/basic/styles/spritemap_shared_second.scss')
+
+    await buildVite({
+      name: 'styles_shared',
+      path: './fixtures/basic/variables/*.svg',
+      options: { styles: { filename: first, lang: 'scss' } },
+      viteConfig: {
+        plugins: [
+          VitePluginSvgSpritemap(getPath('./fixtures/basic/variables/*.svg'), {
+            route: '/__second',
+            styles: {
+              filename: second,
+              lang: 'scss',
+              names: { prefix: 'p2', sprites: 's2', mixin: 'm2', variables: 'v2' },
+            },
+          }),
+        ],
+      },
+    })
+
+    const firstResult = await fs.readFile(first, 'utf8')
+    const secondResult = await fs.readFile(second, 'utf8')
+
+    expect(firstResult).toContain('@mixin sprite(')
+    expect(firstResult).toContain('$sprites-variables: (')
+    expect(firstResult).toContain('$-sprite-escapes')
+    expect(firstResult).toContain('$route: \'/__spritemap\'')
+    expect(firstResult).not.toContain('m2')
+
+    expect(secondResult).toContain('@mixin m2(')
+    expect(secondResult).toContain('$v2: (')
+    expect(secondResult).toContain('$-m2-escapes')
+    expect(secondResult).toContain('$route: \'/__second\'')
+    expect(secondResult).not.toContain('@mixin sprite(')
+    expect(secondResult).not.toContain('$sprites-variables')
+  })
 
   // https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/98
   // An SVG referencing an internal `url(#id)` (filter, gradient, clip-path…)

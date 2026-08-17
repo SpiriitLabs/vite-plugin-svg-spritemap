@@ -1,6 +1,7 @@
 import { promises as fs } from 'node:fs'
 import { DOMParser } from '@xmldom/xmldom'
 import less from 'less'
+import { chromium } from 'playwright'
 import * as sass from 'sass'
 import stylus from 'stylus'
 import { describe, expect, it, vi } from 'vitest'
@@ -13,6 +14,10 @@ const VARIABLES_GLOB = './fixtures/basic/variables/*.svg'
 const SHADOW_GLOB = './fixtures/basic/variables-shadow/*.svg'
 /** A default holding an xml entity, next to one made of several tokens. */
 const ENTITY_GLOB = './fixtures/basic/variables-entity/*.svg'
+/** A default holding a backslash, which no preprocessor unescapes the same way. */
+const LITERAL_GLOB = './fixtures/basic/variables-literal/*.svg'
+/** Defaults no generated stylesheet can quote verbatim: a line break, a `@{` and a raw `'`. */
+const QUOTING_GLOB = './fixtures/basic/variables-quoting/*.svg'
 
 function generate(name: string, lang: 'scss' | 'styl' | 'less' | 'css', options: Record<string, unknown> = {}, path = VARIABLES_GLOB) {
   const filename = getPath(`./fixtures/basic/styles/spritemap_${name}.${lang}`)
@@ -28,6 +33,11 @@ function urls(css: string): string[] {
   return [...css.matchAll(/url\((?:"([^"]*)"|([^)]*))\)/g)].map(match => match[1] ?? match[2])
 }
 
+/** Indented lines of a rule body, so one a mixin leaked there cannot go unnoticed. */
+function bodyLines(css: string): string[] {
+  return css.split('\n').filter(line => /^\s+\S/.test(line))
+}
+
 /** The svg source the plugin derives from a parse result, defaults baked in. */
 function resolve(result: { template: string, defaults: Map<string, string> }): string {
   return resolveVariableTokens(result.template, sortVariableDefaults(result.defaults))
@@ -35,6 +45,23 @@ function resolve(result: { template: string, defaults: Map<string, string> }): s
 
 function decodeUri(uri: string): string {
   return decodeURIComponent(uri.replace(/^data:image\/svg\+xml,/, ''))
+}
+
+/** Attribute value off a parsed document, so an entity and its character compare equal. */
+function attribute(document: string, tag: string, name: string): string {
+  return new DOMParser()
+    .parseFromString(document, 'image/svg+xml')
+    .getElementsByTagName(tag)[0]
+    ?.getAttribute(name) ?? ''
+}
+
+/** Text of the `<style>` element, so an entity and its character compare equal. */
+function styleText(document: string): string {
+  const style = new DOMParser()
+    .parseFromString(document, 'image/svg+xml')
+    .getElementsByTagName('style')[0]
+
+  return style?.textContent ?? ''
 }
 
 async function renderLess(source: string): Promise<string> {
@@ -97,7 +124,9 @@ describe('variables parsing', () => {
     expect(result?.warnings).toEqual([])
   })
 
-  it.each(['var(--1color, #fff)', 'var(--, #fff)', 'var(--a b, #fff)'])('rejects the invalid name in %s', (value) => {
+  // `--12` is the one css allows that `sortVariableDefaults()` could not order: an
+  // object lists `12` ahead of every other key, whatever the sort said
+  it.each(['var(--1color, #fff)', 'var(--12, #fff)', 'var(--, #fff)', 'var(--a b, #fff)'])('rejects the invalid name in %s', (value) => {
     const result = extractSvgVariables(`<svg fill="${value}"/>`)
     expect(result?.defaults.size).toBe(0)
     expect(result?.template).toBe(`<svg fill="${value}"/>`)
@@ -159,6 +188,19 @@ describe('variables parsing', () => {
     const result = extractSvgVariables('<svg><style>.a{stroke:var(--edge, blue)}</style><path fill="var(--color, #fff)"/></svg>')
     expect(result?.template).toBe('<svg><style>.a{stroke:___edge___}</style><path fill="___color___"/></svg>')
     expect(result?.defaults).toEqual(new Map([['edge', 'blue'], ['color', '#fff']]))
+  })
+
+  // an editor may write every element out with its namespace prefix, and it is the
+  // same element: leaving it out both misses the variable and aborts OXVG
+  it('extracts a var() from a namespaced style element', () => {
+    const result = extractSvgVariables('<svg:svg><svg:style>.a{fill:var(--hover, #f00)}</svg:style></svg:svg>')
+    expect(result?.defaults).toEqual(new Map([['hover', '#f00']]))
+    expect(result?.template).toBe('<svg:svg><svg:style>.a{fill:___hover___}</svg:style></svg:svg>')
+  })
+
+  it('leaves an element that merely ends in style alone', () => {
+    const result = extractSvgVariables('<svg><mystyle>.a{fill:var(--c, red)}</mystyle></svg>')
+    expect(result?.defaults.size).toBe(0)
   })
 
   it('names the style element in a warning', () => {
@@ -242,6 +284,21 @@ describe('variables parsing', () => {
     const result = extractSvgVariables('<svg fill="var(--c, red)"')
     expect(result?.defaults).toEqual(new Map([['c', 'red']]))
     expect(result?.template).toBe('<svg fill="___c___"')
+  })
+
+  // malformed markup never reaches the plugin, the parser rejects the icon first,
+  // but the walk still has to end rather than read past the source
+  it('reads a style element that is never closed to the end of the source', () => {
+    const result = extractSvgVariables('<svg><style>.a{fill:var(--c, red)}')
+    expect(result?.defaults).toEqual(new Map([['c', 'red']]))
+    expect(result?.template).toBe('<svg><style>.a{fill:___c___}')
+  })
+
+  it('leaves everything past a comment that is never closed alone', () => {
+    const source = '<svg><!-- <path fill="var(--ghost, red)"/>'
+    const result = extractSvgVariables(source)
+    expect(result?.defaults).toEqual(new Map())
+    expect(result?.template).toBe(source)
   })
 
   it('orders defaults longest name first so tokens cannot shadow one another', () => {
@@ -356,9 +413,46 @@ describe('variables generation', () => {
     expect(await generate('map_on', 'less')).toContain('@sprites-variables: {')
     expect(await generate('map_off', 'less', {}, './fixtures/basic/svg/*.svg')).toContain('@sprites-variables: {')
   })
+
+  // an entry per sprite would be a dead line for every icon that themes nothing,
+  // and both mixins read a missing key back as an empty map
+  it.each([
+    ['scss', '$sprites-variables: (', ');'],
+    ['styl', '$sprites-variables = {', '}'],
+  ] as const)('leaves a sprite that declares nothing out of the defaults map (%s)', async (lang, open, close) => {
+    const generated = await generate('sparse', lang)
+    const start = generated.indexOf(open)
+    const map = generated.slice(start, generated.indexOf(`\n${close}`, start))
+
+    expect(map).toContain('\'themable\': ')
+    // `plain` and `invalid-name` declare nothing, unlike the six other sprites
+    expect(map).not.toContain('\'plain\'')
+    expect(map).not.toContain('\'invalid-name\'')
+  })
+
+  // Less is the exception, so its map keeps the sprite with a `0` count
+  it('keeps a sprite that declares nothing in the less defaults map', async () => {
+    expect(await generate('sparse', 'less')).toContain('@plain: 0;')
+  })
 })
 
 describe('variables spritemap output', () => {
+  // `resolve` writes a default straight back into the source, the one path where no
+  // downstream tool collapses the run for us: without it a wrapped default renders
+  // differently there than through either uri
+  it('normalizes a resolved default exactly like both uris', async () => {
+    const output = await buildVite({
+      name: 'variables_spritemap_normalize',
+      path: QUOTING_GLOB,
+      options: { variables: { spritemap: 'resolve' }, svgo: false, oxvg: false },
+    }) as { output: Array<{ fileName: string, source?: string }> }
+
+    const spritemap = String(output.output.find(chunk => chunk.fileName.endsWith('.svg'))?.source)
+
+    expect(attribute(spritemap, 'path', 'stroke-dasharray')).toBe('4 2')
+    expect(attribute(spritemap, 'text', 'font-family')).toBe('\'Fira Sans\'')
+  })
+
   it.each(['preserve', 'resolve'] as const)('writes %s into the emitted spritemap', async (spritemap) => {
     const output = await buildVite({
       name: `variables_spritemap_${spritemap}`,
@@ -474,6 +568,37 @@ describe('variables substitution', () => {
     }
   })
 
+  // the sprite is absent from the map rather than holding an empty entry, so the
+  // lookup has to fall back and warn from there, and leave the icon untouched
+  it('warns on a sprite that declares nothing, absent from the map (styl)', async () => {
+    const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const generated = await generate('stylsparse', 'styl')
+
+    try {
+      const css = renderStylus([generated, '.a', '\tsprite(\'plain\', $variables: { \'color\': red })'].join('\n'))
+      expect(spy.mock.calls.flat().join('\n')).toContain('"plain" does not declare any variable')
+      expect(decodeUri(urls(css)[0])).toContain('fill=\'lime\'')
+    }
+    finally {
+      spy.mockRestore()
+    }
+  })
+
+  // the name you got wrong is the useless half of the warning, the ones that exist
+  // are the actionable half, and scss has always listed them
+  it('names the available variables on an unknown one (styl)', async () => {
+    const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const generated = await generate('stylavailable', 'styl')
+
+    try {
+      renderStylus([generated, '.a', '\tsprite(\'themable\', $variables: { \'nope\': red })'].join('\n'))
+      expect(spy.mock.calls.flat().join('\n')).toContain('has no variable named "nope", available: weight color.')
+    }
+    finally {
+      spy.mockRestore()
+    }
+  })
+
   it('substitutes overrides and defaults (styl)', async () => {
     const generated = await generate('compile', 'styl')
     const css = renderStylus([
@@ -485,6 +610,11 @@ describe('variables substitution', () => {
       '.plain',
       '\tsprite(\'plain\')',
     ].join('\n'))
+
+    // stylus writes a bare `merge()` statement out as raw text, which sat between
+    // the selector and its `background` without invalidating either
+    for (const line of bodyLines(css))
+      expect(line).toMatch(/^\s+[\w-]+: .*;$/)
 
     const [unthemed, themed, plain] = urls(css).map(decodeUri)
 
@@ -575,6 +705,32 @@ describe('variables substitution', () => {
     sass.compileString(`${generated}\n${call}`, { logger: { warn: message => warnings.push(message) } })
 
     expect(warnings).toEqual([expect.stringContaining(expected)])
+  })
+
+  // a function token is an identifier immediately followed by `(`, so a name that
+  // merely ends in `var`/`url` is not a call and must not warn, as in the plugin
+  it.each(['myvar(x)', 'notmyurl(x)', 'my-var(x)'])('stays quiet on %s (scss and styl)', async (value) => {
+    const message = 'cannot see the page from inside a data uri'
+
+    const warnings: string[] = []
+    sass.compileString(
+      `${await generate('guard', 'scss')}\n.a { @include sprite('themable', $variables: ('color': '${value}')); }`,
+      { logger: { warn: warning => warnings.push(warning) } },
+    )
+    expect(warnings.join('\n')).not.toContain(message)
+
+    const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      renderStylus([
+        await generate('guard', 'styl'),
+        '.a',
+        `\tsprite('themable', $variables: { 'color': '${value}' })`,
+      ].join('\n'))
+      expect(spy.mock.calls.flat().join('\n')).not.toContain(message)
+    }
+    finally {
+      spy.mockRestore()
+    }
   })
 })
 
@@ -696,6 +852,57 @@ describe('variables substitution (less)', () => {
 })
 
 describe('variables cross-language equivalence', () => {
+  /** Property names only: the uri differs per engine and is compared elsewhere. */
+  function properties(css: string): string[] {
+    return [...css.matchAll(/^\s+([\w-]+):/gm)].map(match => match[1])
+  }
+
+  // `@{mode}` keeps the quotes of a quoted value and emits `'mask':`, and Less reads
+  // `box` and `'box'` as two values where sass and stylus compare them equal: either
+  // slip drops a declaration silently, and the docs quote both arguments everywhere
+  it.each(['quoted', 'bare'] as const)('emits the same properties for a %s mode and size', async (form) => {
+    const q = form === 'quoted' ? '\'' : ''
+
+    const scssCss = sass.compileString(`${await generate(`mode_${form}`, 'scss')}
+.a { @include sprite('themable', $include-size: ${q}box${q}, $mode: ${q}mask${q}, $variables: ('color': red)); }`).css
+
+    const stylCss = renderStylus([
+      await generate(`mode_${form}`, 'styl'),
+      '.a',
+      `\tsprite('themable', $include-size: ${q}box${q}, $mode: ${q}mask${q}, $variables: { 'color': red })`,
+    ].join('\n'))
+
+    const lessCss = await renderLess(`${await generate(`mode_${form}`, 'less')}
+.a { .sprite('themable'; @include-size: ${q}box${q}; @mode: ${q}mask${q}; @variables: 'color' red); }`)
+
+    expect(properties(scssCss)).toEqual(['mask', 'width', 'height'])
+    expect(properties(stylCss)).toEqual(properties(scssCss))
+    expect(properties(lessCss)).toEqual(properties(scssCss))
+  })
+
+  // the same slip on `$type` emitted nothing at all in Less, not even a partial
+  it.each(['quoted', 'bare'] as const)('renders the %s fragment type in every lang', async (form) => {
+    const q = form === 'quoted' ? '\'' : ''
+
+    const scssCss = sass.compileString(`${await generate(`type_${form}`, 'scss')}
+.a { @include sprite('themable', $type: ${q}fragment${q}); }`).css
+
+    const stylCss = renderStylus([
+      await generate(`type_${form}`, 'styl'),
+      '.a',
+      `\tsprite('themable', $type: ${q}fragment${q})`,
+    ].join('\n'))
+
+    const lessCss = await renderLess(`${await generate(`type_${form}`, 'less')}
+.a { .sprite('themable'; @type: ${q}fragment${q}); }`)
+
+    for (const css of [scssCss, stylCss, lessCss]) {
+      expect(properties(css)).toEqual(['background'])
+      // Less quotes the fragment with `'`, the other two with `"`
+      expect(urls(css).map(url => url.replace(/^'|'$/g, ''))).toEqual(['/__spritemap#sprite-themable-view'])
+    }
+  })
+
   it('substitutes identically in scss, styl and less', async () => {
     const value = 'a%b\'c&d<e>f?g+h'
 
@@ -771,6 +978,179 @@ describe('variables cross-language equivalence', () => {
       expect(themed).toContain('stroke-dasharray=\'8 3\'')
       expect(untouched).toContain('font-family=\'&quot;Fira Sans&quot;, serif\'')
       expect(untouched).toContain('stroke-dasharray=\'4 2\'')
+    }
+  })
+
+  // a `\` is an escape to sass alone, so doubling it for sass left the other two
+  // with a literal `\\`: overriding one variable used to corrupt an untouched sibling
+  it('carries a default holding a backslash through untouched', async () => {
+    const scssCss = sass.compileString(`${await generate('literal', 'scss', {}, LITERAL_GLOB)}
+.a { @include sprite('literal', $variables: ('color': '#f00')); }
+.b { @include sprite('literal'); }`).css
+
+    const stylCss = renderStylus([
+      await generate('literal', 'styl', {}, LITERAL_GLOB),
+      '.a',
+      '\tsprite(\'literal\', $variables: { \'color\': \'#f00\' })',
+      '.b',
+      '\tsprite(\'literal\')',
+    ].join('\n'))
+
+    const lessCss = await renderLess(`${await generate('literal', 'less', {}, LITERAL_GLOB)}
+.a { .sprite('literal'; @variables: 'color' '#f00'); }
+.b { .sprite('literal'); }`)
+
+    for (const css of [scssCss, stylCss, lessCss]) {
+      // the uri sits inside a `url("...")`, a css string: a raw `\` would open an
+      // escape there and reach the browser as `—`, or vanish before a non-hex char
+      expect(css).not.toContain('\\')
+
+      const [themed, untouched] = urls(css).map(decodeUri)
+
+      expect(themed).toContain('fill=\'#f00\'')
+      // an entity and the character itself parse to the same document, the doubled
+      // `\\` the escaping used to emit does not
+      for (const text of [styleText(themed), styleText(untouched)]) {
+        expect(text).toContain('\\2014')
+        expect(text).not.toContain('\\\\')
+      }
+    }
+  })
+
+  // Every other assertion here reads the uri out of the stylesheet text, which is one
+  // step short: the uri sits in a `url("...")`, and the css tokenizer reads that string
+  // before anything percent-decodes it. Chromium handing back exactly what was authored
+  // is the only check of the escape tables that the tokenizer actually takes part in.
+  // A value the plugin never sees and a `\` default it does, in one call site
+  it('reads the substituted uri back out of a browser unchanged', async () => {
+    const value = 'a%b\'c&d<e>f?g+h$i{j}k,l;m(n)o p'
+
+    const scssCss = sass.compileString(`${await generate('readback', 'scss', {}, LITERAL_GLOB)}
+.a { @include sprite('literal', $variables: ('color': "${value}")); }
+.b { @include sprite('literal'); }`).css
+
+    const stylCss = renderStylus([
+      await generate('readback', 'styl', {}, LITERAL_GLOB),
+      '.a',
+      `\tsprite('literal', $variables: { 'color': "${value}" })`,
+      '.b',
+      '\tsprite(\'literal\')',
+    ].join('\n'))
+
+    const lessCss = await renderLess(`${await generate('readback', 'less', {}, LITERAL_GLOB)}
+.a { .sprite('literal'; @variables: 'color' "${value}"); }
+.b { .sprite('literal'); }`)
+
+    const browser = await chromium.launch()
+    try {
+      const page = await browser.newPage()
+
+      for (const css of [scssCss, stylCss, lessCss]) {
+        await page.setContent(`<style>${css}</style><div class="a"></div><div class="b"></div>`)
+
+        // `.a` is the substituted template, `.b` the baked uri: the `\` default reaches
+        // each of them by a different route
+        for (const [index, selector] of ['.a', '.b'].entries()) {
+          const read = await page.evaluate(one =>
+            getComputedStyle(document.querySelector(one)!).backgroundImage, selector)
+
+          // decoded on both sides: each engine percent-encodes a different subset, and
+          // the browser re-encodes on the way out
+          expect(decodeURIComponent(read.replace(/^url\("|"\)$/g, '')))
+            .toBe(decodeURIComponent(urls(css)[index]))
+        }
+      }
+    }
+    finally {
+      await browser.close()
+    }
+  })
+
+  // the same escape, coming from a call site rather than from the source: only the
+  // mixin's own escape table can encode that one. Sass resolves `\g` in its own string
+  // literal, so it takes the doubled spelling to mean the single character the other two
+  // write plainly
+  it('encodes a backslash an override brings in', async () => {
+    const scssCss = sass.compileString(`${await generate('literal_call', 'scss', {}, LITERAL_GLOB)}
+.a { @include sprite('literal', $variables: ('mark': '"a\\\\gb"')); }`).css
+
+    const stylCss = renderStylus([
+      await generate('literal_call', 'styl', {}, LITERAL_GLOB),
+      '.a',
+      '\tsprite(\'literal\', $variables: { \'mark\': \'"a\\gb"\' })',
+    ].join('\n'))
+
+    const lessCss = await renderLess(`${await generate('literal_call', 'less', {}, LITERAL_GLOB)}
+.a { .sprite('literal'; @variables: 'mark' '"a\\gb"'); }`)
+
+    for (const css of [scssCss, stylCss, lessCss]) {
+      expect(css).not.toContain('\\')
+      expect(styleText(decodeUri(urls(css)[0]))).toBe('.literal::before{content:"a\\gb"}')
+    }
+  })
+
+  // stylus rejects a `\"` inside a string outright, so the whole stylesheet used to
+  // fail to compile. Reachable without an optimizer: both of them turn a `"` into an entity
+  it('quotes a default holding a raw double quote', async () => {
+    const noOptimizer = { svgo: false, oxvg: false }
+
+    const scssCss = sass.compileString(`${await generate('raw', 'scss', noOptimizer, LITERAL_GLOB)}
+.a { @include sprite('literal', $variables: ('color': '#f00')); }`).css
+
+    const stylCss = renderStylus([
+      await generate('raw', 'styl', noOptimizer, LITERAL_GLOB),
+      '.a',
+      '\tsprite(\'literal\', $variables: { \'color\': \'#f00\' })',
+    ].join('\n'))
+
+    const lessCss = await renderLess(`${await generate('raw', 'less', noOptimizer, LITERAL_GLOB)}
+.a { .sprite('literal'; @variables: 'color' '#f00'); }`)
+
+    const decoded = [scssCss, stylCss, lessCss].map(css => decodeUri(urls(css)[0]))
+
+    expect(decoded[1]).toBe(decoded[0])
+    expect(decoded[2]).toBe(decoded[0])
+    expect(styleText(decoded[0])).toBe('.literal::before{content:"\\2014"}')
+  })
+
+  // three defaults the quoting used to mangle, each on a different lexer: a line break
+  // ends a sass string and took the whole stylesheet with it, a `@{` interpolates in
+  // less, and a raw `'` collides with the delimiter `mini-svg-data-uri` normalizes
+  // every `"` to. Reachable without an optimizer, which would collapse the line break
+  it('quotes a default no lexer takes verbatim, on both uris', async () => {
+    const noOptimizer = { svgo: false, oxvg: false }
+
+    const scssCss = sass.compileString(`${await generate('quoting', 'scss', noOptimizer, QUOTING_GLOB)}
+.a { @include sprite('quoting'); }
+.b { @include sprite('quoting', $variables: ('color': '#f00')); }`).css
+
+    const stylCss = renderStylus([
+      await generate('quoting', 'styl', noOptimizer, QUOTING_GLOB),
+      '.a',
+      '\tsprite(\'quoting\')',
+      '.b',
+      '\tsprite(\'quoting\', $variables: { \'color\': \'#f00\' })',
+    ].join('\n'))
+
+    const lessCss = await renderLess(`${await generate('quoting', 'less', noOptimizer, QUOTING_GLOB)}
+.a { .sprite('quoting'); }
+.b { .sprite('quoting'; @variables: 'color' '#f00'); }`)
+
+    for (const css of [scssCss, stylCss, lessCss]) {
+      // the baked uri and the substituted template have to be the same document, so
+      // overriding one variable never changes what its untouched siblings render
+      const [baked, themed] = urls(css).map(decodeUri)
+
+      for (const document of [baked, themed]) {
+        expect(attribute(document, 'text', 'font-family')).toBe('\'Fira Sans\'')
+        expect(attribute(document, 'text', 'data-label')).toBe('a@{x}b')
+        expect(attribute(document, 'path', 'stroke-dasharray')).toBe('4 2')
+      }
+
+      // a color `mini-svg-data-uri` has no shorter name for, which it would otherwise
+      // rewrite in the baked uri alone
+      expect(attribute(baked, 'path', 'stroke')).toBe('#123456')
+      expect(attribute(themed, 'path', 'stroke')).toBe('#f00')
     }
   })
 })

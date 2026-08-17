@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <text x="2" y="12" font-family="var(--font, 'Fira Sans')" data-label="var(--label, a@{x}b)">a</text>
+  <path stroke="var(--color, #123456)" stroke-dasharray="var(--dash, 4
+    2)" d="M2 16h20"/>
+</svg>
