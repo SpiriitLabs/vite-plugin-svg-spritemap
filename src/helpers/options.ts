@@ -48,6 +48,13 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
       variables: options.styles.names?.variables || 'sprites-variables',
     }
 
+    // two names collide into one declaration, and the second one silently wins:
+    // the stylesheet then compiles to nothing rather than failing
+    const duplicates = Object.values(stylesNames)
+      .filter((name, index, names) => names.indexOf(name) !== index)
+    for (const name of new Set(duplicates))
+      logs.warn.push(`Duplicate styles name "${name}", each of styles.names must be unique.`)
+
     const stylesSizes: OptionsStylesSizes = {
       unit: options.styles.sizes?.unit || 'px',
       base: options.styles.sizes?.base || 1,
@@ -59,10 +66,21 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
       logs.warn.push('Invalid styles lang, fallback to css')
     }
 
+    let include: OptionsStyles['include'] = typeof options.styles.include === 'undefined' ? true : options.styles.include
+
+    // the mixin looks every sprite up in the sprites map, so on its own it generates a
+    // stylesheet that cannot compile: the first call is an undefined variable in all
+    // three languages. Salvaged rather than warned about alone, as there is no reading
+    // of `['mixin']` that wants a mixin nothing can call
+    if (Array.isArray(include) && include.includes('mixin') && !include.includes('variables')) {
+      logs.warn.push('Styles include "mixin" needs "variables", the map it looks a sprite up in, automatically added.')
+      include = [...include, 'variables']
+    }
+
     styles = {
       filename: options.styles.filename,
       lang,
-      include: typeof options.styles.include === 'undefined' ? true : options.styles.include,
+      include,
       names: stylesNames,
       sizes: stylesSizes,
       callback: options.styles.callback,
@@ -162,6 +180,7 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
     }
   }
 
+  // `true` and an omitted option both mean the default, as for `svgo` and `oxvg`
   let variables: Options['variables'] = { spritemap: 'preserve' }
   if (options.variables === false) {
     variables = false
@@ -173,10 +192,23 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
 
     variables = { spritemap: spritemap === 'resolve' ? 'resolve' : 'preserve' }
   }
+  else if (typeof options.variables !== 'undefined' && options.variables !== true) {
+    // `variables: 'resolve'` is the slip worth catching: that string belongs to
+    // `variables.spritemap`, and taking it for the default silently disagrees with
+    // the spritemap the user asked for
+    logs.warn.push(`Invalid variables value "${options.variables}", fallback to the default. Pass an object to set \`variables.spritemap\`.`)
+  }
+
+  // `null` is not a config object, and it is what a conditional config hands over
+  // (`oxvg: isProd ? jobs : null`). Left as-is it reaches OXVG as "run your own
+  // preset", which aborts the process on a `var()` in a style declaration, and SVGO
+  // as a config with no `plugins` to read. Nothing else in `Options` holds a `null`.
+  const svgo = options.svgo ?? undefined
+  const oxvg = options.oxvg ?? undefined
 
   const finalOptions = {
-    svgo: options.svgo,
-    oxvg: options.oxvg,
+    svgo,
+    oxvg,
     output,
     prefix,
     styles,
