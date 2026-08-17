@@ -63,6 +63,26 @@ export function resolvesSpritemap(variables: Options['variables']): boolean {
 }
 
 /**
+ * The two normalizations a substituted default takes, wherever it lands. `Styles`
+ * applies the same pair to the value it writes into the defaults map, which is what
+ * keeps every path one document: overriding one variable never changes what an
+ * untouched sibling renders.
+ *
+ * A whitespace run collapses because the mixin's copy has to (sass forbids a raw
+ * newline inside a quoted string) and `mini-svg-data-uri` collapses the run in the
+ * baked uri anyway. A quote of either kind becomes an entity because the value goes
+ * back into an attribute, and `mini-svg-data-uri` rewrites every `"` of the document
+ * to the `'` that then delimits every one of them: either quote raw closes its
+ * attribute early.
+ */
+function normalizeDefault(value: string): string {
+  return value
+    .replace(/\s+/g, ' ')
+    .replace(/'/g, '&apos;')
+    .replace(/"/g, '&quot;')
+}
+
+/**
  * One pass, so a substituted value is never itself scanned for tokens and the
  * order of `defaults` does not matter. A function replacement also keeps a `$&`
  * in a default literal.
@@ -77,15 +97,21 @@ export function resolveVariableTokens(template: string, defaults: Record<string,
   if (!names.length)
     return template
 
+  // `VAR_NAME_RE` already limits a name to `[a-z][\w-]*`, so nothing here needs
+  // escaping. Kept for the exported signature, which takes any record.
   const alternation = names.map(name => name.replace(/[$()*+.?[\\\]^{|}]/g, '\\$&')).join('|')
   const pattern = new RegExp(`${TOKEN_DELIMITER}(${alternation})${TOKEN_DELIMITER}`, 'g')
 
-  return template.replace(pattern, (_, name: string) => defaults[name])
+  return template.replace(pattern, (_, name: string) => normalizeDefault(defaults[name]))
 }
 
 /**
  * Longest name first, so `___a___` cannot shadow `___a____b___` when replaced.
  * The scss/styl/less mixins substitute one name at a time and rely on this.
+ *
+ * That order survives `Object.fromEntries` only because `VAR_NAME_RE` starts every name
+ * with a letter: an object lists an array-index key ahead of every other, so a name of
+ * `12`, which css itself allows as `--12`, would come out first whatever the sort said.
  */
 export function sortVariableDefaults(defaults: Map<string, string>): Record<string, string> {
   return Object.fromEntries([...defaults].sort(([a], [b]) => byTokenLength(a, b)))
