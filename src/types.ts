@@ -223,28 +223,35 @@ export interface OptionsStyles {
    * Size output configuration for width/height values
    */
   sizes: OptionsStylesSizes
-  callback?: (
-    ctx: {
-      /**
-       * Content of the generated styles
-       */
-      content: string
-      /**
-       * Plugin options
-       */
-      options: Options
-      /**
-       * Spritemap helper looping inside svg data through a callback
-       */
-      createSpritemap: (
-        generator: (
-          svg: SvgDataUriMapObject,
-          isLast: boolean,
-        ) => string,
-      ) => string
-    },
-  ) => string
+  callback?: StylesCallback
 }
+
+/**
+ * Called once per sprite, in spritemap order. `isLast` is `true` on the final one,
+ * for separators.
+ */
+export type SpritemapGenerator = (svg: SvgDataUriMapObject, isLast: boolean) => string
+
+export interface StylesCallbackContext {
+  /**
+   * Content of the generated styles
+   */
+  content: string
+  /**
+   * Plugin options
+   */
+  options: Options
+  /**
+   * Spritemap helper looping inside svg data through a callback
+   */
+  createSpritemap: (generator: SpritemapGenerator) => string
+}
+
+/**
+ * Named so a `styles.callback` extracted to a function can be typed: written inline
+ * it infers its own context, written apart it has nothing to infer from.
+ */
+export type StylesCallback = (ctx: StylesCallbackContext) => string
 
 export interface OptionsRoute {
   /**
@@ -260,7 +267,7 @@ export interface OptionsRoute {
   url: string
 }
 
-interface OptionsStylesNames {
+export interface OptionsStylesNames {
   /**
    * @default 'sprites-prefix'
    */

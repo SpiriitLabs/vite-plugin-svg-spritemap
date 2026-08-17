@@ -7,6 +7,35 @@ import CommonPlugin from '@plugins/common'
 import DevPlugin from '@plugins/dev'
 import VuePlugin from '@plugins/vue'
 
+/**
+ * Everything reachable from the plugin's own surface: the options you pass in,
+ * the resolved options and sprite objects `styles.callback` and `idify` hand back.
+ * An allowlist rather than a re-export of the module, so `Shared` and
+ * `UserOptionsLogs` stay internal.
+ */
+export type {
+  Options,
+  OptionsOutput,
+  OptionsRoute,
+  OptionsStyles,
+  OptionsStylesNames,
+  OptionsStylesSizes,
+  OptionsTypes,
+  OptionsVariables,
+  SpritemapGenerator,
+  StylesCallback,
+  StylesCallbackContext,
+  StylesInclude,
+  StylesLang,
+  SvgDataUriMapObject,
+  SvgMapObject,
+  SvgVariables,
+  TypesConfig,
+  TypesOptions,
+  UserOptions,
+  VariablesSpritemapMode,
+} from '@/types'
+
 export default function VitePluginSvgSpritemap(
   iconsPattern: Glob,
   options?: UserOptions,
