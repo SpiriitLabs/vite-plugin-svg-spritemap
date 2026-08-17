@@ -22,11 +22,7 @@ import type {
 } from '../src/index'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 
-/**
- * The plugin's public types, imported from the entry point exactly as a consumer
- * does. A type-only regression compiles fine everywhere else, so it needs asserting
- * somewhere: dropping an export from `src/index.ts` fails `pnpm typecheck` here.
- */
+/** Imported from the entry point as a consumer does: a dropped export fails `pnpm typecheck` here. */
 describe('public types', () => {
   it('types a config the way a consumer writes one', () => {
     const options: UserOptions = {
@@ -44,8 +40,7 @@ describe('public types', () => {
     expect(options.prefix).toBe('icon-')
   })
 
-  // the two callbacks are where a consumer needs the resolved types by name: inline
-  // they infer, extracted to a named function they do not
+  // inline they infer, extracted to a named function they do not
   it('types an extracted styles.callback and idify', () => {
     const callback: StylesCallback = ctx =>
       ctx.createSpritemap(svg => `${svg.id}${svg.svgDataUriTemplate ?? ''}`)

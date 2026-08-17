@@ -175,8 +175,7 @@ describe('sVGManager variables', () => {
     expect(spy.mock.calls.flat().filter(message => String(message).includes('Conflicting defaults'))).toHaveLength(1)
   })
 
-  // the memo used to keep the last warned set for an icon that stopped declaring
-  // anything, so re-adding the same mistake stayed silent forever
+  // the memo used to keep the last set, so re-adding the same mistake stayed silent
   it('warns again after the var() was removed and re-added', async () => {
     const iconPath = getPath('./fixtures/basic/broken/rewritten.svg')
     const broken = '<svg viewBox="0 0 10 10"><path fill="var(--c, red)" stroke="var(--c, blue)"/></svg>'
@@ -206,8 +205,7 @@ describe('sVGManager variables', () => {
     }
   })
 
-  // the data uris are memoized against the `SvgMapObject`, so an edit only lands
-  // because `update()` replaces that object rather than mutating it
+  // the uris are memoized against the `SvgMapObject`, which `update()` replaces
   it('re-emits both uris and the defaults map when an edit changes a default', async () => {
     const iconPath = getPath('./fixtures/basic/broken/edited.svg')
     const stylesPath = getPath('./fixtures/basic/styles/edited.scss')

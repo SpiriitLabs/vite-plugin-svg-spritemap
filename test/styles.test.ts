@@ -123,9 +123,8 @@ describe('styles generation', () => {
     })
   }
 
-  // the raw template is cached per lang across instances, and every name is
-  // substituted into a copy of it: sharing one build is what would surface a
-  // cache holding an already-substituted template
+  // the per-lang cache holds the raw template, so one build has to surface a
+  // cache holding an already-substituted one
   it('keeps two instances of one lang on their own names', async () => {
     const first = getPath('./fixtures/basic/styles/spritemap_shared_first.scss')
     const second = getPath('./fixtures/basic/styles/spritemap_shared_second.scss')

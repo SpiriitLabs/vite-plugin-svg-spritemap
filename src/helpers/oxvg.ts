@@ -14,8 +14,7 @@ import { VAR_CALL_RE } from '@helpers/variables'
 // left-guarded like `VAR_CALL_RE`: a `\b` matches after a hyphen too, which would
 // read `font-style="var(--s, italic)"` as a style declaration
 const STYLE_ATTRIBUTE_RE = /(?<![\w-])style\s*=\s*(?:"([^"]*)"|'([^']*)')/gi
-// the namespace prefix is optional: an editor may write every element out as
-// `<svg:style>`, which is the same element and panics the same way
+// the namespace prefix is optional: `<svg:style>` panics the same way
 const STYLE_ELEMENT_RE = /<(?:[\w.-]+:)?style\b[^>]*>([\s\S]*?)<\/(?:[\w.-]+:)?style\s*>/gi
 
 /**
@@ -29,12 +28,9 @@ export const variablesDisabledJobs: readonly string[] = ['removeUselessStrokeAnd
  * unresolvable value, which aborts the process (SIGABRT) instead of throwing, so no
  * `try`/`catch` can save the build. Found by running every job of the default preset
  * against a `var()` in each SVG presentation property, written as a declaration; the
- * three added below are the only other ones that abort.
- *
- * Re-running that sweep needs a fixture each job actually fires on, or it comes back
- * clean: `mergePaths` only runs on two mergeable siblings, and no job aborts on a
- * `var()` left in a presentation attribute. `test/fixtures/basic/variables-style/`
- * holds one icon per job named here.
+ * three added below are the only other ones that abort. Re-running that sweep needs a
+ * fixture each job fires on or it comes back clean, one per job in
+ * `test/fixtures/basic/variables-style/`.
  */
 export const styleVariablesDisabledJobs: readonly string[] = [
   ...variablesDisabledJobs,
@@ -59,7 +55,6 @@ export function hasStyleVariable(source: string): boolean {
     return false
 
   for (const match of source.matchAll(STYLE_ATTRIBUTE_RE)) {
-    // one of the two quote alternatives always captured, as in `collectVarSites()`
     if (VAR_CALL_RE.test(match[1] ?? match[2]))
       return true
   }

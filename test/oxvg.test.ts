@@ -165,8 +165,7 @@ describe('oxvg variables', () => {
     ['<svg style=\'fill:var(--c, red)\'/>', true],
     ['<svg><style>.a{fill:var(--c, red)}</style></svg>', true],
     ['<svg><style type="text/css">.a{fill:var(--c, red)}</style ></svg>', true],
-    // an editor may write every element out with its namespace prefix, and OXVG
-    // reads `<svg:style>` as the style element it is: missing it aborts the process
+    // OXVG reads `<svg:style>` as the style element it is: missing it aborts the process
     ['<svg:svg><svg:style>.a{fill:var(--c, red)}</svg:style></svg:svg>', true],
     ['<svg:path svg:style="fill:var(--c, red)"/>', true],
     // a css function name is case-insensitive, and missing one aborts the process
@@ -176,9 +175,7 @@ describe('oxvg variables', () => {
     ['<svg style="font-family:myvar(x)"/>', false],
     // a presentation attribute merely ending in `style` is not a style declaration
     ['<svg><text font-style="var(--s, italic)"/></svg>', false],
-    // an unthemed style declaration next to a themed attribute: only the narrower
-    // set is dropped, so these icons keep convertPathData, mergePaths and
-    // removeHiddenElems
+    // an unthemed style declaration next to a themed attribute: only the narrower set goes
     ['<svg fill="var(--c, red)"><path style="fill:red"/></svg>', false],
     ['<svg fill="var(--c, red)"><style>.a{fill:red}</style></svg>', false],
   ])('detects a var() in a style declaration: %s', (source, expected) => {

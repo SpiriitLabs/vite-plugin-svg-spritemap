@@ -68,10 +68,7 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
 
     let include: OptionsStyles['include'] = typeof options.styles.include === 'undefined' ? true : options.styles.include
 
-    // the mixin looks every sprite up in the sprites map, so on its own it generates a
-    // stylesheet that cannot compile: the first call is an undefined variable in all
-    // three languages. Salvaged rather than warned about alone, as there is no reading
-    // of `['mixin']` that wants a mixin nothing can call
+    // the mixin looks every sprite up in that map, so on its own it cannot compile
     if (Array.isArray(include) && include.includes('mixin') && !include.includes('variables')) {
       logs.warn.push('Styles include "mixin" needs "variables", the map it looks a sprite up in, automatically added.')
       include = [...include, 'variables']
@@ -194,15 +191,13 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
   }
   else if (typeof options.variables !== 'undefined' && options.variables !== true) {
     // `variables: 'resolve'` is the slip worth catching: that string belongs to
-    // `variables.spritemap`, and taking it for the default silently disagrees with
-    // the spritemap the user asked for
+    // `variables.spritemap`
     logs.warn.push(`Invalid variables value "${options.variables}", fallback to the default. Pass an object to set \`variables.spritemap\`.`)
   }
 
-  // `null` is not a config object, and it is what a conditional config hands over
-  // (`oxvg: isProd ? jobs : null`). Left as-is it reaches OXVG as "run your own
-  // preset", which aborts the process on a `var()` in a style declaration, and SVGO
-  // as a config with no `plugins` to read. Nothing else in `Options` holds a `null`.
+  // `null` is what a conditional config hands over (`oxvg: isProd ? jobs : null`).
+  // Left as-is it reaches OXVG as "run your own preset", which aborts on a `var()`
+  // in a style declaration, and SVGO as a config with no `plugins` to read.
   const svgo = options.svgo ?? undefined
   const oxvg = options.oxvg ?? undefined
 

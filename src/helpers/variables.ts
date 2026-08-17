@@ -22,10 +22,9 @@ const VAR_CALL_SCAN_RE = new RegExp(VAR_CALL_RE.source, 'gi')
 const EXTERNAL_URL_CALL_RE = /(?<![\w-])url\((?!\s*(?:['"]\s*)?#)/i
 
 const ATTRIBUTE_RE = /([a-z_:][\w:.-]*)\s*=\s*(?:"([^"]*)"|'([^']*)')/gi
-// the local name, past any namespace prefix: an editor may write every element out
-// as `<svg:style>`, which is the same element
+// the local name, past any namespace prefix: `<svg:style>` is the same element
 const TAG_LOCAL_NAME_RE = /^<\s*(?:[\w.-]+:)?([a-z_][\w.-]*)/i
-// `g` so it can be searched from an offset rather than from a copy of the rest of the source
+// `g` so it can be searched from an offset rather than from a copy of the source
 const STYLE_CLOSE_RE = /<\/(?:[\w.-]+:)?style\s*>/gi
 const VAR_NAME_RE = /^--([a-z][\w-]*)$/i
 
@@ -57,7 +56,7 @@ function byTokenLength(a: string, b: string): number {
   return b.length - a.length || (a < b ? -1 : 1)
 }
 
-/** Whether any icon of a set is themable. Iterated rather than copied out: it runs per generated file. */
+/** Whether any icon of a set is themable. */
 export function hasVariables(svgs: Map<string, SvgMapObject>): boolean {
   for (const svg of svgs.values()) {
     if (svg.variables)
@@ -73,17 +72,9 @@ export function resolvesSpritemap(variables: Options['variables']): boolean {
 }
 
 /**
- * The two normalizations a substituted default takes, wherever it lands. `Styles`
- * applies the same pair to the value it writes into the defaults map, which is what
- * keeps every path one document: overriding one variable never changes what an
- * untouched sibling renders.
- *
- * A whitespace run collapses because the mixin's copy has to (sass forbids a raw
- * newline inside a quoted string) and `mini-svg-data-uri` collapses the run in the
- * baked uri anyway. A quote of either kind becomes an entity because the value goes
- * back into an attribute, and `mini-svg-data-uri` rewrites every `"` of the document
- * to the `'` that then delimits every one of them: either quote raw closes its
- * attribute early.
+ * The normalizations a substituted default takes, wherever it lands, `Styles`
+ * included: a whitespace run because sass forbids a raw newline inside a quoted
+ * string, and a quote because `mini-svg-data-uri` delimits every attribute with `'`.
  */
 function normalizeDefault(value: string): string {
   return value
@@ -107,8 +98,7 @@ export function resolveVariableTokens(template: string, defaults: Record<string,
   if (!names.length)
     return template
 
-  // `VAR_NAME_RE` already limits a name to `[a-z][\w-]*`, so nothing here needs
-  // escaping. Kept for the exported signature, which takes any record.
+  // defensive: `VAR_NAME_RE` leaves nothing to escape, but the signature takes any record
   const alternation = names.map(name => name.replace(/[$()*+.?[\\\]^{|}]/g, '\\$&')).join('|')
   const pattern = new RegExp(`${TOKEN_DELIMITER}(${alternation})${TOKEN_DELIMITER}`, 'g')
 
@@ -117,11 +107,8 @@ export function resolveVariableTokens(template: string, defaults: Record<string,
 
 /**
  * Longest name first, so `___a___` cannot shadow `___a____b___` when replaced.
- * The scss/styl/less mixins substitute one name at a time and rely on this.
- *
- * That order survives `Object.fromEntries` only because `VAR_NAME_RE` starts every name
- * with a letter: an object lists an array-index key ahead of every other, so a name of
- * `12`, which css itself allows as `--12`, would come out first whatever the sort said.
+ * The scss/styl/less mixins substitute one name at a time and rely on this, which
+ * an object only preserves because `VAR_NAME_RE` rejects an array-index name like `12`.
  */
 export function sortVariableDefaults(defaults: Map<string, string>): Record<string, string> {
   return Object.fromEntries([...defaults].sort(([a], [b]) => byTokenLength(a, b)))
