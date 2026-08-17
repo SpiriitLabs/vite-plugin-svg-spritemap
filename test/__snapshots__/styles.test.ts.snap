@@ -96,9 +96,6 @@ exports[`styles generation > custom less names 1`] = `
   @{mode}: url(@uri) center no-repeat;
 }
 
-// The user's override for @key, or @fallback when they passed none. Less has no
-// one-element list, so a lone \`'name' value\` pair is doubled to keep the scan
-// uniform: both copies carry the same key, so either one matching is the same.
 .icon-sprite-value(@variables; @key; @fallback) when (length(extract(@variables, 1)) < 2) {
   .icon-sprite-value-scan(@variables, @variables; @key; @fallback; 1; 2);
 }
@@ -135,9 +132,6 @@ exports[`styles generation > custom less names 1`] = `
   .icon-sprite-value-join(@pair; @i + 1; ~'@{accumulator} @{spritemap-next}');
 }
 
-// Walk the defaults, which come ordered longest name first so a short token can
-// never shadow a longer one, and take the user's override per name. Replaying
-// the user list in its own order instead would break that ordering.
 .icon-sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i > @to) {
   .icon-sprite-emit(@mode; @uri);
 }
@@ -166,8 +160,6 @@ exports[`styles generation > custom less names 1`] = `
 
 .icon-sprite(@name, @include-size: false, @type: 'uri', @route: '/__spritemap', @mode: background, @variables: false) {
   @sprite: @icons[ @@name];
-  // \`e()\` so a quoted argument lands on the same guard as a bare one, which sass and
-  // stylus already compare equal: without it \`@mode: 'mask'\` emitted \`'mask':\`
   @spritemap-property: e(@mode);
   @spritemap-type: e(@type);
   @spritemap-size: e(@include-size);
@@ -252,9 +244,6 @@ exports[`styles generation > custom less sizes with em unit 1`] = `
   @{mode}: url(@uri) center no-repeat;
 }
 
-// The user's override for @key, or @fallback when they passed none. Less has no
-// one-element list, so a lone \`'name' value\` pair is doubled to keep the scan
-// uniform: both copies carry the same key, so either one matching is the same.
 .sprite-value(@variables; @key; @fallback) when (length(extract(@variables, 1)) < 2) {
   .sprite-value-scan(@variables, @variables; @key; @fallback; 1; 2);
 }
@@ -291,9 +280,6 @@ exports[`styles generation > custom less sizes with em unit 1`] = `
   .sprite-value-join(@pair; @i + 1; ~'@{accumulator} @{spritemap-next}');
 }
 
-// Walk the defaults, which come ordered longest name first so a short token can
-// never shadow a longer one, and take the user's override per name. Replaying
-// the user list in its own order instead would break that ordering.
 .sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i > @to) {
   .sprite-emit(@mode; @uri);
 }
@@ -322,8 +308,6 @@ exports[`styles generation > custom less sizes with em unit 1`] = `
 
 .sprite(@name, @include-size: false, @type: 'uri', @route: '/__spritemap', @mode: background, @variables: false) {
   @sprite: @sprites[ @@name];
-  // \`e()\` so a quoted argument lands on the same guard as a bare one, which sass and
-  // stylus already compare equal: without it \`@mode: 'mask'\` emitted \`'mask':\`
   @spritemap-property: e(@mode);
   @spritemap-type: e(@type);
   @spritemap-size: e(@include-size);
@@ -408,9 +392,6 @@ exports[`styles generation > custom less sizes with rem unit and base 10 1`] = `
   @{mode}: url(@uri) center no-repeat;
 }
 
-// The user's override for @key, or @fallback when they passed none. Less has no
-// one-element list, so a lone \`'name' value\` pair is doubled to keep the scan
-// uniform: both copies carry the same key, so either one matching is the same.
 .sprite-value(@variables; @key; @fallback) when (length(extract(@variables, 1)) < 2) {
   .sprite-value-scan(@variables, @variables; @key; @fallback; 1; 2);
 }
@@ -447,9 +428,6 @@ exports[`styles generation > custom less sizes with rem unit and base 10 1`] = `
   .sprite-value-join(@pair; @i + 1; ~'@{accumulator} @{spritemap-next}');
 }
 
-// Walk the defaults, which come ordered longest name first so a short token can
-// never shadow a longer one, and take the user's override per name. Replaying
-// the user list in its own order instead would break that ordering.
 .sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i > @to) {
   .sprite-emit(@mode; @uri);
 }
@@ -478,8 +456,6 @@ exports[`styles generation > custom less sizes with rem unit and base 10 1`] = `
 
 .sprite(@name, @include-size: false, @type: 'uri', @route: '/__spritemap', @mode: background, @variables: false) {
   @sprite: @sprites[ @@name];
-  // \`e()\` so a quoted argument lands on the same guard as a bare one, which sass and
-  // stylus already compare equal: without it \`@mode: 'mask'\` emitted \`'mask':\`
   @spritemap-property: e(@mode);
   @spritemap-type: e(@type);
   @spritemap-size: e(@include-size);
@@ -543,7 +519,6 @@ $icons: (
 @use "sass:meta";
 @use "sass:string";
 
-// \`-\` prefixed members are private: \`@use\` never exposes them to a consumer
 $-icon-sprite-entities: (
   ('&', '&amp;'),
   ('<', '&lt;')
@@ -553,7 +528,6 @@ $-icon-sprite-escapes: (
   ("'", '&apos;'),
   ('"', '&quot;'),
   ('%', '%25'),
-  // after \`%\`, or the \`%\` below is encoded twice. Raw, a \`\\\` opens a css escape
   ('\\\\', '%5c'),
   ('#', '%23'),
   ('&', '%26'),
@@ -599,8 +573,6 @@ $-icon-sprite-escapes: (
   @return $string;
 }
 
-// A function token is an identifier immediately followed by \`(\`, so \`myvar(x)\` is
-// not a call. Sass has no regex: scan every occurrence and check what precedes it.
 @function -icon-sprite-call($string, $name) {
   $rest: $string;
   $offset: 0;
@@ -626,8 +598,6 @@ $-icon-sprite-escapes: (
   @return false;
 }
 
-// case-insensitively, as css matches a function name: an uppercase \`VAR(\` reaches
-// the data uri exactly like a lowercase one
 @function -icon-sprite-references($value) {
   $string: string.to-lower-case('#{$value}');
 
@@ -732,7 +702,6 @@ $sprites: (
 @use "sass:meta";
 @use "sass:string";
 
-// \`-\` prefixed members are private: \`@use\` never exposes them to a consumer
 $-sprite-entities: (
   ('&', '&amp;'),
   ('<', '&lt;')
@@ -742,7 +711,6 @@ $-sprite-escapes: (
   ("'", '&apos;'),
   ('"', '&quot;'),
   ('%', '%25'),
-  // after \`%\`, or the \`%\` below is encoded twice. Raw, a \`\\\` opens a css escape
   ('\\\\', '%5c'),
   ('#', '%23'),
   ('&', '%26'),
@@ -788,8 +756,6 @@ $-sprite-escapes: (
   @return $string;
 }
 
-// A function token is an identifier immediately followed by \`(\`, so \`myvar(x)\` is
-// not a call. Sass has no regex: scan every occurrence and check what precedes it.
 @function -sprite-call($string, $name) {
   $rest: $string;
   $offset: 0;
@@ -815,8 +781,6 @@ $-sprite-escapes: (
   @return false;
 }
 
-// case-insensitively, as css matches a function name: an uppercase \`VAR(\` reaches
-// the data uri exactly like a lowercase one
 @function -sprite-references($value) {
   $string: string.to-lower-case('#{$value}');
 
@@ -921,7 +885,6 @@ $sprites: (
 @use "sass:meta";
 @use "sass:string";
 
-// \`-\` prefixed members are private: \`@use\` never exposes them to a consumer
 $-sprite-entities: (
   ('&', '&amp;'),
   ('<', '&lt;')
@@ -931,7 +894,6 @@ $-sprite-escapes: (
   ("'", '&apos;'),
   ('"', '&quot;'),
   ('%', '%25'),
-  // after \`%\`, or the \`%\` below is encoded twice. Raw, a \`\\\` opens a css escape
   ('\\\\', '%5c'),
   ('#', '%23'),
   ('&', '%26'),
@@ -977,8 +939,6 @@ $-sprite-escapes: (
   @return $string;
 }
 
-// A function token is an identifier immediately followed by \`(\`, so \`myvar(x)\` is
-// not a call. Sass has no regex: scan every occurrence and check what precedes it.
 @function -sprite-call($string, $name) {
   $rest: $string;
   $offset: 0;
@@ -1004,8 +964,6 @@ $-sprite-escapes: (
   @return false;
 }
 
-// case-insensitively, as css matches a function name: an uppercase \`VAR(\` reaches
-// the data uri exactly like a lowercase one
 @function -sprite-references($value) {
   $string: string.to-lower-case('#{$value}');
 
@@ -1106,9 +1064,7 @@ $icons = {
 }
 
 icon-sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route = '/__spritemap', $variables = {})
-	// nested definitions are lexically scoped: they stay out of the importer's scope
 	$icon-sprite-entities = ('&' '&amp;'), ('<' '&lt;')
-	// \`\\\` sits after \`%\`, or its \`%\` is encoded twice. Raw, it opens a css escape
 	$icon-sprite-escapes = ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('\\' '%5c'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
 
 	icon-sprite-replace($string, $search, $replacement)
@@ -1143,13 +1099,10 @@ icon-sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $
 				warn('icon-sprite(): "' + $name + '" does not declare any variable, $variables is ignored.')
 			else
 				$url = $sprite['uri-template']
-				// one call into a fresh literal: a bare \`merge()\` is emitted as raw output
 				$merged = merge({}, $defaults, $variables)
 
 				for $key, $value in $merged
 					if $key in $defaults
-						// case-insensitively, as css matches a function name, and left-guarded
-						// because a function token is an identifier immediately followed by \`(\`
 						if $key in $variables and match('(^|[^\\w-])(var|url)[(]', '' + $value, 'i')
 							warn('icon-sprite(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri.')
 						$url = icon-sprite-replace($url, '___' + $key + '___', icon-sprite-escape($value, $key in $variables))
@@ -1198,9 +1151,7 @@ $sprites = {
 }
 
 sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route = '/__spritemap', $variables = {})
-	// nested definitions are lexically scoped: they stay out of the importer's scope
 	$sprite-entities = ('&' '&amp;'), ('<' '&lt;')
-	// \`\\\` sits after \`%\`, or its \`%\` is encoded twice. Raw, it opens a css escape
 	$sprite-escapes = ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('\\' '%5c'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
 
 	sprite-replace($string, $search, $replacement)
@@ -1235,13 +1186,10 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 				warn('sprite(): "' + $name + '" does not declare any variable, $variables is ignored.')
 			else
 				$url = $sprite['uri-template']
-				// one call into a fresh literal: a bare \`merge()\` is emitted as raw output
 				$merged = merge({}, $defaults, $variables)
 
 				for $key, $value in $merged
 					if $key in $defaults
-						// case-insensitively, as css matches a function name, and left-guarded
-						// because a function token is an identifier immediately followed by \`(\`
 						if $key in $variables and match('(^|[^\\w-])(var|url)[(]', '' + $value, 'i')
 							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri.')
 						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value, $key in $variables))
@@ -1290,9 +1238,7 @@ $sprites = {
 }
 
 sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route = '/__spritemap', $variables = {})
-	// nested definitions are lexically scoped: they stay out of the importer's scope
 	$sprite-entities = ('&' '&amp;'), ('<' '&lt;')
-	// \`\\\` sits after \`%\`, or its \`%\` is encoded twice. Raw, it opens a css escape
 	$sprite-escapes = ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('\\' '%5c'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
 
 	sprite-replace($string, $search, $replacement)
@@ -1327,13 +1273,10 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 				warn('sprite(): "' + $name + '" does not declare any variable, $variables is ignored.')
 			else
 				$url = $sprite['uri-template']
-				// one call into a fresh literal: a bare \`merge()\` is emitted as raw output
 				$merged = merge({}, $defaults, $variables)
 
 				for $key, $value in $merged
 					if $key in $defaults
-						// case-insensitively, as css matches a function name, and left-guarded
-						// because a function token is an identifier immediately followed by \`(\`
 						if $key in $variables and match('(^|[^\\w-])(var|url)[(]', '' + $value, 'i')
 							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri.')
 						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value, $key in $variables))
@@ -1564,9 +1507,6 @@ exports[`styles generation > include less ["mixin","variables"] 1`] = `
   @{mode}: url(@uri) center no-repeat;
 }
 
-// The user's override for @key, or @fallback when they passed none. Less has no
-// one-element list, so a lone \`'name' value\` pair is doubled to keep the scan
-// uniform: both copies carry the same key, so either one matching is the same.
 .sprite-value(@variables; @key; @fallback) when (length(extract(@variables, 1)) < 2) {
   .sprite-value-scan(@variables, @variables; @key; @fallback; 1; 2);
 }
@@ -1603,9 +1543,6 @@ exports[`styles generation > include less ["mixin","variables"] 1`] = `
   .sprite-value-join(@pair; @i + 1; ~'@{accumulator} @{spritemap-next}');
 }
 
-// Walk the defaults, which come ordered longest name first so a short token can
-// never shadow a longer one, and take the user's override per name. Replaying
-// the user list in its own order instead would break that ordering.
 .sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i > @to) {
   .sprite-emit(@mode; @uri);
 }
@@ -1634,8 +1571,6 @@ exports[`styles generation > include less ["mixin","variables"] 1`] = `
 
 .sprite(@name, @include-size: false, @type: 'uri', @route: '/__spritemap', @mode: background, @variables: false) {
   @sprite: @sprites[ @@name];
-  // \`e()\` so a quoted argument lands on the same guard as a bare one, which sass and
-  // stylus already compare equal: without it \`@mode: 'mask'\` emitted \`'mask':\`
   @spritemap-property: e(@mode);
   @spritemap-type: e(@type);
   @spritemap-size: e(@include-size);
@@ -1720,9 +1655,6 @@ exports[`styles generation > include less ["mixin"] 1`] = `
   @{mode}: url(@uri) center no-repeat;
 }
 
-// The user's override for @key, or @fallback when they passed none. Less has no
-// one-element list, so a lone \`'name' value\` pair is doubled to keep the scan
-// uniform: both copies carry the same key, so either one matching is the same.
 .sprite-value(@variables; @key; @fallback) when (length(extract(@variables, 1)) < 2) {
   .sprite-value-scan(@variables, @variables; @key; @fallback; 1; 2);
 }
@@ -1759,9 +1691,6 @@ exports[`styles generation > include less ["mixin"] 1`] = `
   .sprite-value-join(@pair; @i + 1; ~'@{accumulator} @{spritemap-next}');
 }
 
-// Walk the defaults, which come ordered longest name first so a short token can
-// never shadow a longer one, and take the user's override per name. Replaying
-// the user list in its own order instead would break that ordering.
 .sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i > @to) {
   .sprite-emit(@mode; @uri);
 }
@@ -1790,8 +1719,6 @@ exports[`styles generation > include less ["mixin"] 1`] = `
 
 .sprite(@name, @include-size: false, @type: 'uri', @route: '/__spritemap', @mode: background, @variables: false) {
   @sprite: @sprites[ @@name];
-  // \`e()\` so a quoted argument lands on the same guard as a bare one, which sass and
-  // stylus already compare equal: without it \`@mode: 'mask'\` emitted \`'mask':\`
   @spritemap-property: e(@mode);
   @spritemap-type: e(@type);
   @spritemap-size: e(@include-size);
@@ -1878,9 +1805,6 @@ exports[`styles generation > include less true 1`] = `
   @{mode}: url(@uri) center no-repeat;
 }
 
-// The user's override for @key, or @fallback when they passed none. Less has no
-// one-element list, so a lone \`'name' value\` pair is doubled to keep the scan
-// uniform: both copies carry the same key, so either one matching is the same.
 .sprite-value(@variables; @key; @fallback) when (length(extract(@variables, 1)) < 2) {
   .sprite-value-scan(@variables, @variables; @key; @fallback; 1; 2);
 }
@@ -1917,9 +1841,6 @@ exports[`styles generation > include less true 1`] = `
   .sprite-value-join(@pair; @i + 1; ~'@{accumulator} @{spritemap-next}');
 }
 
-// Walk the defaults, which come ordered longest name first so a short token can
-// never shadow a longer one, and take the user's override per name. Replaying
-// the user list in its own order instead would break that ordering.
 .sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i > @to) {
   .sprite-emit(@mode; @uri);
 }
@@ -1948,8 +1869,6 @@ exports[`styles generation > include less true 1`] = `
 
 .sprite(@name, @include-size: false, @type: 'uri', @route: '/__spritemap', @mode: background, @variables: false) {
   @sprite: @sprites[ @@name];
-  // \`e()\` so a quoted argument lands on the same guard as a bare one, which sass and
-  // stylus already compare equal: without it \`@mode: 'mask'\` emitted \`'mask':\`
   @spritemap-property: e(@mode);
   @spritemap-type: e(@type);
   @spritemap-size: e(@include-size);
@@ -2013,7 +1932,6 @@ $sprites: (
 @use "sass:meta";
 @use "sass:string";
 
-// \`-\` prefixed members are private: \`@use\` never exposes them to a consumer
 $-sprite-entities: (
   ('&', '&amp;'),
   ('<', '&lt;')
@@ -2023,7 +1941,6 @@ $-sprite-escapes: (
   ("'", '&apos;'),
   ('"', '&quot;'),
   ('%', '%25'),
-  // after \`%\`, or the \`%\` below is encoded twice. Raw, a \`\\\` opens a css escape
   ('\\\\', '%5c'),
   ('#', '%23'),
   ('&', '%26'),
@@ -2069,8 +1986,6 @@ $-sprite-escapes: (
   @return $string;
 }
 
-// A function token is an identifier immediately followed by \`(\`, so \`myvar(x)\` is
-// not a call. Sass has no regex: scan every occurrence and check what precedes it.
 @function -sprite-call($string, $name) {
   $rest: $string;
   $offset: 0;
@@ -2096,8 +2011,6 @@ $-sprite-escapes: (
   @return false;
 }
 
-// case-insensitively, as css matches a function name: an uppercase \`VAR(\` reaches
-// the data uri exactly like a lowercase one
 @function -sprite-references($value) {
   $string: string.to-lower-case('#{$value}');
 
@@ -2202,7 +2115,6 @@ $sprites: (
 @use "sass:meta";
 @use "sass:string";
 
-// \`-\` prefixed members are private: \`@use\` never exposes them to a consumer
 $-sprite-entities: (
   ('&', '&amp;'),
   ('<', '&lt;')
@@ -2212,7 +2124,6 @@ $-sprite-escapes: (
   ("'", '&apos;'),
   ('"', '&quot;'),
   ('%', '%25'),
-  // after \`%\`, or the \`%\` below is encoded twice. Raw, a \`\\\` opens a css escape
   ('\\\\', '%5c'),
   ('#', '%23'),
   ('&', '%26'),
@@ -2258,8 +2169,6 @@ $-sprite-escapes: (
   @return $string;
 }
 
-// A function token is an identifier immediately followed by \`(\`, so \`myvar(x)\` is
-// not a call. Sass has no regex: scan every occurrence and check what precedes it.
 @function -sprite-call($string, $name) {
   $rest: $string;
   $offset: 0;
@@ -2285,8 +2194,6 @@ $-sprite-escapes: (
   @return false;
 }
 
-// case-insensitively, as css matches a function name: an uppercase \`VAR(\` reaches
-// the data uri exactly like a lowercase one
 @function -sprite-references($value) {
   $string: string.to-lower-case('#{$value}');
 
@@ -2393,7 +2300,6 @@ $sprites: (
 @use "sass:meta";
 @use "sass:string";
 
-// \`-\` prefixed members are private: \`@use\` never exposes them to a consumer
 $-sprite-entities: (
   ('&', '&amp;'),
   ('<', '&lt;')
@@ -2403,7 +2309,6 @@ $-sprite-escapes: (
   ("'", '&apos;'),
   ('"', '&quot;'),
   ('%', '%25'),
-  // after \`%\`, or the \`%\` below is encoded twice. Raw, a \`\\\` opens a css escape
   ('\\\\', '%5c'),
   ('#', '%23'),
   ('&', '%26'),
@@ -2449,8 +2354,6 @@ $-sprite-escapes: (
   @return $string;
 }
 
-// A function token is an identifier immediately followed by \`(\`, so \`myvar(x)\` is
-// not a call. Sass has no regex: scan every occurrence and check what precedes it.
 @function -sprite-call($string, $name) {
   $rest: $string;
   $offset: 0;
@@ -2476,8 +2379,6 @@ $-sprite-escapes: (
   @return false;
 }
 
-// case-insensitively, as css matches a function name: an uppercase \`VAR(\` reaches
-// the data uri exactly like a lowercase one
 @function -sprite-references($value) {
   $string: string.to-lower-case('#{$value}');
 
@@ -2578,9 +2479,7 @@ $sprites = {
 }
 
 sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route = '/__spritemap', $variables = {})
-	// nested definitions are lexically scoped: they stay out of the importer's scope
 	$sprite-entities = ('&' '&amp;'), ('<' '&lt;')
-	// \`\\\` sits after \`%\`, or its \`%\` is encoded twice. Raw, it opens a css escape
 	$sprite-escapes = ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('\\' '%5c'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
 
 	sprite-replace($string, $search, $replacement)
@@ -2615,13 +2514,10 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 				warn('sprite(): "' + $name + '" does not declare any variable, $variables is ignored.')
 			else
 				$url = $sprite['uri-template']
-				// one call into a fresh literal: a bare \`merge()\` is emitted as raw output
 				$merged = merge({}, $defaults, $variables)
 
 				for $key, $value in $merged
 					if $key in $defaults
-						// case-insensitively, as css matches a function name, and left-guarded
-						// because a function token is an identifier immediately followed by \`(\`
 						if $key in $variables and match('(^|[^\\w-])(var|url)[(]', '' + $value, 'i')
 							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri.')
 						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value, $key in $variables))
@@ -2670,9 +2566,7 @@ $sprites = {
 }
 
 sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route = '/__spritemap', $variables = {})
-	// nested definitions are lexically scoped: they stay out of the importer's scope
 	$sprite-entities = ('&' '&amp;'), ('<' '&lt;')
-	// \`\\\` sits after \`%\`, or its \`%\` is encoded twice. Raw, it opens a css escape
 	$sprite-escapes = ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('\\' '%5c'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
 
 	sprite-replace($string, $search, $replacement)
@@ -2707,13 +2601,10 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 				warn('sprite(): "' + $name + '" does not declare any variable, $variables is ignored.')
 			else
 				$url = $sprite['uri-template']
-				// one call into a fresh literal: a bare \`merge()\` is emitted as raw output
 				$merged = merge({}, $defaults, $variables)
 
 				for $key, $value in $merged
 					if $key in $defaults
-						// case-insensitively, as css matches a function name, and left-guarded
-						// because a function token is an identifier immediately followed by \`(\`
 						if $key in $variables and match('(^|[^\\w-])(var|url)[(]', '' + $value, 'i')
 							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri.')
 						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value, $key in $variables))
@@ -2764,9 +2655,7 @@ $sprites = {
 }
 
 sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route = '/__spritemap', $variables = {})
-	// nested definitions are lexically scoped: they stay out of the importer's scope
 	$sprite-entities = ('&' '&amp;'), ('<' '&lt;')
-	// \`\\\` sits after \`%\`, or its \`%\` is encoded twice. Raw, it opens a css escape
 	$sprite-escapes = ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('\\' '%5c'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
 
 	sprite-replace($string, $search, $replacement)
@@ -2801,13 +2690,10 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 				warn('sprite(): "' + $name + '" does not declare any variable, $variables is ignored.')
 			else
 				$url = $sprite['uri-template']
-				// one call into a fresh literal: a bare \`merge()\` is emitted as raw output
 				$merged = merge({}, $defaults, $variables)
 
 				for $key, $value in $merged
 					if $key in $defaults
-						// case-insensitively, as css matches a function name, and left-guarded
-						// because a function token is an identifier immediately followed by \`(\`
 						if $key in $variables and match('(^|[^\\w-])(var|url)[(]', '' + $value, 'i')
 							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri.')
 						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value, $key in $variables))
@@ -2881,9 +2767,6 @@ exports[`styles generation > less 1`] = `
   @{mode}: url(@uri) center no-repeat;
 }
 
-// The user's override for @key, or @fallback when they passed none. Less has no
-// one-element list, so a lone \`'name' value\` pair is doubled to keep the scan
-// uniform: both copies carry the same key, so either one matching is the same.
 .sprite-value(@variables; @key; @fallback) when (length(extract(@variables, 1)) < 2) {
   .sprite-value-scan(@variables, @variables; @key; @fallback; 1; 2);
 }
@@ -2920,9 +2803,6 @@ exports[`styles generation > less 1`] = `
   .sprite-value-join(@pair; @i + 1; ~'@{accumulator} @{spritemap-next}');
 }
 
-// Walk the defaults, which come ordered longest name first so a short token can
-// never shadow a longer one, and take the user's override per name. Replaying
-// the user list in its own order instead would break that ordering.
 .sprite-subst(@mode; @uri; @variables; @defaults; @i; @to) when (@i > @to) {
   .sprite-emit(@mode; @uri);
 }
@@ -2951,8 +2831,6 @@ exports[`styles generation > less 1`] = `
 
 .sprite(@name, @include-size: false, @type: 'uri', @route: '/__spritemap', @mode: background, @variables: false) {
   @sprite: @sprites[ @@name];
-  // \`e()\` so a quoted argument lands on the same guard as a bare one, which sass and
-  // stylus already compare equal: without it \`@mode: 'mask'\` emitted \`'mask':\`
   @spritemap-property: e(@mode);
   @spritemap-type: e(@type);
   @spritemap-size: e(@include-size);
@@ -3016,7 +2894,6 @@ $sprites: (
 @use "sass:meta";
 @use "sass:string";
 
-// \`-\` prefixed members are private: \`@use\` never exposes them to a consumer
 $-sprite-entities: (
   ('&', '&amp;'),
   ('<', '&lt;')
@@ -3026,7 +2903,6 @@ $-sprite-escapes: (
   ("'", '&apos;'),
   ('"', '&quot;'),
   ('%', '%25'),
-  // after \`%\`, or the \`%\` below is encoded twice. Raw, a \`\\\` opens a css escape
   ('\\\\', '%5c'),
   ('#', '%23'),
   ('&', '%26'),
@@ -3072,8 +2948,6 @@ $-sprite-escapes: (
   @return $string;
 }
 
-// A function token is an identifier immediately followed by \`(\`, so \`myvar(x)\` is
-// not a call. Sass has no regex: scan every occurrence and check what precedes it.
 @function -sprite-call($string, $name) {
   $rest: $string;
   $offset: 0;
@@ -3099,8 +2973,6 @@ $-sprite-escapes: (
   @return false;
 }
 
-// case-insensitively, as css matches a function name: an uppercase \`VAR(\` reaches
-// the data uri exactly like a lowercase one
 @function -sprite-references($value) {
   $string: string.to-lower-case('#{$value}');
 
@@ -3201,9 +3073,7 @@ $sprites = {
 }
 
 sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route = '/__spritemap', $variables = {})
-	// nested definitions are lexically scoped: they stay out of the importer's scope
 	$sprite-entities = ('&' '&amp;'), ('<' '&lt;')
-	// \`\\\` sits after \`%\`, or its \`%\` is encoded twice. Raw, it opens a css escape
 	$sprite-escapes = ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('\\' '%5c'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
 
 	sprite-replace($string, $search, $replacement)
@@ -3238,13 +3108,10 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 				warn('sprite(): "' + $name + '" does not declare any variable, $variables is ignored.')
 			else
 				$url = $sprite['uri-template']
-				// one call into a fresh literal: a bare \`merge()\` is emitted as raw output
 				$merged = merge({}, $defaults, $variables)
 
 				for $key, $value in $merged
 					if $key in $defaults
-						// case-insensitively, as css matches a function name, and left-guarded
-						// because a function token is an identifier immediately followed by \`(\`
 						if $key in $variables and match('(^|[^\\w-])(var|url)[(]', '' + $value, 'i')
 							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri.')
 						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value, $key in $variables))

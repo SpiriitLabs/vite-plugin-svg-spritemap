@@ -1,7 +1,5 @@
 __mixin__($name, $include-size = false, $type = 'uri', $mode = 'background', $route = '__route__', $variables = {})
-	// nested definitions are lexically scoped: they stay out of the importer's scope
 	$__mixin__-entities = ('&' '&amp;'), ('<' '&lt;')
-	// `\` sits after `%`, or its `%` is encoded twice. Raw, it opens a css escape
 	$__mixin__-escapes = ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('\' '%5c'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
 
 	__mixin__-replace($string, $search, $replacement)
@@ -36,13 +34,10 @@ __mixin__($name, $include-size = false, $type = 'uri', $mode = 'background', $ro
 				warn('__mixin__(): "' + $name + '" does not declare any variable, $variables is ignored.')
 			else
 				$url = $sprite['uri-template']
-				// one call into a fresh literal: a bare `merge()` is emitted as raw output
 				$merged = merge({}, $defaults, $variables)
 
 				for $key, $value in $merged
 					if $key in $defaults
-						// case-insensitively, as css matches a function name, and left-guarded
-						// because a function token is an identifier immediately followed by `(`
 						if $key in $variables and match('(^|[^\w-])(var|url)[(]', '' + $value, 'i')
 							warn('__mixin__(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri.')
 						$url = __mixin__-replace($url, '___' + $key + '___', __mixin__-escape($value, $key in $variables))
