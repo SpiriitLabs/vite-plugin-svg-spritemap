@@ -28,6 +28,14 @@ so early releases summarise the most user-facing changes rather than every commi
   [svg-spritemap-webpack-plugin], with a standard `var()` notation in place of
   its `var:name.attribute` xml namespace.
 
+- The option and sprite types are exported from the package entry point, so a
+  config built outside `vite.config.ts` and a `styles.callback` or `idify`
+  extracted to a named function can be typed: `UserOptions`, the resolved
+  `Options`, `SvgMapObject`, `SvgDataUriMapObject`, `SvgVariables`, the option
+  shapes themselves, and `StylesCallback` with its parts
+  (`StylesCallbackContext`, `SpritemapGenerator`). Only the plugin's internal
+  plumbing stays unexported.
+
 ### Fixed
 
 - An icon carrying a `var()` was mangled by OXVG. Its
@@ -43,6 +51,22 @@ so early releases summarise the most user-facing changes rather than every commi
 - The Less mixin had no `@mode` parameter, so `.sprite('name', @mode: mask)`
   failed with "no matching definition" while the SCSS and Stylus mixins both
   accepted it.
+- The Less mixin silently dropped part or all of its output when a keyword
+  argument was spelled the other way round. `@mode: 'mask'`, the quoting the
+  documentation uses at every other call site, emitted `'mask':` with the quotes
+  the browser discards; `@include-size: box` matched no guard, so the sizing was
+  skipped; and `@type: fragment` matched neither branch, so nothing was emitted at
+  all. SCSS and Stylus read the two spellings as one value, and now so does Less.
+- `styles.include: ['mixin']` generated a stylesheet that could not compile. The
+  mixin looks every sprite up in the map the `'variables'` entry declares, so
+  without it the first call was an undefined variable in SCSS, Stylus and Less
+  alike. `'variables'` is now added back with a warning.
+- A `null` `svgo` or `oxvg` option, which is what a conditional config produces
+  (`oxvg: isProd ? jobs : null`), was taken for a configuration object. OXVG
+  received it as "run your own preset", the one thing the `var()` mitigations
+  above exist to avoid, so an icon with a `var()` in a style declaration aborted
+  the process; SVGO read it as a config with no plugins and threw per icon. Both
+  now fall back to the default configuration, as an omitted option does.
 
 ## [7.1.1] - 2026-08-10
 

@@ -13,6 +13,19 @@ export default {
 
 The second argument is an object with several options. **See below for more details about each options**.
 
+::: tip The option types are exported
+`UserOptions` types the whole object, so a config you build outside `vite.config.ts` still gets checked:
+
+```ts
+import type { UserOptions, VariablesSpritemapMode } from '@spiriit/vite-plugin-svg-spritemap'
+
+const spritemap: VariablesSpritemapMode = 'resolve'
+export const icons: UserOptions = { prefix: 'icon-', variables: { spritemap } }
+```
+
+Every shape the plugin hands back is exported too, which is what an extracted [`styles.callback`](/guide/customize-styles-output) or `idify` needs: `StylesCallback` and its parts (`StylesCallbackContext`, `SpritemapGenerator`), `Options`, `SvgMapObject`, `SvgDataUriMapObject`, `SvgVariables`, and the option types themselves (`OptionsStyles`, `OptionsVariables`, `StylesLang`, `StylesInclude`, …). Inline callbacks infer without any of them.
+:::
+
 ```ts
 // vite.config.js / vite.config.ts
 import VitePluginSVGSpritemap from '@spiriit/vite-plugin-svg-spritemap'
@@ -159,7 +172,7 @@ export type UiPrefixed = `${Prefix}${Ui}`
 
 ## variables
 
-- **Type:** `false | { spritemap?: 'preserve' | 'resolve' }`
+- **Type:** `boolean | { spritemap?: 'preserve' | 'resolve' }`
 - **Default:** `{ spritemap: 'preserve' }`
 
 Controls icon variables: a `var(--name, default)` inside an SVG presentation attribute, a `style` attribute or a `<style>` element becomes a themable value your SCSS/Stylus/Less mixin can override per call site. See the [Variables guide](/guide/variables).
@@ -196,6 +209,7 @@ Take an SVGO Options object. If `true`, it will use the [default SVGO preset](ht
 
 ::: warning
 Since the version 3.0, you need to install `svgo` manually as a dependency of your project if you want `vite-plugin-svg-spritemap` to process SVG file with it.
+:::
 
 ::: code-group
 
@@ -222,6 +236,10 @@ bun add -D svgo
 - **Default:** `false`
 
 Inject the SVG Spritemap inside the body on dev. Useful for mitigating CORS issue with a [Backend](/guide/backend-integration).
+
+::: warning An icon's `<style>` element becomes a stylesheet of your page
+The spritemap is inlined into the body, so a `<style>` element carried by one of your icons is a stylesheet of the document and restyles anything its selectors match, an editor's `.cls-1` or `.st0` included. Referenced through a URL, which is what the build does, the same rules stay inside the spritemap document, so this shows up in dev only. See [Beyond presentation attributes](/guide/variables#beyond-presentation-attributes).
+:::
 
 ## idify
 

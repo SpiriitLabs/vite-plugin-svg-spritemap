@@ -40,6 +40,35 @@ export default {
 ```
 :::
 
+### Mixin arguments
+
+The mixin takes the sprite name and five optional arguments. All three languages accept the same set, and each value can be written quoted or bare.
+
+| Argument | Values | Default | Effect |
+| --- | --- | --- | --- |
+| `$name` | a sprite id | — | which icon to emit |
+| `$include-size` | `false`, `true`, `'box'` | `false` | `true` adds `<mode>-size`, `'box'` sets `width` and `height` instead |
+| `$type` | `'uri'`, `'fragment'` | `'uri'` | an inlined data URI, or a fragment reference to the spritemap |
+| `$mode` | a property name | `'background'` | the property to emit the icon on, `'mask'` among them |
+| `$route` | a url | the [`route`](/options/#route) option | the spritemap a `'fragment'` points at |
+| `$variables` | a map, a list of pairs in Less | empty | per-call-site [variable](/guide/variables) overrides |
+
+::: code-group
+```scss [SCSS]
+@include sprite('alert', $include-size: 'box', $mode: 'mask');
+```
+
+```styl [Stylus]
+sprite('alert', $include-size: 'box', $mode: 'mask')
+```
+
+```less [Less]
+.sprite('alert'; @include-size: 'box'; @mode: 'mask');
+```
+:::
+
+Less orders `@route` before `@mode` and needs `;` between arguments as soon as one of them holds a comma. Both are covered in the [variables guide](/guide/variables#overriding-from-the-mixin), which is where a comma comes up first.
+
 After that, you need to import the file in your current styles. Don't forget to [load the CSS](https://vitejs.dev/guide/features.html#css) via ViteJS.
 
 If you use a CSS preprocessing language (Less/SCSS/Sass/Stylus), you can use the mixin `sprite` and access a map with all sprites info.
