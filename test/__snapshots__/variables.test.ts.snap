@@ -325,12 +325,39 @@ $-sprite-escapes: (
   @return $string;
 }
 
+// A function token is an identifier immediately followed by \`(\`, so \`myvar(x)\` is
+// not a call. Sass has no regex: scan every occurrence and check what precedes it.
+@function -sprite-call($string, $name) {
+  $rest: $string;
+  $offset: 0;
+  $index: string.index($rest, $name);
+
+  @while $index {
+    $at: $offset + $index;
+    $before: '';
+
+    @if $at > 1 {
+      $before: string.slice($string, $at - 1, $at - 1);
+    }
+
+    @if $before == '' or not string.index('abcdefghijklmnopqrstuvwxyz0123456789_-', $before) {
+      @return true;
+    }
+
+    $offset: $at;
+    $rest: string.slice($rest, $index + 1);
+    $index: string.index($rest, $name);
+  }
+
+  @return false;
+}
+
 // case-insensitively, as css matches a function name: an uppercase \`VAR(\` reaches
 // the data uri exactly like a lowercase one
 @function -sprite-references($value) {
   $string: string.to-lower-case('#{$value}');
 
-  @return string.index($string, 'var(') or string.index($string, 'url(');
+  @return -sprite-call($string, 'var(') or -sprite-call($string, 'url(');
 }
 
 @mixin sprite(
@@ -507,7 +534,7 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 		$url = $route + '#' + $sprites-prefix + $name + '-view'
 
 		if length($variables) > 0
-			warn('sprite(): $variables cannot be applied to the "fragment" type, ignored')
+			warn('sprite(): $variables cannot be applied to the "fragment" type, ignored.')
 	else if $type == 'uri'
 		$url = $sprite[uri]
 
@@ -517,7 +544,7 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 				$defaults = $sprites-variables[$name]
 
 			if length($defaults) == 0
-				warn('sprite(): "' + $name + '" does not declare any variable, $variables is ignored')
+				warn('sprite(): "' + $name + '" does not declare any variable, $variables is ignored.')
 			else
 				$url = $sprite['uri-template']
 				// into a fresh literal, so \`$defaults\` is left alone, and in one call:
@@ -526,12 +553,13 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 
 				for $key, $value in $merged
 					if $key in $defaults
-						// case-insensitively, as css matches a function name
-						if $key in $variables and match('(var|url)[(]', '' + $value, 'i')
-							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri')
+						// case-insensitively, as css matches a function name, and left-guarded
+						// because a function token is an identifier immediately followed by \`(\`
+						if $key in $variables and match('(^|[^\\w-])(var|url)[(]', '' + $value, 'i')
+							warn('sprite(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri.')
 						$url = sprite-replace($url, '___' + $key + '___', sprite-escape($value, $key in $variables))
 					else
-						warn('sprite(): "' + $name + '" has no variable named "' + $key + '"')
+						warn('sprite(): "' + $name + '" has no variable named "' + $key + '", available: ' + keys($defaults) + '.')
 	else
 		error('sprite(): $type must be either "fragment" or "uri"')
 
