@@ -6,41 +6,16 @@
 /**
  * Colors
  *
- * Each colors have exact same color scale system with 3 levels of solid
- * colors with different brightness, and 1 soft color.
+ * The brand scale drives links, inline code, sidebar/outline active states,
+ * search highlights, badges and buttons, so it has to be tuned per color
+ * scheme:
  *
- * - `XXX-1`: The most solid color used mainly for colored text. It must
- *   satisfy the contrast ratio against when used on top of `XXX-soft`.
- *
- * - `XXX-2`: The color used mainly for hover state of the button.
- *
- * - `XXX-3`: The color for solid background, such as bg color of the button.
- *   It must satisfy the contrast ratio with pure white (#ffffff) text on
- *   top of it.
- *
- * - `XXX-soft`: The color used for subtle background such as custom container
- *   or badges. It must satisfy the contrast ratio when putting `XXX-1` colors
- *   on top of it.
- *
- *   The soft color must be semi transparent alpha channel. This is crucial
- *   because it allows adding multiple "soft" colors on top of each other
- *   to create a accent, such as when having inline code block inside
- *   custom containers.
- *
- * - `default`: The color used purely for subtle indication without any
- *   special meanings attached to it such as bg color for menu hover state.
- *
- * - `brand`: Used for primary brand colors, such as link text, button with
- *   brand theme, etc.
- *
- * - `tip`: Used to indicate useful information. The default theme uses the
- *   brand color for this by default.
- *
- * - `warning`: Used to indicate warning to the users. Used in custom
- *   container, badges, etc.
- *
- * - `danger`: Used to show error, or dangerous message to the users. Used
- *   in custom container, badges, etc.
+ * - `XXX-1`: text color, and background of the search highlight. Must contrast
+ *   with the page background *and* with `--vp-c-neutral-inverse`.
+ * - `XXX-2`: hover state, one step from `XXX-1`.
+ * - `XXX-3`: solid background, e.g. a button. Must contrast with white text.
+ * - `XXX-soft`: subtle background (containers, badges). Semi transparent so
+ *   several soft layers can stack, and `XXX-1` stays readable on top of it.
  * -------------------------------------------------------------------------- */
 
 :root {
@@ -49,10 +24,10 @@
   --vp-c-default-3: var(--vp-c-gray-3);
   --vp-c-default-soft: var(--vp-c-gray-soft);
 
-  --vp-c-brand-1: #abb9ee;
-  --vp-c-brand-2: var(--vp-c-indigo-2);
+  --vp-c-brand-1: #2547cc;
+  --vp-c-brand-2: #2f55e6;
   --vp-c-brand-3: #3960ff;
-  --vp-c-brand-soft: var(--vp-c-indigo-soft);
+  --vp-c-brand-soft: rgb(57 96 255 / 12%);
 
   --vp-c-tip-1: var(--vp-c-brand-1);
   --vp-c-tip-2: var(--vp-c-brand-2);
@@ -70,8 +45,18 @@
   --vp-c-danger-soft: var(--vp-c-red-soft);
 }
 
+.dark {
+  --vp-c-brand-1: #9fb4ff;
+  --vp-c-brand-2: #7c96ff;
+  --vp-c-brand-3: #3960ff;
+  --vp-c-brand-soft: rgb(87 120 255 / 20%);
+}
+
 /**
  * Component: Button
+ *
+ * The brand button keeps white text in both schemes, so its hover and active
+ * backgrounds are pinned to shades that stay dark enough for it.
  * -------------------------------------------------------------------------- */
 
 :root {
@@ -80,10 +65,10 @@
   --vp-button-brand-bg: var(--vp-c-brand-3);
   --vp-button-brand-hover-border: transparent;
   --vp-button-brand-hover-text: var(--vp-c-white);
-  --vp-button-brand-hover-bg: var(--vp-c-brand-2);
+  --vp-button-brand-hover-bg: #2f55e6;
   --vp-button-brand-active-border: transparent;
   --vp-button-brand-active-text: var(--vp-c-white);
-  --vp-button-brand-active-bg: var(--vp-c-brand-1);
+  --vp-button-brand-active-bg: #2547cc;
 }
 
 /**
@@ -92,10 +77,10 @@
 
 :root {
   --vp-home-hero-name-color: transparent;
-  --vp-home-hero-name-background: -webkit-linear-gradient(
-    120deg,
+  --vp-home-hero-name-background: linear-gradient(
+    -30deg,
     #3960ff 30%,
-    #41a6ff
+    #2b8fe6
   );
 
   --vp-home-hero-image-background-image: linear-gradient(
@@ -104,6 +89,14 @@
     #41a6ff 50%
   );
   --vp-home-hero-image-filter: blur(44px);
+}
+
+.dark {
+  --vp-home-hero-name-background: linear-gradient(
+    -30deg,
+    #5c7cff 30%,
+    #55b8ff
+  );
 }
 
 @media (min-width: 640px) {
@@ -117,15 +110,6 @@
     --vp-home-hero-image-filter: blur(68px);
   }
 }
-
-/**
- * Component: Algolia
- * -------------------------------------------------------------------------- */
-
-.DocSearch {
-  --docsearch-primary-color: var(--vp-c-brand-1) !important;
-}
-
 
 /* Overrides */
 .VPHomeHero .name,
