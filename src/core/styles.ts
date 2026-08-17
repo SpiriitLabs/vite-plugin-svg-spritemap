@@ -109,9 +109,27 @@ export class Styles {
     return spriteMap
   }
 
-  /** Values come from the svg verbatim, so a quote would end the string early. */
+  /**
+   * Values come from the svg verbatim, and four things do not survive the quoting as-is:
+   * a `"` ends the string, a `\` is an escape to sass alone, a `#{` opens a sass
+   * interpolation and a `@{` a less one. Backslash-escaping them would only work in one
+   * language: sass keeps `\\` in its serialized string rather than collapsing it, stylus
+   * rejects a `\"` outright and less passes both through. A character reference is inert
+   * to all three lexers and decodes back in the xml the value ends up in.
+   *
+   * A whitespace run collapses before any of that, and so does the `"` above: they
+   * come from the pair `normalizeDefault()` applies wherever else a default lands, and
+   * applying them here too is what keeps every path one document. Its `'` half is left
+   * out on purpose: a raw `'` sits fine inside the `"` quoting above, and the mixin's
+   * own escape table turns it into the same `&apos;` on the way into the uri.
+   */
   private static formatVariableValue(value: string): string {
-    return `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`
+    return `"${value
+      .replace(/\s+/g, ' ')
+      .replace(/\\/g, '&#92;')
+      .replace(/"/g, '&quot;')
+      .replace(/#\{/g, '&#35;{')
+      .replace(/@\{/g, '&#64;{')}"`
   }
 
   /** `'name': "value"` entries of one sprite, shared by the scss and styl maps. */
