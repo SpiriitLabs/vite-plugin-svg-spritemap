@@ -140,7 +140,7 @@ export interface UserOptions {
    * Set to false to disable extraction entirely.
    * @default { spritemap: 'preserve' }
    */
-  variables?: false | Partial<OptionsVariables>
+  variables?: boolean | Partial<OptionsVariables>
 }
 
 export interface TypesConfig {
