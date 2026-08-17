@@ -46,7 +46,7 @@ The mixin takes the sprite name and five optional arguments. All three languages
 
 | Argument | Values | Default | Effect |
 | --- | --- | --- | --- |
-| `$name` | a sprite id | — | which icon to emit |
+| `$name` | a sprite id | required | which icon to emit |
 | `$include-size` | `false`, `true`, `'box'` | `false` | `true` adds `<mode>-size`, `'box'` sets `width` and `height` instead |
 | `$type` | `'uri'`, `'fragment'` | `'uri'` | an inlined data URI, or a fragment reference to the spritemap |
 | `$mode` | a property name | `'background'` | the property to emit the icon on, `'mask'` among them |

@@ -59,7 +59,7 @@ The plugin will generate a spritemap to support all methods described below (fil
 </svg>
 ```
 
-By default the generated spritemap uses the deprecated `xlink:href` attribute inside the `<use>` tags for compatibility. You can switch to the standard `href` attribute or emit both with an `xlink:href` fallback — via the [`output.hrefAttribute`](https://spiriitlabs.github.io/vite-plugin-svg-spritemap/options/output.html#output-hrefattribute) option (`'xlink:href' | 'href' | 'both'`).
+By default the generated spritemap uses the deprecated `xlink:href` attribute inside the `<use>` tags for compatibility. You can switch to the standard `href` attribute or emit both with an `xlink:href` fallback, via the [`output.hrefAttribute`](https://spiriitlabs.github.io/vite-plugin-svg-spritemap/options/output.html#output-hrefattribute) option (`'xlink:href' | 'href' | 'both'`).
 
 **Img**
 
