@@ -68,6 +68,48 @@ describe('createOptions styles lang', () => {
   })
 })
 
+describe('createOptions optimizers', () => {
+  // a conditional config hands `null` over, and OXVG reads it as "run your own
+  // preset", which aborts the process on a `var()` in a style declaration
+  it.each(['svgo', 'oxvg'] as const)('normalizes a null %s to the default', (optimizer) => {
+    const { options } = createOptions({
+      // deliberately outside the union, to cover a plain js caller
+      [optimizer]: null as unknown as boolean,
+    })
+
+    expect(options[optimizer]).toBeUndefined()
+  })
+
+  it.each(['svgo', 'oxvg'] as const)('leaves an explicit %s alone', (optimizer) => {
+    expect(createOptions({ [optimizer]: false }).options[optimizer]).toBe(false)
+    expect(createOptions({ [optimizer]: true }).options[optimizer]).toBe(true)
+  })
+})
+
+describe('createOptions styles include', () => {
+  // on its own the mixin generates a stylesheet whose first call is an undefined
+  // variable, in all three languages
+  it('adds the sprites map the mixin cannot do without', () => {
+    const { options, logs } = createOptions({ styles: { filename: 'out.scss', include: ['mixin'] } })
+
+    expect(typeof options.styles === 'object' && options.styles.include).toEqual(['mixin', 'variables'])
+    expect(logs.warn).toContainEqual(expect.stringContaining('"mixin" needs "variables"'))
+  })
+
+  it.each([
+    [true],
+    [false],
+    [['mixin', 'variables']],
+    [['variables']],
+    [['bg', 'mask']],
+  ] as const)('leaves %s alone', (include) => {
+    const { options, logs } = createOptions({ styles: { filename: 'out.scss', include } })
+
+    expect(typeof options.styles === 'object' && options.styles.include).toEqual(include)
+    expect(logs.warn.filter(warning => warning.includes('needs "variables"'))).toEqual([])
+  })
+})
+
 describe('createOptions variables', () => {
   it('defaults to preserving var() in the spritemap', () => {
     expect(createOptions().options.variables).toEqual({ spritemap: 'preserve' })
@@ -75,6 +117,11 @@ describe('createOptions variables', () => {
 
   it('accepts false as a full opt-out', () => {
     expect(createOptions({ variables: false }).options.variables).toBe(false)
+  })
+
+  // spelling the default out has to be allowed, as it is for `svgo` and `oxvg`
+  it('accepts true as the default', () => {
+    expect(createOptions({ variables: true }).options.variables).toEqual({ spritemap: 'preserve' })
   })
 
   it.each(['preserve', 'resolve'] as const)('passes %s through', (spritemap) => {
@@ -91,6 +138,23 @@ describe('createOptions variables', () => {
     expect(logs.warn).toContainEqual(expect.stringContaining('Invalid variables.spritemap value'))
   })
 
+  // the string belongs to `variables.spritemap`, so taking it for the default would
+  // silently disagree with the spritemap the user asked for
+  it.each(['resolve', 'preserve', null, 0] as const)('warns and falls back on %s', (value) => {
+    const { options, logs } = createOptions({
+      // deliberately outside the union, to cover a plain js caller
+      variables: value as unknown as boolean,
+    })
+
+    expect(options.variables).toEqual({ spritemap: 'preserve' })
+    expect(logs.warn).toContainEqual(expect.stringContaining('Invalid variables value'))
+  })
+
+  it.each([undefined, true, false, { spritemap: 'resolve' }] as const)('stays quiet on %s', (variables) => {
+    const { logs } = createOptions({ variables })
+    expect(logs.warn.filter(warning => warning.includes('Invalid variables value'))).toEqual([])
+  })
+
   it('defaults the variables map name', () => {
     for (const styles of ['out.scss', { filename: 'out.scss' }]) {
       const { options } = createOptions({ styles })
@@ -101,5 +165,17 @@ describe('createOptions variables', () => {
   it('takes a custom variables map name', () => {
     const { options } = createOptions({ styles: { filename: 'out.scss', names: { variables: 'themes' } } })
     expect(typeof options.styles === 'object' && options.styles.names.variables).toBe('themes')
+  })
+
+  // two names collapse into one declaration and the second silently wins, which
+  // compiles to nothing rather than failing
+  it('warns when two styles names collide', () => {
+    const { logs } = createOptions({ styles: { filename: 'out.scss', names: { sprites: 'x', variables: 'x' } } })
+    expect(logs.warn).toContainEqual(expect.stringContaining('Duplicate styles name "x"'))
+  })
+
+  it('stays quiet when every styles name is distinct', () => {
+    const { logs } = createOptions({ styles: { filename: 'out.scss' } })
+    expect(logs.warn.filter(warning => warning.includes('Duplicate styles name'))).toEqual([])
   })
 })
