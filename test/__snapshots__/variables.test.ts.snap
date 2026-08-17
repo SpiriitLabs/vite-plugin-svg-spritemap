@@ -153,26 +153,34 @@ exports[`variables generation > emits a template uri and a defaults map (less) 1
 
 .sprite(@name, @include-size: false, @type: 'uri', @route: '/__spritemap', @mode: background, @variables: false) {
   @sprite: @sprites[ @@name];
+  // Every keyword argument goes through \`e()\`, because Less reads \`box\` and \`'box'\` as
+  // two values where sass and stylus compare them equal, and \`@{mode}\` keeps the quotes
+  // of a quoted one and emits \`'mask':\`, which the browser discards without a word.
+  // Quoting is what the docs spell at every call site, so either spelling has to land
+  // on the same guard here: without it a wrong one silently emits nothing.
+  @spritemap-property: e(@mode);
+  @spritemap-type: e(@type);
+  @spritemap-size: e(@include-size);
 
   @fragment: if(
-    @type = 'fragment',
+    @spritemap-type = fragment,
     '@{route}#@{sprites-prefix}@{name}-view',
     false
   );
-  @uri: if(@type = 'uri', @sprite[uri], false);
+  @uri: if(@spritemap-type = uri, @sprite[uri], false);
 
   & when (isstring(@fragment)) {
-    @{mode}: url(@fragment) center no-repeat;
+    @{spritemap-property}: url(@fragment) center no-repeat;
   }
   & when (isstring(@uri)) {
-    .sprite-vars(@mode; @uri; @sprite; @name; @variables);
+    .sprite-vars(@spritemap-property; @uri; @sprite; @name; @variables);
   }
 
   & when (isstring(@fragment)), (isstring(@uri)) {
-    & when (@include-size) {
-      @{mode}-size: @sprite[width] @sprite[height];
+    & when (@spritemap-size = true) {
+      @{spritemap-property}-size: @sprite[width] @sprite[height];
     }
-    & when (@include-size = 'box') {
+    & when (@spritemap-size = box) {
       width: @sprite[width];
       height: @sprite[height];
     }
