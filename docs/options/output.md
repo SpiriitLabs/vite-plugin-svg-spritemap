@@ -45,7 +45,7 @@ Disable this option to remove `use` generation on spritemap.
 - **Type:** `'xlink:href' | 'href' | 'both'`
 - **Default:** `'xlink:href'`
 
-Which attribute(s) are used to reference the sprite on the generated `<use>` elements — both in the spritemap and in the `?use` Vue component.
+Which attribute(s) are used to reference the sprite on the generated `<use>` elements, both in the spritemap and in the `?use` Vue component.
 
 [SVG 2 removed the need for the `xlink` namespace](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/xlink:href), so `xlink:href` is deprecated in favor of `href`. This option lets you choose:
 
