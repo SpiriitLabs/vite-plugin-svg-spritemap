@@ -13,6 +13,9 @@ $-__mixin__-escapes: (
   ("'", '&apos;'),
   ('"', '&quot;'),
   ('%', '%25'),
+  // after `%`, so the `%` this introduces is not encoded in turn. A raw `\` would
+  // open a css escape in the `url("...")` string the uri ends up inside
+  ('\\', '%5c'),
   ('#', '%23'),
   ('&', '%26'),
   (';', '%3b'),
