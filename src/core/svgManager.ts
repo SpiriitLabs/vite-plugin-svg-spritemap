@@ -1,3 +1,4 @@
+import type { SvgVariablesResult } from '@helpers/variables'
 import type { Jobs as OxvgConfig } from '@oxvg/napi'
 import type { Glob } from 'picomatch'
 import type { Config as SvgoConfig } from 'svgo'
@@ -82,9 +83,13 @@ export class SVGManager {
 
     svg = await this._optimizeSvg(svg)
 
-    const extracted = this._options.variables === false ? null : extractSvgVariables(svg)
-    if (extracted)
-      this._logVariableWarnings(filePath, extracted.warnings)
+    let extracted: SvgVariablesResult | null = null
+    if (this._options.variables !== false) {
+      extracted = extractSvgVariables(svg)
+      // unconditional: an empty set is what resets the memo, so an icon that loses
+      // its `var()` and gets it back warns again
+      this._logVariableWarnings(filePath, extracted?.warnings ?? [])
+    }
 
     let source = svg
     let variables: SvgVariables | undefined
