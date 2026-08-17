@@ -153,11 +153,8 @@ exports[`variables generation > emits a template uri and a defaults map (less) 1
 
 .sprite(@name, @include-size: false, @type: 'uri', @route: '/__spritemap', @mode: background, @variables: false) {
   @sprite: @sprites[ @@name];
-  // Every keyword argument goes through \`e()\`, because Less reads \`box\` and \`'box'\` as
-  // two values where sass and stylus compare them equal, and \`@{mode}\` keeps the quotes
-  // of a quoted one and emits \`'mask':\`, which the browser discards without a word.
-  // Quoting is what the docs spell at every call site, so either spelling has to land
-  // on the same guard here: without it a wrong one silently emits nothing.
+  // \`e()\` so a quoted argument lands on the same guard as a bare one, which sass and
+  // stylus already compare equal: without it \`@mode: 'mask'\` emitted \`'mask':\`
   @spritemap-property: e(@mode);
   @spritemap-type: e(@type);
   @spritemap-size: e(@include-size);
@@ -282,8 +279,7 @@ $-sprite-escapes: (
   ("'", '&apos;'),
   ('"', '&quot;'),
   ('%', '%25'),
-  // after \`%\`, so the \`%\` this introduces is not encoded in turn. A raw \`\\\` would
-  // open a css escape in the \`url("...")\` string the uri ends up inside
+  // after \`%\`, or the \`%\` below is encoded twice. Raw, a \`\\\` opens a css escape
   ('\\\\', '%5c'),
   ('#', '%23'),
   ('&', '%26'),
@@ -511,8 +507,7 @@ $sprites-variables = {
 sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route = '/__spritemap', $variables = {})
 	// nested definitions are lexically scoped: they stay out of the importer's scope
 	$sprite-entities = ('&' '&amp;'), ('<' '&lt;')
-	// \`\\\` sits after \`%\`, so the \`%\` it introduces is not encoded in turn. A raw \`\\\`
-	// would open a css escape in the \`url("...")\` string the uri ends up inside
+	// \`\\\` sits after \`%\`, or its \`%\` is encoded twice. Raw, it opens a css escape
 	$sprite-escapes = ("'" '&apos;'), ('"' '&quot;'), ('%' '%25'), ('\\' '%5c'), ('#' '%23'), ('&' '%26'), (';' '%3b'), ('>' '%3e'), ('(' '%28'), (')' '%29'), ('{' '%7b'), ('}' '%7d'), (',' '%2c'), ('+' '%2b'), ('$' '%24'), ('?' '%3f')
 
 	sprite-replace($string, $search, $replacement)
@@ -547,8 +542,7 @@ sprite($name, $include-size = false, $type = 'uri', $mode = 'background', $route
 				warn('sprite(): "' + $name + '" does not declare any variable, $variables is ignored.')
 			else
 				$url = $sprite['uri-template']
-				// into a fresh literal, so \`$defaults\` is left alone, and in one call:
-				// a bare \`merge()\` statement is emitted into the stylesheet as raw output
+				// one call into a fresh literal: a bare \`merge()\` is emitted as raw output
 				$merged = merge({}, $defaults, $variables)
 
 				for $key, $value in $merged

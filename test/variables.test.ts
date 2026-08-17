@@ -33,7 +33,7 @@ function urls(css: string): string[] {
   return [...css.matchAll(/url\((?:"([^"]*)"|([^)]*))\)/g)].map(match => match[1] ?? match[2])
 }
 
-/** Indented lines of a rule body, so one a mixin leaked there cannot go unnoticed. */
+/** Indented lines of a rule body, so a leaked one cannot go unnoticed. */
 function bodyLines(css: string): string[] {
   return css.split('\n').filter(line => /^\s+\S/.test(line))
 }
@@ -124,8 +124,7 @@ describe('variables parsing', () => {
     expect(result?.warnings).toEqual([])
   })
 
-  // `--12` is the one css allows that `sortVariableDefaults()` could not order: an
-  // object lists `12` ahead of every other key, whatever the sort said
+  // `--12` is the one css allows that an object would list first, undoing the sort
   it.each(['var(--1color, #fff)', 'var(--12, #fff)', 'var(--, #fff)', 'var(--a b, #fff)'])('rejects the invalid name in %s', (value) => {
     const result = extractSvgVariables(`<svg fill="${value}"/>`)
     expect(result?.defaults.size).toBe(0)
@@ -611,8 +610,7 @@ describe('variables substitution', () => {
       '\tsprite(\'plain\')',
     ].join('\n'))
 
-    // stylus writes a bare `merge()` statement out as raw text, which sat between
-    // the selector and its `background` without invalidating either
+    // a bare `merge()` used to be written out here as raw text
     for (const line of bodyLines(css))
       expect(line).toMatch(/^\s+[\w-]+: .*;$/)
 
@@ -1001,8 +999,7 @@ describe('variables cross-language equivalence', () => {
 .b { .sprite('literal'); }`)
 
     for (const css of [scssCss, stylCss, lessCss]) {
-      // the uri sits inside a `url("...")`, a css string: a raw `\` would open an
-      // escape there and reach the browser as `—`, or vanish before a non-hex char
+      // the uri sits in a `url("...")`, a css string: a raw `\` opens an escape there
       expect(css).not.toContain('\\')
 
       const [themed, untouched] = urls(css).map(decodeUri)
@@ -1017,11 +1014,8 @@ describe('variables cross-language equivalence', () => {
     }
   })
 
-  // Every other assertion here reads the uri out of the stylesheet text, which is one
-  // step short: the uri sits in a `url("...")`, and the css tokenizer reads that string
-  // before anything percent-decodes it. Chromium handing back exactly what was authored
-  // is the only check of the escape tables that the tokenizer actually takes part in.
-  // A value the plugin never sees and a `\` default it does, in one call site
+  // the only check the css tokenizer takes part in: every other one reads the uri out
+  // of the stylesheet text, a step before the tokenizer gets to it
   it('reads the substituted uri back out of a browser unchanged', async () => {
     const value = 'a%b\'c&d<e>f?g+h$i{j}k,l;m(n)o p'
 
@@ -1066,10 +1060,8 @@ describe('variables cross-language equivalence', () => {
     }
   })
 
-  // the same escape, coming from a call site rather than from the source: only the
-  // mixin's own escape table can encode that one. Sass resolves `\g` in its own string
-  // literal, so it takes the doubled spelling to mean the single character the other two
-  // write plainly
+  // from a call site, which only the mixin's escape table covers. Sass resolves `\g`
+  // in its own string literal, hence the doubled spelling
   it('encodes a backslash an override brings in', async () => {
     const scssCss = sass.compileString(`${await generate('literal_call', 'scss', {}, LITERAL_GLOB)}
 .a { @include sprite('literal', $variables: ('mark': '"a\\\\gb"')); }`).css

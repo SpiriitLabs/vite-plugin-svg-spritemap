@@ -226,10 +226,7 @@ export interface OptionsStyles {
   callback?: StylesCallback
 }
 
-/**
- * Called once per sprite, in spritemap order. `isLast` is `true` on the final one,
- * for separators.
- */
+/** Called once per sprite, in spritemap order. `isLast` is `true` on the final one. */
 export type SpritemapGenerator = (svg: SvgDataUriMapObject, isLast: boolean) => string
 
 export interface StylesCallbackContext {
@@ -247,10 +244,7 @@ export interface StylesCallbackContext {
   createSpritemap: (generator: SpritemapGenerator) => string
 }
 
-/**
- * Named so a `styles.callback` extracted to a function can be typed: written inline
- * it infers its own context, written apart it has nothing to infer from.
- */
+/** Named so a `styles.callback` extracted to a function can be typed. */
 export type StylesCallback = (ctx: StylesCallbackContext) => string
 
 export interface OptionsRoute {

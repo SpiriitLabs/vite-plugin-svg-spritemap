@@ -87,11 +87,8 @@
 
 .__mixin__(@name, @include-size: false, @type: 'uri', @route: '__route__', @mode: background, @variables: false) {
   @sprite: @__sprites__[ @@name];
-  // Every keyword argument goes through `e()`, because Less reads `box` and `'box'` as
-  // two values where sass and stylus compare them equal, and `@{mode}` keeps the quotes
-  // of a quoted one and emits `'mask':`, which the browser discards without a word.
-  // Quoting is what the docs spell at every call site, so either spelling has to land
-  // on the same guard here: without it a wrong one silently emits nothing.
+  // `e()` so a quoted argument lands on the same guard as a bare one, which sass and
+  // stylus already compare equal: without it `@mode: 'mask'` emitted `'mask':`
   @spritemap-property: e(@mode);
   @spritemap-type: e(@type);
   @spritemap-size: e(@include-size);

@@ -106,18 +106,10 @@ export class Styles {
   }
 
   /**
-   * Values come from the svg verbatim, and four things do not survive the quoting as-is:
-   * a `"` ends the string, a `\` is an escape to sass alone, a `#{` opens a sass
-   * interpolation and a `@{` a less one. Backslash-escaping them would only work in one
-   * language: sass keeps `\\` in its serialized string rather than collapsing it, stylus
-   * rejects a `\"` outright and less passes both through. A character reference is inert
-   * to all three lexers and decodes back in the xml the value ends up in.
-   *
-   * A whitespace run collapses before any of that, and so does the `"` above: they
-   * come from the pair `normalizeDefault()` applies wherever else a default lands, and
-   * applying them here too is what keeps every path one document. Its `'` half is left
-   * out on purpose: a raw `'` sits fine inside the `"` quoting above, and the mixin's
-   * own escape table turns it into the same `&apos;` on the way into the uri.
+   * Values come from the svg verbatim, and a `"`, `\`, `#{` or `@{` does not survive the
+   * quoting: a character reference is the only escape all three lexers pass through. The
+   * whitespace and quote pair mirrors `normalizeDefault()`, minus its `'`, which the
+   * mixin's own escape table turns into the same entity.
    */
   private static formatVariableValue(value: string): string {
     return `"${value
@@ -129,11 +121,9 @@ export class Styles {
   }
 
   /**
-   * Like `createSpriteMap()`, but over the sprites that declare a variable alone.
-   * Both the scss and the styl mixin read a missing key back as an empty map and
-   * warn from there, so an entry per sprite would be one dead line for every icon
-   * that themes nothing. Less is the exception: it cannot test a key for existence,
-   * so `_generate_less()` keeps writing all of them.
+   * Like `createSpriteMap()`, but over the themable sprites alone: the scss and styl
+   * mixins read a missing key back as an empty map. Less cannot test a key for
+   * existence, so `_generate_less()` keeps writing every sprite.
    */
   private createVariablesMap(generator: (svg: ThemableSprite, isLast: boolean) => string): string {
     const themable = [...this._svgs.values()].filter(
@@ -206,11 +196,7 @@ export class Styles {
     return include === true || (include !== false && include.includes(entry))
   }
 
-  /**
-   * Whether to emit the maps every preprocessor lang declares, all gated on the
-   * `'variables'` entry of `styles.include`: the sass/less/stylus variables, not
-   * the icon ones.
-   */
+  /** The `'variables'` entry of `styles.include`: the sass/less/stylus ones, not the icon ones. */
   private _includesMaps(): boolean {
     return this._includes('variables')
   }

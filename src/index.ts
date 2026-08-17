@@ -7,12 +7,7 @@ import CommonPlugin from '@plugins/common'
 import DevPlugin from '@plugins/dev'
 import VuePlugin from '@plugins/vue'
 
-/**
- * Everything reachable from the plugin's own surface: the options you pass in,
- * the resolved options and sprite objects `styles.callback` and `idify` hand back.
- * An allowlist rather than a re-export of the module, so `Shared` and
- * `UserOptionsLogs` stay internal.
- */
+/** An allowlist rather than a re-export, so `Shared` and `UserOptionsLogs` stay internal. */
 export type {
   Options,
   OptionsOutput,
