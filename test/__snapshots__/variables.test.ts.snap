@@ -250,8 +250,6 @@ $sprites-variables: (
 		'color': "#f0f",
 		'font': "serif"
 	),
-	'invalid-name': (
-	),
 	'mismatch': (
 		'color': "#fff"
 	),
@@ -262,8 +260,6 @@ $sprites-variables: (
 	'no-default': (
 		'color': "",
 		'edge': ""
-	),
-	'plain': (
 	),
 	'themable': (
 		'weight': "2",
@@ -495,8 +491,6 @@ $sprites-variables = {
 		'color': "#f0f",
 		'font': "serif"
 	},
-	'invalid-name': {
-	},
 	'mismatch': {
 		'color': "#fff"
 	},
@@ -507,8 +501,6 @@ $sprites-variables = {
 	'no-default': {
 		'color': "",
 		'edge': ""
-	},
-	'plain': {
 	},
 	'themable': {
 		'weight': "2",
