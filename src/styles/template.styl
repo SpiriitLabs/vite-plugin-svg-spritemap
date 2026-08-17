@@ -24,7 +24,7 @@ __mixin__($name, $include-size = false, $type = 'uri', $mode = 'background', $ro
 		$url = $route + '#' + $__prefix__ + $name + '-view'
 
 		if length($variables) > 0
-			warn('__mixin__(): $variables cannot be applied to the "fragment" type, ignored')
+			warn('__mixin__(): $variables cannot be applied to the "fragment" type, ignored.')
 	else if $type == 'uri'
 		$url = $sprite[uri]
 
@@ -34,7 +34,7 @@ __mixin__($name, $include-size = false, $type = 'uri', $mode = 'background', $ro
 				$defaults = $__variables__[$name]
 
 			if length($defaults) == 0
-				warn('__mixin__(): "' + $name + '" does not declare any variable, $variables is ignored')
+				warn('__mixin__(): "' + $name + '" does not declare any variable, $variables is ignored.')
 			else
 				$url = $sprite['uri-template']
 				// into a fresh literal, so `$defaults` is left alone, and in one call:
@@ -43,12 +43,13 @@ __mixin__($name, $include-size = false, $type = 'uri', $mode = 'background', $ro
 
 				for $key, $value in $merged
 					if $key in $defaults
-						// case-insensitively, as css matches a function name
-						if $key in $variables and match('(var|url)[(]', '' + $value, 'i')
-							warn('__mixin__(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri')
+						// case-insensitively, as css matches a function name, and left-guarded
+						// because a function token is an identifier immediately followed by `(`
+						if $key in $variables and match('(^|[^\w-])(var|url)[(]', '' + $value, 'i')
+							warn('__mixin__(): "' + $key + '" is set to "' + $value + '", a css reference cannot see the page from inside a data uri.')
 						$url = __mixin__-replace($url, '___' + $key + '___', __mixin__-escape($value, $key in $variables))
 					else
-						warn('__mixin__(): "' + $name + '" has no variable named "' + $key + '"')
+						warn('__mixin__(): "' + $name + '" has no variable named "' + $key + '", available: ' + keys($defaults) + '.')
 	else
 		error('__mixin__(): $type must be either "fragment" or "uri"')
 

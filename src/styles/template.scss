@@ -60,12 +60,39 @@ $-__mixin__-escapes: (
   @return $string;
 }
 
+// A function token is an identifier immediately followed by `(`, so `myvar(x)` is
+// not a call. Sass has no regex: scan every occurrence and check what precedes it.
+@function -__mixin__-call($string, $name) {
+  $rest: $string;
+  $offset: 0;
+  $index: string.index($rest, $name);
+
+  @while $index {
+    $at: $offset + $index;
+    $before: '';
+
+    @if $at > 1 {
+      $before: string.slice($string, $at - 1, $at - 1);
+    }
+
+    @if $before == '' or not string.index('abcdefghijklmnopqrstuvwxyz0123456789_-', $before) {
+      @return true;
+    }
+
+    $offset: $at;
+    $rest: string.slice($rest, $index + 1);
+    $index: string.index($rest, $name);
+  }
+
+  @return false;
+}
+
 // case-insensitively, as css matches a function name: an uppercase `VAR(` reaches
 // the data uri exactly like a lowercase one
 @function -__mixin__-references($value) {
   $string: string.to-lower-case('#{$value}');
 
-  @return string.index($string, 'var(') or string.index($string, 'url(');
+  @return -__mixin__-call($string, 'var(') or -__mixin__-call($string, 'url(');
 }
 
 @mixin __mixin__(
