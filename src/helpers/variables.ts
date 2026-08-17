@@ -1,4 +1,4 @@
-import type { Options } from '@/types'
+import type { Options, SvgMapObject } from '@/types'
 
 // underscores survive `mini-svg-data-uri` and mean nothing in a regex
 const TOKEN_DELIMITER = '___'
@@ -55,6 +55,16 @@ export function variableToken(name: string): string {
  */
 function byTokenLength(a: string, b: string): number {
   return b.length - a.length || (a < b ? -1 : 1)
+}
+
+/** Whether any icon of a set is themable. Iterated rather than copied out: it runs per generated file. */
+export function hasVariables(svgs: Map<string, SvgMapObject>): boolean {
+  for (const svg of svgs.values()) {
+    if (svg.variables)
+      return true
+  }
+
+  return false
 }
 
 /** Whether the emitted spritemap bakes the defaults in rather than keeping the `var()`. */

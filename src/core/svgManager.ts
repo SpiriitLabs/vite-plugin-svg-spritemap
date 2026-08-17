@@ -11,7 +11,7 @@ import { toUserUnits } from '@helpers/length'
 import { log } from '@helpers/log'
 import { getOptimize as getOptimiseOxvg, getOptions as getOptionsOxvg, withoutVariablesJobs } from '@helpers/oxvg'
 import { getOptimize as getOptimizeSvgo, getOptions as getOptionsSvgo } from '@helpers/svgo'
-import { extractSvgVariables, resolvesSpritemap, resolveVariableTokens, sortVariableDefaults } from '@helpers/variables'
+import { extractSvgVariables, hasVariables, resolvesSpritemap, resolveVariableTokens, sortVariableDefaults } from '@helpers/variables'
 import { DOMImplementation, DOMParser, XMLSerializer } from '@xmldom/xmldom'
 import { glob } from 'tinyglobby'
 import { Styles } from '@/core/styles'
@@ -513,11 +513,7 @@ export class SVGManager {
       return
 
     const { lang } = this._options.styles
-    if (
-      !this._variablesLangWarned
-      && lang === 'css'
-      && [...this._svgs.values()].some(svg => svg.variables)
-    ) {
+    if (!this._variablesLangWarned && lang === 'css' && hasVariables(this._svgs)) {
       this._variablesLangWarned = true
       log({ level: 'warn', message: `Icon variables cannot be substituted with \`styles.lang: 'css'\`, the default values are used. Use \`scss\`, \`styl\` or \`less\` for themable icons.`, logger: this._config.logger })
     }

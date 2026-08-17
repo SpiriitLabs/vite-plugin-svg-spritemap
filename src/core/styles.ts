@@ -1,7 +1,7 @@
-import type { Options, OptionsStyles, StylesInclude, StylesLang, SvgDataUriMapObject, SvgMapObject } from '../types'
+import type { Options, OptionsStyles, SpritemapGenerator, StylesInclude, StylesLang, SvgDataUriMapObject, SvgMapObject } from '../types'
 import { promises } from 'node:fs'
 import path from 'node:path'
-import { resolvesSpritemap, resolveVariableTokens } from '@helpers/variables'
+import { hasVariables, resolvesSpritemap, resolveVariableTokens } from '@helpers/variables'
 import svgToMiniDataURI from 'mini-svg-data-uri'
 
 // SVGManager replaces the SvgMapObject on every icon change, so a stale entry
@@ -9,6 +9,9 @@ import svgToMiniDataURI from 'mini-svg-data-uri'
 const dataUriCache = new WeakMap<SvgMapObject, { svgDataUri: string, svgDataUriTemplate?: string }>()
 // raw template.<lang> contents, immutable at runtime
 const templateCache = new Map<StylesLang, string>()
+
+/** A sprite that declares at least one variable, the only kind the defaults maps hold. */
+type ThemableSprite = SvgDataUriMapObject & { variableDefaults: Record<string, string> }
 
 export class Styles {
   private _svgs: Map<string, SvgDataUriMapObject>
@@ -30,16 +33,14 @@ export class Styles {
     this._options = options
     this._styles = options.styles
     this._routeUrl = routeUrl
-    this._variablesEnabled = options.variables !== false
-      && [...svgs.values()].some(svg => svg.variables)
+    this._variablesEnabled = options.variables !== false && hasVariables(svgs)
 
     const spritemapResolved = resolvesSpritemap(options.variables)
     // the mixin is the only consumer of a token, so without one the template uri is
     // dead weight: it roughly doubles a themable sprite's entry
-    const maps = this._stylesForMaps()
     const templatable = this._variablesEnabled
-      && maps !== null
-      && maps.lang !== 'css'
+      && this._includesMaps()
+      && this._styles.lang !== 'css'
       && this._includes('mixin')
 
     svgs.forEach((svg, filePath) => {
@@ -94,12 +95,7 @@ export class Styles {
     )
   }
 
-  private createSpriteMap(
-    generator: (
-      svg: SvgDataUriMapObject,
-      isLast: boolean,
-    ) => string,
-  ): string {
+  private createSpriteMap(generator: SpritemapGenerator): string {
     let spriteMap = ''
     let index = 1
     this._svgs.forEach((svg) => {
@@ -132,9 +128,25 @@ export class Styles {
       .replace(/@\{/g, '&#64;{')}"`
   }
 
+  /**
+   * Like `createSpriteMap()`, but over the sprites that declare a variable alone.
+   * Both the scss and the styl mixin read a missing key back as an empty map and
+   * warn from there, so an entry per sprite would be one dead line for every icon
+   * that themes nothing. Less is the exception: it cannot test a key for existence,
+   * so `_generate_less()` keeps writing all of them.
+   */
+  private createVariablesMap(generator: (svg: ThemableSprite, isLast: boolean) => string): string {
+    const themable = [...this._svgs.values()].filter(
+      (svg): svg is ThemableSprite => typeof svg.variableDefaults !== 'undefined',
+    )
+    return themable
+      .map((svg, index) => `${generator(svg, index === themable.length - 1)}\n`)
+      .join('')
+  }
+
   /** `'name': "value"` entries of one sprite, shared by the scss and styl maps. */
-  private static formatVariablePairs(svg: SvgDataUriMapObject): string {
-    return Object.entries(svg.variableDefaults ?? {})
+  private static formatVariablePairs(svg: ThemableSprite): string {
+    return Object.entries(svg.variableDefaults)
       .map(([name, value]) => `\n\t\t'${name}': ${Styles.formatVariableValue(value)}`)
       .join(',')
   }
@@ -195,22 +207,23 @@ export class Styles {
   }
 
   /**
-   * The maps every preprocessor lang emits, all gated on the `'variables'` entry of
-   * `styles.include`: the sass/less/stylus variables, not the icon ones.
+   * Whether to emit the maps every preprocessor lang declares, all gated on the
+   * `'variables'` entry of `styles.include`: the sass/less/stylus variables, not
+   * the icon ones.
    */
-  private _stylesForMaps(): OptionsStyles | null {
-    return this._includes('variables') ? this._styles : null
+  private _includesMaps(): boolean {
+    return this._includes('variables')
   }
 
   // SCSS generation
   private _generate_scss() {
-    const styles = this._stylesForMaps()
-    if (!styles)
+    if (!this._includesMaps())
       return ''
 
-    let insert = `$${styles.names.prefix}: '${this._options.prefix}';\n`
+    const { names } = this._styles
+    let insert = `$${names.prefix}: '${this._options.prefix}';\n`
 
-    insert += `$${styles.names.sprites}: (\n`
+    insert += `$${names.sprites}: (\n`
     insert += this.createSpriteMap((svg, isLast) => {
       let sprite = ''
       sprite = `\t'${svg.id}': (`
@@ -224,10 +237,9 @@ export class Styles {
     })
     insert += ');\n'
 
-    // an entry per sprite, empty ones included: the mixin looks every sprite up
     if (this._variablesEnabled) {
-      insert += `\n$${styles.names.variables}: (\n`
-      insert += this.createSpriteMap((svg, isLast) =>
+      insert += `\n$${names.variables}: (\n`
+      insert += this.createVariablesMap((svg, isLast) =>
         `\t'${svg.id}': (${Styles.formatVariablePairs(svg)}\n\t${isLast ? ')' : '),'}`)
       insert += ');\n'
     }
@@ -237,13 +249,13 @@ export class Styles {
 
   // Styl generation
   private _generate_styl() {
-    const styles = this._stylesForMaps()
-    if (!styles)
+    if (!this._includesMaps())
       return ''
 
-    let insert = `$${styles.names.prefix} = '${this._options.prefix}'\n`
+    const { names } = this._styles
+    let insert = `$${names.prefix} = '${this._options.prefix}'\n`
 
-    insert += `$${styles.names.sprites} = {\n`
+    insert += `$${names.sprites} = {\n`
     insert += this.createSpriteMap((svg, isLast) => {
       let sprite = ''
       sprite = `\t'${svg.id}': {`
@@ -257,10 +269,9 @@ export class Styles {
     })
     insert += '}\n'
 
-    // an entry per sprite, empty ones included: the mixin looks every sprite up
     if (this._variablesEnabled) {
-      insert += `\n$${styles.names.variables} = {\n`
-      insert += this.createSpriteMap((svg, isLast) =>
+      insert += `\n$${names.variables} = {\n`
+      insert += this.createVariablesMap((svg, isLast) =>
         `\t'${svg.id}': {${Styles.formatVariablePairs(svg)}\n\t${isLast ? '}' : '},'}`)
       insert += '}\n'
     }
@@ -270,13 +281,13 @@ export class Styles {
 
   // Less generation
   private _generate_less() {
-    const styles = this._stylesForMaps()
-    if (!styles)
+    if (!this._includesMaps())
       return ''
 
-    let insert = `@${styles.names.prefix}: '${this._options.prefix}';\n`
+    const { names } = this._styles
+    let insert = `@${names.prefix}: '${this._options.prefix}';\n`
 
-    insert += `@${styles.names.sprites}: {\n`
+    insert += `@${names.sprites}: {\n`
     insert += this.createSpriteMap((svg) => {
       let sprite = ''
       sprite = `\t@${svg.id}: {`
@@ -296,7 +307,7 @@ export class Styles {
     // maps: Less has no way to test a variable for existence, so a missing map is a
     // compile error at the mixin's lookup rather than a warning it can recover from
     if (this._variablesEnabled || this._includes('mixin')) {
-      insert += `\n@${styles.names.variables}: {\n`
+      insert += `\n@${names.variables}: {\n`
       insert += this.createSpriteMap((svg) => {
         const entries = Object.entries(svg.variableDefaults ?? {})
         const pairs = entries.map(([name, value]) => `'${name}' ${Styles.formatVariableValue(value)}`)
