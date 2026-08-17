@@ -2,11 +2,11 @@
 import './../../_fixtures/scss/style.scss'
 
 // Stylus
-// import './stylus/style.styl'
+// import './../../_fixtures/stylus/style.styl'
 
 // Less
-// import './less/style.less'
+// import './../../_fixtures/less/style.less'
 
 // CSS
-// import './css/spritemap.css'
-// import './css/style.css'
+// import './../../_fixtures/css/spritemap.css'
+// import './../../_fixtures/css/style.css'

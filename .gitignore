@@ -12,5 +12,8 @@ test/fixtures/basic/styles/*
 !test/fixtures/basic/styles/.gitkeep
 demo/_fixtures/scss/spritemap.scss
 demo/_fixtures/scss/spritemap-flags.scss
+demo/_fixtures/less/spritemap.less
+demo/_fixtures/stylus/spritemap.styl
+demo/_fixtures/css/spritemap.css
 docs/.vitepress/cache
 .tsup
