@@ -4,7 +4,7 @@ import type { Options } from '@/types'
 import process from 'node:process'
 import { log } from '@helpers/log'
 import { defaultDisabledPlugins } from '@helpers/svgo'
-import { STYLE_ELEMENT_RE, VAR_CALL_RE } from '@helpers/variables'
+import { VAR_CALL_RE } from '@helpers/variables'
 
 // ---------------------------------------------------------------------------
 // `var()` mitigations for https://github.com/noahbald/oxvg/issues/264. This block
@@ -14,6 +14,9 @@ import { STYLE_ELEMENT_RE, VAR_CALL_RE } from '@helpers/variables'
 // left-guarded like `VAR_CALL_RE`: a `\b` matches after a hyphen too, which would
 // read `font-style="var(--s, italic)"` as a style declaration
 const STYLE_ATTRIBUTE_RE = /(?<![\w-])style\s*=\s*(?:"([^"]*)"|'([^']*)')/gi
+// the namespace prefix is optional: an editor may write every element out as
+// `<svg:style>`, which is the same element and panics the same way
+const STYLE_ELEMENT_RE = /<(?:[\w.-]+:)?style\b[^>]*>([\s\S]*?)<\/(?:[\w.-]+:)?style\s*>/gi
 
 /**
  * Disabled for icons carrying a `var()`: OXVG reads an unresolvable one as "no

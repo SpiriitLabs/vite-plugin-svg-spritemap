@@ -22,10 +22,12 @@ const VAR_CALL_SCAN_RE = new RegExp(VAR_CALL_RE.source, 'gi')
 const EXTERNAL_URL_CALL_RE = /(?<![\w-])url\((?!\s*(?:['"]\s*)?#)/i
 
 const ATTRIBUTE_RE = /([a-z_:][\w:.-]*)\s*=\s*(?:"([^"]*)"|'([^']*)')/gi
-const TAG_NAME_RE = /^<\s*([a-z_:][\w:.-]*)/i
-const STYLE_CLOSE_RE = /<\/style\s*>/i
+// the local name, past any namespace prefix: an editor may write every element out
+// as `<svg:style>`, which is the same element
+const TAG_LOCAL_NAME_RE = /^<\s*(?:[\w.-]+:)?([a-z_][\w.-]*)/i
+// `g` so it can be searched from an offset rather than from a copy of the rest of the source
+const STYLE_CLOSE_RE = /<\/(?:[\w.-]+:)?style\s*>/gi
 const VAR_NAME_RE = /^--([a-z][\w-]*)$/i
-export const STYLE_ELEMENT_RE: RegExp = /<style\b[^>]*>([\s\S]*?)<\/style\s*>/gi
 
 interface VarOccurrence {
   start: number
@@ -231,12 +233,13 @@ function collectVarSites(source: string): VarSite[] {
       })
     }
 
-    if (TAG_NAME_RE.exec(tag)?.[1].toLowerCase() !== 'style' || tag.endsWith('/>'))
+    if (TAG_LOCAL_NAME_RE.exec(tag)?.[1].toLowerCase() !== 'style' || tag.endsWith('/>'))
       continue
 
-    const close = STYLE_CLOSE_RE.exec(source.slice(end))
-    const content = source.slice(end, close ? end + close.index : source.length)
-    cursor = close ? end + close.index + close[0].length : source.length
+    STYLE_CLOSE_RE.lastIndex = end
+    const close = STYLE_CLOSE_RE.exec(source)
+    const content = source.slice(end, close ? close.index : source.length)
+    cursor = close ? STYLE_CLOSE_RE.lastIndex : source.length
 
     if (VAR_CALL_RE.test(content))
       sites.push({ start: end, value: content, label: '`<style>`' })
