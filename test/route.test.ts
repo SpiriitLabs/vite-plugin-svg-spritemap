@@ -255,6 +255,31 @@ describe('route with custom base', { sequential: true }, () => {
     expect(source).toMatch(/"\.\/assets\/spritemap\.[^"#]+\.svg#sprite-vite"/)
   })
 
+  // Counterpart to #40 (SvelteKit) and the answer to #134: a relative base
+  // keeps an absolute `/__spritemap` reference absolute. A relative path would
+  // resolve against the document for a JS chunk and against the stylesheet for
+  // CSS, so it breaks on any deep route. Deploying under a sub-path is what an
+  // absolute `base` is for, not a relative one.
+  it('keeps an absolute route reference absolute in build (relative base)', async () => {
+    const result = await build({
+      configFile: false,
+      logLevel: 'silent',
+      root: getPath('./fixtures/basic'),
+      base: './',
+      build: {
+        write: false,
+        outDir: getPath('./fixtures/basic/dist/_absolute_rel'),
+        rollupOptions: { input: getPath('./fixtures/basic/index.html') },
+      },
+      plugins: [VitePluginSvgSpritemap(getPath('./fixtures/basic/svg/*.svg'))],
+    })
+    const outputs = (Array.isArray(result) ? result : [result]) as Array<{ output: any[] }>
+    const html = outputs.flatMap(o => o.output).find(file => file.fileName.endsWith('.html'))
+    const source = String(html.source)
+
+    expect(source).toMatch(/"\/assets\/spritemap\.[^"#]+\.svg#sprite-vite"/)
+  })
+
   // Regression for #102 (Case 1): a raw absolute `/__spritemap` reference in a
   // JS/Vue module (not an `?use`/`?view` import) must be rewritten to the
   // base-aware URL in dev. Previously only CSS was rewritten, so the request
