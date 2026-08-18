@@ -96,7 +96,7 @@ A `style` attribute is extracted and overridable like any other attribute, and i
 Rules inside a `<style>` element are never parsed, only scanned as text, so which elements a rule matches stays up to the browser, and a `var()` written in a selector is substituted like one in a declaration.
 
 ::: warning A `<style>` rule is not scoped to its icon
-It is not confined to its `<symbol>` in the spritemap, whether or not it carries a variable, which is why the class above is named after the icon. See [Styles inside an icon](/guide/#styles-inside-an-icon).
+It is not confined to its `<symbol>` in the spritemap, whether or not it carries a variable, which is why the class above is named after the icon. See [Styles inside an icon](/guide/styles-inside-an-icon).
 :::
 
 ::: tip A themed icon is optimized a little less under OXVG
