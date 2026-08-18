@@ -24,11 +24,13 @@ export default defineConfig({
             { text: 'Getting started', link: '/guide/' },
             { text: 'Styles', link: '/guide/styles' },
             { text: 'Variables', link: '/guide/variables' },
+            { text: 'Deployment', link: '/guide/deployment' },
           ],
         },
         {
           text: 'Advanced',
           items: [
+            { text: 'Styles inside an icon', link: '/guide/styles-inside-an-icon' },
             { text: 'Backend Integration', link: '/guide/backend-integration' },
             { text: 'Vue/Nuxt', link: '/guide/vue' },
             { text: 'Customize styles output', link: '/guide/customize-styles-output' },

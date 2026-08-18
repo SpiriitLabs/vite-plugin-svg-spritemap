@@ -238,7 +238,7 @@ bun add -D svgo
 Inject the SVG Spritemap inside the body on dev. Useful for mitigating CORS issue with a [Backend](/guide/backend-integration).
 
 ::: warning An icon's `<style>` element becomes a stylesheet of your page
-The spritemap is inlined into the body, so a `<style>` element carried by one of your icons is a stylesheet of the document and restyles anything its selectors match, an editor's `.cls-1` or `.st0` included. Referenced through a URL, which is what the build does, the same rules stay inside the spritemap document, so this shows up in dev only. See [Styles inside an icon](/guide/#styles-inside-an-icon).
+The spritemap is inlined into the body, so a `<style>` element carried by one of your icons is a stylesheet of the document and restyles anything its selectors match, an editor's `.cls-1` or `.st0` included. Referenced through a URL, which is what the build does, the same rules stay inside the spritemap document, so this shows up in dev only. See [Styles inside an icon](/guide/styles-inside-an-icon).
 :::
 
 ## idify
@@ -264,6 +264,8 @@ const route = {
   name: 'Flags',
 }
 ```
+
+On build, a reference to this route is rewritten to the emitted asset URL, following Vite's `base`. See [Deployment](/guide/deployment).
 
 ## gutter
 
