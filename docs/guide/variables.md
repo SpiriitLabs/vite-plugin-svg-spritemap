@@ -197,7 +197,6 @@ Less has no map literal, so variables go in as a comma-separated list of `'name'
 - **Separate the mixin arguments with `;`** as soon as you pass more than one pair, since Less reads a comma inside a mixin call as an *argument* separator: `.sprite('alert'; @variables: 'color' '#f00', 'weight' 3)`. A single pair works with either separator.
 - **Quote your keys.** A value containing a space works either way, quoted (`'dash' '2 4'`) or not (`'dash' 2 4`), since everything past the name is folded back into one value.
 - **A value containing a comma must be quoted.** Unquoted, it starts the next pair, and Less has no `@warn` to tell you: `'font' Arial, sans-serif` substitutes `Arial` alone. Write `'font' 'Arial, sans-serif'`.
-- **`@route` comes before `@mode`**, the reverse of SCSS and Stylus, kept that way so `@mode` did not shift an existing positional call. The signatures are `.sprite(@name, @include-size, @type, @route, @mode, @variables)` against `sprite($name, $include-size, $type, $mode, $route, $variables)`. Name your arguments and it never comes up.
 :::
 
 ### What a value may contain

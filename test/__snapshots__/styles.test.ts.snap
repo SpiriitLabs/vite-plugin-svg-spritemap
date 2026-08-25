@@ -158,7 +158,7 @@ exports[`styles generation > custom less names 1`] = `
   .icon-sprite-apply(@mode; @uri; @sprite; @variables; @sprites-variables[ @@name]);
 }
 
-.icon-sprite(@name, @include-size: false, @type: 'uri', @route: '/__spritemap', @mode: background, @variables: false) {
+.icon-sprite(@name, @include-size: false, @type: 'uri', @mode: background, @route: '/__spritemap', @variables: false) {
   @sprite: @icons[ @@name];
   @spritemap-property: e(@mode);
   @spritemap-type: e(@type);
@@ -306,7 +306,7 @@ exports[`styles generation > custom less sizes with em unit 1`] = `
   .sprite-apply(@mode; @uri; @sprite; @variables; @sprites-variables[ @@name]);
 }
 
-.sprite(@name, @include-size: false, @type: 'uri', @route: '/__spritemap', @mode: background, @variables: false) {
+.sprite(@name, @include-size: false, @type: 'uri', @mode: background, @route: '/__spritemap', @variables: false) {
   @sprite: @sprites[ @@name];
   @spritemap-property: e(@mode);
   @spritemap-type: e(@type);
@@ -454,7 +454,7 @@ exports[`styles generation > custom less sizes with rem unit and base 10 1`] = `
   .sprite-apply(@mode; @uri; @sprite; @variables; @sprites-variables[ @@name]);
 }
 
-.sprite(@name, @include-size: false, @type: 'uri', @route: '/__spritemap', @mode: background, @variables: false) {
+.sprite(@name, @include-size: false, @type: 'uri', @mode: background, @route: '/__spritemap', @variables: false) {
   @sprite: @sprites[ @@name];
   @spritemap-property: e(@mode);
   @spritemap-type: e(@type);
@@ -1569,7 +1569,7 @@ exports[`styles generation > include less ["mixin","variables"] 1`] = `
   .sprite-apply(@mode; @uri; @sprite; @variables; @sprites-variables[ @@name]);
 }
 
-.sprite(@name, @include-size: false, @type: 'uri', @route: '/__spritemap', @mode: background, @variables: false) {
+.sprite(@name, @include-size: false, @type: 'uri', @mode: background, @route: '/__spritemap', @variables: false) {
   @sprite: @sprites[ @@name];
   @spritemap-property: e(@mode);
   @spritemap-type: e(@type);
@@ -1717,7 +1717,7 @@ exports[`styles generation > include less ["mixin"] 1`] = `
   .sprite-apply(@mode; @uri; @sprite; @variables; @sprites-variables[ @@name]);
 }
 
-.sprite(@name, @include-size: false, @type: 'uri', @route: '/__spritemap', @mode: background, @variables: false) {
+.sprite(@name, @include-size: false, @type: 'uri', @mode: background, @route: '/__spritemap', @variables: false) {
   @sprite: @sprites[ @@name];
   @spritemap-property: e(@mode);
   @spritemap-type: e(@type);
@@ -1867,7 +1867,7 @@ exports[`styles generation > include less true 1`] = `
   .sprite-apply(@mode; @uri; @sprite; @variables; @sprites-variables[ @@name]);
 }
 
-.sprite(@name, @include-size: false, @type: 'uri', @route: '/__spritemap', @mode: background, @variables: false) {
+.sprite(@name, @include-size: false, @type: 'uri', @mode: background, @route: '/__spritemap', @variables: false) {
   @sprite: @sprites[ @@name];
   @spritemap-property: e(@mode);
   @spritemap-type: e(@type);
@@ -2829,7 +2829,7 @@ exports[`styles generation > less 1`] = `
   .sprite-apply(@mode; @uri; @sprite; @variables; @sprites-variables[ @@name]);
 }
 
-.sprite(@name, @include-size: false, @type: 'uri', @route: '/__spritemap', @mode: background, @variables: false) {
+.sprite(@name, @include-size: false, @type: 'uri', @mode: background, @route: '/__spritemap', @variables: false) {
   @sprite: @sprites[ @@name];
   @spritemap-property: e(@mode);
   @spritemap-type: e(@type);
