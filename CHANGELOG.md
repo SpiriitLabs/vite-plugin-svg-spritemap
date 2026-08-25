@@ -48,6 +48,13 @@ so early releases summarise the most user-facing changes rather than every commi
   the next major. `StylesInclude` no longer carries it, `StylesIncludeInput`, the
   type `styles.include` accepts, does.
 
+- The Less mixin takes `@mode` before `@route`, the order the SCSS and Stylus
+  mixins already used, so the three signatures now read the same. `@route` moves
+  from the fourth argument to the fifth, which only matters if you passed it
+  positionally: `.sprite('name', false, 'fragment', '/other-spritemap')` becomes
+  `.sprite('name', false, 'fragment', background, '/other-spritemap')`. Naming
+  the argument, `@route: '/other-spritemap'`, keeps working either way.
+
 ### Fixed
 
 - An icon carrying a `var()` was mangled by OXVG. Its

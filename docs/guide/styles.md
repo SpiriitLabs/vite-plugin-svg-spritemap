@@ -67,8 +67,6 @@ sprite('alert', $include-size: 'box', $mode: 'mask')
 ```
 :::
 
-Less orders `@route` before `@mode` and needs `;` between arguments as soon as one of them holds a comma. Both are covered in the [variables guide](/guide/variables#overriding-from-the-mixin), which is where a comma comes up first.
-
 After that, you need to import the file in your current styles. Don't forget to [load the CSS](https://vitejs.dev/guide/features.html#css) via ViteJS.
 
 If you use a CSS preprocessing language (Less/SCSS/Sass/Stylus), you can use the mixin `sprite` and access a map with all sprites info.

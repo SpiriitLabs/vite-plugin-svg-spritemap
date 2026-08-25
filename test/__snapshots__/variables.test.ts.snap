@@ -145,7 +145,7 @@ exports[`variables generation > emits a template uri and a defaults map (less) 1
   .sprite-apply(@mode; @uri; @sprite; @variables; @sprites-variables[ @@name]);
 }
 
-.sprite(@name, @include-size: false, @type: 'uri', @route: '/__spritemap', @mode: background, @variables: false) {
+.sprite(@name, @include-size: false, @type: 'uri', @mode: background, @route: '/__spritemap', @variables: false) {
   @sprite: @sprites[ @@name];
   @spritemap-property: e(@mode);
   @spritemap-type: e(@type);
