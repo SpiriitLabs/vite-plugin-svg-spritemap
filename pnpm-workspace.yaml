@@ -2,6 +2,8 @@ catalogMode: strict
 
 minimumReleaseAgeExclude:
   - svgo@4.1.0
+  - eslint@10.9.1
+  - picomatch@4.0.7
 shellEmulator: true
 
 trustPolicy: no-downgrade
@@ -24,17 +26,17 @@ catalog:
   '@types/picomatch': ^4.0.3
   '@types/stylus': ^0.48.43
   '@vitejs/plugin-vue': ^6.0.8
-  '@vitest/coverage-v8': ^4.1.10
+  '@vitest/coverage-v8': ^4.1.11
   '@xmldom/xmldom': ^0.9.12
   autoprefixer: ^10.5.4
   concurrently: ^10.0.5
-  eslint: ^10.9.0
+  eslint: ^10.9.1
   kolorist: ^1.8.0
   less: ^4.9.0
   mini-svg-data-uri: ^1.4.4
   nitropack: ^2.13.4
   nuxt: ^4.5.2
-  picomatch: ^4.0.5
+  picomatch: ^4.0.7
   playwright: ^1.62.1
   postcss: ^8.5.26
   pug: ^3.0.4
