@@ -181,7 +181,7 @@ describe('styles generation', () => {
           styles: {
             filename,
             lang,
-            include: lang === 'css' ? ['bg'] : ['variables'],
+            include: lang === 'css' ? ['bg'] : ['data'],
           },
         },
       })

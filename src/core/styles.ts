@@ -39,7 +39,7 @@ export class Styles {
     // the mixin is the only consumer of a token, so without one the template uri is
     // dead weight: it roughly doubles a themable sprite's entry
     const templatable = this._variablesEnabled
-      && this._includesMaps()
+      && this._includesData()
       && this._styles.lang !== 'css'
       && this._includes('mixin')
 
@@ -196,14 +196,14 @@ export class Styles {
     return include === true || (include !== false && include.includes(entry))
   }
 
-  /** The `'variables'` entry of `styles.include`: the sass/less/stylus ones, not the icon ones. */
-  private _includesMaps(): boolean {
-    return this._includes('variables')
+  /** The `'data'` entry of `styles.include`: the prefix, the sprites map and the defaults map. */
+  private _includesData(): boolean {
+    return this._includes('data')
   }
 
   // SCSS generation
   private _generate_scss() {
-    if (!this._includesMaps())
+    if (!this._includesData())
       return ''
 
     const { names } = this._styles
@@ -235,7 +235,7 @@ export class Styles {
 
   // Styl generation
   private _generate_styl() {
-    if (!this._includesMaps())
+    if (!this._includesData())
       return ''
 
     const { names } = this._styles
@@ -267,7 +267,7 @@ export class Styles {
 
   // Less generation
   private _generate_less() {
-    if (!this._includesMaps())
+    if (!this._includesData())
       return ''
 
     const { names } = this._styles

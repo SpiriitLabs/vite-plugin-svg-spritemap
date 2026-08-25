@@ -36,6 +36,18 @@ so early releases summarise the most user-facing changes rather than every commi
   (`StylesCallbackContext`, `SpritemapGenerator`). Only the plugin's internal
   plumbing stays unexported.
 
+### Changed
+
+- The `styles.include` entry named `'variables'` is now `'data'`. It always named
+  the block of declarations the mixin reads (the prefix and the sprites map, plus
+  the variable defaults map added in this release), which the icon variables of
+  this same release made an ambiguous name: the feature itself is the `variables`
+  option, and `variables: false` is what drops the defaults map and the
+  compile-time substitution while keeping the sprites map and a working mixin.
+  `'variables'` is still accepted, renamed with a warning, and will be dropped in
+  the next major. `StylesInclude` no longer carries it, `StylesIncludeInput`, the
+  type `styles.include` accepts, does.
+
 ### Fixed
 
 - An icon carrying a `var()` was mangled by OXVG. Its
@@ -58,9 +70,9 @@ so early releases summarise the most user-facing changes rather than every commi
   skipped; and `@type: fragment` matched neither branch, so nothing was emitted at
   all. SCSS and Stylus read the two spellings as one value, and now so does Less.
 - `styles.include: ['mixin']` generated a stylesheet that could not compile. The
-  mixin looks every sprite up in the map the `'variables'` entry declares, so
+  mixin looks every sprite up in the declarations the `'data'` entry writes, so
   without it the first call was an undefined variable in SCSS, Stylus and Less
-  alike. `'variables'` is now added back with a warning.
+  alike. `'data'` is now added back with a warning.
 - A `null` `svgo` or `oxvg` option, which is what a conditional config produces
   (`oxvg: isProd ? jobs : null`), was taken for a configuration object. OXVG
   received it as "run your own preset", the one thing the `var()` mitigations

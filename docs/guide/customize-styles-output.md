@@ -38,7 +38,7 @@ The `createSpritemap` helper iterates over every icon and calls your generator w
 An icon that declares [variables](/guide/variables) also exposes `variableDefaults`, a map of variable name to its default, and `svgDataUriTemplate`, the same data URI with each themable value replaced by a `___name___` token. They are not available under the same conditions:
 
 - `variableDefaults` is there for every icon that declares a variable, whatever the `lang` and the `include`.
-- `svgDataUriTemplate` is only written when the plugin also emits the mixin that reads it, so it needs a `lang` other than `css` and an [`include`](/options/styles.html#styles-include) covering both `'variables'` and `'mixin'`. It roughly doubles a themable icon's entry, so it is left out rather than paid for unused.
+- `svgDataUriTemplate` is only written when the plugin also emits the mixin that reads it, so it needs a `lang` other than `css` and an [`include`](/options/styles.html#styles-include) covering both `'data'` and `'mixin'`. It roughly doubles a themable icon's entry, so it is left out rather than paid for unused.
 
 Both are `undefined` for an icon that declares nothing, and with `variables: false`.
 
@@ -53,7 +53,7 @@ const callback: StylesCallback = ({ createSpritemap }) =>
 
 `StylesCallbackContext` names the object it receives and `SpritemapGenerator` the function `createSpritemap` takes, for the times you need either one apart.
 
-You can use the [`styles.include`](/options/styles.html#styles-include) option to control exactly what to include inside your style. If you want only variables with `['variables']` for SCSS/Less/Stylus or `['bg']` in CSS, only background css class generation for example.
+You can use the [`styles.include`](/options/styles.html#styles-include) option to control exactly what to include inside your style. If you want only the declarations block with `['data']` for SCSS/Less/Stylus or `['bg']` in CSS, only background css class generation for example.
 
 You can also control the names, via the [`styles.names`](/options/styles.html#styles-names) option, of the `mixin`, the variables `sprites` and `prefix`.
 

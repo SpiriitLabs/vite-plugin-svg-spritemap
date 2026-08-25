@@ -260,4 +260,6 @@ VitePluginSvgSpritemap('./src/icons/*.svg', {
 })
 ```
 
-Nothing is parsed and no defaults map is generated. See [`variables`](/options/#variables) and [`variables.spritemap`](/options/#variables-spritemap) for the full option reference.
+Nothing is parsed and no defaults map is generated. The `var()` you authored is left untouched everywhere it lands, so the spritemap stays themable at runtime through the cascade and a data URI renders the default; only the compile-time substitution goes away. The mixin keeps working, and warns if a call site still passes `$variables`.
+
+This, not [`styles.include`](/options/styles.html#styles-include), is the switch for the feature: an `include` entry says which declarations the stylesheet holds, and dropping `'data'` would take the sprites map the mixin looks an icon up in with it. See [`variables`](/options/#variables) and [`variables.spritemap`](/options/#variables-spritemap) for the full option reference.

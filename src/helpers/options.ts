@@ -1,4 +1,4 @@
-import type { Options, OptionsRoute, OptionsStyles, OptionsStylesSizes, StylesLang, UserOptions } from '@/types'
+import type { Options, OptionsRoute, OptionsStyles, OptionsStylesSizes, StylesInclude, StylesLang, UserOptions } from '@/types'
 import { RESERVED_TYPE_NAMES } from '@/core/types'
 
 export function createOptions(options: UserOptions = {}): { options: Options, logs: { warn: string[] } } {
@@ -66,12 +66,22 @@ export function createOptions(options: UserOptions = {}): { options: Options, lo
       logs.warn.push('Invalid styles lang, fallback to css')
     }
 
-    let include: OptionsStyles['include'] = typeof options.styles.include === 'undefined' ? true : options.styles.include
+    const userInclude = options.styles.include
+    let include: OptionsStyles['include'] = true
+    if (typeof userInclude !== 'undefined') {
+      include = Array.isArray(userInclude)
+        // the set drops the duplicate a `['variables', 'data']` pair renames into
+        ? [...new Set(userInclude.map((entry): StylesInclude => (entry === 'variables' ? 'data' : entry)))]
+        : userInclude
 
-    // the mixin looks every sprite up in that map, so on its own it cannot compile
-    if (Array.isArray(include) && include.includes('mixin') && !include.includes('variables')) {
-      logs.warn.push('Styles include "mixin" needs "variables", the map it looks a sprite up in, automatically added.')
-      include = [...include, 'variables']
+      if (Array.isArray(userInclude) && userInclude.includes('variables'))
+        logs.warn.push('Styles include "variables" is now "data", the declarations block a sprite is looked up in, automatically renamed. Icon variables are the `variables` option.')
+    }
+
+    // the mixin looks every sprite up in that block, so on its own it cannot compile
+    if (Array.isArray(include) && include.includes('mixin') && !include.includes('data')) {
+      logs.warn.push('Styles include "mixin" needs "data", the declarations it looks a sprite up in, automatically added.')
+      include = [...include, 'data']
     }
 
     styles = {
