@@ -32,14 +32,45 @@ import VitePluginSVGSpritemap from '@spiriit/vite-plugin-svg-spritemap'
 
 export default {
   plugins: [
-    VitePluginSVGSpritemap('./src/icons/*.svg', {
+    VitePluginSVGSpritemap('./src/icons/**/*.svg', {
       prefix: 'icon-',
-      route: '__spritemap',
+      route: {
+        url: '/__spritemap',
+        name: 'spritemap',
+      },
       output: {
         filename: '[name].[hash][extname]',
         name: 'spritemap.svg',
-        view: false,
         use: true,
+        view: false,
+        hrefAttribute: 'xlink:href',
+      },
+      styles: {
+        filename: 'src/scss/spritemap.scss',
+        lang: 'scss',
+        include: ['data', 'mixin'],
+        names: {
+          prefix: 'sprites-prefix',
+          sprites: 'sprites',
+          mixin: 'sprite',
+          variables: 'sprites-variables',
+        },
+        sizes: {
+          unit: 'px',
+          base: 1,
+        },
+        callback: ({ content, options, createSpritemap }) => {
+          return content
+        },
+      },
+      types: {
+        filename: 'src/types/spritemap.d.ts',
+        groups: {
+          Social: 'src/icons/social/*.svg',
+        },
+      },
+      variables: {
+        spritemap: 'preserve',
       },
       svgo: {
         plugins: [
@@ -48,27 +79,16 @@ export default {
           },
         ],
       },
-      injectSvgOnDev: true,
+      oxvg: true,
       idify: (name, svg) => `icon-${name}-cheese`,
+      injectSvgOnDev: true,
       gutter: 0,
-      styles: {
-        lang: 'scss',
-        filename: 'src/scss/spritemap.scss',
-        include: ['mixin', 'variables'],
-        names: {
-          prefix: 'sprites-prefix',
-          sprites: 'sprites',
-          mixin: 'sprite',
-        },
-        callback: ({ content, options, createSpritemap }) => {
-          return content
-        }
-      },
-      types: 'src/types/spritemap.d.ts'
     })
   ]
 }
 ```
+
+Every option is listed above, each with the shape it accepts rather than its default. Most of them also take a shorthand: `output`, `styles` and `types` accept a string or `false`, `route` a string, `variables` a boolean, and `svgo`/`oxvg` a boolean. [svgo](#svgo) and [oxvg](#oxvg) are alternatives, not a pair: SVGO wins whenever it is installed and not set to `false`.
 
 ## output
 
@@ -283,23 +303,8 @@ Take an OXVG Options object. If `false`, it will disable OXVG optimization.
 
 If `true`, it runs the same configuration as the [svgo](#svgo) option, translated to OXVG jobs, so both optimizers enable the same set of jobs and disable the same ones.
 
-The two optimizers are configured alike, but they do not produce byte-identical files: OXVG writes path data differently (uppercase `Z`, arcs rewritten more aggressively) and minifies some values SVGO leaves alone. The rendered icon is the same, the bytes are not, so a snapshot taken with one optimizer will not match the other.
-
 ::: tip
 SVGO takes precedence over OXVG: OXVG is only used when SVGO is not installed, or when [svgo](#svgo) is set to `false`.
-:::
-
-::: warning
-An options object is the **complete list of jobs to run**, it does not extend the default described above. Any job missing from your object is not run at all:
-
-```js
-svgSpritemap('./src/icons/*.svg', {
-  // prefixIds runs, and nothing else does: no path or attribute optimization
-  oxvg: { prefixIds: { /* ... */ } },
-})
-```
-
-So unlike [svgo](#svgo), you cannot keep the default and tweak a single job. OXVG has no equivalent of SVGO's `preset-default` overrides, and passing an object starts from nothing.
 :::
 
 ::: warning
