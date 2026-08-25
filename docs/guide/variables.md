@@ -9,7 +9,6 @@ A variable removes that. Mark a value in the SVG as themable, once, and override
 Mark the values you want to theme with a standard CSS `var()`:
 
 ```xml
-<!-- src/icons/alert.svg -->
 <svg viewBox="0 0 24 24">
   <path fill="var(--color, #fff)" stroke-width="var(--weight, 2)" d="…"/>
 </svg>

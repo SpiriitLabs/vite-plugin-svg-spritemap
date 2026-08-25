@@ -4,7 +4,7 @@ The spritemap is emitted as a regular Vite asset, and every [`/__spritemap`](/op
 
 ## Serving from a sub-path
 
-Set Vite's [`base`](https://vite.dev/config/shared-options.html#base) to where the site is served from, and the rewritten URL follows it. GitHub Pages, a `/docs` prefix or any other sub-directory host works this way.
+Set Vite's [`base`](https://vite.dev/config/shared-options.html#base) to where the site is served from, and the rewritten URL follows it.
 
 ```ts
 // vite.config.js / vite.config.ts

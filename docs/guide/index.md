@@ -6,7 +6,7 @@ This ViteJS plugin generates a single SVG [spritemap](https://css-tricks.com/svg
 - ⚡ Fully integrated in your ViteJS environment
 - 📦 Pack your SVG files in one ([spritemap](https://css-tricks.com/svg-sprites-use-better-icon-fonts/)) file
 - ✨ Use your SVG in an `<svg>` or `<img>` tags and also directly in your CSS/SCSS/Stylus/Less
-- 🍕 Import SVG fragment as VueJS component
+- 🍕 Import SVG fragment as VueJS components
 - 🎨 Theme an icon per usage with [variables](/guide/variables)
 - 🛡️ Generate [TypeScript types](/options/#types) for your icon names
 - 🔥 HMR support
@@ -106,7 +106,7 @@ This is because `<symbol>` elements (without `-view`) are designed for `<use>` t
 
 ## Going further
 
-You can pass, as a second argument, an object with options allowing you to control the svg output. This plugin is trying to cover a maximum of use cases because ViteJS is a very versatile tool, so check the [options](/options/) for the full list.
+You can pass, as a second argument, an object with options allowing you to control the svg output. This plugin is trying to cover a maximum of use cases, so check the [options](/options/) for the full list.
 
 Where to go next:
 

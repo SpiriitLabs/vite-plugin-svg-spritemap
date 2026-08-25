@@ -4,7 +4,7 @@ layout: home
 
 hero:
   name: "vite-plugin-svg-spritemap"
-  tagline: A Vite plugin to generate svg spritemap
+  tagline: A Vite plugin to generate SVG spritemap
   actions:
     - theme: brand
       text: Getting started
@@ -17,13 +17,13 @@ features:
   - title: Pack your SVG files in one spritemap file
     details: Combines all SVGs into one file for better performance.
     icon: 📦
-  - title: Flexible SVG Usage in Tags and Styles
+  - title: Flexible SVG usage in tags and styles
     icon: ✨
     details: Use your SVGs in &lt;svg> or &lt;img> tags, or directly in CSS/SCSS/Stylus/Less.
-  - title: Import SVG Fragments as VueJS Components
+  - title: Import SVG Fragments as VueJS components
     icon: 🍕
     details: Easily import SVG fragments as VueJS components
-  - title: Theme an Icon per Usage with Variables
+  - title: Theme an icon per usage with variables
     icon: 🎨
     details: Mark any value with var() and override it from the mixin at each call site, or theme it live with CSS custom properties.
   - title: Hot Module Replacement (HMR) Support
