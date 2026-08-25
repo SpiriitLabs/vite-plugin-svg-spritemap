@@ -364,8 +364,8 @@ describe('variables generation', () => {
       return fs.readFile(filename, 'utf8')
     }
 
-    const withMixin = await withInclude('tpl_mixin', ['variables', 'mixin'])
-    const without = await withInclude('tpl_nomixin', ['variables'])
+    const withMixin = await withInclude('tpl_mixin', ['data', 'mixin'])
+    const without = await withInclude('tpl_nomixin', ['data'])
 
     expect(withMixin).toContain('uri-template:')
     // the defaults map stays, only the uri nothing can read is dropped

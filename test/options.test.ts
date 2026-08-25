@@ -89,24 +89,40 @@ describe('createOptions optimizers', () => {
 describe('createOptions styles include', () => {
   // on its own the mixin generates a stylesheet whose first call is an undefined
   // variable, in all three languages
-  it('adds the sprites map the mixin cannot do without', () => {
+  it('adds the declarations the mixin cannot do without', () => {
     const { options, logs } = createOptions({ styles: { filename: 'out.scss', include: ['mixin'] } })
 
-    expect(typeof options.styles === 'object' && options.styles.include).toEqual(['mixin', 'variables'])
-    expect(logs.warn).toContainEqual(expect.stringContaining('"mixin" needs "variables"'))
+    expect(typeof options.styles === 'object' && options.styles.include).toEqual(['mixin', 'data'])
+    expect(logs.warn).toContainEqual(expect.stringContaining('"mixin" needs "data"'))
   })
 
   it.each([
     [true],
     [false],
-    [['mixin', 'variables']],
-    [['variables']],
+    [['mixin', 'data']],
+    [['data']],
     [['bg', 'mask']],
   ] as const)('leaves %s alone', (include) => {
     const { options, logs } = createOptions({ styles: { filename: 'out.scss', include } })
 
     expect(typeof options.styles === 'object' && options.styles.include).toEqual(include)
-    expect(logs.warn.filter(warning => warning.includes('needs "variables"'))).toEqual([])
+    expect(logs.warn.filter(warning => warning.includes('include'))).toEqual([])
+  })
+
+  // the pre-7.2 name of the declarations block, from before an icon could declare
+  // a variable of its own
+  it('renames the deprecated "variables" entry', () => {
+    const { options, logs } = createOptions({ styles: { filename: 'out.scss', include: ['variables', 'mixin'] } })
+
+    expect(typeof options.styles === 'object' && options.styles.include).toEqual(['data', 'mixin'])
+    expect(logs.warn).toContainEqual(expect.stringContaining('"variables" is now "data"'))
+    expect(logs.warn.filter(warning => warning.includes('needs "data"'))).toEqual([])
+  })
+
+  it('renames a "variables" entry sitting next to a "data" one only once', () => {
+    const { options } = createOptions({ styles: { filename: 'out.scss', include: ['data', 'variables'] } })
+
+    expect(typeof options.styles === 'object' && options.styles.include).toEqual(['data'])
   })
 })
 

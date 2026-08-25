@@ -6,7 +6,13 @@ import type { Config as SvgoConfig } from 'svgo'
 type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
 export type StylesLang = 'less' | 'scss' | 'styl' | 'css'
-export type StylesInclude = 'variables' | 'mixin' | 'bg' | 'mask' | 'bg-frag'
+export type StylesInclude = 'data' | 'mixin' | 'bg' | 'mask' | 'bg-frag'
+/**
+ * What `styles.include` accepts. `'variables'` is the pre-7.2 name of `'data'`, kept
+ * as an alias: it named the declarations block before an icon could declare a
+ * variable of its own, and `createOptions()` renames it.
+ */
+export type StylesIncludeInput = StylesInclude | 'variables'
 
 export interface Shared {
   svgManager: SVGManager | null
@@ -98,7 +104,7 @@ export interface UserOptions {
    * @default false
    */
   styles?:
-    | Omit<WithOptional<OptionsStyles, 'lang' | 'include' | 'sizes'>, 'names' | 'sizes'> & { names?: Partial<OptionsStylesNames>, sizes?: Partial<OptionsStylesSizes> }
+    | Omit<WithOptional<OptionsStyles, 'lang' | 'include' | 'sizes'>, 'names' | 'sizes' | 'include'> & { names?: Partial<OptionsStylesNames>, sizes?: Partial<OptionsStylesSizes>, include?: boolean | StylesIncludeInput[] }
     | string
     | false
   /**
@@ -211,7 +217,10 @@ export interface OptionsStyles {
    */
   lang: StylesLang
   /**
-   * Styles includes
+   * What the stylesheet holds: `'data'` for the declarations block (the prefix, the
+   * sprites map and, when an icon declares one, the variable defaults map), `'mixin'`
+   * for the mixin reading it, `'bg'`/`'mask'`/`'bg-frag'` for the css classes. Each
+   * language ignores the entries that do not apply to it.
    * @default true
    */
   include: boolean | StylesInclude[]

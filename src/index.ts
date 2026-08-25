@@ -7,7 +7,6 @@ import CommonPlugin from '@plugins/common'
 import DevPlugin from '@plugins/dev'
 import VuePlugin from '@plugins/vue'
 
-/** An allowlist rather than a re-export, so `Shared` and `UserOptionsLogs` stay internal. */
 export type {
   Options,
   OptionsOutput,
@@ -21,6 +20,7 @@ export type {
   StylesCallback,
   StylesCallbackContext,
   StylesInclude,
+  StylesIncludeInput,
   StylesLang,
   SvgDataUriMapObject,
   SvgMapObject,

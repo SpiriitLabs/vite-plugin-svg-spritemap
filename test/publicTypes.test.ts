@@ -31,7 +31,7 @@ describe('public types', () => {
       types: { filename: 'src/spritemap.d.ts', groups: { Ui: './icons/ui/*.svg' } },
       styles: {
         filename: 'src/spritemap.scss',
-        include: ['variables', 'mixin'],
+        include: ['data', 'mixin'],
         names: { variables: 'themes' },
         sizes: { unit: 'rem', base: 16 },
       },
