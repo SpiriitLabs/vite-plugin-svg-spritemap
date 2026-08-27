@@ -8,7 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Entries prior to this file were reconstructed from git tags and commit history,
 so early releases summarise the most user-facing changes rather than every commit.
 
-## [7.2.0] - 2026-08-11
+## [7.3.0] - Unreleased
+
+Nothing released yet, entries land here as 7.3.0 work is merged.
+
+## [7.2.0] - 2026-08-25
 
 ### Added
 
@@ -451,6 +455,7 @@ so early releases summarise the most user-facing changes rather than every commi
   matched by a glob, with optional SVGO optimization, stylesheet generation, and
   HMR in dev.
 
+[7.3.0]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/compare/v7.2.0...HEAD
 [7.2.0]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/compare/v7.1.1...v7.2.0
 [7.1.1]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/compare/v7.1.0...v7.1.1
 [7.1.0]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/compare/v7.0.1...v7.1.0
