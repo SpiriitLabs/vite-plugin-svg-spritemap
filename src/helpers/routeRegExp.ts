@@ -8,6 +8,8 @@ function escapeRegExp(text: string): string {
 const DOT = String.raw`\.?`
 const LEGACY_HASH = String.raw`(?:-\d*)?`
 const QUERY_OR_FRAGMENT = String.raw`(?:[#?]\S*)?`
+// The cache-busting suffix the dev server appends to the route
+const DEV_HASH = String.raw`(?:__[\w-]+)?`
 // A reference can't continue into a path segment or identifier (#97)
 const BOUNDARY = String.raw`(?![\w\-/])`
 
@@ -40,6 +42,15 @@ export function createRouteRegExp(routeUrl: string, { dot = true, numbered = tru
  */
 export function createRouteImportRegExp(routeUrl: string): RegExp {
   return new RegExp(`^${DOT}${escapeRegExp(routeUrl)}${QUERY_OR_FRAGMENT}$`)
+}
+
+/**
+ * Anchored RegExp matching an import specifier that is the route, or the
+ * `__<hash>` form dev rewrites it to. A query or a fragment is excluded, the
+ * resolved url cannot carry one
+ */
+export function createRouteModuleRegExp(routeUrl: string): RegExp {
+  return new RegExp(`^${DOT}${escapeRegExp(routeUrl)}${DEV_HASH}$`)
 }
 
 /**

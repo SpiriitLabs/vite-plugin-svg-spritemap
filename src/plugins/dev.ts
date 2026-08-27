@@ -4,7 +4,8 @@ import type { Options, Shared } from '@/types'
 import { relative } from 'node:path'
 import picomatch from 'picomatch'
 import { generateHMR } from '@/core/hmr'
-import { createRouteFilterRegExp, createRouteRegExp } from '@/helpers/routeRegExp'
+import { createRouteModule, createRouteModuleId } from '@/helpers/routeModule'
+import { createRouteFilterRegExp, createRouteModuleRegExp, createRouteRegExp } from '@/helpers/routeRegExp'
 import { parseSvgQuery } from '@/helpers/svgQuery'
 
 const filterSVG = /\.svg$/
@@ -17,6 +18,9 @@ const filterBodyClose = /<\/body\s*>/i
 export default function DevPlugin(shared: Shared): Plugin {
   const virtualModuleId = '/@vite-plugin-svg-spritemap/client'
   const event = 'vite-plugin-svg-spritemap:update'
+  // Vue's `transformAssetUrls` turns a route reference into an import (#54)
+  const routeModuleId = createRouteModuleId(shared.options.route.url)
+  const routeModuleFilter = createRouteModuleRegExp(shared.options.route.url)
   // Match any module (CSS, JS, compiled Vue/JSX templates, …) that references
   // the raw route so user-authored `/__spritemap#…` usages are rewritten to
   // the base-aware url in dev, not just stylesheet `url()` declarations.
@@ -39,21 +43,32 @@ export default function DevPlugin(shared: Shared): Plugin {
     apply: 'serve',
     resolveId: {
       filter: {
-        id: virtualModuleId,
+        id: [virtualModuleId, routeModuleFilter],
       },
       handler(id) {
-        /* v8 ignore else -- @preserve */
         if (id === virtualModuleId)
           return id
+
+        /* v8 ignore else -- @preserve */
+        if (routeModuleFilter.test(id))
+          return routeModuleId
       },
     },
     load: {
       filter: {
-        id: virtualModuleId,
+        id: [virtualModuleId, routeModuleId],
       },
       handler(id) {
+        /* v8 ignore if -- @preserve */
+        if (!shared.svgManager)
+          return
+
+        // The current url, so a stale importer still gets a served one
+        if (id === routeModuleId)
+          return createRouteModule(`${shared.routeUrlBase}__${shared.svgManager.hash}`)
+
         /* v8 ignore else -- @preserve */
-        if (shared.svgManager && id === virtualModuleId) {
+        if (id === virtualModuleId) {
           const optionsWithBase = {
             ...shared.options,
             route: { ...shared.options.route, url: shared.routeUrlBase },

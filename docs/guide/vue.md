@@ -46,6 +46,22 @@ will generate
 
 You can see the usage in the [corresponding demo folder](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/tree/main/demo/vue/src/App.vue).
 
+## Referencing the route directly
+
+The components above are the recommended way, but you can also write the reference by hand:
+
+```vue
+<template>
+  <svg>
+    <use xlink:href="/__spritemap#sprite-vite" />
+  </svg>
+</template>
+```
+
+Vue's template compiler treats a URL in `use[href]` as an asset and turns it into an import, which
+the plugin resolves to the spritemap. No `transformAssetUrls` opt-out needed. You get no typed icon
+name and no `<title>` slot this way, so prefer `?use` unless you are porting existing markup.
+
 ## TypeScript
 
 For TypeScript, you need to load the type definitions inside `vite-env.d.ts` to fix errors with `?use`/`?view` query.
