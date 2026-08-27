@@ -1,14 +1,10 @@
 import type { Glob } from 'picomatch'
+import type { IconEntry } from '@/helpers/icons'
 import type { Options, SvgMapObject } from '@/types'
 import { resolve } from 'node:path'
 import picomatch from 'picomatch'
 import { normalizePath } from 'vite'
-
-interface IconEntry {
-  id: string
-  /** Icon file path, normalized to forward slashes so picomatch can match it. */
-  posixPath: string
-}
+import { sortedIcons } from '@/helpers/icons'
 
 const ICONS_TYPE = 'Icons'
 const PREFIX_TYPE = 'Prefix'
@@ -42,10 +38,7 @@ export class Types {
     if (!this._options.types)
       return ''
 
-    const icons: IconEntry[] = Array.from(this._svgs.values())
-      .map(({ id, filePath }) => ({ id, posixPath: normalizePath(filePath) }))
-      // Locale-independent sort so the generated file is deterministic across environments.
-      .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
+    const icons: IconEntry[] = sortedIcons(this._svgs)
 
     const prefix = this._options.prefix
 

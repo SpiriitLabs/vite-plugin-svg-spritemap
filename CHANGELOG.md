@@ -10,6 +10,37 @@ so early releases summarise the most user-facing changes rather than every commi
 
 ## [7.3.0] - Unreleased
 
+### Added
+
+- `virtual:spritemap` reaches the spritemap from anywhere — a dependency or a
+  monorepo sibling included — with no route hardcoded:
+
+  ```js
+  import spritemap from 'virtual:spritemap'
+
+  el.setAttribute('xlink:href', spritemap.href('home'))
+  ```
+
+  It exports `{ url, name, prefix, icons, href }`. `url` is the URL the plugin
+  actually serves: `config.base` applied and the `__<hash>` cache-busting suffix
+  in dev, the emitted asset path in build. `icons` lists the icon ids, sorted and
+  unprefixed, so it matches the generated `Icons` type, and `href` applies the
+  configured `prefix` so no call site has to repeat it.
+
+  Two queries give strings instead, following Vite's own meanings:
+  `virtual:spritemap?url` for the URL alone, and `virtual:spritemap?raw` for the
+  spritemap SVG source (the markup `injectSvgOnDev` inlines). Importing `?raw` in
+  a build inlines that markup into the chunk while the asset file is still
+  emitted, so the sprite ships twice unless `output` is `false`.
+
+  An id always names one instance: `virtual:spritemap/<route name>`. The bare
+  `virtual:spritemap` is that same id for the default name `spritemap`, not a
+  "whichever instance" fallback, so what an import resolves to never depends on
+  how many instances are configured — adding one cannot change the meaning of an
+  import already written. An id naming no configured instance is an error
+  listing the ones that exist. Types ship in
+  `@spiriit/vite-plugin-svg-spritemap/client` ([#135]).
+
 ### Fixed
 
 - A raw route reference in a Vue template,
@@ -555,6 +586,7 @@ so early releases summarise the most user-facing changes rather than every commi
 [#130]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/130
 [#131]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/131
 [#132]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/132
+[#135]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/135
 [#136]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/136
 [#138]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/138
 [oxvg#264]: https://github.com/noahbald/oxvg/issues/264
