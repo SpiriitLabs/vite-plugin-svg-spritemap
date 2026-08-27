@@ -1,6 +1,10 @@
 <script setup lang="ts">
+import spritemap from 'virtual:spritemap'
 import SpiriitView from './../_fixtures/icons/spiriit.svg?view'
 import ViteView from './../_fixtures/icons/vite.svg?view'
+
+// #135: `href` applies the configured prefix, resolved through Nuxt's ssr loader too
+const viteHref = spritemap.href('vite')
 </script>
 
 <template>
@@ -22,6 +26,14 @@ import ViteView from './../_fixtures/icons/vite.svg?view'
 
     <div class="example__svgs">
       <svg class="icon"><use xlink:href="/__spritemap#icon-vite" /></svg>
+    </div>
+  </div>
+
+  <div class="example">
+    <h2>Spritemap url from <code>virtual:spritemap</code> (#135)</h2>
+
+    <div class="example__svgs">
+      <svg class="icon"><use :xlink:href="viteHref" /></svg>
     </div>
   </div>
 

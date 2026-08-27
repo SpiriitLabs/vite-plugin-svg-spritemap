@@ -1,5 +1,7 @@
 <script lang="ts">
-
+// Svelte has no `?use` / `?view` loader, so this is how it reaches the sprite
+// without hardcoding the route: `href` applies the configured prefix (#135)
+import spritemap from 'virtual:spritemap'
 </script>
 
 <main>
@@ -53,6 +55,24 @@
       <div class="example__svgs">
         <span class="icon icon-spiriit-mask"></span>
         <span class="icon icon-vite-mask"></span>
+      </div>
+    </div>
+
+    <div class="example">
+      <h2>Icons from <code>virtual:spritemap</code></h2>
+
+      <p>
+        The references above hardcode <code>/__spritemap</code>. This one does not: it reads the
+        url the plugin serves, so it keeps working under a <code>base</code>, a custom
+        <code>route</code>, or from a package that does not own the config.
+      </p>
+
+      <div class="example__svgs">
+        {#each spritemap.icons as icon}
+          <svg class="icon icon-{icon}">
+            <use xlink:href={spritemap.href(icon)}></use>
+          </svg>
+        {/each}
       </div>
     </div>
 </main>

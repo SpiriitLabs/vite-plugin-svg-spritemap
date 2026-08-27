@@ -1,4 +1,7 @@
 <script lang="ts">
+// SvelteKit has no `?use` / `?view` loader, so this is how it reaches the sprite
+// without hardcoding the route. It resolves through the ssr loader too (#135)
+import spritemap from 'virtual:spritemap'
 import './../../../_fixtures/scss/style.scss'
 
 if (import.meta.env.DEV) {
@@ -57,6 +60,23 @@ if (import.meta.env.DEV) {
       <div class="example__svgs">
         <span class="icon icon-spiriit-mask"></span>
         <span class="icon icon-vite-mask"></span>
+      </div>
+    </div>
+
+    <div class="example">
+      <h2>Icons from <code>virtual:spritemap</code></h2>
+
+      <p>
+        The references above hardcode <code>/__spritemap</code>. This one does not: it reads the
+        url the plugin serves, rendered on the server as well as in the browser.
+      </p>
+
+      <div class="example__svgs">
+        {#each spritemap.icons as icon}
+          <svg class="icon icon-{icon}">
+            <use xlink:href={spritemap.href(icon)}></use>
+          </svg>
+        {/each}
       </div>
     </div>
 </main>

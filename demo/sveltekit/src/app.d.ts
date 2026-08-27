@@ -1,3 +1,5 @@
+/// <reference types="@spiriit/vite-plugin-svg-spritemap/client" />
+
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
 declare global {

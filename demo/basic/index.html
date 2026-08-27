@@ -104,6 +104,47 @@
       </div>
     </div>
 
+    <div class="example">
+      <h2>Icons from <code>virtual:spritemap</code></h2>
+
+      <p>
+        No route written by hand. <code>virtual:spritemap</code> exports
+        <code>{ url, name, prefix, icons, href }</code>, so JavaScript can build a reference without
+        knowing the <code>route</code> option or repeating the <code>prefix</code>. An id always
+        names one instance by its <code>route.name</code>; the bare <code>virtual:spritemap</code>
+        is simply that id for the default name, which is why the second instance here is
+        <code>virtual:spritemap/__flags</code>. Neither changes meaning as instances are added, and
+        an id naming none of them lists the ones that exist.
+      </p>
+
+      <div class="example__svgs" id="virtual-icons"></div>
+    </div>
+
+    <div class="example">
+      <h2>Every icon, from <code>spritemap.icons</code></h2>
+
+      <p>
+        <code>icons</code> lists the ids sorted and unprefixed, so it matches the generated
+        <code>Icons</code> type and composes with <code>href</code>.
+      </p>
+
+      <div class="example__svgs" id="virtual-all"></div>
+    </div>
+
+    <div class="example">
+      <h2>The string forms: <code>?url</code> and <code>?raw</code></h2>
+
+      <p>
+        Vite's own spellings. <code>virtual:spritemap?url</code> is the url alone, and
+        <code>virtual:spritemap?raw</code> is the spritemap markup &mdash; useful for injecting the
+        sprite into the page yourself. Note <code>?raw</code> inlines the whole sprite into the
+        bundle while the asset file is still emitted, so it ships twice unless
+        <code>output</code> is <code>false</code>.
+      </p>
+
+      <pre id="virtual-strings"></pre>
+    </div>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
