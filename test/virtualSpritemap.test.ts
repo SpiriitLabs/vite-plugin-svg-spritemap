@@ -1,7 +1,9 @@
 import type { RollupOutput } from 'rollup'
 import type { ResolvedConfig } from 'vite'
+import type { UserOptions } from '../src/types'
+import { promises as fsp } from 'node:fs'
 import { build, createLogger, createServer } from 'vite'
-import { describe, expect, it } from 'vitest'
+import { afterAll, describe, expect, it } from 'vitest'
 import { createRouteModuleId, parseVirtualSpritemapId } from '../src/helpers/routeModule'
 import VitePluginSvgSpritemap from '../src/index'
 import { getPath } from './helpers/path'
@@ -23,6 +25,10 @@ const errorContext = {
     throw new Error(message)
   },
 }
+
+afterAll(async () => {
+  await fsp.rm(getPath('./fixtures/virtual-idify'), { recursive: true, force: true })
+})
 
 describe('parseVirtualSpritemapId', () => {
   it.each([
@@ -101,10 +107,10 @@ describe('duplicate route names', () => {
 // so a dependency or a monorepo sibling can reference it too (#135, #49, #52, #59)
 describe('virtual:spritemap', () => {
   describe('dev', () => {
-    async function devPlugins({ route, base = '/', siblings }: { route?: string, base?: string, siblings?: string[] } = {}) {
+    async function devPlugins({ route, base = '/', siblings, pattern, idify }: { route?: string, base?: string, siblings?: string[], pattern?: string, idify?: UserOptions['idify'] } = {}) {
       const plugins = VitePluginSvgSpritemap(
-        getPath('./fixtures/basic/svg/*.svg'),
-        { svgo: false, oxvg: false, styles: false, types: false, ...(route && { route }) },
+        pattern ?? getPath('./fixtures/basic/svg/*.svg'),
+        { svgo: false, oxvg: false, styles: false, types: false, ...(route && { route }), ...(idify && { idify }) },
       )
       const common = plugins.find(item => item.name === 'vite-plugin-svg-spritemap:common')!
       const dev = plugins.find(item => item.name === 'vite-plugin-svg-spritemap:dev')!
@@ -239,28 +245,57 @@ describe('virtual:spritemap', () => {
 
     // The client only rewrites urls already in the DOM, which cannot fix a
     // stale `icons` list or stale markup
-    it('regenerates the object and raw modules on an icon change', async () => {
-      const dev = await devPlugins()
+    /**
+     * Every module the graph holds, and what the handler did to them. Returning a
+     * module full-reloads the page, since nothing accepts these
+     */
+    function hotUpdateContext(root: string) {
       const invalidated: string[] = []
       const modules = new Map([
         [OBJECT_ID, { id: OBJECT_ID }],
         [RAW_ID, { id: RAW_ID }],
         [MODULE_ID, { id: MODULE_ID }],
       ])
-      const context = {
-        environment: {
-          config: { root: getPath('./fixtures/basic') },
-          hot: { send: () => {} },
-          moduleGraph: {
-            getModuleById: (id: string) => modules.get(id) ?? null,
-            invalidateModule: (module: { id: string }) => invalidated.push(module.id),
+
+      return {
+        invalidated,
+        context: {
+          environment: {
+            config: { root },
+            hot: { send: () => {} },
+            moduleGraph: {
+              getModuleById: (id: string) => modules.get(id) ?? null,
+              invalidateModule: (module: { id: string }) => invalidated.push(module.id),
+            },
           },
         },
       }
+    }
+
+    // A content edit leaves `icons` alone, and the url the object carries is
+    // answered by the middleware whatever hash it holds, so reloading the page
+    // over it would throw away the in-place patch the client just made
+    it('leaves the object module alone on a content edit', async () => {
+      const dev = await devPlugins()
+      const { context, invalidated } = hotUpdateContext(getPath('./fixtures/basic'))
 
       const updated = await handlerOf(dev.hotUpdate).call(context as never, {
         file: getPath('./fixtures/basic/svg/vite.svg'),
         type: 'update',
+      } as never) as { id: string }[]
+
+      expect(updated.map(module => module.id)).toEqual([RAW_ID])
+      expect(invalidated).toEqual([RAW_ID])
+    })
+
+    // The raw module always goes: nothing patches markup already inlined
+    it('regenerates both when the icon set changes', async () => {
+      const dev = await devPlugins()
+      const { context, invalidated } = hotUpdateContext(getPath('./fixtures/basic'))
+
+      const updated = await handlerOf(dev.hotUpdate).call(context as never, {
+        file: getPath('./fixtures/basic/svg/vite.svg'),
+        type: 'delete',
       } as never) as { id: string }[]
 
       expect(updated.map(module => module.id)).toEqual([OBJECT_ID, RAW_ID])
@@ -268,6 +303,34 @@ describe('virtual:spritemap', () => {
       // the url module stays: the middleware answers any `__<hash>`, so an old
       // url still serves and its importers need no reload
       expect(updated.map(module => module.id)).not.toContain(MODULE_ID)
+    })
+
+    // `idify` is handed the icon's content, so an edit can rename an id without
+    // any file being added or removed: the event type is not enough to tell
+    it('regenerates the object module when an edit renames an id', async () => {
+      const dir = `${getPath('./fixtures/virtual-idify')}/svg`
+      const file = `${dir}/icon.svg`
+      const icon = (size: number): string =>
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}"><path d="M0 0h1v1H0z"/></svg>`
+
+      await fsp.mkdir(dir, { recursive: true })
+      await fsp.writeFile(file, icon(10), 'utf8')
+
+      const dev = await devPlugins({
+        pattern: `${dir}/*.svg`,
+        idify: (name, svg) => `${name}-${svg.width}`,
+      })
+      const { context, invalidated } = hotUpdateContext(getPath('./fixtures/virtual-idify'))
+
+      await fsp.writeFile(file, icon(20), 'utf8')
+      const updated = await handlerOf(dev.hotUpdate).call(context as never, {
+        file,
+        type: 'update',
+      } as never) as { id: string }[]
+
+      // icon-10 became icon-20, so a stale `icons` list is now wrong
+      expect(updated.map(module => module.id)).toEqual([OBJECT_ID, RAW_ID])
+      expect(invalidated).toEqual([OBJECT_ID, RAW_ID])
     })
 
     it('serves the import through a real dev server', async () => {

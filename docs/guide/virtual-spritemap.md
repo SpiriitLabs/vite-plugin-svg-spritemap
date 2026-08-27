@@ -93,7 +93,7 @@ function renderIcon(name) {
 spritemap.icons.forEach(name => document.body.appendChild(renderIcon(name)))
 ```
 
-The object and `?raw` modules are invalidated whenever an icon changes, so adding, editing or removing an SVG sends an HMR update carrying the new `icons` list, like any other module of your app.
+Editing an icon patches the sprite in place, with no page reload: the URL you already hold keeps working whatever hash it carries, because the dev server answers every one of them. Adding, removing or renaming an icon changes `icons`, so the module is regenerated and the page reloads with the new list.
 
 The same shape wraps into a component in whatever framework you use: Svelte, SvelteKit, Solid, Angular, React. Vue and Nuxt have [dedicated components](/guide/vue), which give you a `<title>` slot and per-icon imports, so prefer those there.
 

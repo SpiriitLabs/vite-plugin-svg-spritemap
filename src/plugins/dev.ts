@@ -4,6 +4,7 @@ import type { Options, Shared } from '@/types'
 import { relative } from 'node:path'
 import picomatch from 'picomatch'
 import { generateHMR } from '@/core/hmr'
+import { iconIds } from '@/helpers/icons'
 import { collectRouteNames, createSpritemapModuleData, createSpritemapModuleIds, createSpritemapModuleSource, parseVirtualSpritemapId, spritemapModuleKind, unknownVirtualSpritemapError, virtualSpritemapFilter, virtualSpritemapIds } from '@/helpers/routeModule'
 import { createRouteFilterRegExp, createRouteModuleRegExp, createRouteRegExp } from '@/helpers/routeRegExp'
 import { parseSvgQuery } from '@/helpers/svgQuery'
@@ -192,6 +193,10 @@ export default function DevPlugin(shared: Shared): Plugin {
       if (!picomatch.isMatch(relativePath, shared.svgManager.iconsPattern, matchOptions) && !picomatch.isMatch(absolutePath, shared.svgManager.iconsPattern, matchOptions))
         return
 
+      // `idify` reads the icon's content, so even a content edit can rename an
+      // id: the set has to be compared, not inferred from the event type
+      const iconsBefore = iconIds(shared.svgManager.svgs)
+
       if (type === 'delete' && shared.svgManager.has(file)) {
         await shared.svgManager.delete(file)
       }
@@ -215,12 +220,18 @@ export default function DevPlugin(shared: Shared): Plugin {
         } satisfies HMRUpdate,
       })
 
-      // The client above only rewrites urls already in the DOM, which cannot
-      // fix a stale `icons` list or stale markup, so those two modules have to
-      // be regenerated. The url module is left out on purpose: the middleware
-      // answers any `__<hash>`, so an old url still serves and an importer of
-      // it needs no reload (#135)
-      const stale = [moduleIds.object, moduleIds.raw]
+      // The client above only rewrites urls already in the DOM, so it cannot fix
+      // stale markup: the raw module always goes. The object module only goes
+      // when the icon set changed, since its other field, the url, is answered
+      // by the middleware whatever the hash it carries — the same reason the url
+      // module is never invalidated. Neither module is accepted by an importer,
+      // so returning one full-reloads the page, and an icon edit is meant to
+      // patch in place (#135)
+      const iconsAfter = iconIds(shared.svgManager.svgs)
+      const iconsChanged = iconsBefore.length !== iconsAfter.length
+        || iconsBefore.some((id, index) => id !== iconsAfter[index])
+
+      const stale = [...(iconsChanged ? [moduleIds.object] : []), moduleIds.raw]
         .map(id => this.environment.moduleGraph.getModuleById(id))
         .filter(module => typeof module !== 'undefined')
 

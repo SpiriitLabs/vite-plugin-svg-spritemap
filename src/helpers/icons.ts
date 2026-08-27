@@ -18,3 +18,12 @@ export function sortedIcons(svgs: Map<string, SvgMapObject>): IconEntry[] {
     // Locale-independent sort so the output is deterministic across environments.
     .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
 }
+
+/**
+ * Icon ids alone, in `sortedIcons` order. What the generated types, the
+ * `virtual:spritemap` module and the HMR set comparison all mean by "the icons".
+ * @param svgs - The manager's collection, keyed by file path
+ */
+export function iconIds(svgs: Map<string, SvgMapObject>): string[] {
+  return sortedIcons(svgs).map(icon => icon.id)
+}

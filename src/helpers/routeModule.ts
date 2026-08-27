@@ -1,6 +1,6 @@
 import type { SVGManager } from '@core/svgManager'
 import type { Options } from '@/types'
-import { sortedIcons } from '@helpers/icons'
+import { iconIds } from '@helpers/icons'
 
 export const VIRTUAL_SPRITEMAP = 'virtual:spritemap'
 /** `route.name` when the route option is left alone (options.ts) */
@@ -67,7 +67,7 @@ export function createSpritemapModuleData(svgManager: SVGManager, options: Optio
       return svgManager.spritemap
     },
     get icons() {
-      return sortedIcons(svgManager.svgs).map(icon => icon.id)
+      return iconIds(svgManager.svgs)
     },
     name: options.route.name,
     prefix: options.prefix,
