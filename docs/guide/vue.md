@@ -63,6 +63,9 @@ the plugin resolves to the spritemap. No `transformAssetUrls` opt-out needed. It
 `base` and through server-side rendering too, Nuxt included. You get no typed icon name and no
 `<title>` slot this way, so prefer `?use` unless you are porting existing markup.
 
+For an icon name known only at runtime, or for a component shipped outside the app, import the URL
+instead of writing it: see [virtual:spritemap](/guide/virtual-spritemap).
+
 ## TypeScript
 
 For TypeScript, you need to load the type definitions inside `vite-env.d.ts` to fix errors with `?use`/`?view` query.

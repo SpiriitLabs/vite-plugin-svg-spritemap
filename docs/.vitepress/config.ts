@@ -30,6 +30,7 @@ export default defineConfig({
         {
           text: 'Advanced',
           items: [
+            { text: 'JavaScript API', link: '/guide/virtual-spritemap' },
             { text: 'Styles inside an icon', link: '/guide/styles-inside-an-icon' },
             { text: 'Backend Integration', link: '/guide/backend-integration' },
             { text: 'Vue/Nuxt', link: '/guide/vue' },

@@ -13,3 +13,5 @@ If you have any problem configuring the plugin. You can check the demo folder of
 - [Svelte](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/tree/main/demo/svelte)
 - [SvelteKit](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/tree/main/demo/sveltekit)
 - [Vue](https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/tree/main/demo/vue) with components usage
+
+Every demo except the server one reaches the sprite through [`virtual:spritemap`](/guide/virtual-spritemap), next to its hardcoded route references so the two are easy to compare: the basic one runs two instances and shows both string forms, and the Svelte and SvelteKit ones enumerate the whole sprite from `icons`.
