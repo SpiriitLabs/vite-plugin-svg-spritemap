@@ -4,8 +4,7 @@ import type { Options, Shared } from '@/types'
 import { relative } from 'node:path'
 import picomatch from 'picomatch'
 import { generateHMR } from '@/core/hmr'
-import { sortedIcons } from '@/helpers/icons'
-import { collectRouteNames, createRouteModuleId, createSpritemapModuleIds, createSpritemapModuleSource, parseVirtualSpritemapId, spritemapModuleKind, unknownVirtualSpritemapError, virtualSpritemapFilter, virtualSpritemapIds } from '@/helpers/routeModule'
+import { collectRouteNames, createSpritemapModuleData, createSpritemapModuleIds, createSpritemapModuleSource, parseVirtualSpritemapId, spritemapModuleKind, unknownVirtualSpritemapError, virtualSpritemapFilter, virtualSpritemapIds } from '@/helpers/routeModule'
 import { createRouteFilterRegExp, createRouteModuleRegExp, createRouteRegExp } from '@/helpers/routeRegExp'
 import { parseSvgQuery } from '@/helpers/svgQuery'
 
@@ -21,10 +20,10 @@ export default function DevPlugin(shared: Shared): Plugin {
   const virtualModuleId = '/@vite-plugin-svg-spritemap/client'
   const event = 'vite-plugin-svg-spritemap:update'
   // Vue's `transformAssetUrls` turns a route reference into an import (#54)
-  const routeModuleId = createRouteModuleId(shared.options.route.url)
   const routeModuleFilter = createRouteModuleRegExp(shared.options.route.url)
-  // One module per shape a user can ask for; a raw route reference and `?url`
-  // share the url one, so that spelling still collapses onto a single id (#135)
+  // One module per shape a user can ask for; a raw route reference resolves to
+  // `moduleIds.url`, the one `?url` asks for, so that spelling still collapses
+  // onto a single id (#135)
   const moduleIds = createSpritemapModuleIds(shared.options.route.url)
   // Match any module (CSS, JS, compiled Vue/JSX templates, …) that references
   // the raw route so user-authored `/__spritemap#…` usages are rewritten to
@@ -96,7 +95,7 @@ export default function DevPlugin(shared: Shared): Plugin {
         }
 
         if (routeModuleFilter.test(withoutBase(id)))
-          return routeModuleId
+          return moduleIds.url
       },
     },
     load: {
@@ -111,20 +110,12 @@ export default function DevPlugin(shared: Shared): Plugin {
         const svgManager = shared.svgManager
         const kind = spritemapModuleKind(moduleIds, id)
         if (kind) {
-          return createSpritemapModuleSource(kind, {
+          return createSpritemapModuleSource(kind, createSpritemapModuleData(
+            svgManager,
+            shared.options,
             // Recomputed per load, so a stale importer still gets a served url
-            get url() {
-              return `${shared.routeUrlBase}__${svgManager.hash}`
-            },
-            get source() {
-              return svgManager.spritemap
-            },
-            get icons() {
-              return sortedIcons(svgManager.svgs).map(icon => icon.id)
-            },
-            name: shared.options.route.name,
-            prefix: shared.options.prefix,
-          })
+            () => `${shared.routeUrlBase}__${svgManager.hash}`,
+          ))
         }
 
         /* v8 ignore else -- @preserve */
@@ -231,7 +222,7 @@ export default function DevPlugin(shared: Shared): Plugin {
       // it needs no reload (#135)
       const stale = [moduleIds.object, moduleIds.raw]
         .map(id => this.environment.moduleGraph.getModuleById(id))
-        .filter(module => module !== null && typeof module !== 'undefined')
+        .filter(module => typeof module !== 'undefined')
 
       stale.forEach(module => this.environment.moduleGraph.invalidateModule(module))
 

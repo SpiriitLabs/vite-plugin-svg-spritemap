@@ -1,3 +1,7 @@
+import type { SVGManager } from '@core/svgManager'
+import type { Options } from '@/types'
+import { sortedIcons } from '@helpers/icons'
+
 export const VIRTUAL_SPRITEMAP = 'virtual:spritemap'
 /** `route.name` when the route option is left alone (options.ts) */
 export const DEFAULT_ROUTE_NAME = 'spritemap'
@@ -44,6 +48,30 @@ export interface SpritemapModuleData {
   readonly name: string
   readonly prefix: string
   readonly icons: string[]
+}
+
+/**
+ * The data both plugins hand to `createSpritemapModuleSource`. Only `url` differs
+ * between them, so the rest has one definition and the two cannot drift.
+ * @param svgManager - The instance's manager, read through getters so an icon
+ * change between `load` calls is picked up
+ * @param options - The instance's resolved options
+ * @param url - Called only by the kinds that read a url, never by `raw`
+ */
+export function createSpritemapModuleData(svgManager: SVGManager, options: Options, url: () => string): SpritemapModuleData {
+  return {
+    get url() {
+      return url()
+    },
+    get source() {
+      return svgManager.spritemap
+    },
+    get icons() {
+      return sortedIcons(svgManager.svgs).map(icon => icon.id)
+    },
+    name: options.route.name,
+    prefix: options.prefix,
+  }
 }
 
 /**

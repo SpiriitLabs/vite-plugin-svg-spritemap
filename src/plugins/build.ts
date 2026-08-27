@@ -3,8 +3,7 @@ import type { Plugin, ResolvedConfig } from 'vite'
 import type { Shared } from '@/types'
 import { posix as path } from 'node:path'
 import { getFileName } from '@helpers/filename'
-import { sortedIcons } from '@helpers/icons'
-import { collectRouteNames, createRouteModuleId, createSpritemapModuleIds, createSpritemapModuleSource, parseVirtualSpritemapId, spritemapModuleKind, unknownVirtualSpritemapError, VIRTUAL_SPRITEMAP } from '@helpers/routeModule'
+import { collectRouteNames, createSpritemapModuleData, createSpritemapModuleIds, createSpritemapModuleSource, parseVirtualSpritemapId, spritemapModuleKind, unknownVirtualSpritemapError, VIRTUAL_SPRITEMAP } from '@helpers/routeModule'
 import { createRouteFilterRegExp, createRouteImportRegExp, createRouteRegExp } from '@helpers/routeRegExp'
 
 export default function BuildPlugin(shared: Shared): Plugin {
@@ -16,12 +15,9 @@ export default function BuildPlugin(shared: Shared): Plugin {
   // never reaches `resolveId` (#30)
   const pluginExternal = createRouteImportRegExp(shared.options.route.url)
   const spritemapFilter = createRouteFilterRegExp(shared.options.route.url)
-  // Vue's `transformAssetUrls` turns a route reference into an import (#54).
-  // `resolveId` only sees the emitted path, `transform` having rewritten the
-  // specifier
-  const routeModuleId = createRouteModuleId(shared.options.route.url)
-  // One module per shape a user can ask for; a raw route reference and `?url`
-  // share the url one, so that spelling still collapses onto a single id (#135)
+  // One module per shape a user can ask for; a raw route reference resolves to
+  // `moduleIds.url`, the one `?url` asks for, so that spelling still collapses
+  // onto a single id (#135)
   const moduleIds = createSpritemapModuleIds(shared.options.route.url)
 
   function isRelativeBase(): boolean {
@@ -149,10 +145,12 @@ export default function BuildPlugin(shared: Shared): Plugin {
       if (typeof shared.options.output !== 'object' || !fileRef)
         return
 
-      // A relative base keeps the reference's leading dot
+      // Vue's `transformAssetUrls` turns a route reference into an import (#54).
+      // `resolveId` only sees the emitted path, `transform` having rewritten the
+      // specifier, and a relative base keeps the reference's leading dot
       const url = emittedUrl(this)
       if (source === url || source === `.${url}`)
-        return routeModuleId
+        return moduleIds.url
     },
     load: {
       filter: {
@@ -170,28 +168,17 @@ export default function BuildPlugin(shared: Shared): Plugin {
         if (!kind)
           return
 
-        // Arrow, so `this` stays the plugin context `emittedUrl` needs
-        const resolveUrl = (): string => {
-          const emitted = emittedUrl(this)
+        return createSpritemapModuleSource(kind, createSpritemapModuleData(
+          svgManager,
+          shared.options,
+          // Called only by the kinds that read a url: with `output: false` there
+          // is no emitted file for `emittedUrl` to name, and `raw` needs none.
           // A relative base keeps the leading dot, as a route reference does
-          return isRelativeBase() ? `.${emitted}` : emitted
-        }
-
-        return createSpritemapModuleSource(kind, {
-          // Only the kinds that need it read this: with `output: false` there is
-          // no emitted file for `emittedUrl` to name, and `raw` needs none
-          get url() {
-            return resolveUrl()
+          () => {
+            const emitted = emittedUrl(this)
+            return isRelativeBase() ? `.${emitted}` : emitted
           },
-          get source() {
-            return svgManager.spritemap
-          },
-          get icons() {
-            return sortedIcons(svgManager.svgs).map(icon => icon.id)
-          },
-          name: shared.options.route.name,
-          prefix: shared.options.prefix,
-        })
+        ))
       },
     },
   }
