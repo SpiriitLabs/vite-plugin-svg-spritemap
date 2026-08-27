@@ -176,6 +176,46 @@ describe('route as an import specifier', () => {
       expect(chunk.type === 'chunk' && chunk.code).toContain(`./${asset.fileName}`)
     })
 
+    it('leaves an unrelated unresolved import to Rollup', async () => {
+      const build2 = build({
+        configFile: false,
+        logLevel: 'silent',
+        root: getPath('./fixtures/basic'),
+        build: {
+          write: false,
+          rollupOptions: { input: getPath('./fixtures/basic/import-missing.js') },
+        },
+        plugins: [VitePluginSvgSpritemap(getPath('./fixtures/basic/svg/*.svg'), {
+          styles: false,
+          types: false,
+        })],
+      })
+
+      await expect(build2).rejects.toThrow(/does-not-exist/)
+    })
+
+    // With nothing emitted there is no url to compare an id against, so the
+    // hook has to bow out rather than reach for the missing file name and bury
+    // Rollup's own report of the unresolved import
+    it('leaves an unrelated unresolved import to Rollup when nothing is emitted', async () => {
+      const build2 = build({
+        configFile: false,
+        logLevel: 'silent',
+        root: getPath('./fixtures/basic'),
+        build: {
+          write: false,
+          rollupOptions: { input: getPath('./fixtures/basic/import-missing.js') },
+        },
+        plugins: [VitePluginSvgSpritemap(getPath('./fixtures/basic/svg/*.svg'), {
+          styles: false,
+          types: false,
+          output: false,
+        })],
+      })
+
+      await expect(build2).rejects.toThrow(/does-not-exist/)
+    })
+
     // Nothing is emitted to point an import at, so the route stays external
     it('leaves the import external when no spritemap is emitted', async () => {
       const result = await build({
