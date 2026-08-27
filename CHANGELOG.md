@@ -20,6 +20,14 @@ so early releases summarise the most user-facing changes rather than every commi
   resolves as an import, to a module exporting the spritemap URL, so no
   `transformAssetUrls` opt-out or `v-bind` workaround is needed. Any framework
   whose compiler treats a markup URL as an import gets the same fix ([#136]).
+- That same raw route reference still broke under Nuxt, where `nuxt dev`
+  answered it with a 500,
+  `Failed to load url /_nuxt/__spritemap__<hash>`. The dev server rewrites a
+  route reference to the base-prefixed URL it serves, and Vite strips
+  `config.base` back off before resolving an import, so only the base-free form
+  ever reached the resolver. A consumer that resolves ids itself, which is how
+  Nuxt renders, hands the URL over base and all. Dev resolution no longer cares:
+  it takes the base off the specifier before matching the route ([#138]).
 
 ## [7.2.0] - 2026-08-25
 
@@ -544,5 +552,6 @@ so early releases summarise the most user-facing changes rather than every commi
 [#131]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/131
 [#132]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/132
 [#136]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/136
+[#138]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/138
 [oxvg#264]: https://github.com/noahbald/oxvg/issues/264
 [svg-spritemap-webpack-plugin]: https://github.com/cascornelissen/svg-spritemap-webpack-plugin/blob/master/docs/variables.md

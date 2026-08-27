@@ -38,19 +38,31 @@ export default function DevPlugin(shared: Shared): Plugin {
     return suffix === '' || filterRouteHash.test(suffix)
   }
 
+  /**
+   * Vite strips `config.base` before resolving an import, but a consumer that
+   * resolves ids itself (vite-node, which Nuxt renders through) does not (#138)
+   */
+  function withoutBase(id: string): string {
+    const { routeUrl, routeUrlBase } = shared
+    return routeUrlBase !== routeUrl && id.startsWith(routeUrlBase)
+      ? routeUrl + id.slice(routeUrlBase.length)
+      : id
+  }
+
   return <Plugin>{
     name: 'vite-plugin-svg-spritemap:dev',
     apply: 'serve',
     resolveId: {
+      // `routeUrlBase` is only known at `configResolved`, after this filter is
+      // built: gate loosely here, match exactly in the handler
       filter: {
-        id: [virtualModuleId, routeModuleFilter],
+        id: [virtualModuleId, routeFilter],
       },
       handler(id) {
         if (id === virtualModuleId)
           return id
 
-        /* v8 ignore else -- @preserve */
-        if (routeModuleFilter.test(id))
+        if (routeModuleFilter.test(withoutBase(id)))
           return routeModuleId
       },
     },

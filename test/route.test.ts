@@ -127,11 +127,12 @@ describe('route with custom base', { sequential: true }, () => {
       ],
     })
     await server.listen()
-    const baseUrl = server.resolvedUrls!.local[0].replace(/\/$/, '')
-    await page.goto(`${baseUrl}/app/__spritemap`)
+    // `resolvedUrls` already carries the base; doubling it lands on the html
+    // fallback, whose markup also holds an `<svg>`
+    await page.goto(`${server.resolvedUrls!.local[0]}__spritemap`)
 
     const result = await page.content()
-    expect(result).toContain('<svg')
+    expect(result).toContain('<symbol')
 
     await page.close()
     await server.close()
@@ -169,17 +170,17 @@ describe('route with custom base', { sequential: true }, () => {
       plugins: [VitePluginSvgSpritemap(getPath('./fixtures/basic/svg/*.svg'), stylesOption)],
     })
     await server.listen()
-    const baseUrl = server.resolvedUrls!.local[0].replace(/\/$/, '')
     const devRoute = await readRoute()
     // dev still serves the spritemap behind the base
-    const served = await fetch(`${baseUrl}${base}__spritemap`)
+    const served = await fetch(`${server.resolvedUrls!.local[0]}__spritemap`)
     const servedBody = await served.text()
     await server.close()
     await fs.rm(filename, { force: true })
 
     expect(buildRoute).toBe('/__spritemap')
     expect(devRoute).toBe('/__spritemap')
-    expect(servedBody).toContain('<svg')
+    expect(served.headers.get('content-type')).toBe('image/svg+xml')
+    expect(servedBody).toContain('<symbol')
   })
 
   // Regression for #102 (Case 1): a raw absolute `/__spritemap` reference must
@@ -344,8 +345,7 @@ describe('route with custom base', { sequential: true }, () => {
       plugins: [VitePluginSvgSpritemap(getPath('./fixtures/basic/svg/*.svg'))],
     })
     await server.listen()
-    const baseUrl = server.resolvedUrls!.local[0].replace(/\/$/, '')
-    await page.goto(`${baseUrl}${base}`)
+    await page.goto(server.resolvedUrls!.local[0])
 
     const href = await page.getAttribute('svg use', 'xlink:href')
     expect(href).toMatch(/^\/build-website\/__spritemap__[^#]+#sprite-vite$/)

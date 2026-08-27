@@ -18,6 +18,14 @@ import ViteView from './../_fixtures/icons/vite.svg?view'
   </div>
 
   <div class="example">
+    <h2>Spritemap with &lt;use> written by hand (#138)</h2>
+
+    <div class="example__svgs">
+      <svg class="icon"><use xlink:href="/__spritemap#icon-vite" /></svg>
+    </div>
+  </div>
+
+  <div class="example">
     <h2>Spritemap with &lt;img> (fragments) via Vue component</h2>
 
     <div class="example__svgs">

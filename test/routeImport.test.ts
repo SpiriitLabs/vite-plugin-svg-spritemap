@@ -20,7 +20,7 @@ const MODULE_ID = createRouteModuleId(ROUTE)
 // to resolve import" and build with "Rollup failed to resolve import" (#54).
 describe('route as an import specifier', () => {
   describe('dev', () => {
-    async function devPlugins(route?: string) {
+    async function devPlugins({ route, base = '/' }: { route?: string, base?: string } = {}) {
       const plugins = VitePluginSvgSpritemap(
         getPath('./fixtures/basic/svg/*.svg'),
         { svgo: false, oxvg: false, styles: false, types: false, ...(route && { route }) },
@@ -33,7 +33,7 @@ describe('route as an import specifier', () => {
         root: getPath('./fixtures/basic'),
         logger: createLogger('silent'),
         command: 'serve',
-        base: '/',
+        base,
       } as unknown as ResolvedConfig
 
       await handlerOf(common.configResolved).call(undefined as never, config as never)
@@ -67,7 +67,7 @@ describe('route as an import specifier', () => {
     })
 
     it('only claims its own route when several instances run', async () => {
-      const dev = await devPlugins('/__flags')
+      const dev = await devPlugins({ route: '/__flags' })
       const flagsId = createRouteModuleId('/__flags')
       expect(handlerOf(dev.resolveId).call(undefined as never, '/__flags' as never)).toBe(flagsId)
       // a sibling sharing the prefix is a different instance's route
@@ -94,6 +94,99 @@ describe('route as an import specifier', () => {
 
       expect(importer?.code).toContain(MODULE_ID)
       expect(url?.code).toMatch(/export default "\/__spritemap__[a-f0-9]+"/)
+    })
+
+    // `transform` writes the base-prefixed url, which only Vite strips back off
+    // before resolving: Nuxt answered a raw template reference with "Failed to
+    // load url /_nuxt/__spritemap__<hash>" (#138)
+    describe('under a non-root base', () => {
+      const BASE = '/build-website/'
+      const BASED_ROUTE = `${BASE.slice(0, -1)}${ROUTE}`
+
+      // every spelling collapses onto one id, so the module graph keeps one entry
+      it('resolves the base-prefixed specifier the ssr loader passes on', async () => {
+        const dev = await devPlugins({ base: BASE })
+        for (const id of [BASED_ROUTE, `${BASED_ROUTE}__a1b2c3`, ROUTE, `${ROUTE}__a1b2c3`])
+          expect(handlerOf(dev.resolveId).call(undefined as never, id as never)).toBe(MODULE_ID)
+        expect(MODULE_ID).not.toContain('build-website')
+      })
+
+      it('exports the base-aware, hashed url as a string', async () => {
+        const dev = await devPlugins({ base: BASE })
+        const code = handlerOf(dev.load).call(undefined as never, MODULE_ID as never) as string
+        expect(code).toMatch(/^export default "\/build-website\/__spritemap__[a-f0-9]+"$/)
+      })
+
+      it('only claims its own base-prefixed route when several instances run', async () => {
+        const dev = await devPlugins({ route: '/__flags', base: BASE })
+        const flagsId = createRouteModuleId('/__flags')
+        expect(handlerOf(dev.resolveId).call(undefined as never, `${BASE}__flags` as never))
+          .toBe(flagsId)
+        // a sibling sharing the prefix is a different instance's route
+        expect(handlerOf(dev.resolveId).call(undefined as never, `${BASE}__flags-docs` as never))
+          .toBeUndefined()
+      })
+
+      // the loose filter lets these reach the handler, the matcher declines them
+      it('leaves an id that merely holds the route unresolved', async () => {
+        const dev = await devPlugins({ base: BASE })
+        const ids = [
+          `${ROUTE}/nested.png`,
+          `${BASED_ROUTE}/nested.png`,
+          `${ROUTE}#sprite-vite`,
+          `${BASED_ROUTE}?v=1`,
+          `src${ROUTE}`,
+          MODULE_ID, // holds the route, so the loose gate fires on it
+        ]
+        for (const id of ids)
+          expect(handlerOf(dev.resolveId).call(undefined as never, id as never)).toBeUndefined()
+      })
+
+      it('treats regex metacharacters in the route literally under a base', async () => {
+        const dev = await devPlugins({ route: '/icons.svg', base: BASE })
+        expect(handlerOf(dev.resolveId).call(undefined as never, `${BASE}icons.svg` as never))
+          .toBe(createRouteModuleId('/icons.svg'))
+        expect(handlerOf(dev.resolveId).call(undefined as never, `${BASE}iconsXsvg` as never))
+          .toBeUndefined()
+      })
+
+      // The reported failure without Nuxt: the ssr environment is reached the way
+      // vite-node reaches it, base still on the specifier
+      it('loads the base-prefixed specifier through the ssr environment', async () => {
+        const server = await createServer({
+          configFile: false,
+          logLevel: 'silent',
+          root: getPath('./fixtures/basic'),
+          base: BASE,
+          optimizeDeps: { noDiscovery: true },
+          server: { port: 5304 },
+          plugins: [VitePluginSvgSpritemap(getPath('./fixtures/basic/svg/*.svg'), {
+            styles: false,
+            types: false,
+          })],
+        })
+        await server.listen()
+        // a hash the server never wrote, what a stale importer holds
+        const specifier = `${BASED_ROUTE}__a1b2c3`
+        const resolved = await server.environments.ssr.pluginContainer.resolveId(specifier)
+        const loaded = await server.ssrLoadModule(specifier)
+        const client = await server.environments.client.pluginContainer.resolveId(specifier)
+        // ssr code never carries a base-prefixed id, so `load` needs no tolerance
+        const importer = await server.environments.ssr.transformRequest('/import-spritemap.js')
+        // the middleware is installed ahead of Vite's transform one, so it wins
+        const served = await fetch(`${server.resolvedUrls!.local[0]}__spritemap`)
+        const servedBody = await served.text()
+        await server.close()
+
+        expect(resolved?.id).toBe(MODULE_ID)
+        expect(client?.id).toBe(MODULE_ID)
+        expect(loaded.default).toMatch(/^\/build-website\/__spritemap__[a-f0-9]+$/)
+        expect(loaded.default).not.toContain('__a1b2c3')
+        expect(importer?.code).toContain(MODULE_ID)
+        expect(importer?.code).not.toContain(`${BASE}@vite-plugin-svg-spritemap`)
+        expect(served.headers.get('content-type')).toBe('image/svg+xml')
+        expect(servedBody).toContain('<symbol')
+      })
     })
   })
 

@@ -59,8 +59,9 @@ The components above are the recommended way, but you can also write the referen
 ```
 
 Vue's template compiler treats a URL in `use[href]` as an asset and turns it into an import, which
-the plugin resolves to the spritemap. No `transformAssetUrls` opt-out needed. You get no typed icon
-name and no `<title>` slot this way, so prefer `?use` unless you are porting existing markup.
+the plugin resolves to the spritemap. No `transformAssetUrls` opt-out needed. It works under a
+`base` and through server-side rendering too, Nuxt included. You get no typed icon name and no
+`<title>` slot this way, so prefer `?use` unless you are porting existing markup.
 
 ## TypeScript
 

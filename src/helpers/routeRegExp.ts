@@ -47,7 +47,7 @@ export function createRouteImportRegExp(routeUrl: string): RegExp {
 /**
  * Anchored RegExp matching an import specifier that is the route, or the
  * `__<hash>` form dev rewrites it to. A query or a fragment is excluded, the
- * resolved url cannot carry one
+ * resolved url cannot carry one, and has to be base-free (#138)
  */
 export function createRouteModuleRegExp(routeUrl: string): RegExp {
   return new RegExp(`^${DOT}${escapeRegExp(routeUrl)}${DEV_HASH}$`)
