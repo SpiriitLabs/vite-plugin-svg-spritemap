@@ -52,6 +52,29 @@ describe('createRouteRegExp', () => {
     expect(createRouteRegExp('/icons', buildOpts).test('/icons/foo.png')).toBe(false)
   })
 
+  // The mirror of the trailing boundary: a route must not start inside an
+  // identifier either. `virtual:spritemap/__flags` (#135) holds `/__flags`, and
+  // rewriting it there corrupted the specifier exactly as #97 did
+  it('does not match when it starts inside a longer identifier', () => {
+    const cases = [
+      ['/__flags', 'virtual:spritemap/__flags'],
+      [ROUTE, `src${ROUTE}`],
+      [ROUTE, `assets${ROUTE}`],
+      ['/icons', 'my/icons'],
+    ]
+    for (const [route, input] of cases) {
+      expect(createRouteRegExp(route).test(input)).toBe(false)
+      expect(createRouteRegExp(route, buildOpts).test(input)).toBe(false)
+      expect(input.replace(createRouteRegExp(route, buildOpts), 'X')).toBe(input)
+    }
+  })
+
+  // Guard: the delimiters a real reference actually sits behind still match
+  it('still matches a reference behind any real delimiter', () => {
+    for (const before of ['"', '\'', '(', '=', ' ', '', '}'])
+      expect(createRouteRegExp(ROUTE).test(`${before}${ROUTE}`)).toBe(true)
+  })
+
   it('does not match the already-hashed dev route', () => {
     expect(createRouteRegExp(ROUTE).test(`${ROUTE}__a1b2c3`)).toBe(false)
   })

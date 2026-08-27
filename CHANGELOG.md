@@ -20,6 +20,10 @@ so early releases summarise the most user-facing changes rather than every commi
   resolves as an import, to a module exporting the spritemap URL, so no
   `transformAssetUrls` opt-out or `v-bind` workaround is needed. Any framework
   whose compiler treats a markup URL as an import gets the same fix ([#136]).
+- A route reference was rewritten even when it started in the middle of a longer
+  identifier, so a string like `src/__spritemap` was corrupted into the emitted
+  asset path. [#97] added a boundary after a reference; this adds the mirror
+  before it, which is the rule `resolveId` already applied.
 - That same raw route reference still broke under Nuxt, where `nuxt dev`
   answered it with a 500,
   `Failed to load url /_nuxt/__spritemap__<hash>`. The dev server rewrites a

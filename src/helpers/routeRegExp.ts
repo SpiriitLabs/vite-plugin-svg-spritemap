@@ -12,6 +12,8 @@ const QUERY_OR_FRAGMENT = String.raw`(?:[#?]\S*)?`
 const DEV_HASH = String.raw`(?:__[\w-]+)?`
 // A reference can't continue into a path segment or identifier (#97)
 const BOUNDARY = String.raw`(?![\w\-/])`
+// ...nor start inside one: `virtual:spritemap/__flags` holds `/__flags`
+const LEADING_BOUNDARY = String.raw`(?<![\w\-])`
 
 interface RouteRegExpOptions {
   /**
@@ -33,7 +35,7 @@ interface RouteRegExpOptions {
  */
 export function createRouteRegExp(routeUrl: string, { dot = true, numbered = true }: RouteRegExpOptions = {}): RegExp {
   const route = (dot ? DOT : '') + escapeRegExp(routeUrl)
-  return new RegExp(route + (numbered ? LEGACY_HASH : '') + BOUNDARY, 'g')
+  return new RegExp(LEADING_BOUNDARY + route + (numbered ? LEGACY_HASH : '') + BOUNDARY, 'g')
 }
 
 /**
