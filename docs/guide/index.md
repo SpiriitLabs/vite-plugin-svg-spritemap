@@ -112,7 +112,7 @@ The three methods above write the route in your source, and the plugin rewrites 
 ```js
 import spritemap from 'virtual:spritemap'
 
-element.innerHTML = `<svg><use xlink:href="${spritemap.href('spiriit')}"></use></svg>`
+useElement.setAttribute('href', spritemap.href('spiriit'))
 ```
 
 This is what a component library, a workspace sibling or a framework with no loader of its own should use. See [virtual:spritemap](/guide/virtual-spritemap).

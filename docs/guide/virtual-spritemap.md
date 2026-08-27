@@ -7,7 +7,7 @@ Every example in [Getting started](/guide/) writes the route by hand, `/__sprite
 ```js
 import spritemap from 'virtual:spritemap'
 
-element.innerHTML = `<svg><use xlink:href="${spritemap.href('vite')}"></use></svg>`
+useElement.setAttribute('href', spritemap.href('vite'))
 ```
 
 No route hardcoded, nothing to keep in sync with the config, and the same import works in dev, in build, under a [`base`](/guide/deployment) and through server-side rendering.
@@ -81,9 +81,11 @@ Building a reference at runtime, from a name you only know then:
 ```js
 import spritemap from 'virtual:spritemap'
 
+const SVG_NS = 'http://www.w3.org/2000/svg'
+
 function renderIcon(name) {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-  const use = document.createElementNS('http://www.w3.org/2000/svg', 'use')
+  const svg = document.createElementNS(SVG_NS, 'svg')
+  const use = document.createElementNS(SVG_NS, 'use')
   use.setAttribute('href', spritemap.href(name))
   svg.appendChild(use)
   return svg
@@ -92,6 +94,11 @@ function renderIcon(name) {
 // Every icon in the sprite, no list to maintain
 spritemap.icons.forEach(name => document.body.appendChild(renderIcon(name)))
 ```
+
+Set the attribute rather than building a markup string. An icon name is usually a
+literal or one of `spritemap.icons`, both of which come from your own filenames,
+but the moment a name arrives from data — a CMS field, a route param — string
+markup is an injection point and `setAttribute` is not.
 
 Editing an icon patches the sprite in place, with no page reload: the URL you already hold keeps working whatever hash it carries, because the dev server answers every one of them. Adding, removing or renaming an icon changes `icons`, so the module is regenerated and the page reloads with the new list.
 
@@ -154,10 +161,14 @@ export default {
 ```
 
 ```js
-// packages/ui/src/Icon.js
+// packages/ui/src/icon.js
 import spritemap from 'virtual:spritemap'
 
-export const icon = name => `<svg><use xlink:href="${spritemap.href(name)}"></use></svg>`
+export function icon(name) {
+  const use = document.createElementNS('http://www.w3.org/2000/svg', 'use')
+  use.setAttribute('href', spritemap.href(name))
+  return use
+}
 ```
 
 Two things to keep in mind:
