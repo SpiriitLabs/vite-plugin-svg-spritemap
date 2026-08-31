@@ -3,6 +3,8 @@
 @use "sass:meta";
 @use "sass:string";
 
+__data__
+
 $-__mixin__-entities: (
   ('&', '&amp;'),
   ('<', '&lt;')

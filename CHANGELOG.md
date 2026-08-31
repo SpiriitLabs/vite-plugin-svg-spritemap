@@ -43,6 +43,10 @@ so early releases summarise the most user-facing changes rather than every commi
 
 ### Fixed
 
+- The generated SCSS file declared its `@use "sass:*"` loads below the sprites map
+  instead of at the top, since the template is appended after the generated data.
+  Sass accepts that, so nothing broke, but the file did not read like a stylesheet
+  anyone would write. The loads are now hoisted above the data.
 - A raw route reference in a Vue template,
   `<use xlink:href="/__spritemap#sprite-name">`, broke the dev server with
   `Failed to resolve import "/__spritemap"`, and the build the same way against
