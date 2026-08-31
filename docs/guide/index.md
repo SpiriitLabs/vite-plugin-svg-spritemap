@@ -7,6 +7,7 @@ This ViteJS plugin generates a single SVG [spritemap](https://css-tricks.com/svg
 - 📦 Pack your SVG files in one ([spritemap](https://css-tricks.com/svg-sprites-use-better-icon-fonts/)) file
 - ✨ Use your SVG in an `<svg>` or `<img>` tags and also directly in your CSS/SCSS/Stylus/Less
 - 🍕 Import SVG fragment as VueJS components
+- 🔗 Reach the sprite from anywhere with [`virtual:spritemap`](/guide/virtual-spritemap)
 - 🎨 Theme an icon per usage with [variables](/guide/variables)
 - 🛡️ Generate [TypeScript types](/options/#types) for your icon names
 - 🔥 HMR support
@@ -104,6 +105,18 @@ When using `background-image` or `<img>` tags, always include the `-view` suffix
 This is because `<symbol>` elements (without `-view`) are designed for `<use>` tags only, while `<view>` elements (with `-view`) define a specific viewBox for fragment URLs. See [`output.view`](/options/output.html#output-view) for more details.
 :::
 
+### From JavaScript
+
+The three methods above write the route in your source, and the plugin rewrites it. When you need the URL as a value instead, import it:
+
+```js
+import spritemap from 'virtual:spritemap'
+
+useElement.setAttribute('href', spritemap.href('spiriit'))
+```
+
+This is what a component library, a workspace sibling or a framework with no loader of its own should use. See [virtual:spritemap](/guide/virtual-spritemap).
+
 ## Going further
 
 You can pass, as a second argument, an object with options allowing you to control the svg output. This plugin is trying to cover a maximum of use cases, so check the [options](/options/) for the full list.
@@ -116,6 +129,7 @@ Where to go next:
 
 And for the less common setups:
 
+- [JavaScript API](/guide/virtual-spritemap) to reach the sprite from JavaScript, another package or a monorepo
 - [Styles inside an icon](/guide/styles-inside-an-icon)
 - [Backend integration](/guide/backend-integration)
 - [Vue/Nuxt](/guide/vue)

@@ -4,7 +4,9 @@ import type { Options, Shared } from '@/types'
 import { relative } from 'node:path'
 import picomatch from 'picomatch'
 import { generateHMR } from '@/core/hmr'
-import { createRouteFilterRegExp, createRouteRegExp } from '@/helpers/routeRegExp'
+import { iconIds } from '@/helpers/icons'
+import { collectRouteNames, createSpritemapModuleData, createSpritemapModuleIds, createSpritemapModuleSource, parseVirtualSpritemapId, spritemapModuleKind, unknownVirtualSpritemapError, virtualSpritemapFilter, virtualSpritemapIds } from '@/helpers/routeModule'
+import { createRouteFilterRegExp, createRouteModuleRegExp, createRouteRegExp } from '@/helpers/routeRegExp'
 import { parseSvgQuery } from '@/helpers/svgQuery'
 
 const filterSVG = /\.svg$/
@@ -15,8 +17,15 @@ const filterRouteHash = /^__[\w-]+$/
 const filterBodyClose = /<\/body\s*>/i
 
 export default function DevPlugin(shared: Shared): Plugin {
+  let routeNames: string[] = []
   const virtualModuleId = '/@vite-plugin-svg-spritemap/client'
   const event = 'vite-plugin-svg-spritemap:update'
+  // Vue's `transformAssetUrls` turns a route reference into an import (#54)
+  const routeModuleFilter = createRouteModuleRegExp(shared.options.route.url)
+  // One module per shape a user can ask for; a raw route reference resolves to
+  // `moduleIds.url`, the one `?url` asks for, so that spelling still collapses
+  // onto a single id (#135)
+  const moduleIds = createSpritemapModuleIds(shared.options.route.url)
   // Match any module (CSS, JS, compiled Vue/JSX templates, …) that references
   // the raw route so user-authored `/__spritemap#…` usages are rewritten to
   // the base-aware url in dev, not just stylesheet `url()` declarations.
@@ -34,31 +43,89 @@ export default function DevPlugin(shared: Shared): Plugin {
     return suffix === '' || filterRouteHash.test(suffix)
   }
 
+  /**
+   * Vite strips `config.base` before resolving an import, but a consumer that
+   * resolves ids itself (vite-node, which Nuxt renders through) does not (#138)
+   */
+  function withoutBase(id: string): string {
+    const { routeUrl, routeUrlBase } = shared
+    return routeUrlBase !== routeUrl && id.startsWith(routeUrlBase)
+      ? routeUrl + id.slice(routeUrlBase.length)
+      : id
+  }
+
   return <Plugin>{
     name: 'vite-plugin-svg-spritemap:dev',
     apply: 'serve',
+    config() {
+      // The dep scanner resolves a dependency's imports through esbuild rather
+      // than the plugin container, so a package importing the id would be
+      // reported missing. `exclude` is read before that resolver runs (#135)
+      return {
+        optimizeDeps: {
+          // Only the ids this instance answers, and only the query-less
+          // spellings: `?url` / `?raw` are in Vite's own SPECIAL_QUERY_RE
+          exclude: virtualSpritemapIds(shared.options.route.name),
+        },
+      }
+    },
+    configResolved(config) {
+      routeNames = collectRouteNames(config.plugins, shared.options.route.name)
+    },
     resolveId: {
+      // `routeUrlBase` is only known at `configResolved`, after this filter is
+      // built: gate loosely here, match exactly in the handler
       filter: {
-        id: virtualModuleId,
+        id: [virtualModuleId, virtualSpritemapFilter, routeFilter],
       },
       handler(id) {
-        /* v8 ignore else -- @preserve */
         if (id === virtualModuleId)
           return id
+
+        const virtual = parseVirtualSpritemapId(id)
+        if (virtual) {
+          if (virtual.name === shared.options.route.name)
+            return moduleIds[virtual.kind]
+
+          // Another instance owns it; every instance reaches the same verdict,
+          // so whichever is asked first reports it once
+          if (!routeNames.includes(virtual.name))
+            this.error(unknownVirtualSpritemapError(id, routeNames))
+
+          return
+        }
+
+        if (routeModuleFilter.test(withoutBase(id)))
+          return moduleIds.url
       },
     },
     load: {
       filter: {
-        id: virtualModuleId,
+        id: [virtualModuleId, moduleIds.object, moduleIds.url, moduleIds.raw],
       },
       handler(id) {
+        /* v8 ignore if -- @preserve */
+        if (!shared.svgManager)
+          return
+
+        const svgManager = shared.svgManager
+        const kind = spritemapModuleKind(moduleIds, id)
+        if (kind) {
+          return createSpritemapModuleSource(kind, createSpritemapModuleData(
+            svgManager,
+            shared.options,
+            // Recomputed per load, so a stale importer still gets a served url
+            () => `${shared.routeUrlBase}__${svgManager.hash}`,
+          ))
+        }
+
         /* v8 ignore else -- @preserve */
-        if (shared.svgManager && id === virtualModuleId) {
+        if (id === virtualModuleId) {
           const optionsWithBase = {
             ...shared.options,
             route: { ...shared.options.route, url: shared.routeUrlBase },
           } satisfies Options
-          return generateHMR(event, shared.svgManager.spritemap, optionsWithBase)
+          return generateHMR(event, svgManager.spritemap, optionsWithBase)
         }
       },
     },
@@ -126,6 +193,10 @@ export default function DevPlugin(shared: Shared): Plugin {
       if (!picomatch.isMatch(relativePath, shared.svgManager.iconsPattern, matchOptions) && !picomatch.isMatch(absolutePath, shared.svgManager.iconsPattern, matchOptions))
         return
 
+      // `idify` reads the icon's content, so even a content edit can rename an
+      // id: the set has to be compared, not inferred from the event type
+      const iconsBefore = iconIds(shared.svgManager.svgs)
+
       if (type === 'delete' && shared.svgManager.has(file)) {
         await shared.svgManager.delete(file)
       }
@@ -149,7 +220,24 @@ export default function DevPlugin(shared: Shared): Plugin {
         } satisfies HMRUpdate,
       })
 
-      return []
+      // The client above only rewrites urls already in the DOM, so it cannot fix
+      // stale markup: the raw module always goes. The object module only goes
+      // when the icon set changed, since its other field, the url, is answered
+      // by the middleware whatever the hash it carries — the same reason the url
+      // module is never invalidated. Neither module is accepted by an importer,
+      // so returning one full-reloads the page, and an icon edit is meant to
+      // patch in place (#135)
+      const iconsAfter = iconIds(shared.svgManager.svgs)
+      const iconsChanged = iconsBefore.length !== iconsAfter.length
+        || iconsBefore.some((id, index) => id !== iconsAfter[index])
+
+      const stale = [...(iconsChanged ? [moduleIds.object] : []), moduleIds.raw]
+        .map(id => this.environment.moduleGraph.getModuleById(id))
+        .filter(module => typeof module !== 'undefined')
+
+      stale.forEach(module => this.environment.moduleGraph.invalidateModule(module))
+
+      return stale
     },
     transform: {
       filter: {

@@ -8,7 +8,67 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Entries prior to this file were reconstructed from git tags and commit history,
 so early releases summarise the most user-facing changes rather than every commit.
 
-## [7.2.0] - 2026-08-11
+## [7.3.0] - Unreleased
+
+### Added
+
+- `virtual:spritemap` reaches the spritemap from anywhere — a dependency or a
+  monorepo sibling included — with no route hardcoded:
+
+  ```js
+  import spritemap from 'virtual:spritemap'
+
+  el.setAttribute('xlink:href', spritemap.href('home'))
+  ```
+
+  It exports `{ url, name, prefix, icons, href }`. `url` is the URL the plugin
+  actually serves: `config.base` applied and the `__<hash>` cache-busting suffix
+  in dev, the emitted asset path in build. `icons` lists the icon ids, sorted and
+  unprefixed, so it matches the generated `Icons` type, and `href` applies the
+  configured `prefix` so no call site has to repeat it.
+
+  Two queries give strings instead, following Vite's own meanings:
+  `virtual:spritemap?url` for the URL alone, and `virtual:spritemap?raw` for the
+  spritemap SVG source (the markup `injectSvgOnDev` inlines). Importing `?raw` in
+  a build inlines that markup into the chunk while the asset file is still
+  emitted, so the sprite ships twice unless `output` is `false`.
+
+  An id always names one instance: `virtual:spritemap/<route name>`. The bare
+  `virtual:spritemap` is that same id for the default name `spritemap`, not a
+  "whichever instance" fallback, so what an import resolves to never depends on
+  how many instances are configured — adding one cannot change the meaning of an
+  import already written. An id naming no configured instance is an error
+  listing the ones that exist. Types ship in
+  `@spiriit/vite-plugin-svg-spritemap/client` ([#135]).
+
+### Fixed
+
+- The generated SCSS file declared its `@use "sass:*"` loads below the sprites map
+  instead of at the top, since the template is appended after the generated data.
+  Sass accepts that, so nothing broke, but the file did not read like a stylesheet
+  anyone would write. The loads are now hoisted above the data.
+- A raw route reference in a Vue template,
+  `<use xlink:href="/__spritemap#sprite-name">`, broke the dev server with
+  `Failed to resolve import "/__spritemap"`, and the build the same way against
+  the emitted asset path. Vue's template compiler turns an asset URL in
+  `use[href]` into a module import, which nothing resolved. The route now
+  resolves as an import, to a module exporting the spritemap URL, so no
+  `transformAssetUrls` opt-out or `v-bind` workaround is needed. Any framework
+  whose compiler treats a markup URL as an import gets the same fix ([#136]).
+- A route reference was rewritten even when it started in the middle of a longer
+  identifier, so a string like `src/__spritemap` was corrupted into the emitted
+  asset path. [#97] added a boundary after a reference; this adds the mirror
+  before it, which is the rule `resolveId` already applied.
+- That same raw route reference still broke under Nuxt, where `nuxt dev`
+  answered it with a 500,
+  `Failed to load url /_nuxt/__spritemap__<hash>`. The dev server rewrites a
+  route reference to the base-prefixed URL it serves, and Vite strips
+  `config.base` back off before resolving an import, so only the base-free form
+  ever reached the resolver. A consumer that resolves ids itself, which is how
+  Nuxt renders, hands the URL over base and all. Dev resolution no longer cares:
+  it takes the base off the specifier before matching the route ([#138]).
+
+## [7.2.0] - 2026-08-25
 
 ### Added
 
@@ -451,6 +511,7 @@ so early releases summarise the most user-facing changes rather than every commi
   matched by a glob, with optional SVGO optimization, stylesheet generation, and
   HMR in dev.
 
+[7.3.0]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/compare/v7.2.0...HEAD
 [7.2.0]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/compare/v7.1.1...v7.2.0
 [7.1.1]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/compare/v7.1.0...v7.1.1
 [7.1.0]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/compare/v7.0.1...v7.1.0
@@ -529,5 +590,8 @@ so early releases summarise the most user-facing changes rather than every commi
 [#130]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/130
 [#131]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/131
 [#132]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/132
+[#135]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/135
+[#136]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/136
+[#138]: https://github.com/SpiriitLabs/vite-plugin-svg-spritemap/issues/138
 [oxvg#264]: https://github.com/noahbald/oxvg/issues/264
 [svg-spritemap-webpack-plugin]: https://github.com/cascornelissen/svg-spritemap-webpack-plugin/blob/master/docs/variables.md

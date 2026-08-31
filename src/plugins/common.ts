@@ -3,6 +3,7 @@ import type { Plugin, ResolvedConfig } from 'vite'
 import type { Shared, UserOptionsLogs } from '@/types'
 import { SVGManager } from '@core/svgManager'
 import { log } from '@helpers/log'
+import { collectRouteNames, duplicateRouteNames, duplicateRouteNameWarning } from '@helpers/routeModule'
 
 export default function CommonPlugin(shared: Shared, iconsPattern: Glob, logsOptions: UserOptionsLogs): Plugin {
   let config: ResolvedConfig
@@ -10,9 +11,20 @@ export default function CommonPlugin(shared: Shared, iconsPattern: Glob, logsOpt
   return {
     name: 'vite-plugin-svg-spritemap:common',
     enforce: 'pre',
+    // How a sibling instance discovers this one, so a `virtual:spritemap/<name>`
+    // import naming none of them can list the ones that exist (#135)
+    api: {
+      routeName: shared.options.route.name,
+    },
     configResolved(_config) {
       config = _config
       logsOptions.warn.forEach(warn => log({ level: 'warn', message: warn, logger: config.logger }))
+
+      // Every instance reaches the same verdict, so warn from the one that owns
+      // a duplicated name rather than once per instance
+      const duplicates = duplicateRouteNames(collectRouteNames(_config.plugins, shared.options.route.name))
+      if (duplicates.includes(shared.options.route.name))
+        log({ level: 'warn', message: duplicateRouteNameWarning(duplicates), logger: config.logger })
 
       // Raw, base-agnostic route. Stays identical in dev and build so the
       // generated style/type artifacts are deterministic.

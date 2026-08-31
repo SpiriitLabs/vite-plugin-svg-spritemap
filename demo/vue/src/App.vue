@@ -1,8 +1,12 @@
 <script setup lang="ts">
+import spritemap from 'virtual:spritemap'
 import SpiriitUse from './../../_fixtures/icons/spiriit.svg?use'
 import SpiriitView from './../../_fixtures/icons/spiriit.svg?view'
 import ViteUse from './../../_fixtures/icons/vite.svg?use'
 import ViteView from './../../_fixtures/icons/vite.svg?view'
+
+// #135: `href` applies the configured prefix, so no route is written by hand
+const viteHref = spritemap.href('vite')
 </script>
 
 <template>
@@ -18,6 +22,14 @@ import ViteView from './../../_fixtures/icons/vite.svg?view'
         <title>My superb logo</title>
       </SpiriitUse>
       <ViteUse class="icon icon-vite" />
+    </div>
+  </div>
+
+  <div class="example">
+    <h2>Spritemap url from <code>virtual:spritemap</code> (#135)</h2>
+
+    <div class="example__svgs">
+      <svg class="icon icon-vite"><use :xlink:href="viteHref" /></svg>
     </div>
   </div>
 

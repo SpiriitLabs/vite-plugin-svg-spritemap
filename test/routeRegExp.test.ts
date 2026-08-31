@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   createRouteFilterRegExp,
   createRouteImportRegExp,
+  createRouteModuleRegExp,
   createRouteRegExp,
 } from '../src/helpers/routeRegExp'
 import { buildVite } from './helpers/build'
@@ -49,6 +50,29 @@ describe('createRouteRegExp', () => {
 
   it('does not match an asset nested under the route', () => {
     expect(createRouteRegExp('/icons', buildOpts).test('/icons/foo.png')).toBe(false)
+  })
+
+  // The mirror of the trailing boundary: a route must not start inside an
+  // identifier either. `virtual:spritemap/__flags` (#135) holds `/__flags`, and
+  // rewriting it there corrupted the specifier exactly as #97 did
+  it('does not match when it starts inside a longer identifier', () => {
+    const cases = [
+      ['/__flags', 'virtual:spritemap/__flags'],
+      [ROUTE, `src${ROUTE}`],
+      [ROUTE, `assets${ROUTE}`],
+      ['/icons', 'my/icons'],
+    ]
+    for (const [route, input] of cases) {
+      expect(createRouteRegExp(route).test(input)).toBe(false)
+      expect(createRouteRegExp(route, buildOpts).test(input)).toBe(false)
+      expect(input.replace(createRouteRegExp(route, buildOpts), 'X')).toBe(input)
+    }
+  })
+
+  // Guard: the delimiters a real reference actually sits behind still match
+  it('still matches a reference behind any real delimiter', () => {
+    for (const before of ['"', '\'', '(', '=', ' ', '', '}'])
+      expect(createRouteRegExp(ROUTE).test(`${before}${ROUTE}`)).toBe(true)
   })
 
   it('does not match the already-hashed dev route', () => {
@@ -125,6 +149,47 @@ describe('createRouteImportRegExp', () => {
   it('treats regex metacharacters in the route literally', () => {
     expect(createRouteImportRegExp('/icons.svg').test('/icons.svg')).toBe(true)
     expect(createRouteImportRegExp('/icons.svg').test('/iconsXsvg')).toBe(false)
+  })
+})
+
+describe('createRouteModuleRegExp', () => {
+  const moduleIds = [ROUTE, `.${ROUTE}`, `${ROUTE}__a1b2c3`, `${ROUTE}__1a2b3c4d`]
+  const lookalikeIds = [
+    `${ROUTE}-docs`,
+    `${ROUTE}x`,
+    `${ROUTE}/nested.png`,
+    `src${ROUTE}`,
+    'svelte/internal/flags/async',
+    'other-module',
+  ]
+
+  it('is not global, so repeated test() calls are stable', () => {
+    const re = createRouteModuleRegExp(ROUTE)
+    expect(re.global).toBe(false)
+    expect(re.test(ROUTE)).toBe(true)
+    expect(re.test(ROUTE)).toBe(true)
+  })
+
+  it('matches the route and the form the dev rewriting leaves behind', () => {
+    for (const id of moduleIds)
+      expect(createRouteModuleRegExp(ROUTE).test(id)).toBe(true)
+  })
+
+  it('rejects anything that merely contains the route', () => {
+    for (const id of lookalikeIds)
+      expect(createRouteModuleRegExp(ROUTE).test(id)).toBe(false)
+  })
+
+  // A url cannot carry one, so such a specifier is left to the existing paths
+  // rather than silently resolved to a module that drops it
+  it('rejects a specifier carrying a query or a fragment', () => {
+    expect(createRouteModuleRegExp(ROUTE).test(`${ROUTE}#sprite-vite`)).toBe(false)
+    expect(createRouteModuleRegExp(ROUTE).test(`${ROUTE}?v=1`)).toBe(false)
+  })
+
+  it('treats regex metacharacters in the route literally', () => {
+    expect(createRouteModuleRegExp('/icons.svg').test('/icons.svg')).toBe(true)
+    expect(createRouteModuleRegExp('/icons.svg').test('/iconsXsvg')).toBe(false)
   })
 })
 

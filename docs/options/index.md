@@ -281,9 +281,11 @@ You can also provide an object with the `url` and `name` properties. This is use
 // Example route object
 const route = {
   url: '/__flags',
-  name: 'Flags',
+  name: 'flags',
 }
 ```
+
+`name` defaults to the URL without its leading slash, and defaults to `spritemap` when the option is left alone. It also names the instance's module: `virtual:spritemap/<name>`, the bare `virtual:spritemap` being the id of the instance named `spritemap`. See [virtual:spritemap](/guide/virtual-spritemap#choosing-an-instance).
 
 On build, a reference to this route is rewritten to the emitted asset URL, following Vite's `base`. See [Deployment](/guide/deployment).
 

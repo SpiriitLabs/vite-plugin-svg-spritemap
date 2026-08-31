@@ -8,8 +8,12 @@ function escapeRegExp(text: string): string {
 const DOT = String.raw`\.?`
 const LEGACY_HASH = String.raw`(?:-\d*)?`
 const QUERY_OR_FRAGMENT = String.raw`(?:[#?]\S*)?`
+// The cache-busting suffix the dev server appends to the route
+const DEV_HASH = String.raw`(?:__[\w-]+)?`
 // A reference can't continue into a path segment or identifier (#97)
 const BOUNDARY = String.raw`(?![\w\-/])`
+// ...nor start inside one: `virtual:spritemap/__flags` holds `/__flags`
+const LEADING_BOUNDARY = String.raw`(?<![\w\-])`
 
 interface RouteRegExpOptions {
   /**
@@ -31,7 +35,7 @@ interface RouteRegExpOptions {
  */
 export function createRouteRegExp(routeUrl: string, { dot = true, numbered = true }: RouteRegExpOptions = {}): RegExp {
   const route = (dot ? DOT : '') + escapeRegExp(routeUrl)
-  return new RegExp(route + (numbered ? LEGACY_HASH : '') + BOUNDARY, 'g')
+  return new RegExp(LEADING_BOUNDARY + route + (numbered ? LEGACY_HASH : '') + BOUNDARY, 'g')
 }
 
 /**
@@ -40,6 +44,15 @@ export function createRouteRegExp(routeUrl: string, { dot = true, numbered = tru
  */
 export function createRouteImportRegExp(routeUrl: string): RegExp {
   return new RegExp(`^${DOT}${escapeRegExp(routeUrl)}${QUERY_OR_FRAGMENT}$`)
+}
+
+/**
+ * Anchored RegExp matching an import specifier that is the route, or the
+ * `__<hash>` form dev rewrites it to. A query or a fragment is excluded, the
+ * resolved url cannot carry one, and has to be base-free (#138)
+ */
+export function createRouteModuleRegExp(routeUrl: string): RegExp {
+  return new RegExp(`^${DOT}${escapeRegExp(routeUrl)}${DEV_HASH}$`)
 }
 
 /**

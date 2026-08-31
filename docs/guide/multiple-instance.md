@@ -16,4 +16,6 @@ export default {
 }
 ```
 
+Each instance also gets its own module: `virtual:spritemap` for the first one above and `virtual:spritemap/__flags` for the second, named after [`route.name`](/options/#route). See [virtual:spritemap](/guide/virtual-spritemap#choosing-an-instance).
+
 If you are using Sass, Less or Stylus: you can optimize the style file export by only generating one mixin on one instance with [`styles.include`](/options/styles.html#styles-include) set to `['data']` and/or use the `styles.names` object.
